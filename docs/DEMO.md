@@ -15,8 +15,8 @@
 
 | Temps | Contenu | Qui | Ce qu'on voit |
 | --- | --- | --- | --- |
-| 0:00–0:20 | Le problème, une personne précise | H1 | Écran titre simple (image, pas slide) |
-| 0:20–0:35 | L'avant, ce que ça coûte | H1 | Une capture de l'ancien workflow |
+| 0:00–0:20 | Le problème, une personne précise | H1 | Le produit à l'écran, pas de deck |
+| 0:20–0:35 | L'avant, ce que ça coûte | H1 | Une capture ou une phrase, pas un deck |
 | 0:35–2:05 | **Démo live**, un seul flux | H3 | L'écran réel, pas de montage |
 | 2:05–2:25 | Nouveauté + ce qui est réutilisé | H2 | Une phrase, pas un diagramme |
 | 2:25–2:40 | Impact, qui d'autre, échelle | H1 | Un chiffre crédible ou une citation |
