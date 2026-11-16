@@ -13,7 +13,7 @@
 | Une **limite hebdomadaire** couvre tous les modèles, avec une **limite séparée pour Fable**. Fable peut utiliser jusqu'à **50 %** de la limite hebdo et consomme plus vite. | Fable est réservé aux décisions à fort enjeu (voir « Modèles »). |
 | Claude Code **partage** les limites avec claude.ai. | Pas de longues discussions sur claude.ai pendant les 24 h : ça mange le budget de code. |
 | Les limites se remettent à zéro **une fois par semaine** (date visible dans Settings > Usage). | Arriver à H0 avec un maximum de marge ; un reset pendant le hack est un bonus. |
-| Si `ANTHROPIC_API_KEY` est définie dans le shell, Claude Code utilise **la clé API** au lieu de l'abonnement. | Facturation API par erreur. La variable est renommée `APP_ANTHROPIC_API_KEY` ; `doctor.sh`, `ralph-once.sh` et `afk-ralph.sh` refusent de tourner si elle est présente. |
+| Si `ANTHROPIC_API_KEY` est définie dans le shell, Claude Code utilise **la clé API** au lieu de l'abonnement. En mode `-p` (AFK/Ralph), elle est utilisée **systématiquement** si elle existe. | Facturation API par erreur. La variable est renommée `APP_ANTHROPIC_API_KEY` ; `doctor.sh`, `ralph-once.sh` et `afk-ralph.sh` refusent de tourner si elle est présente. |
 | Ultra inclut **200 $/mois de crédits API** (Console). | Les utiliser pour les appels IA **de l'application** (clé dans `.env` sous `APP_ANTHROPIC_API_KEY`) ou l'Agent SDK avec clé API, **pas** pour Claude Code interactif. |
 
 ## Qui pilote quoi
@@ -112,4 +112,5 @@ c'est un garde-fou contre la boucle folle, pas une facture.
 - [Claude Help Center — Fable sur votre plan](https://support.claude.com/en/articles/15424964-claude-fable-models-on-your-plan)
 - [Claude Help Center — Claude Code avec un plan](https://support.claude.com/en/articles/11145838-use-claude-code-with-your-pro-max-or-ultra-plan)
 - [Claude Monitor — limites Ultra](https://claude-monitor.com/claude-ultra-plan-usage-limits)
+- [Claude Code — variables d'environnement](https://code.claude.com/docs/en/env-vars)
 - [Claude Code — coûts](https://code.claude.com/docs/en/costs)
