@@ -15,6 +15,23 @@ profonds et des garde-fous exécutables.
 - `./scripts/check.sh` et la CI échouent tant que la stack n'est pas initialisée.
   **C'est volontaire** : une base sans stack n'est pas une base prête.
 - Prochaine étape : choisir la stack (J-4) et déployer un hello world (J-4 au plus tard).
+- Dépôt distant : `git@github.com:zooldyyk/hackathon.git` (**privé**). Il devra être
+  **public** au moment de la soumission (le lien doit s'ouvrir sans login).
+
+## Reste à faire (état au 16/11)
+
+| Priorité | Tâche | Qui | Échéance |
+| --- | --- | --- | --- |
+| P0 | Ajouter les 3 membres au repo + protéger `main` (PR + CI) | H2 | J-4 |
+| P0 | Choisir la stack, bootstrap, hello world **déployé** | H2 | J-4 |
+| P0 | `./scripts/check.sh` et la CI verts | H2 | J-4 |
+| P1 | Installer les skills, tester les 7 agents, un worktree, un AFK | tous | J-3 |
+| P1 | Répétition de 2 h sur une idée bidon + 3 idées par humain | H1 | J-2 |
+| P1 | Clés/quotas, reçus de voyage, repo public, `doctor.sh` | H2 | J-1 |
+| H0 | Idée, DEMO.md, PRD.md, 8–12 tickets | tous | sam 21, 12:00 |
+
+> `./scripts/doctor.sh` échoue encore sur `no package.json` : c'est le seul bloquant
+> restant, et il disparaît dès que la stack est initialisée.
 
 ## Démarrage rapide
 
