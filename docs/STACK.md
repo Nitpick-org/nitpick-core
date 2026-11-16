@@ -118,14 +118,14 @@ DEMO_SEED=1
 # Data
 DATABASE_URL=
 
-# IA (une seule suffit)
+# AI (one key is enough)
 ANTHROPIC_API_KEY=
 OPENAI_API_KEY=
 
 # Auth (only if you cannot avoid it)
 AUTH_SECRET=
 
-# Sponsors / APIs externes
+# Sponsors / external APIs
 SPONSOR_API_KEY=
 ```
 
