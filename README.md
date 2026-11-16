@@ -27,6 +27,7 @@ profonds et des garde-fous exécutables.
 | P0 | `./scripts/check.sh` et la CI verts | H2 | J-4 |
 | P1 | Installer les skills, tester les 7 agents, un worktree, un AFK | tous | J-3 |
 | P1 | Répétition de 2 h sur une idée bidon + 3 idées par humain | H1 | J-2 |
+| P1 | Comptes Ultra vérifiés, reset hebdo noté, `/usage` ≥ 75 % | H2, H3 | J-1 |
 | P1 | Clés/quotas, reçus de voyage, repo public, `doctor.sh` | H2 | J-1 |
 | H0 | Idée, DEMO.md, PRD.md, 8–12 tickets | tous | sam 21, 12:00 |
 
@@ -41,6 +42,7 @@ git config core.hooksPath .githooks
 
 # 2. Environment variables
 cp .env.example .env      # fill in, never commit
+unset ANTHROPIC_API_KEY   # Claude Code must use your plan (docs/ULTRA.md)
 
 # 3. Readiness check
 ./scripts/doctor.sh
@@ -70,7 +72,7 @@ Détail : [docs/PRE-EVENT-CHECKLIST.md](./docs/PRE-EVENT-CHECKLIST.md).
 ```bash
 claude                                  # kickoff: /grill-with-docs, /to-spec, /to-tickets
 ./scripts/new-worktree.sh 12-login      # one worktree per ticket
-cd ../wt-12-login && claude             # one agent per worktree (2–3 per human max)
+cd ../wt-12-login && claude             # one agent per worktree (2–3 per human, more on Ultra)
 ./scripts/check.sh --demo               # before each PR
 AFK_OK=1 ./scripts/afk-ralph.sh 4       # bounded loop before a nap
 ```
@@ -86,6 +88,7 @@ AFK_OK=1 ./scripts/afk-ralph.sh 4       # bounded loop before a nap
 | `docs/RESEARCH-HACKATHON.md` | Synthèse des sources : ce qui fait gagner, ce qui fait perdre. |
 | `docs/PLAYBOOK.md` | Déroulé des 24 h, rôles, rituels, portes. |
 | `docs/AGENT-OPS.md` | 3 humains + agents : concurrency, briefs, coûts, sécurité. |
+| `docs/ULTRA.md` | Exploiter les 2 abonnements Claude Ultra : répartition, budget, Fable, AFK. |
 | `docs/GLOSSARY.md` | Le langage commun ; à remplir à H0. |
 | `docs/ARCHITECTURE.md` | Modules profonds, interfaces, tickets parallèles. |
 | `docs/STACK.md` | Choisir la stack, bootstrap, déploiement, résilience de démo. |

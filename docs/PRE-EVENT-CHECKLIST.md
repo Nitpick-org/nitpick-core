@@ -13,6 +13,9 @@
 - [ ] Vérifier que les 3 ont Git, Node 22+, `gh`, `claude`, un éditeur.
 - [ ] Lancer `git config core.hooksPath .githooks` dans chaque clone.
 - [ ] Remplir `CLAUDE.md` : prénoms, rôles, phrase d'état.
+- [ ] Lire `docs/ULTRA.md` ; confirmer qui est sur Ultra (H2, H3 par défaut).
+- [ ] Comptes Ultra **vérifiés** : Settings > Usage, pas de barre « Current session ».
+- [ ] Noter le jour/heure du reset hebdomadaire de chaque compte Ultra.
 
 **Porte** : repo créé, rôles écrits, tout le monde a lu les docs.
 
@@ -52,7 +55,8 @@
 - [ ] Rechercher les sponsors 2026 et les challenges probables (`researcher`).
 - [ ] Préparer le formulaire de soumission : titre, descriptions, miniature, lien.
 - [ ] Préparer un script de vidéo de secours (2 min) et un dossier de captures.
-- [ ] Vérifier les quotas/plans API (Anthropic, DB, hébergement, sponsors).
+- [ ] Vérifier les quotas/plans API (DB, hébergement, sponsors) ; clé de l'app sur les crédits API Ultra (`APP_ANTHROPIC_API_KEY`).
+- [ ] Tests d'agents de la semaine : rester **sous 25 %** de la limite hebdo Ultra.
 - [ ] Décider qui note les challenges aux tech talks.
 
 **Porte** : la répétition tourne, les 3 idées sont écrites, les clés existent.
@@ -62,6 +66,8 @@
 - [ ] `./scripts/doctor.sh` sans échec.
 - [ ] Repo public, README à jour, `.env` ignoré, aucun secret dans l'historique.
 - [ ] Clés API créées, quotas vérifiés, cartes de secours.
+- [ ] `/usage` : **≥ 75 %** de la semaine disponible sur chaque compte Ultra ; `ANTHROPIC_API_KEY` absente du shell.
+- [ ] Décider l'usage payant après limite (Q-004).
 - [ ] Matériel : laptop, chargeur, adaptateur type J, ID, sac de couchage, gourde, habits.
 - [ ] Téléphones chargés, partage de connexion de secours, câbles.
 - [ ] Répétition finale de la démo de 3 min (sur l'idée bidon) : 3 passages.
@@ -90,6 +96,7 @@
 - [ ] Shifts de sommeil de 4 h : 22:00 H3, 02:00 H2, 06:00 H1.
 - [ ] Toujours 2 personnes éveillées ; pas de all-nighter.
 - [ ] AFK uniquement sur des tickets low-risk avec oracle (`check.sh`).
+- [ ] Un AFK par compte Ultra, lancé par H2/H3 avant leur shift ; machine branchée, `caffeinate`.
 - [ ] Aucune décision produit sans humain.
 - [ ] `main` reste verte ; pas de merge sans `check.sh --demo`.
 - [ ] Vidéo de secours (2 min) enregistrée avant 23:00.

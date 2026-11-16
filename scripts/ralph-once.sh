@@ -9,6 +9,12 @@
 # Safety: no push, no merge, no main, no secrets, one ticket per run.
 set -euo pipefail
 
+if [ -n "${ANTHROPIC_API_KEY:-}" ]; then
+  echo "❌ ANTHROPIC_API_KEY is set: Claude Code would bill the API instead of your plan."
+  echo "   Run: unset ANTHROPIC_API_KEY   (see docs/ULTRA.md)"
+  exit 1
+fi
+
 ROOT="$(git rev-parse --show-toplevel)"
 cd "$ROOT"
 
@@ -30,6 +36,15 @@ if [ -n "$TICKET" ]; then
   TASK="Travaille uniquement sur le ticket #$TICKET. Lis-le avec: gh issue view $TICKET (ou docs/TICKETS.md)."
 else
   TASK="Choisis le ticket non terminé le plus prioritaire. Utilise: gh issue list --label ticket --state open --limit 30 (ou docs/TICKETS.md). Priorise le risqué et les intégrations."
+fi
+
+MAX_TURNS="${RALPH_MAX_TURNS:-40}"
+BUDGET_USD="${RALPH_BUDGET_USD:-3}"
+case "$MAX_TURNS" in
+  ''|*[!0-9]*) echo "❌ RALPH_MAX_TURNS must be an integer."; exit 1 ;;
+esac
+if ! printf '%s' "$BUDGET_USD" | grep -Eq '^[0-9]+([.][0-9]+)?$'; then
+  echo "❌ RALPH_BUDGET_USD must be a number."; exit 1
 fi
 
 mkdir -p .ralph
@@ -54,7 +69,8 @@ set +e
 claude -p \
   --permission-mode acceptEdits \
   --permission-prompts none \
-  --max-budget-usd 3 \
+  --max-turns "$MAX_TURNS" \
+  --max-budget-usd "$BUDGET_USD" \
   "$PROMPT" 2>&1 | tee -a "$LOG"
 STATUS=${PIPESTATUS[0]}
 set -e

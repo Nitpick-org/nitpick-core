@@ -8,10 +8,12 @@
 | Rôle | Possède | Ses agents | Tranche seul sur |
 | --- | --- | --- | --- |
 | **H1 — Produit & Pitch** | PRD, DEMO.md, périmètre, fit challenge, test e2e | `researcher`, `devils-advocate`, `pitch` | Périmètre, ordre des tickets, narrative |
-| **H2 — Architecte & Intégration** | Interfaces, `main`, file de merge, CI, stack, DECISIONS | `architect`, `reviewer`, `implementer` | Structure du code, ce qui est mergé |
-| **H3 — Builder & Démo** | UI, intégrations risquées, déploiement, mocks, vidéo | `implementer`, `qa-demo` | Rendu visuel, plan B de démo |
+| **H2 — Architecte & Intégration** (**Ultra**) | Interfaces, `main`, file de merge, CI, stack, DECISIONS | `architect`, `reviewer`, `implementer` | Structure du code, ce qui est mergé |
+| **H3 — Builder & Démo** (**Ultra**) | UI, intégrations risquées, déploiement, mocks, vidéo | `implementer`, `qa-demo` | Rendu visuel, plan B de démo |
 
-Tout le monde code et relit. Les rôles disent **qui tranche**.
+Tout le monde code et relit. Les rôles disent **qui tranche**. H2/H3 portent les comptes
+Ultra : ils prennent les tâches gourmandes en tokens (recherche, QA, AFK), pas les décisions
+de H1. Détail : `docs/ULTRA.md`.
 
 ## Avant H0 (J-5 → J-1)
 
@@ -106,12 +108,12 @@ derrière une interface simple) et **tickets en tranches verticales**. Voir
 
 ## Rituels
 
-- **Sync toutes les 3 h** (10 min, debout) : mergé / bloqué / on coupe quoi.
-  À 15:00, 18:00, 21:00, 00:00, 07:00.
+- **Sync toutes les 3 h** (10 min, debout) : mergé / bloqué / on coupe quoi / `/usage`
+  des comptes Ultra. À 15:00, 18:00, 21:00, 00:00, 07:00.
 - **Revue de démo à 16:00, 22:00 et 09:00** : on joue la démo sur la preview.
   Visez **2:45**, pas 3:00 ; enregistrez une vidéo de secours de 2 min.
 - **Avant une sieste** (5 min) : état dans `progress.txt`, puis
-  `AFK_OK=1 ./scripts/afk-ralph.sh 4`.
+  `AFK_OK=1 ./scripts/afk-ralph.sh 4`. Un AFK par compte Ultra, lancé par son propriétaire.
 - **Désaccord** : un argument d'une phrase chacun, le propriétaire du domaine tranche,
   une ligne dans `DECISIONS.md`.
 - **Après chaque correction d'agent** : une ligne dans `CLAUDE.md` (« Leçons apprises »)
@@ -132,6 +134,7 @@ démo finale se joue sur la lucidité, pas sur l'héroïsme.
 - H2 dort 02:00–06:00 : H1/H3 font l'intégration de nuit ; H2 reprend le merge à 06:00.
 - H1 dort 06:00–10:00 : H2/H3 font l'intégration du matin ; H1 revient pour la répétition.
 - Micro-siestes de 20 min autorisées pour les éveillés.
+- Un AFK par compte Ultra, lancé par H2/H3 avant leur shift ; pas d'AFK sur le compte de H1.
 - Personne ne conduit la démo finale avec moins de 4 h de sommeil.
 - La zone de sommeil est accessible avec navettes ; prévoir 20 min de trajet.
 
@@ -157,13 +160,13 @@ Critères d'acceptation : <...>. Fini = check.sh vert + test + journal + commit.
 | Piège | Garde-fou |
 | --- | --- |
 | Périmètre trop large | Squelette à 16:00, coupe à 19:00 |
-| Trop d'agents | 6 sessions max, 1 principale + 1–2 subagents par humain |
+| Trop d'agents | 6 sessions max (8 avec Ultra, lecteurs en plus), 1 principale + 1–2 subagents par humain (2–3 sur Ultra) |
 | Agents qui s'écrasent | 1 ticket = 1 worktree = 1 zone de fichiers |
 | Contexte saturé | Sessions courtes, brief, `progress/<ticket>.md` |
 | Victoire déclarée trop tôt | `check.sh` + hook `Stop` + reviewer |
 | Code inexplicable au jury | Chaque humain comprend le cœur différenciant |
 | Démo fragile | Gel 09:30, mocks, vidéo, données seedées |
-| Quota épuisé | `/cost`, `--max-budget-usd`, AFK borné |
+| Quota épuisé | `/usage` à chaque sync, budget de `docs/ULTRA.md`, AFK borné, Fable à la main |
 | Soumission incomplète | Formulaire rempli à 23:00, soumis avant 12:00 |
 | Slides | Interdites : images/vidéos de secours uniquement |
 

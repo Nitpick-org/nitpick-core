@@ -76,6 +76,24 @@ if command -v gh >/dev/null 2>&1; then
 fi
 
 echo
+echo "── Claude plan ────────────────────────────────────────────"
+if [ -n "${ANTHROPIC_API_KEY:-}" ]; then
+  if [ "$IS_CI" = "true" ]; then
+    warn "ANTHROPIC_API_KEY set in CI (fine only if CI calls the API on purpose)"
+  else
+    fail "ANTHROPIC_API_KEY is set in this shell: Claude Code bills the API, not your plan (unset it; see docs/ULTRA.md)"
+  fi
+else
+  ok "ANTHROPIC_API_KEY not set (Claude Code uses your subscription)"
+fi
+if [ -f .env ] && grep -qE '^[[:space:]]*(export[[:space:]]+)?ANTHROPIC_API_KEY=' .env 2>/dev/null; then
+  fail ".env defines ANTHROPIC_API_KEY: rename it APP_ANTHROPIC_API_KEY"
+fi
+if [ "$IS_CI" != "true" ]; then
+  warn "manual: /usage shows ≥ 75 % weekly left and the account is verified (docs/ULTRA.md)"
+fi
+
+echo
 echo "── Stack ──────────────────────────────────────────────────"
 if [ -f package.json ]; then
   ok "package.json present"
@@ -127,7 +145,7 @@ fi
 
 echo
 echo "── Project docs ───────────────────────────────────────────"
-for doc in docs/PRD.md docs/DEMO.md docs/DECISIONS.md docs/QUESTIONS.md docs/LAUZHACK.md docs/STRATEGY.md docs/AGENT-OPS.md docs/STACK.md; do
+for doc in docs/PRD.md docs/DEMO.md docs/DECISIONS.md docs/QUESTIONS.md docs/LAUZHACK.md docs/STRATEGY.md docs/AGENT-OPS.md docs/ULTRA.md docs/STACK.md; do
   [ -f "$doc" ] && ok "$doc" || warn "$doc missing"
 done
 

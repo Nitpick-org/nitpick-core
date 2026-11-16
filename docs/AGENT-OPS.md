@@ -47,20 +47,22 @@ c'est à l'humain de décider ce qu'on en garde.
 
 ## Combien de sessions en parallèle ?
 
-| Phase | Écrivains | Lecteurs / QA | Total max | Porte |
-| --- | --- | --- | --- | --- |
-| Kickoff | 1 | 2 | 3 | PRD + DEMO gelés, squelette choisi |
-| Squelette | 2 | 2 | 4 | Démo bout en bout sur la preview |
-| Cœur | 2–3 | 3 | 5–6 | Le aha marche |
-| Durcissement | 1–2 | 2 | 3–4 | e2e vert, mocks en place |
-| Gel | 0 | 1 | 1 | Reviewer read-only |
+| Phase | Écrivains | Lecteurs / QA | Total max | Total Ultra | Porte |
+| --- | --- | --- | --- | --- | --- |
+| Kickoff | 1 | 2 | 3 | 4 | PRD + DEMO gelés, squelette choisi |
+| Squelette | 2 | 2 | 4 | 4 | Démo bout en bout sur la preview |
+| Cœur | 2–3 | 3 | 5–6 | 8 | Le aha marche |
+| Durcissement | 1–2 | 2 | 3–4 | 5 | e2e vert, mocks en place |
+| Gel | 0 | 1 | 1 | 2 | Reviewer + QA read-only |
 
-**Plafond réaliste : 6 sessions actives pour 3 humains.** Au-delà, la revue et les merges
+**Plafond réaliste : 6 sessions actives pour 3 humains** (8 avec les comptes Ultra, si les
+2 sessions en plus sont des lecteurs : voir `docs/ULTRA.md`). Au-delà, la revue et les merges
 deviennent le goulot, et les agents se marchent dessus. Chaque humain pilote **1 session
-principale + 1 à 2 subagents** maximum.
+principale + 1 à 2 subagents** maximum ; **2 à 3** pour H2/H3 sur Ultra.
 
 > Les « agent teams » de Claude Code sont expérimentales, plus coûteuses et sans isolation
-> worktree. Pour un hackathon de 24 h : **ne pas les activer**.
+> worktree. Pour un hackathon de 24 h : **ne pas les activer**, même sur Ultra (le coût
+> n'est plus le problème ; l'isolation et la revue, si).
 
 ## Les 4 modes
 
@@ -157,11 +159,17 @@ significatif à la fois. C'est pour ça qu'on plafonne à 6 sessions, pas 20.
 | `implementer` | inherit (souvent Sonnet) | Volume de code, feedback loops |
 | `qa-demo` | Sonnet | Exécution de tests, rapports |
 
-- Une session principale par humain. Les subagents coûtent des tokens **en plus**, pas
-  « gratuitement ».
-- `--max-budget-usd` sur chaque run AFK (le script le fait).
-- Vérifiez `/cost` à chaque sync. Si un agent brûle 20 $ pour un ticket, coupez.
-- Opus partout = budget brûlé et latence. Réservez-le aux décisions.
+- Claude Code tourne sur les **abonnements** (2 Ultra + celui de H1), pas sur une clé API.
+  `ANTHROPIC_API_KEY` ne doit **jamais** être définie dans le shell (`doctor.sh` le vérifie).
+- Une session principale par humain. Les subagents consomment la limite **hebdomadaire**
+  du compte qui les lance, en plus de la session principale.
+- `--max-turns` et `--max-budget-usd` sur chaque run (les scripts le font) : garde-fous
+  contre la boucle folle, pas une facture.
+- Vérifiez `/usage` à chaque sync et comparez au budget de `docs/ULTRA.md`.
+- Sessions principales de H2/H3 en Opus : Ultra le permet. **Fable** à la main (`/model`),
+  seulement pour les décisions à fort enjeu, jamais en AFK.
+- Les tâches gourmandes en tokens partent chez H2/H3 ; les décisions restent chez leur
+  propriétaire, quel que soit son plan.
 
 ## Sécurité
 
@@ -195,6 +203,9 @@ significatif à la fois. C'est pour ça qu'on plafonne à 6 sessions, pas 20.
 | « Done » sans `check.sh` | démo cassée | hook `Stop` + test |
 | AFK sur une décision produit | fonctionnalité inventée | humain uniquement |
 | Opus partout | budget, lenteur | routage par agent |
+| Fable par défaut | limite Fable vidée avant la nuit | Fable à la main, décisions clés |
+| `ANTHROPIC_API_KEY` dans le shell | facture API au lieu d'Ultra | `APP_ANTHROPIC_API_KEY` + `doctor.sh` |
+| Longues discussions sur claude.ai | même limite que Claude Code | brief + docs du repo |
 | Session longue « pour qu'il se souvienne » | compaction, règles perdues | repartir d'un brief + docs |
 | Agent teams « parce que c'est là » | expérimental, coûteux | subagents + worktrees |
 | Merge sans passer par la preview | `main` cassée | merge queue + e2e |
@@ -205,6 +216,7 @@ significatif à la fois. C'est pour ça qu'on plafonne à 6 sessions, pas 20.
 - [Claude Code — subagents](https://code.claude.com/docs/en/sub-agents) : contexte isolé, `isolation: worktree`, limites de concurrence.
 - [Claude Code — agent teams](https://code.claude.com/docs/en/agent-teams) : expérimental, coût, limites.
 - [Claude Code — worktrees](https://code.claude.com/docs/en/worktrees) : isolation, branches.
+- [Claude Help Center — plan Ultra](https://support.claude.com/en/articles/17728952) : 10× Pro, pas de limite de 5 h si vérifié, limite Fable séparée.
 - [Claude Code — coûts](https://code.claude.com/docs/en/costs) : multi-agent ≈ 15× les tokens d'un chat.
 - [Anthropic — multi-agent research system](https://www.anthropic.com/engineering/multi-agent-research-system) : parallélisme utile surtout pour la recherche.
 - [Addy Osmani — Code Agent Orchestra](https://addyosmani.com/blog/code-agent-orchestra/) : 3–10 agents sur un codebase connu, pas un greenfield.

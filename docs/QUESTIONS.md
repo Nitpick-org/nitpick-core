@@ -22,8 +22,9 @@
 | Q-001 | Quelle stack ? | Next.js / SvelteKit / Symfony+Turbo | celle que les 3 maîtrisent | H2 |
 | Q-002 | Quel challenge sponsor viser ? | aucun / 1 / 2 | 1 principal, annoncé aux tech talks | H1 |
 | Q-003 | Qui tient le formulaire de soumission ? | H1 / H2 | H1, backup H2 | H1 |
-| Q-004 | Quel budget API max ? | 50 / 100 / 200 $ | à définir selon les plans | H2 |
+| Q-004 | Usage payant après la limite hebdo Ultra ? | non / oui plafonné 50 $ / oui 100 $ | non, sauf si un compte est à sec avant 23:00 | H2 |
 | Q-005 | Repo public dès maintenant ? | oui/non | oui, pas de secret dans l'historique | H2 |
+| Q-006 | Clé API de l'app : crédits Ultra ou autre ? | crédits Ultra / clé perso / sponsor | crédits Ultra (`APP_ANTHROPIC_API_KEY`) | H2 |
 
 ## Règles
 
