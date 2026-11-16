@@ -12,6 +12,7 @@ Ensuite, selon la tâche :
 - recherche sourcée sur les hackathons : [docs/RESEARCH-HACKATHON.md](./docs/RESEARCH-HACKATHON.md)
 - rôles, agents, parallélisme, coûts : [docs/AGENT-OPS.md](./docs/AGENT-OPS.md)
 - comptes Ultra, budgets, Fable : [docs/ULTRA.md](./docs/ULTRA.md)
+- routage des modèles, escalade : [docs/MODEL-ROUTING.md](./docs/MODEL-ROUTING.md)
 - architecture et tickets : [docs/ARCHITECTURE.md](./docs/ARCHITECTURE.md)
 - vocabulaire commun : [docs/GLOSSARY.md](./docs/GLOSSARY.md)
 - stack, scripts, déploiement : [docs/STACK.md](./docs/STACK.md)

@@ -86,17 +86,19 @@ Puis, une fois par repo, dans une session :
 ```
 
 Vérifie que les skills `/grill-with-docs`, `/to-spec`, `/to-tickets`, `/implement`, `/tdd`,
-`/code-review` sont disponibles.
+`/code-review` sont disponibles. Le repo fournit aussi le skill local **`/route-task`**
+(choisir l'agent et le modèle avant de déléguer).
 
 ## 5. Lire avant de toucher au code
 
 1. `CLAUDE.md` — le contrat d'équipe.
 2. `docs/LAUZHACK.md` — l'événement, les règles, le jury.
 3. `docs/ULTRA.md` — les comptes, les budgets, Fable.
-4. `docs/STRATEGY.md` — choisir l'idée, la démo.
-5. `docs/PLAYBOOK.md` — les 24 h.
-6. `docs/AGENT-OPS.md` — qui fait quoi avec les agents.
-7. `docs/ARCHITECTURE.md` — les modules et les tickets.
+4. `docs/MODEL-ROUTING.md` — Haiku/Sonnet/Opus/Fable, escalade.
+5. `docs/STRATEGY.md` — choisir l'idée, la démo.
+6. `docs/PLAYBOOK.md` — les 24 h.
+7. `docs/AGENT-OPS.md` — qui fait quoi avec les agents.
+8. `docs/ARCHITECTURE.md` — les modules et les tickets.
 
 ## 6. Vérifier le repo
 
@@ -107,7 +109,7 @@ claude
 
 - `doctor.sh` doit afficher **un seul échec** : `no package.json`. C'est normal tant que la
   stack n'est pas choisie. Tout le reste doit être vert ou warning.
-- Dans Claude, demande « liste les sous-agents du projet » : les 7 agents de
+- Dans Claude, demande « liste les sous-agents du projet » : les 8 agents de
   `.claude/agents/` doivent apparaître.
 - Les scripts sont exécutables. Si `Permission denied` :
   `chmod +x scripts/*.sh .githooks/pre-commit`.
@@ -162,6 +164,6 @@ suppression.
 - [ ] `ANTHROPIC_API_KEY` absente du shell.
 - [ ] Skills installés, `/setup-matt-pocock-skills` passé.
 - [ ] `doctor.sh` : un seul échec, `no package.json`.
-- [ ] 7 agents visibles.
+- [ ] 8 agents visibles.
 - [ ] `CLAUDE.md`, `LAUZHACK.md`, `ULTRA.md`, `PLAYBOOK.md` lus.
 - [ ] Dry run planifié (2 h 30).

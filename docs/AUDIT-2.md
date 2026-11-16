@@ -28,6 +28,7 @@ est justement là pour ça.
 | 8 | `doctor.sh` ne vérifiait pas onboarding/dry run | Ajout des docs et du starter |
 | 9 | README sans section partage | Section « Partager avec les 2 autres » + liens |
 | 10 | Checklist J-5 disait « repo public » et « 3 membres » | Corrigé : repo privé, 2 invitations, public avant soumission |
+| 11 | Pas de routage modèle : la doc pouvait partir sur Opus | `docs/MODEL-ROUTING.md`, skill `/route-task`, agent `scribe` (Haiku docs) |
 
 ## Constats encore ouverts
 
@@ -40,7 +41,7 @@ est justement là pour ça.
 | 5 | P1 | `gh` n'est pas authentifié localement | `gh auth login` pour issues/PR/automatisation | H2 |
 | 6 | P1 | Pas de GitHub Project / labels | Créer le board et les labels `ticket`, `bug`, `demo`, `P0` | H1 |
 | 7 | P1 | Le dry run n'a pas encore été joué par les 3 humains | Le planifier à J-3 et remplir `dry-run/RETRO.md` | tous |
-| 8 | P1 | Pas de test réel des 7 agents | Le dry run est le test ; noter les frictions | tous |
+| 8 | P1 | Pas de test réel des 8 agents | Le dry run est le test ; noter les frictions | tous |
 | 9 | P2 | Le starter utilise `lint = tsc --noEmit` | Acceptable pour le dry run ; la vraie stack aura un vrai linter | H2 |
 | 10 | P2 | Le repo devra être public pour la soumission | Le rendre public à J-1, ou fournir un lien public | H2 |
 
@@ -48,19 +49,23 @@ est justement là pour ça.
 
 ### Ce qui est bon
 
-- 7 agents, un rôle clair, pas de doublon.
+- 8 agents, un rôle clair, pas de doublon ; `scribe` (Haiku) sort la doc des modèles chers.
 - `maxTurns` sur chaque agent, tools restrictifs pour les lecteurs, `disallowedTools` sur
   `reviewer`.
-- Modèle routé : Opus pour les décisions, Sonnet pour le volume, `implementer` en inherit.
+- Modèle routé : Opus pour les décisions, Sonnet pour le volume, Haiku pour la doc,
+  `implementer` en inherit (Opus sur H2/H3).
 - Hooks `Stop` et `PreToolUse` : pas de « done » sans `check.sh`, pas d'édition des docs
   pivots par un sous-agent.
 - Garde-fou `ANTHROPIC_API_KEY` dans `doctor.sh`, `ralph-once.sh`, `afk-ralph.sh`.
 - AFK borné par `--max-turns` et `--max-budget-usd`, avec variables d'environnement validées.
+- Routage documenté (`docs/MODEL-ROUTING.md`) + skill `/route-task` : escalation après
+  2 échecs, Fable manuel, jamais d'Opus pour un README.
 
 ### Ce qu'il ne faut pas faire
 
-- **Ajouter des agents écrivains.** Le goulot est la revue humaine ; 8 sessions, 3 écrivains
-  max. Ultra donne des lecteurs en plus, pas des mergeurs en plus.
+- **Ajouter des agents écrivains code.** Le goulot est la revue humaine ; 8 sessions,
+  3 écrivains code max. `scribe` est docs-only et ne compte pas dedans. Ultra donne des
+  lecteurs en plus, pas des mergeurs en plus.
 - **Activer les agent teams.** Expérimental, pas d'isolation worktree par coéquipier.
 - **Mettre Fable par défaut.** Limite séparée, consommation rapide, réservé aux décisions
   à fort enjeu.
@@ -80,6 +85,8 @@ est justement là pour ça.
   jamais pour écrire.
 5. **Un AFK par compte Ultra**, sur le shift de son propriétaire, avec un ticket low-risk
   et un oracle déterministe.
+6. **Router avant de déléguer** : `scribe`/Haiku pour la doc, Sonnet pour le standard,
+  Opus pour le critique ; escalader après 2 échecs, jamais Fable en automatique.
 
 ## Audit du dry run
 
@@ -112,7 +119,7 @@ est justement là pour ça.
 1. **Partager** : inviter les 2 autres, protéger `main`, vérifier les Actions.
 2. **Stack** : choisir, bootstrap, déployer, `check.sh` + CI verts.
 3. **Dry run** : le jouer à 3, remplir la rétro, corriger les 3 frictions.
-4. **Agents** : tester les 7 agents en réel, vérifier les hooks et le refus
+4. **Agents** : tester les 8 agents en réel, vérifier les hooks et le refus
    `ANTHROPIC_API_KEY`.
 5. **Event** : clés, reçus, repo public, `doctor.sh` sans échec, sommeil.
 
@@ -124,4 +131,4 @@ est justement là pour ça.
 - Vérification des faits Ultra contre les pages officielles (plan, crédits API, Fable,
   variables d'environnement Claude Code).
 - Limites : pas d'accès aux réglages GitHub (repo privé, `gh` non authentifié), pas de
-  session Claude Code réelle pour les 7 agents ; le dry run couvre ce point.
+  session Claude Code réelle pour les 8 agents ; le dry run couvre ce point.

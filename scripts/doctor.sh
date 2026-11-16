@@ -127,9 +127,15 @@ echo
 echo "── Agents ─────────────────────────────────────────────────"
 if [ -d .claude/agents ]; then
   COUNT="$(find .claude/agents -maxdepth 1 -name '*.md' | wc -l | tr -d ' ')"
-  [ "$COUNT" -ge 7 ] && ok "$COUNT project subagents" || warn "only $COUNT subagents (expected 7+)"
+  [ "$COUNT" -ge 8 ] && ok "$COUNT project subagents" || warn "only $COUNT subagents (expected 8+)"
 else
   fail ".claude/agents missing"
+fi
+
+if [ -f .claude/skills/route-task/SKILL.md ]; then
+  ok "route-task skill present"
+else
+  warn "route-task skill missing"
 fi
 
 if [ -f .claude/settings.json ]; then
@@ -145,7 +151,7 @@ fi
 
 echo
 echo "── Project docs ───────────────────────────────────────────"
-for doc in docs/PRD.md docs/DEMO.md docs/DECISIONS.md docs/QUESTIONS.md docs/LAUZHACK.md docs/STRATEGY.md docs/AGENT-OPS.md docs/ULTRA.md docs/STACK.md docs/ONBOARDING.md docs/DRY-RUN.md; do
+for doc in docs/PRD.md docs/DEMO.md docs/DECISIONS.md docs/QUESTIONS.md docs/LAUZHACK.md docs/STRATEGY.md docs/AGENT-OPS.md docs/ULTRA.md docs/MODEL-ROUTING.md docs/STACK.md docs/ONBOARDING.md docs/DRY-RUN.md; do
   [ -f "$doc" ] && ok "$doc" || warn "$doc missing"
 done
 

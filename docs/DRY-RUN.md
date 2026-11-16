@@ -110,6 +110,19 @@ rm -rf .worktrees
 | La démo tient-elle en 2:45 sans slides ? | Le format est-il compris ? |
 | Où sont les 10 minutes perdues ? | C'est le vrai gain à corriger. |
 
+## Routage (à tester)
+
+Avant chaque délégation, utilise `/route-task` et note la décision :
+
+- doc → `scribe` / Haiku (Sonnet si le texte doit être nuancé) ;
+- code standard → `implementer` / Sonnet ;
+- code critique → `implementer` / Opus ;
+- review code → `reviewer` / Opus ;
+- pitch/PRD → `pitch` / Opus.
+
+Si un ticket échoue 2 fois, relance le **même agent** avec le modèle supérieur et note
+`Escalations:` dans `progress/<ticket>.md`. Fable reste manuel.
+
 ## Ultra
 
 - H2 et H3 travaillent sur les comptes Ultra.
@@ -125,6 +138,8 @@ rm -rf .worktrees
 - [ ] `./scripts/check.sh --demo` vert.
 - [ ] Les 3 tickets sont mergés dans `dry-run/base`.
 - [ ] Au moins 4 agents utilisés (`architect`, `implementer`, `reviewer`, `qa-demo`).
+- [ ] Un doc a été écrit par `scribe` (Haiku), pas par Opus.
+- [ ] Une escalade a été journalisée si un ticket a échoué 2 fois.
 - [ ] La démo de 3 minutes passe 2 fois, sans slides.
 - [ ] `dry-run/RETRO.md` contient 3 correctifs concrets.
 - [ ] Aucun secret n'a été commité.

@@ -21,4 +21,5 @@ que la démo ne casse jamais sur scène.
 ## Règles
 - Ne corrige pas toi-même sauf demande explicite : tu risques de masquer le problème.
 - Ne teste pas seulement le happy path : la démo doit survivre au pire.
+- Si un bug bloquant résiste à 2 passes, demande une escalade Opus (ou un humain).
 - Ne lis jamais .env et ne mets aucun secret dans un rapport.

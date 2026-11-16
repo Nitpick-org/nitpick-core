@@ -33,11 +33,12 @@ humains : tu lis les mêmes fichiers, tu connais les mêmes contraintes, tu peux
 1. `CLAUDE.md` (ce fichier)
 2. `docs/LAUZHACK.md` (faits, règles, horaires)
 3. `docs/ULTRA.md` (capacité, budgets, Fable — H2/H3 surtout)
-4. `docs/PRD.md` et `docs/DEMO.md`
-5. `docs/DECISIONS.md`
-6. `docs/ARCHITECTURE.md` et `docs/GLOSSARY.md`
-7. `progress/<ticket>.md`
-8. `docs/RESEARCH.md` si la tâche touche une API externe
+4. `docs/MODEL-ROUTING.md` (choisir le modèle, escalader)
+5. `docs/PRD.md` et `docs/DEMO.md`
+6. `docs/DECISIONS.md`
+7. `docs/ARCHITECTURE.md` et `docs/GLOSSARY.md`
+8. `progress/<ticket>.md`
+9. `docs/RESEARCH.md` si la tâche touche une API externe
 
 ## Commandes
 
@@ -65,6 +66,8 @@ La stack sera choisie à J-4 (voir `docs/STACK.md`). Tant qu'il n'y a pas de `pa
 ## Façon de travailler
 
 - **Une seule tâche (ticket) à la fois.** Ne touche qu'aux fichiers du ticket.
+- **Cible tes lectures** : ticket, `progress/<ticket>.md`, fichiers du module. Ne relis pas
+  tout le repo à chaque tour ; utilise `Grep`/`Glob` pour trouver la ligne utile.
 - **Un ticket = un worktree = une zone de fichiers.** Pas deux agents dans le même checkout.
 - Avant de coder : liste tes questions. Si une réponse change le résultat, demande.
   Sinon, choisis, note ton hypothèse dans le commit et avance.
@@ -75,6 +78,11 @@ La stack sera choisie à J-4 (voir `docs/STACK.md`). Tant qu'il n'y a pas de `pa
 - Priorité : le chemin de démo d'abord, les intégrations risquées ensuite, le polish en dernier.
 - Tranches verticales : un ticket livre un comportement visible de bout en bout.
 - Si un ticket est trop gros, découpe-le et demande validation ; ne l'élargis pas en silence.
+- **Route le modèle avant de déléguer** : docs → `scribe` (Haiku), code standard → Sonnet,
+  critique → Opus, Fable manuel. Commence bas, escalade après 2 échecs. Détail :
+  `docs/MODEL-ROUTING.md` et `/route-task`.
+- **Escalade = nouvelle invocation** : si un agent demande Opus, relance-le avec le modèle
+  supérieur sur le même ticket. Ne relance pas 5 fois le même modèle avec un prompt plus long.
 
 ## Fichiers partagés
 
@@ -88,8 +96,9 @@ La stack sera choisie à J-4 (voir `docs/STACK.md`). Tant qu'il n'y a pas de `pa
 | `docs/RESEARCH.md` | `researcher` | une section par sujet |
 | `CLAUDE.md` | H2, aux syncs | lisent seulement |
 
-Un hook `PreToolUse` bloque l'édition de `PRD.md`, `DECISIONS.md`, `CLAUDE.md`, `progress.txt`
-et `.env` par un sous-agent. Un humain peut toujours éditer. Override explicite :
+Un hook `PreToolUse` bloque l'édition de `PRD.md`, `DECISIONS.md`, `STRATEGY.md`,
+`AGENT-OPS.md`, `ULTRA.md`, `MODEL-ROUTING.md`, `CLAUDE.md`, `progress.txt` et `.env` par
+un sous-agent. Un humain peut toujours éditer. Override explicite :
 `HACKATHON_ALLOW_PROTECTED=1`.
 
 ## Définition de « fini »

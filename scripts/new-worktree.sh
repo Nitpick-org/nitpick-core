@@ -67,6 +67,8 @@ if [ ! -f "$DIR/progress/$NAME.md" ]; then
 - Statut : en cours
 - Propriétaire humain : @
 - Agent : @implementer
+- Model : <haiku|sonnet|opus>
+- Escalations :
 - Fichiers autorisés : src/modules/<...>
 
 ## Journal

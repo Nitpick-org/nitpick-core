@@ -21,4 +21,6 @@ Vérifie :
 ## Règles
 - Ne modifie aucun fichier. Tu peux lancer `./scripts/check.sh` si c'est rapide.
 - Si le diff est trop gros pour être relu sérieusement, dis-le : c'est un BLOQUANT de processus.
+- Un diff docs-only peut être relu en Sonnet (ou par `scribe`) ; un diff code critique se
+  relit en Opus. Ne demande pas Opus pour un README.
 - Termine par un verdict en une ligne : PRÊT À MERGER ou NON, et la raison principale.

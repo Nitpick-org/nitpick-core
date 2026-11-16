@@ -13,7 +13,8 @@
 
 Tout le monde code et relit. Les rôles disent **qui tranche**. H2/H3 portent les comptes
 Ultra : ils prennent les tâches gourmandes en tokens (recherche, QA, AFK), pas les décisions
-de H1. Détail : `docs/ULTRA.md`.
+de H1. `scribe` (Haiku) est disponible pour tous pour la doc. Détail : `docs/ULTRA.md` et
+`docs/MODEL-ROUTING.md`.
 
 ## Avant H0 (J-5 → J-1)
 
@@ -21,7 +22,7 @@ de H1. Détail : `docs/ULTRA.md`.
 | --- | --- | --- |
 | J-5 (lun) | Lire `LAUZHACK.md` et `STRATEGY.md`, appel équipe 60 min, rôles, repo privé + invitations | Rôles + repo partagés |
 | J-4 (mar) | Choisir la stack, bootstrap, hello world déployé, CI verte | URL de preview qui répond |
-| J-3 (mer) | Installer skills, tester agents/worktree/AFK, faire le **dry run** (`docs/DRY-RUN.md`) | 7 agents visibles, dry run passé |
+| J-3 (mer) | Installer skills, tester agents/worktree/AFK, faire le **dry run** (`docs/DRY-RUN.md`) | 8 agents visibles, dry run passé |
 | J-2 (jeu) | Corriger les 3 frictions du dry run + 3 idées par humain | La boucle tourne sans friction bloquante |
 | J-1 (ven) | Shortlist de 3 idées, clés API, quotas, valises, sommeil | `doctor.sh` sans échec |
 
@@ -86,6 +87,9 @@ l'issue tracker, les labels et le dossier de docs).
 | Revue | `/code-review` | Standards + spec, en parallèle |
 | Debug | `/diagnosing-bugs` | Boucle de diagnostic |
 | Rétro | `/retro` | Améliorer le repo après une session |
+
+Skill local du repo : **`/route-task`** (dans `.claude/skills/`) — choisit l'agent et le
+modèle (Haiku/Sonnet/Opus) avant de déléguer, avec escalade après 2 échecs.
 
 > Les anciens noms `/to-prd` et `/to-issues` ne sont plus les noms actuels. Utilisez
 > `/to-spec` et `/to-tickets`.

@@ -27,7 +27,7 @@ profonds et des garde-fous exécutables.
 | P0 | Inviter les 2 autres au repo + protéger `main` (PR + CI) | H2 | J-4 |
 | P0 | Choisir la stack, bootstrap, hello world **déployé** | H2 | J-4 |
 | P0 | `./scripts/check.sh` et la CI verts | H2 | J-4 |
-| P1 | Installer les skills, tester les 7 agents, un worktree, un AFK | tous | J-3 |
+| P1 | Installer les skills, tester les 8 agents, un worktree, un AFK | tous | J-3 |
 | P1 | Faire le **dry run** de 2 h 30 sur un clone jetable | tous | J-3 |
 | P1 | Corriger les 3 frictions du dry run + 3 idées par humain | tous | J-2 |
 | P1 | Comptes Ultra vérifiés, reset hebdo noté, `/usage` ≥ 75 % | H2, H3 | J-1 |
@@ -55,7 +55,7 @@ claude plugin install mattpocock-skills@claude-plugins-official
 # then in a session: /setup-matt-pocock-skills
 ```
 
-Vérifier : `claude` puis « liste les sous-agents du projet » → les 7 agents de
+Vérifier : `claude` puis « liste les sous-agents du projet » → les 8 agents de
 `.claude/agents/` doivent apparaître.
 
 ## Partager avec les 2 autres
@@ -76,7 +76,7 @@ Vérifier : `claude` puis « liste les sous-agents du projet » → les 7 agents
 | --- | --- | --- |
 | **J-5 lun 16** | Lire les docs, appel équipe, rôles, repo GitHub public | Rôles + repo |
 | **J-4 mar 17** | Choisir la stack, hello world déployé, CI verte | URL de preview |
-| **J-3 mer 18** | Agents testés, worktree testé, `doctor.sh` | 7 agents, check.sh vert |
+| **J-3 mer 18** | Agents testés, worktree testé, `doctor.sh` | 8 agents, check.sh vert |
 | **J-2 jeu 19** | Répétition générale de 2 h sur une idée bidon | La boucle tourne |
 | **J-1 ven 20** | Shortlist de 3 idées, clés, quotas, valises, sommeil | `doctor.sh` sans échec |
 
@@ -106,6 +106,7 @@ AFK_OK=1 ./scripts/afk-ralph.sh 4       # bounded loop before a nap
 | `docs/PLAYBOOK.md` | Déroulé des 24 h, rôles, rituels, portes. |
 | `docs/AGENT-OPS.md` | 3 humains + agents : concurrency, briefs, coûts, sécurité. |
 | `docs/ULTRA.md` | Exploiter les 2 abonnements Claude Ultra : répartition, budget, Fable, AFK. |
+| `docs/MODEL-ROUTING.md` | Haiku/Sonnet/Opus/Fable, escalade, budgets. |
 | `docs/GLOSSARY.md` | Le langage commun ; à remplir à H0. |
 | `docs/ARCHITECTURE.md` | Modules profonds, interfaces, tickets parallèles. |
 | `docs/STACK.md` | Choisir la stack, bootstrap, déploiement, résilience de démo. |
@@ -120,7 +121,8 @@ AFK_OK=1 ./scripts/afk-ralph.sh 4       # bounded loop before a nap
 | `docs/AUDIT-2.md` | Deuxième audit : partage, dry run, agents Ultra. |
 | `progress.txt` | Synthèse tenue par l'intégrateur. |
 | `progress/<ticket>.md` | Journal par ticket, sans conflit. |
-| `.claude/agents/` | 7 subagents : `researcher`, `devils-advocate`, `architect`, `implementer`, `reviewer`, `qa-demo`, `pitch`. |
+| `.claude/agents/` | 8 subagents : `researcher`, `devils-advocate`, `architect`, `implementer`, `reviewer`, `qa-demo`, `pitch`, `scribe`. |
+| `.claude/skills/` | Skill `/route-task` : choisir l'agent et le modèle avant de déléguer. |
 | `.claude/settings.json` | Permissions, hooks, limites de concurrence. |
 | `scripts/check.sh` | Typecheck + lint + tests (+ e2e avec `--demo`). |
 | `scripts/doctor.sh` | Readiness check. |

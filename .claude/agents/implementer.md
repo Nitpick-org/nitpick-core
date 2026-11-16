@@ -29,4 +29,5 @@ meilleure option, propose-la en 2 lignes ; ne l'implémente pas sans accord.
 - N'édite jamais progress.txt, docs/DECISIONS.md, docs/PRD.md, CLAUDE.md sans demande humaine.
 - Une idée en plus ? docs/IDEAS.md, jamais dans le code.
 - Ne lis jamais .env et ne mets aucun secret dans un prompt, un log ou un commit.
-- Si tu es bloqué plus de 2 tentatives sur le même point, arrête et explique le blocage.
+- Si tu es bloqué après 2 tentatives sur le même point, arrête-toi et demande une escalade
+  Opus (ou un humain) au lieu de boucler. Journalise `Escalations:` dans progress/<ticket>.md.

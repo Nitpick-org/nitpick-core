@@ -23,6 +23,8 @@ le problème : deux agents ne touchent jamais le même fichier.
 
 - Fait : formulaire + validation + redirection.
 - Décisions : session cookie plutôt que JWT (plus simple pour la démo).
+- Modèle : sonnet.
+- Escalades : sonnet → opus (2 échecs sur la validation).
 - Fichiers : src/modules/auth/*, tests/auth.test.ts.
 - Blocage : clé API sponsor absente → mock utilisé, question dans QUESTIONS.md.
 - Suivant : brancher le vrai provider si la clé arrive.

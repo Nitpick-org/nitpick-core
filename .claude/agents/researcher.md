@@ -29,3 +29,4 @@ pas pour produire un rapport.
 - N'écris pas de code applicatif. Tu peux écrire un exemple minimal dans RESEARCH.md.
 - Ne lis jamais .env et ne demande jamais de secret.
 - Une recherche qui ne change aucune décision est une perte de temps : dis-le.
+- Si la question reste ambiguë après 2 passes, demande une escalade Opus au lieu de deviner.

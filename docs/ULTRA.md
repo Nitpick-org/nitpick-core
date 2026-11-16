@@ -78,8 +78,11 @@ on bascule **les sessions** sur le compte de H1, jamais sur une clé API dans le
 | --- | --- | --- |
 | Sessions principales H2/H3 | Opus | Ultra le permet ; meilleure qualité de code et moins d'allers-retours |
 | `researcher`, `qa-demo` | Sonnet | volume, lecture, exécution de tests |
+| `scribe` | Haiku | docs, README, progress, résumés |
 | `architect`, `devils-advocate`, `reviewer`, `pitch` | Opus | inchangé (voir les agents) |
 | **Fable** | à la main, via `/model` | **seulement** : choix d'idée à H0, découpage en modules, bug bloquant > 30 min, relecture finale du pitch. Limite séparée et consommation rapide : ne jamais le mettre en défaut ni dans un AFK. |
+
+Routage complet, escalade et budgets : `docs/MODEL-ROUTING.md` et skill `/route-task`.
 
 ## AFK de nuit avec Ultra
 

@@ -27,6 +27,9 @@
 
 Tout le monde code et relit. Les rôles disent **qui tranche**, pas qui est le seul à travailler.
 
+`scribe` est disponible pour les trois : c'est l'agent docs-only (Haiku). Il ne touche pas
+au code et ne compte pas dans les 3 écrivains code.
+
 ### Comment invoquer un agent
 
 Les agents vivent dans `.claude/agents/`. On les appelle par leur nom, ou Claude les
@@ -41,6 +44,8 @@ sélectionne seul si la tâche correspond à leur description.
 | Relire un diff | « Utilise le reviewer sur `git diff main...HEAD`. » | `reviewer` |
 | Tester la démo | « Utilise qa-demo pour rejouer docs/DEMO.md. » | `qa-demo` |
 | Écrire le pitch | « Utilise pitch pour réécrire DEMO.md en 2:45. » | `pitch` |
+| Mettre à jour la doc / le README | « Utilise scribe pour mettre à jour README.md. » | `scribe` |
+| Router une tâche | « Utilise /route-task pour choisir l'agent et le modèle. » | skill `route-task` |
 
 Un agent sans `Write`/`Edit` (`devils-advocate`, `architect`, `reviewer`) rend un rapport ;
 c'est à l'humain de décider ce qu'on en garde.
@@ -158,6 +163,7 @@ significatif à la fois. C'est pour ça qu'on plafonne à 6 sessions (8 avec Ult
 | `researcher` | Sonnet | Volume de lecture, synthèse |
 | `implementer` | inherit (Opus sur H2/H3, Sonnet sur H1) | Volume de code, feedback loops |
 | `qa-demo` | Sonnet | Exécution de tests, rapports |
+| `scribe` | Haiku (Sonnet pour une doc publique nuancée) | Doc, README, progress, résumés |
 
 - Claude Code tourne sur les **abonnements** (2 Ultra + celui de H1), pas sur une clé API.
   `ANTHROPIC_API_KEY` ne doit **jamais** être définie dans le shell (`doctor.sh` le vérifie).
@@ -173,8 +179,9 @@ significatif à la fois. C'est pour ça qu'on plafonne à 6 sessions (8 avec Ult
 
 ### Roster optimization for Ultra
 
-**On n'ajoute pas d'agent.** 7 agents suffisent ; le goulot est la revue, pas le nombre de
-rôles. Ultra sert à lancer plus de **lecteurs** en parallèle, pas plus d'écrivains.
+**On n'ajoute pas d'agent écrivain code.** 8 agents suffisent (7 + `scribe` docs) ; le goulot
+est la revue, pas le nombre de rôles. Ultra sert à lancer plus de **lecteurs** en parallèle,
+pas plus d'écrivains.
 
 | Agent | Où le lancer | Pourquoi |
 | --- | --- | --- |
@@ -185,10 +192,12 @@ rôles. Ultra sert à lancer plus de **lecteurs** en parallèle, pas plus d'écr
 | `reviewer` | H2, après chaque diff | Trouve les erreurs coûteuses |
 | `devils-advocate` | H1, sur le PRD | Critique de haut niveau |
 | `pitch` | H1, sur `DEMO.md` | Le texte final |
+| `scribe` | n'importe qui, pour la doc | Haiku, docs-only |
 
 Règles :
 
-- **2 à 3 lecteurs** par humain Ultra, **1 seul écrivain** par worktree.
+- **2 à 3 lecteurs** par humain Ultra, **1 seul écrivain code** par worktree ; `scribe`
+  peut tourner en parallèle sur la doc.
 - Pour explorer le code, utiliser les agents intégrés **Explore/Plan** plutôt que créer un
   `scout` maison : ils sont read-only et ne polluent pas le contexte principal.
 - Les skills AI Hero peuvent être préchargés dans les agents (`skills: tdd`, `code-review`,
@@ -198,6 +207,8 @@ Règles :
   à la recherche ; jamais à l'écriture.
 - **Fable** reste manuel, jamais dans un AFK.
 - **Agent teams** : non.
+- Le routage complet (Haiku/Sonnet/Opus/Fable, escalade, budgets) est dans
+  `docs/MODEL-ROUTING.md` et dans le skill `/route-task`.
 
 > Test réel de ce roster : `docs/DRY-RUN.md`.
 

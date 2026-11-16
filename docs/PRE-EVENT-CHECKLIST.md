@@ -38,7 +38,8 @@
 - [ ] Installer Claude Code + skills AI Hero :
       `claude plugin install mattpocock-skills@claude-plugins-official`
       puis `/setup-matt-pocock-skills` une fois par repo.
-- [ ] Vérifier que les 7 agents apparaissent (`/agents` ou demande à Claude).
+- [ ] Vérifier que les 8 agents apparaissent (`/agents` ou demande à Claude).
+- [ ] Tester `/route-task` : doc → `scribe`/Haiku, code standard → Sonnet, critique → Opus.
 - [ ] `./scripts/doctor.sh` sans échec.
 - [ ] Tester `./scripts/new-worktree.sh test-1`, ouvrir `claude` dedans, faire un mini-commit, puis `rm-worktree.sh`.
 - [ ] Tester `AFK_OK=1 ./scripts/afk-ralph.sh 1` sur un faux ticket **low-risk**.
