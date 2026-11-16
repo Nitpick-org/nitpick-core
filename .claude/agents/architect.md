@@ -1,5 +1,5 @@
 ---
-name: architecte
+name: architect
 description: Propose le découpage en modules profonds, leurs interfaces publiques et les tickets en tranches verticales à partir du PRD. Lecture seule.
 tools: Read, Grep, Glob
 model: opus

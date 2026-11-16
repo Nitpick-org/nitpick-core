@@ -21,9 +21,9 @@
 
 | Humain | Rôle | Possède | Agents typiques |
 | --- | --- | --- | --- |
-| **H1** | Produit & Pitch | PRD, DEMO.md, périmètre, fit challenge, e2e de démo | `chercheur`, `avocat-du-diable`, `pitch` |
-| **H2** | Architecte & Intégration | interfaces, `main`, file de merge, CI, stack, DECISIONS | `architecte`, `reviewer`, `implementeur` |
-| **H3** | Builder & Démo | intégration la plus risquée, UI, déploiement, mocks/vidéo | `implementeur`, `qa-demo` |
+| **H1** | Produit & Pitch | PRD, DEMO.md, périmètre, fit challenge, e2e de démo | `researcher`, `devils-advocate`, `pitch` |
+| **H2** | Architecte & Intégration | interfaces, `main`, file de merge, CI, stack, DECISIONS | `architect`, `reviewer`, `implementer` |
+| **H3** | Builder & Démo | intégration la plus risquée, UI, déploiement, mocks/vidéo | `implementer`, `qa-demo` |
 
 Tout le monde code et relit. Les rôles disent **qui tranche**, pas qui est le seul à travailler.
 
@@ -34,15 +34,15 @@ sélectionne seul si la tâche correspond à leur description.
 
 | Besoin | Phrase à dire | Agent |
 | --- | --- | --- |
-| Vérifier une API / un concurrent | « Utilise le chercheur pour vérifier X ; mets le résultat dans RESEARCH.md. » | `chercheur` |
-| Challenger le PRD | « Utilise l'avocat-du-diable sur docs/PRD.md. » | `avocat-du-diable` |
-| Découper en modules/tickets | « Utilise l'architecte sur le PRD ; propose les interfaces. » | `architecte` |
-| Implémenter un ticket | « Utilise l'implementeur sur le ticket #12. » | `implementeur` |
+| Vérifier une API / un concurrent | « Utilise `researcher` pour vérifier X ; mets le résultat dans RESEARCH.md. » | `researcher` |
+| Challenger le PRD | « Utilise `devils-advocate` sur docs/PRD.md. » | `devils-advocate` |
+| Découper en modules/tickets | « Utilise `architect` sur le PRD ; propose les interfaces. » | `architect` |
+| Implémenter un ticket | « Utilise `implementer` sur le ticket #12. » | `implementer` |
 | Relire un diff | « Utilise le reviewer sur `git diff main...HEAD`. » | `reviewer` |
 | Tester la démo | « Utilise qa-demo pour rejouer docs/DEMO.md. » | `qa-demo` |
 | Écrire le pitch | « Utilise pitch pour réécrire DEMO.md en 2:45. » | `pitch` |
 
-Un agent sans `Write`/`Edit` (avocat, architecte, reviewer) rend un rapport ;
+Un agent sans `Write`/`Edit` (`devils-advocate`, `architect`, `reviewer`) rend un rapport ;
 c'est à l'humain de décider ce qu'on en garde.
 
 ## Combien de sessions en parallèle ?
@@ -125,7 +125,7 @@ Fini = check.sh vert + test ajouté + progress/<ticket>.md + commit atomique.
   dans `progress/<ticket>.md` ou `QUESTIONS.md`.
 - **`docs/PRD.md`** : seul H1 écrit. Un agent peut proposer un diff dans `QUESTIONS.md`.
 - **`docs/QUESTIONS.md`** : append-only. Chaque agent ajoute une ligne, ne réécrit pas.
-- **`docs/RESEARCH.md`** : le `chercheur` ajoute une section par sujet, avec sources.
+- **`docs/RESEARCH.md`** : le `researcher` ajoute une section par sujet, avec sources.
 - **`CLAUDE.md`** : H2, aux syncs. Jamais en cours de run d'un agent.
 
 Le hook `PreToolUse` bloque l'édition de `PRD.md`, `DECISIONS.md`, `CLAUDE.md` et `.env`
@@ -149,12 +149,12 @@ significatif à la fois. C'est pour ça qu'on plafonne à 6 sessions, pas 20.
 
 | Agent | Modèle | Pourquoi |
 | --- | --- | --- |
-| `architecte` | Opus | Décisions structurantes, peu d'appels |
-| `avocat-du-diable` | Opus | Critique de haut niveau, peu d'appels |
+| `architect` | Opus | Décisions structurantes, peu d'appels |
+| `devils-advocate` | Opus | Critique de haut niveau, peu d'appels |
 | `reviewer` | Opus | Trouve les erreurs coûteuses |
 | `pitch` | Opus | Le texte final est lu par le jury |
-| `chercheur` | Sonnet | Volume de lecture, synthèse |
-| `implementeur` | inherit (souvent Sonnet) | Volume de code, feedback loops |
+| `researcher` | Sonnet | Volume de lecture, synthèse |
+| `implementer` | inherit (souvent Sonnet) | Volume de code, feedback loops |
 | `qa-demo` | Sonnet | Exécution de tests, rapports |
 
 - Une session principale par humain. Les subagents coûtent des tokens **en plus**, pas

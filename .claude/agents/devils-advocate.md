@@ -1,5 +1,5 @@
 ---
-name: avocat-du-diable
+name: devils-advocate
 description: Challenge une idée, un PRD, un plan ou un découpage. À utiliser après chaque version du PRD et avant de figer le périmètre.
 tools: Read, Grep, Glob
 model: opus

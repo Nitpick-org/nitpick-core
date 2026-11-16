@@ -67,22 +67,22 @@ Exemple de `package.json` (Next.js) :
 Le dossier contient déjà `docs/`, `.claude/`, `scripts/`, `README.md`. Ne les écrasez pas.
 
 ```bash
-# 1. Générer l'app dans un dossier temporaire
+# 1. Generate the app in a temporary directory
 cd /tmp
 pnpm create next-app@latest lauzhack-app \
   --ts --tailwind --eslint --app --src-dir --import-alias "@/*" --use-pnpm
 
-# 2. Copier dans le repo, sans écraser docs/.claude/scripts/.github
+# 2. Copy into the repo without overwriting docs/.claude/scripts/.github
 cd /tmp/lauzhack-app
 rsync -a --exclude .git --exclude node_modules ./ "$OLDPWD/"
 
-# 3. Dépendances de test + UI
+# 3. Test + UI dependencies
 cd "$OLDPWD"
 pnpm add -D vitest @vitejs/plugin-react jsdom @testing-library/react @testing-library/jest-dom
 pnpm add -D @playwright/test
 pnpm dlx shadcn@latest init
 
-# 4. Ajouter les scripts typecheck/test/e2e/format (voir le contrat ci-dessus)
+# 4. Add the typecheck/test/e2e/format scripts (see the contract above)
 pnpm install
 ./scripts/check.sh
 ```
@@ -115,14 +115,14 @@ DEMO_URL=
 DEMO_MODE=mock          # mock | live
 DEMO_SEED=1
 
-# Données
+# Data
 DATABASE_URL=
 
 # IA (une seule suffit)
 ANTHROPIC_API_KEY=
 OPENAI_API_KEY=
 
-# Auth (seulement si vous ne pouvez pas l'éviter)
+# Auth (only if you cannot avoid it)
 AUTH_SECRET=
 
 # Sponsors / APIs externes

@@ -3,7 +3,7 @@
 # Rule: one ticket = one worktree = one agent = one file zone.
 #
 # Usage: ./scripts/new-worktree.sh 12-login
-#        WT_BASE=/tmp/wt ./scripts/new-worktree.sh 12-login   # autre emplacement
+#        WT_BASE=/tmp/wt ./scripts/new-worktree.sh 12-login   # alternative location
 set -euo pipefail
 
 [ $# -eq 1 ] || { echo "Usage: $0 <ticket-number-name>"; exit 1; }
@@ -55,7 +55,7 @@ if [ ! -f "$DIR/progress/$NAME.md" ]; then
 
 - Statut : en cours
 - Propriétaire humain : @
-- Agent : @implementeur
+- Agent : @implementer
 - Fichiers autorisés : src/modules/<...>
 
 ## Journal

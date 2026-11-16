@@ -1,5 +1,5 @@
 ---
-name: implementeur
+name: implementer
 description: Implémente UN seul ticket en TDD, dans le worktree courant, jusqu'à check.sh vert et commit atomique.
 model: inherit
 maxTurns: 40

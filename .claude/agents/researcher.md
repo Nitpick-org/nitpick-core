@@ -1,5 +1,5 @@
 ---
-name: chercheur
+name: researcher
 description: Répond à une question technique ou marché par une recherche sourcée, puis met le résultat en cache dans docs/RESEARCH.md. À utiliser avant toute intégration inconnue, ou pour vérifier qu'une idée existe déjà.
 tools: Read, Grep, Glob, WebSearch, WebFetch, Write, Edit
 model: sonnet

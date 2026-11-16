@@ -40,12 +40,12 @@ humains : tu lis les mêmes fichiers, tu connais les mêmes contraintes, tu peux
 ## Commandes
 
 ```bash
-./scripts/doctor.sh                 # état de préparation (avant l'événement)
+./scripts/doctor.sh                 # readiness check (before the event)
 ./scripts/check.sh                  # typecheck + lint + tests
-./scripts/check.sh --demo           # + parcours de démo (e2e)
-pnpm dev                            # serveur local (après choix de la stack)
-./scripts/new-worktree.sh 12-login  # un worktree par ticket
-AFK_OK=1 ./scripts/afk-ralph.sh 4   # boucle bornée, low-risk, jamais sur main
+./scripts/check.sh --demo           # + demo path (e2e)
+pnpm dev                            # local dev server (after the stack is chosen)
+./scripts/new-worktree.sh 12-login  # one worktree per ticket
+AFK_OK=1 ./scripts/afk-ralph.sh 4   # bounded loop, low-risk, never on main
 ```
 
 La stack sera choisie à J-4 (voir `docs/STACK.md`). Tant qu'il n'y a pas de `package.json`,
@@ -83,7 +83,7 @@ La stack sera choisie à J-4 (voir `docs/STACK.md`). Tant qu'il n'y a pas de `pa
 | `docs/PRD.md` | H1 | proposent dans `QUESTIONS.md` |
 | `docs/DECISIONS.md` | H2 | proposent, ne modifient pas |
 | `docs/QUESTIONS.md` | tous, append-only | ajoutent une ligne |
-| `docs/RESEARCH.md` | `chercheur` | une section par sujet |
+| `docs/RESEARCH.md` | `researcher` | une section par sujet |
 | `CLAUDE.md` | H2, aux syncs | lisent seulement |
 
 Un hook `PreToolUse` bloque l'édition de `PRD.md`, `DECISIONS.md`, `CLAUDE.md`, `progress.txt`
@@ -111,5 +111,5 @@ et `.env` par un sous-agent. Un humain peut toujours éditer. Override explicite
 
 ## Leçons apprises (ajoutées pendant le hackathon)
 
-<!-- Après chaque correction : « mets à jour CLAUDE.md pour ne pas refaire cette erreur » -->
+<!-- After each fix: "update CLAUDE.md so this mistake is not repeated" -->
 - …

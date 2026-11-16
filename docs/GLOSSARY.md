@@ -22,4 +22,4 @@
 | **nouveauté** | Ce qui n'existait pas avant, en une phrase | la complexité |
 | **sponsor challenge** | Le challenge d'un sponsor, avec ses critères | le classement global |
 
-<!-- Ajouter les termes du projet à H0 : nom du produit, acteurs, objets métier. -->
+<!-- Add the project terms at H0: product name, actors, domain objects. -->

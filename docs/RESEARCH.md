@@ -1,6 +1,6 @@
 # Recherche (cache pour les agents)
 
-> Rempli par le sous-agent `chercheur`. Chaque section est datée et sourcée. Une recherche
+> Rempli par le sous-agent `researcher`. Chaque section est datée et sourcée. Une recherche
 > qui ne change aucune décision est une perte de temps : dis-le.
 
 ## Règles
@@ -36,4 +36,4 @@
 
 ## Recherches
 
-<!-- Les sections du chercheur commencent ici. -->
+<!-- Researcher sections start here. -->

@@ -36,18 +36,18 @@ profonds et des garde-fous exécutables.
 ## Démarrage rapide
 
 ```bash
-# 1. Hooks git (bloque les commits si check.sh échoue)
+# 1. Git hooks (block commits if check.sh fails)
 git config core.hooksPath .githooks
 
-# 2. Variables d'environnement
-cp .env.example .env      # remplir, ne jamais commiter
+# 2. Environment variables
+cp .env.example .env      # fill in, never commit
 
-# 3. État de préparation
+# 3. Readiness check
 ./scripts/doctor.sh
 
-# 4. Claude Code + skills AI Hero (une fois par repo)
+# 4. Claude Code + AI Hero skills (once per repo)
 claude plugin install mattpocock-skills@claude-plugins-official
-# puis dans une session : /setup-matt-pocock-skills
+# then in a session: /setup-matt-pocock-skills
 ```
 
 Vérifier : `claude` puis « liste les sous-agents du projet » → les 7 agents de
@@ -63,16 +63,16 @@ Vérifier : `claude` puis « liste les sous-agents du projet » → les 7 agents
 | **J-2 jeu 19** | Répétition générale de 2 h sur une idée bidon | La boucle tourne |
 | **J-1 ven 20** | Shortlist de 3 idées, clés, quotas, valises, sommeil | `doctor.sh` sans échec |
 
-Détail : [docs/CHECKLIST-AVANT.md](./docs/CHECKLIST-AVANT.md).
+Détail : [docs/PRE-EVENT-CHECKLIST.md](./docs/PRE-EVENT-CHECKLIST.md).
 
 ## Le jour J en 5 commandes
 
 ```bash
 claude                                  # kickoff: /grill-with-docs, /to-spec, /to-tickets
-./scripts/new-worktree.sh 12-login      # un worktree par ticket
-cd ../wt-12-login && claude             # un agent par worktree (2–3 par humain max)
-./scripts/check.sh --demo               # avant chaque PR
-AFK_OK=1 ./scripts/afk-ralph.sh 4       # boucle bornée avant une sieste
+./scripts/new-worktree.sh 12-login      # one worktree per ticket
+cd ../wt-12-login && claude             # one agent per worktree (2–3 per human max)
+./scripts/check.sh --demo               # before each PR
+AFK_OK=1 ./scripts/afk-ralph.sh 4       # bounded loop before a nap
 ```
 
 ## Carte du repo
@@ -95,11 +95,11 @@ AFK_OK=1 ./scripts/afk-ralph.sh 4       # boucle bornée avant une sieste
 | `docs/QUESTIONS.md` | File de questions agents → humains. |
 | `docs/IDEAS.md` | Idées hors périmètre. |
 | `docs/RESEARCH.md` | Recherche externe mise en cache. |
-| `docs/CHECKLIST-AVANT.md` | Checklist J-5 → J0. |
+| `docs/PRE-EVENT-CHECKLIST.md` | Checklist J-5 → J0. |
 | `docs/AUDIT-2026-11-16.md` | Review de la base et corrections. |
 | `progress.txt` | Synthèse tenue par l'intégrateur. |
 | `progress/<ticket>.md` | Journal par ticket, sans conflit. |
-| `.claude/agents/` | 7 subagents : chercheur, avocat, architecte, implémenteur, reviewer, QA, pitch. |
+| `.claude/agents/` | 7 subagents : `researcher`, `devils-advocate`, `architect`, `implementer`, `reviewer`, `qa-demo`, `pitch`. |
 | `.claude/settings.json` | Permissions, hooks, limites de concurrence. |
 | `scripts/check.sh` | Typecheck + lint + tests (+ e2e avec `--demo`). |
 | `scripts/doctor.sh` | Readiness check. |

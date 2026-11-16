@@ -49,7 +49,7 @@
 - [ ] Répétition générale de 2 h sur une **idée bidon** : idée → DEMO → PRD → 3 tickets → 2 agents → démo.
 - [ ] Chronométrer : le squelette doit être déployé en < 2 h.
 - [ ] Chaque humain prépare **3 idées** (une phrase, aha, risque n°1) pour samedi.
-- [ ] Rechercher les sponsors 2026 et les challenges probables (`chercheur`).
+- [ ] Rechercher les sponsors 2026 et les challenges probables (`researcher`).
 - [ ] Préparer le formulaire de soumission : titre, descriptions, miniature, lien.
 - [ ] Préparer un script de vidéo de secours (2 min) et un dossier de captures.
 - [ ] Vérifier les quotas/plans API (Anthropic, DB, hébergement, sponsors).

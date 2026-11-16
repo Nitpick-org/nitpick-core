@@ -32,7 +32,7 @@ au service d'un problème réel et d'une démo lisible.
 2. 2 minutes par idée, sans débat. On note à chaud.
 3. Scoring aveugle avec la grille ci-dessous (chacun note, on moyenne).
 4. Garder les **2 meilleures**, les griller 20 minutes chacune avec l'agent
-   `avocat-du-diable` et le sous-agent `chercheur`.
+   `devils-advocate` et le sous-agent `researcher`.
 5. Choisir. Écrire `docs/DEMO.md` **avant** le PRD. Si la démo ne s'écrit pas en 5 points,
    l'idée n'est pas prête.
 

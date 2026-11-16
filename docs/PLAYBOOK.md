@@ -7,9 +7,9 @@
 
 | Rôle | Possède | Ses agents | Tranche seul sur |
 | --- | --- | --- | --- |
-| **H1 — Produit & Pitch** | PRD, DEMO.md, périmètre, fit challenge, test e2e | `chercheur`, `avocat-du-diable`, `pitch` | Périmètre, ordre des tickets, narrative |
-| **H2 — Architecte & Intégration** | Interfaces, `main`, file de merge, CI, stack, DECISIONS | `architecte`, `reviewer`, `implementeur` | Structure du code, ce qui est mergé |
-| **H3 — Builder & Démo** | UI, intégrations risquées, déploiement, mocks, vidéo | `implementeur`, `qa-demo` | Rendu visuel, plan B de démo |
+| **H1 — Produit & Pitch** | PRD, DEMO.md, périmètre, fit challenge, test e2e | `researcher`, `devils-advocate`, `pitch` | Périmètre, ordre des tickets, narrative |
+| **H2 — Architecte & Intégration** | Interfaces, `main`, file de merge, CI, stack, DECISIONS | `architect`, `reviewer`, `implementer` | Structure du code, ce qui est mergé |
+| **H3 — Builder & Démo** | UI, intégrations risquées, déploiement, mocks, vidéo | `implementer`, `qa-demo` | Rendu visuel, plan B de démo |
 
 Tout le monde code et relit. Les rôles disent **qui tranche**.
 
@@ -23,19 +23,19 @@ Tout le monde code et relit. Les rôles disent **qui tranche**.
 | J-2 (jeu) | Répétition 2 h sur une idée bidon : idée → DEMO → PRD → 3 tickets → 2 agents → démo | La répétition tourne |
 | J-1 (ven) | Shortlist de 3 idées, clés API, quotas, valises, sommeil | `doctor.sh` sans échec |
 
-Détail : `docs/CHECKLIST-AVANT.md`.
+Détail : `docs/PRE-EVENT-CHECKLIST.md`.
 
 ## Le déroulé des 24 h
 
 | Heure | Phase | Humains | Agents | Porte de sortie |
 | --- | --- | --- | --- | --- |
 | 8:00–9:30 | Check-in | ID, table, Wi-Fi, prises | — | Installés avant 9:30 |
-| 10:20–11:40 | Tech talks | H1 note les challenges ; H2/H3 préparent le repo | `chercheur` en veille | Challenges compris |
+| 10:20–11:40 | Tech talks | H1 note les challenges ; H2/H3 préparent le repo | `researcher` en veille | Challenges compris |
 | 11:40–12:00 | Team building | Choisir l'idée, la cible, la phrase de nouveauté | — | Idée + challenge choisis |
-| **12:00–13:00** | **Kickoff** | DEMO.md, PRD, modules, tickets | `architecte` propose, `avocat` challenge | Démo écrite en 5 points, 8–12 tickets |
-| 13:00–16:00 | Squelette | 2–3 builders, worktrees | `implementeur` | **Démo bout en bout sur la preview, même moche** |
-| 16:00–19:00 | Cœur | Le aha d'abord | `implementeur`, `qa-demo` | Le aha est visible en < 30 s |
-| 19:00–22:00 | Deuxième feature | Profondeur ou 2ᵉ cas d'usage | `implementeur`, `reviewer` | Démo complète |
+| **12:00–13:00** | **Kickoff** | DEMO.md, PRD, modules, tickets | `architect` propose, `devils-advocate` challenge | Démo écrite en 5 points, 8–12 tickets |
+| 13:00–16:00 | Squelette | 2–3 builders, worktrees | `implementer` | **Démo bout en bout sur la preview, même moche** |
+| 16:00–19:00 | Cœur | Le aha d'abord | `implementer`, `qa-demo` | Le aha est visible en < 30 s |
+| 19:00–22:00 | Deuxième feature | Profondeur ou 2ᵉ cas d'usage | `implementer`, `reviewer` | Démo complète |
 | 22:00–23:00 | Gel v0.1 | Tag, vidéo de secours, soumission brouillon | `qa-demo` | v0.1 enregistrée |
 | 23:00–07:00 | Nuit | Sommeil en shifts de 4 h, 2 éveillés | AFK borné, low-risk uniquement | Personne ne casse `main` |
 | 07:00–09:30 | Intégration | Corriger, merger, répéter | `qa-demo`, `reviewer` | e2e vert |
@@ -56,8 +56,8 @@ Détail : `docs/CHECKLIST-AVANT.md`.
 3. **12:40–13:00** — Écrire `docs/DEMO.md` en 5 points. Si ce n'est pas écrivable,
    l'idée n'est pas prête : reprendre l'idée n°2.
 4. **13:00–13:20** — `/to-spec` → `docs/PRD.md` (ou rédaction directe), puis
-   `avocat-du-diable` sur le PRD. Couper ce qu'il signale.
-5. **13:20–13:40** — `architecte` → modules + tickets. H2 valide, complète
+   `devils-advocate` sur le PRD. Couper ce qu'il signale.
+5. **13:20–13:40** — `architect` → modules + tickets. H2 valide, complète
    `ARCHITECTURE.md` et `CLAUDE.md` (commandes, état).
 6. **13:40** — Premiers worktrees : `./scripts/new-worktree.sh <ticket>`, puis `claude`.
    Mode surveillé (`ralph-once.sh`) tant que le prompt n'est pas fiable.
@@ -68,7 +68,7 @@ Installer une fois par repo :
 
 ```bash
 claude plugin install mattpocock-skills@claude-plugins-official
-# ou, pour des fichiers éditables :
+# or, for editable files:
 npx skills@latest add mattpocock/skills
 ```
 
