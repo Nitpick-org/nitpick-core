@@ -8,7 +8,7 @@
 - [ ] Lire `docs/LAUZHACK.md`, `docs/STRATEGY.md`, `docs/PLAYBOOK.md`, `docs/AGENT-OPS.md` (toute l'équipe).
 - [ ] Appel équipe de 60 min : rôles définitifs, disponibilités, sommeil, transport.
 - [ ] Confirmer l'acceptation LauzHack et rejoindre le Discord.
-- [ ] Créer le repo GitHub **privé** (il devra être **public** avant la soumission).
+- [ ] Vérifier le repo GitHub **privé** (il devra être **public** avant la soumission).
 - [ ] Inviter les 2 autres, protéger `main` (PR + CI verte).
 - [ ] Envoyer `docs/ONBOARDING.md` aux 2 autres ; chacun clone et lance `doctor.sh`.
 - [ ] Vérifier que les 3 ont Git, Node 22+, `gh`, `claude`, un éditeur.

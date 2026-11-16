@@ -131,6 +131,16 @@ suppression.
 - Pas de Fable par défaut ; Fable à la main pour les décisions à fort enjeu.
 - Le goulot est la **revue**, pas la génération. 8 sessions max, 3 écrivains.
 
+### Réglages GitHub (owner)
+
+- [ ] **Collaborators** : les 2 autres sont ajoutés et ont accepté.
+- [ ] **Branches** : `main` protégée, PR obligatoire, CI requise, pas de force push.
+- [ ] **Actions** : activées ; le workflow CI tourne sur les PR.
+- [ ] **Labels** : `ticket`, `bug`, `demo`, `P0`, `P1`, `P2`.
+- [ ] **Project** : colonnes Todo / Doing / Review / Done.
+- [ ] **Visibilité** : repo privé pendant le hack ; **public avant la soumission** (le lien
+      de `app.lauzhack.com` doit s’ouvrir sans login).
+
 ## 9. Dépannage
 
 | Symptôme | Cause | Solution |

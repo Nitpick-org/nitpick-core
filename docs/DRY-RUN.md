@@ -48,6 +48,9 @@ pnpm exec playwright install chromium
 - Si `check.sh --demo` échoue, note-le : c'est peut-être un vrai bug de base.
 - Le starter installe avec `--ignore-scripts` (connu, jetable). Si tu vois quand même un
   warning `Ignored build scripts: esbuild`, `pnpm rebuild esbuild` suffit ; le build passe.
+- Si l'installation des navigateurs Playwright échoue (cache en lecture seule), utilise
+  `PLAYWRIGHT_BROWSERS_PATH="$PWD/.playwright-browsers" pnpm exec playwright install chromium`
+  puis la même variable devant `./scripts/check.sh --demo`.
 
 ## Rôles
 

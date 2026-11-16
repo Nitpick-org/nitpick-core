@@ -20,3 +20,4 @@ playwright/.cache/
 .worktrees/
 .pnpm-store/
 .dry-run-test/
+.playwright-browsers/
