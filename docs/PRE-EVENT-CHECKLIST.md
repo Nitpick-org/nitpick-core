@@ -8,9 +8,10 @@
 - [ ] Lire `docs/LAUZHACK.md`, `docs/STRATEGY.md`, `docs/PLAYBOOK.md`, `docs/AGENT-OPS.md` (toute l'équipe).
 - [ ] Appel équipe de 60 min : rôles définitifs, disponibilités, sommeil, transport.
 - [ ] Confirmer l'acceptation LauzHack et rejoindre le Discord.
-- [ ] Vérifier le repo GitHub **privé** (il devra être **public** avant la soumission).
-- [ ] Inviter les 2 autres, protéger `main` (PR + CI verte).
+- [x] Vérifier le repo GitHub **privé** (il devra être **public** avant la soumission).
+- [x] Inviter les 2 autres, protéger `main` (PR + `check` ; CI verte après la stack).
 - [ ] Envoyer `docs/ONBOARDING.md` aux 2 autres ; chacun clone et lance `doctor.sh`.
+- [x] Créer les labels (`ticket`, `bug`, `demo`, `P0–P2`, `blocked`, `review`) et le milestone `LauzHack 2026`.
 - [ ] Vérifier que les 3 ont Git, Node 22+, `gh`, `claude`, un éditeur.
 - [ ] Lancer `git config core.hooksPath .githooks` dans chaque clone.
 - [ ] Remplir `CLAUDE.md` : prénoms, rôles, phrase d'état.

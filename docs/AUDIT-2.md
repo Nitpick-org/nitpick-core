@@ -35,15 +35,26 @@ est justement là pour ça.
 | # | Priorité | Constat | Action | Propriétaire |
 | --- | --- | --- | --- | --- |
 | 1 | P0 | Pas de `package.json` à la racine : `check.sh` et la CI échouent | Choisir la stack, bootstrap, déployer | H2, J-4 |
-| 2 | P0 | Le repo est privé ; les 2 autres ne sont pas encore invités | Settings → Collaborators | H2, J-5 |
-| 3 | P0 | Protection de `main` et CI verte non vérifiées | Activer la protection après le premier check vert | H2, J-4 |
-| 4 | P0 | Pas de déploiement/preview | Déployer le hello world | H2, J-4 |
-| 5 | P1 | `gh` n'est pas authentifié localement | `gh auth login` pour issues/PR/automatisation | H2 |
-| 6 | P1 | Pas de GitHub Project / labels | Créer le board et les labels `ticket`, `bug`, `demo`, `P0` | H1 |
-| 7 | P1 | Le dry run n'a pas encore été joué par les 3 humains | Le planifier à J-3 et remplir `dry-run/RETRO.md` | tous |
-| 8 | P1 | Pas de test réel des 8 agents | Le dry run est le test ; noter les frictions | tous |
-| 9 | P2 | Le starter utilise `lint = tsc --noEmit` | Acceptable pour le dry run ; la vraie stack aura un vrai linter | H2 |
-| 10 | P2 | Le repo devra être public pour la soumission | Le rendre public à J-1, ou fournir un lien public | H2 |
+| 2 | P0 | CI rouge tant que `package.json` manque, donc `main` est bloquée pour les non-admins | Choisir la stack et faire passer `check` | H2, J-4 |
+| 3 | P0 | Pas de déploiement/preview | Déployer le hello world | H2, J-4 |
+| 4 | P1 | Project board pas encore créé | Le créer via l'UI web (ou `gh auth refresh -s project`) | H1 |
+| 5 | P1 | Labels et milestone créés, pas encore utilisés | Ouvrir les premiers tickets à H0 | H1 |
+| 6 | P1 | Le dry run n'a pas encore été joué par les 3 humains | Le planifier à J-3 et remplir `dry-run/RETRO.md` | tous |
+| 7 | P1 | Pas de test réel des 8 agents | Le dry run est le test ; noter les frictions | tous |
+| 8 | P2 | Le starter utilise `lint = tsc --noEmit` | Acceptable pour le dry run ; la vraie stack aura un vrai linter | H2 |
+| 9 | P2 | Le repo devra être public pour la soumission | Le rendre public à J-1, ou fournir un lien public | H2 |
+
+### Réglages GitHub appliqués (16/11)
+
+- Collaborateurs : `pepito2t`, `dovatgabriel` (push).
+- `main` protégée : PR obligatoire, check `check` requis, 0 approbation, pas de force push,
+  pas de suppression, admins bypass autorisé.
+- Merge : squash + merge commit, rebase désactivé, auto-merge, suppression de branche après merge.
+- Features : issues/projects on, wiki/discussions off, description et topics.
+- Labels : `ticket`, `bug`, `demo`, `P0`, `P1`, `P2`, `blocked`, `review`.
+- Milestone : `LauzHack 2026` (22/11).
+- Dependabot alerts : activés.
+- Project board : pas encore créé (scope `project` absent du token `gh`).
 
 ## Audit des agents (Ultra)
 

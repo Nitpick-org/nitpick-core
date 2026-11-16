@@ -135,11 +135,11 @@ suppression.
 
 ### Réglages GitHub (owner)
 
-- [ ] **Collaborators** : les 2 autres sont ajoutés et ont accepté.
-- [ ] **Branches** : `main` protégée, PR obligatoire, CI requise, pas de force push.
-- [ ] **Actions** : activées ; le workflow CI tourne sur les PR.
-- [ ] **Labels** : `ticket`, `bug`, `demo`, `P0`, `P1`, `P2`.
-- [ ] **Project** : colonnes Todo / Doing / Review / Done.
+- [x] **Collaborators** : les 2 autres sont ajoutés et ont accepté (16/11).
+- [x] **Branches** : `main` protégée, PR obligatoire, `check` requis, pas de force push (16/11).
+- [x] **Actions** : activées ; le workflow CI tourne sur les PR (16/11).
+- [x] **Labels** : `ticket`, `bug`, `demo`, `P0`, `P1`, `P2`, `blocked`, `review` (16/11).
+- [ ] **Project** : colonnes Todo / Doing / Review / Done (à créer via l'UI web ; le token `gh` n'a pas le scope `project`).
 - [ ] **Visibilité** : repo privé pendant le hack ; **public avant la soumission** (le lien
       de `app.lauzhack.com` doit s’ouvrir sans login).
 

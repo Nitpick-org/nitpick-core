@@ -19,17 +19,19 @@ profonds et des garde-fous exécutables.
 - Prochaine étape : choisir la stack (J-4) et déployer un hello world (J-4 au plus tard).
 - Dépôt distant : `git@github.com:zooldyyk/hackathon.git` (**privé**). Il devra être
   **public** au moment de la soumission (le lien doit s'ouvrir sans login).
+- Réglages GitHub : 2 collaborateurs ajoutés, `main` protégée (PR + check), labels et
+  milestone créés, wiki désactivé, branches supprimées après merge.
 
 ## Reste à faire (état au 16/11)
 
 | Priorité | Tâche | Qui | Échéance |
 | --- | --- | --- | --- |
-| P0 | Inviter les 2 autres au repo + protéger `main` (PR + CI) | H2 | J-4 |
 | P0 | Choisir la stack, bootstrap, hello world **déployé** | H2 | J-4 |
 | P0 | `./scripts/check.sh` et la CI verts | H2 | J-4 |
 | P1 | Installer les skills, tester les 8 agents, un worktree, un AFK | tous | J-3 |
 | P1 | Faire le **dry run** de 2 h 30 sur un clone jetable | tous | J-3 |
 | P1 | Corriger les 3 frictions du dry run + 3 idées par humain | tous | J-2 |
+| P1 | Créer le Project board (Todo / Doing / Review / Done) | H1 | J-3 |
 | P1 | Comptes Ultra vérifiés, reset hebdo noté, `/usage` ≥ 75 % | H2, H3 | J-1 |
 | P1 | Clés/quotas, reçus de voyage, repo public, `doctor.sh` | H2 | J-1 |
 | H0 | Idée, DEMO.md, PRD.md, 8–12 tickets | tous | sam 21, 12:00 |
