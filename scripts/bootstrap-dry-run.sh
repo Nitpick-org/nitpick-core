@@ -45,7 +45,15 @@ mkdir -p src e2e
 cp -R dry-run/starter/src/. src/
 cp -R dry-run/starter/e2e/. e2e/
 
-pnpm install
+if ! pnpm install; then
+  echo "⚠️ pnpm install returned non-zero (often ignored build scripts). Retrying esbuild..."
+  pnpm rebuild esbuild
+fi
+
+[ -x node_modules/.bin/vite ] || {
+  echo "❌ Dependencies are not installed (node_modules/.bin/vite missing)."
+  exit 1
+}
 
 git add -A
 git commit -m "chore: bootstrap dry-run starter"
