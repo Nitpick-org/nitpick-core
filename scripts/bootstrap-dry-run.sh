@@ -45,10 +45,9 @@ mkdir -p src e2e
 cp -R dry-run/starter/src/. src/
 cp -R dry-run/starter/e2e/. e2e/
 
-if ! pnpm install; then
-  echo "⚠️ pnpm install returned non-zero (often ignored build scripts). Retrying esbuild..."
-  pnpm rebuild esbuild
-fi
+# The starter is throwaway and its deps are known: skipping lifecycle scripts avoids
+# pnpm's "ignored build scripts" warning. Vite still builds (tested).
+pnpm install --ignore-scripts
 
 [ -x node_modules/.bin/vite ] || {
   echo "❌ Dependencies are not installed (node_modules/.bin/vite missing)."

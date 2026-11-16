@@ -46,8 +46,8 @@ pnpm exec playwright install chromium
   commit.
 - `playwright install chromium` est nécessaire pour `--demo` (une fois).
 - Si `check.sh --demo` échoue, note-le : c'est peut-être un vrai bug de base.
-- Si pnpm affiche `Ignored build scripts: esbuild`, lance `pnpm rebuild esbuild` (le build
-  fonctionne souvent quand même ; c'est un warning de supply-chain).
+- Le starter installe avec `--ignore-scripts` (connu, jetable). Si tu vois quand même un
+  warning `Ignored build scripts: esbuild`, `pnpm rebuild esbuild` suffit ; le build passe.
 
 ## Rôles
 
@@ -79,7 +79,7 @@ pnpm exec playwright install chromium
 # Worktree pour un ticket, basé sur la branche du dry run
 WT_BASE="$PWD/.worktrees" WT_FROM=dry-run/base ./scripts/new-worktree.sh 01-anomaly
 cd .worktrees/wt-01-anomaly
-pnpm install
+pnpm install --ignore-scripts
 claude
 
 # Vérifier le diff par rapport à la base du dry run
