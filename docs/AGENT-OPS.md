@@ -145,7 +145,7 @@ par un **sous-agent**. Un humain peut toujours éditer. Override explicite :
 5. Si le merge casse la preview : revert immédiat, on ne debug pas sur `main`.
 
 **Règle de bande passante :** un humain ne peut pas relire sérieusement plus d'un diff
-significatif à la fois. C'est pour ça qu'on plafonne à 6 sessions, pas 20.
+significatif à la fois. C'est pour ça qu'on plafonne à 6 sessions (8 avec Ultra), pas 20.
 
 ## Modèles et coûts
 
@@ -156,7 +156,7 @@ significatif à la fois. C'est pour ça qu'on plafonne à 6 sessions, pas 20.
 | `reviewer` | Opus | Trouve les erreurs coûteuses |
 | `pitch` | Opus | Le texte final est lu par le jury |
 | `researcher` | Sonnet | Volume de lecture, synthèse |
-| `implementer` | inherit (souvent Sonnet) | Volume de code, feedback loops |
+| `implementer` | inherit (Opus sur H2/H3, Sonnet sur H1) | Volume de code, feedback loops |
 | `qa-demo` | Sonnet | Exécution de tests, rapports |
 
 - Claude Code tourne sur les **abonnements** (2 Ultra + celui de H1), pas sur une clé API.
@@ -170,6 +170,36 @@ significatif à la fois. C'est pour ça qu'on plafonne à 6 sessions, pas 20.
   seulement pour les décisions à fort enjeu, jamais en AFK.
 - Les tâches gourmandes en tokens partent chez H2/H3 ; les décisions restent chez leur
   propriétaire, quel que soit son plan.
+
+### Roster optimization for Ultra
+
+**On n'ajoute pas d'agent.** 7 agents suffisent ; le goulot est la revue, pas le nombre de
+rôles. Ultra sert à lancer plus de **lecteurs** en parallèle, pas plus d'écrivains.
+
+| Agent | Où le lancer | Pourquoi |
+| --- | --- | --- |
+| `researcher` | H2/H3 Ultra, en parallèle (API, concurrents) | Volume de lecture, pas de décision |
+| `qa-demo` | H3 Ultra, en boucle sur `DEMO.md` | Exécution de tests, rapports |
+| `implementer` | H2/H3, un par worktree | Un écrivain par zone de fichiers |
+| `architect` | H2, avant les tickets | Décision structurante |
+| `reviewer` | H2, après chaque diff | Trouve les erreurs coûteuses |
+| `devils-advocate` | H1, sur le PRD | Critique de haut niveau |
+| `pitch` | H1, sur `DEMO.md` | Le texte final |
+
+Règles :
+
+- **2 à 3 lecteurs** par humain Ultra, **1 seul écrivain** par worktree.
+- Pour explorer le code, utiliser les agents intégrés **Explore/Plan** plutôt que créer un
+  `scout` maison : ils sont read-only et ne polluent pas le contexte principal.
+- Les skills AI Hero peuvent être préchargés dans les agents (`skills: tdd`, `code-review`,
+  `research`, `codebase-design`) **une fois installés**. Ne pas les hardcoder avant de les
+  avoir testés : un skill absent peut faire échouer le lancement.
+- Les subagents en arrière-plan (si la version les supporte) sont réservés aux longs QA et
+  à la recherche ; jamais à l'écriture.
+- **Fable** reste manuel, jamais dans un AFK.
+- **Agent teams** : non.
+
+> Test réel de ce roster : `docs/DRY-RUN.md`.
 
 ## Sécurité
 

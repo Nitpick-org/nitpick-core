@@ -18,3 +18,5 @@ test-results/
 playwright-report/
 playwright/.cache/
 .worktrees/
+.pnpm-store/
+.dry-run-test/

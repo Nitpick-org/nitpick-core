@@ -4,6 +4,7 @@
 #
 # Usage: ./scripts/new-worktree.sh 12-login
 #        WT_BASE=/tmp/wt ./scripts/new-worktree.sh 12-login   # alternative location
+#        WT_FROM=dry-run/base ./scripts/new-worktree.sh 01-anomaly  # base branch (dry run)
 set -euo pipefail
 
 [ $# -eq 1 ] || { echo "Usage: $0 <ticket-number-name>"; exit 1; }
@@ -32,10 +33,20 @@ if [ -e "$DIR" ]; then
   exit 1
 fi
 
-BASE="main"
-git -C "$ROOT" fetch origin main >/dev/null 2>&1 || true
-if git -C "$ROOT" show-ref --verify --quiet refs/remotes/origin/main; then
-  BASE="origin/main"
+BASE_BRANCH="${WT_FROM:-main}"
+if [ "$BASE_BRANCH" = "main" ]; then
+  git -C "$ROOT" fetch origin main >/dev/null 2>&1 || true
+  if git -C "$ROOT" show-ref --verify --quiet refs/remotes/origin/main; then
+    BASE="origin/main"
+  else
+    BASE="main"
+  fi
+else
+  if ! git -C "$ROOT" show-ref --verify --quiet "refs/heads/$BASE_BRANCH"; then
+    echo "❌ Base branch not found: $BASE_BRANCH (set WT_FROM to an existing local branch)."
+    exit 1
+  fi
+  BASE="$BASE_BRANCH"
 fi
 
 mkdir -p "$BASE_DIR"

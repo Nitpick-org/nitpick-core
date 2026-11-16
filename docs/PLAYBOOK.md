@@ -19,10 +19,10 @@ de H1. Détail : `docs/ULTRA.md`.
 
 | Jour | Objectif | Porte |
 | --- | --- | --- |
-| J-5 (lun) | Lire `LAUZHACK.md` et `STRATEGY.md`, appel équipe 60 min, rôles, repo GitHub public | Rôles + repo créés |
+| J-5 (lun) | Lire `LAUZHACK.md` et `STRATEGY.md`, appel équipe 60 min, rôles, repo privé + invitations | Rôles + repo partagés |
 | J-4 (mar) | Choisir la stack, bootstrap, hello world déployé, CI verte | URL de preview qui répond |
-| J-3 (mer) | Installer Claude Code + skills, tester agents/worktree/AFK, `doctor.sh` | 7 agents visibles, check.sh vert |
-| J-2 (jeu) | Répétition 2 h sur une idée bidon : idée → DEMO → PRD → 3 tickets → 2 agents → démo | La répétition tourne |
+| J-3 (mer) | Installer skills, tester agents/worktree/AFK, faire le **dry run** (`docs/DRY-RUN.md`) | 7 agents visibles, dry run passé |
+| J-2 (jeu) | Corriger les 3 frictions du dry run + 3 idées par humain | La boucle tourne sans friction bloquante |
 | J-1 (ven) | Shortlist de 3 idées, clés API, quotas, valises, sommeil | `doctor.sh` sans échec |
 
 Détail : `docs/PRE-EVENT-CHECKLIST.md`.

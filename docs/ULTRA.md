@@ -31,6 +31,9 @@
 QA répétée) partent sur un compte Ultra. Les tâches **gourmandes en jugement** (PRD, périmètre,
 pitch) restent chez l'humain concerné, quel que soit son plan.
 
+La répartition agent par agent est dans `docs/AGENT-OPS.md` → **Roster optimization for
+Ultra** : plus de lecteurs, jamais plus d'un écrivain par worktree.
+
 ## Concurrence : ce qui change, ce qui ne change pas
 
 - **Ne change pas :** un humain relit sérieusement **un** diff significatif à la fois.

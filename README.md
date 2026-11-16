@@ -11,6 +11,8 @@ profonds et des garde-fous exécutables.
 ## État actuel (16/11/2026)
 
 - La base a été auditée et corrigée : voir [docs/AUDIT-2026-11-16.md](./docs/AUDIT-2026-11-16.md).
+- Un **dry run** complet est prêt : [docs/DRY-RUN.md](./docs/DRY-RUN.md), avec un starter
+  Vite/React jetable dans `dry-run/starter/`.
 - La **stack n'est pas choisie** : `package.json` n'existe pas encore.
 - `./scripts/check.sh` et la CI échouent tant que la stack n'est pas initialisée.
   **C'est volontaire** : une base sans stack n'est pas une base prête.
@@ -22,11 +24,12 @@ profonds et des garde-fous exécutables.
 
 | Priorité | Tâche | Qui | Échéance |
 | --- | --- | --- | --- |
-| P0 | Ajouter les 3 membres au repo + protéger `main` (PR + CI) | H2 | J-4 |
+| P0 | Inviter les 2 autres au repo + protéger `main` (PR + CI) | H2 | J-4 |
 | P0 | Choisir la stack, bootstrap, hello world **déployé** | H2 | J-4 |
 | P0 | `./scripts/check.sh` et la CI verts | H2 | J-4 |
 | P1 | Installer les skills, tester les 7 agents, un worktree, un AFK | tous | J-3 |
-| P1 | Répétition de 2 h sur une idée bidon + 3 idées par humain | H1 | J-2 |
+| P1 | Faire le **dry run** de 2 h 30 sur un clone jetable | tous | J-3 |
+| P1 | Corriger les 3 frictions du dry run + 3 idées par humain | tous | J-2 |
 | P1 | Comptes Ultra vérifiés, reset hebdo noté, `/usage` ≥ 75 % | H2, H3 | J-1 |
 | P1 | Clés/quotas, reçus de voyage, repo public, `doctor.sh` | H2 | J-1 |
 | H0 | Idée, DEMO.md, PRD.md, 8–12 tickets | tous | sam 21, 12:00 |
@@ -54,6 +57,18 @@ claude plugin install mattpocock-skills@claude-plugins-official
 
 Vérifier : `claude` puis « liste les sous-agents du projet » → les 7 agents de
 `.claude/agents/` doivent apparaître.
+
+## Partager avec les 2 autres
+
+1. GitHub → repo → **Settings → Collaborators → Add people** (le repo est privé).
+2. Chacun accepte l'invitation et clone le repo.
+3. Chacun suit **[docs/ONBOARDING.md](./docs/ONBOARDING.md)** : outils, hooks, `.env`,
+   Claude Code/Ultra, skills, `doctor.sh`.
+4. Puis **[docs/DRY-RUN.md](./docs/DRY-RUN.md)** : mini-projet fictif de 2 h 30 dans un
+   clone jetable, pour tester la base, les agents et la démo.
+
+> Ne pas travailler directement dans le repo partagé pour le dry run : clone à part,
+> branche `dry-run/base`, suppression après.
 
 ## Les 5 jours avant
 
@@ -84,6 +99,8 @@ AFK_OK=1 ./scripts/afk-ralph.sh 4       # bounded loop before a nap
 | `CLAUDE.md` | Contrat lu par chaque agent : état, règles, commandes, définitions. |
 | `AGENTS.md` | Point d'entrée pour les autres outils (Cursor, Codex…). |
 | `docs/LAUZHACK.md` | Faits, règles, horaires, soumission, logistique. **À lire.** |
+| `docs/ONBOARDING.md` | Rejoindre le repo en 20 minutes. |
+| `docs/DRY-RUN.md` | Test « situation réelle » de 2 h 30 sur un mini-projet fictif. |
 | `docs/STRATEGY.md` | Comment choisir l'idée, scorer, construire la démo de 3 min. |
 | `docs/RESEARCH-HACKATHON.md` | Synthèse des sources : ce qui fait gagner, ce qui fait perdre. |
 | `docs/PLAYBOOK.md` | Déroulé des 24 h, rôles, rituels, portes. |
@@ -100,6 +117,7 @@ AFK_OK=1 ./scripts/afk-ralph.sh 4       # bounded loop before a nap
 | `docs/RESEARCH.md` | Recherche externe mise en cache. |
 | `docs/PRE-EVENT-CHECKLIST.md` | Checklist J-5 → J0. |
 | `docs/AUDIT-2026-11-16.md` | Review de la base et corrections. |
+| `docs/AUDIT-2.md` | Deuxième audit : partage, dry run, agents Ultra. |
 | `progress.txt` | Synthèse tenue par l'intégrateur. |
 | `progress/<ticket>.md` | Journal par ticket, sans conflit. |
 | `.claude/agents/` | 7 subagents : `researcher`, `devils-advocate`, `architect`, `implementer`, `reviewer`, `qa-demo`, `pitch`. |
@@ -109,6 +127,7 @@ AFK_OK=1 ./scripts/afk-ralph.sh 4       # bounded loop before a nap
 | `scripts/new-worktree.sh` | Worktree + branche + journal de ticket. |
 | `scripts/ralph-once.sh` | Une itération surveillée. |
 | `scripts/afk-ralph.sh` | Boucle bornée pour la nuit. |
+| `dry-run/` | Starter jetable, tickets et rétro du dry run. |
 | `.github/` | CI, modèle de ticket, modèle de PR. |
 
 ## Règles d'or

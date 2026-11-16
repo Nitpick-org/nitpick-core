@@ -145,7 +145,7 @@ fi
 
 echo
 echo "── Project docs ───────────────────────────────────────────"
-for doc in docs/PRD.md docs/DEMO.md docs/DECISIONS.md docs/QUESTIONS.md docs/LAUZHACK.md docs/STRATEGY.md docs/AGENT-OPS.md docs/ULTRA.md docs/STACK.md; do
+for doc in docs/PRD.md docs/DEMO.md docs/DECISIONS.md docs/QUESTIONS.md docs/LAUZHACK.md docs/STRATEGY.md docs/AGENT-OPS.md docs/ULTRA.md docs/STACK.md docs/ONBOARDING.md docs/DRY-RUN.md; do
   [ -f "$doc" ] && ok "$doc" || warn "$doc missing"
 done
 
@@ -161,6 +161,7 @@ echo
 echo "── CI ─────────────────────────────────────────────────────"
 [ -f .github/workflows/ci.yml ] && ok "CI workflow present" || warn "no CI workflow"
 [ -f .github/ISSUE_TEMPLATE/ticket.md ] && ok "ticket template present" || warn "no ticket template"
+[ -f dry-run/starter/package.json ] && ok "dry-run starter present" || warn "dry-run starter missing"
 [ -f .github/ISSUE_TEMPLATE/bug.md ] && ok "bug template present" || warn "no bug template"
 
 echo

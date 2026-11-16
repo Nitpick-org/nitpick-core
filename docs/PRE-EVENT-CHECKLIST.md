@@ -8,8 +8,9 @@
 - [ ] Lire `docs/LAUZHACK.md`, `docs/STRATEGY.md`, `docs/PLAYBOOK.md`, `docs/AGENT-OPS.md` (toute l'équipe).
 - [ ] Appel équipe de 60 min : rôles définitifs, disponibilités, sommeil, transport.
 - [ ] Confirmer l'acceptation LauzHack et rejoindre le Discord.
-- [ ] Créer le repo GitHub **public** (le lien de soumission doit être accessible sans login).
-- [ ] Ajouter les 3 membres, protéger `main` (PR + CI verte).
+- [ ] Créer le repo GitHub **privé** (il devra être **public** avant la soumission).
+- [ ] Inviter les 2 autres, protéger `main` (PR + CI verte).
+- [ ] Envoyer `docs/ONBOARDING.md` aux 2 autres ; chacun clone et lance `doctor.sh`.
 - [ ] Vérifier que les 3 ont Git, Node 22+, `gh`, `claude`, un éditeur.
 - [ ] Lancer `git config core.hooksPath .githooks` dans chaque clone.
 - [ ] Remplir `CLAUDE.md` : prénoms, rôles, phrase d'état.
@@ -42,6 +43,8 @@
 - [ ] Tester `./scripts/new-worktree.sh test-1`, ouvrir `claude` dedans, faire un mini-commit, puis `rm-worktree.sh`.
 - [ ] Tester `AFK_OK=1 ./scripts/afk-ralph.sh 1` sur un faux ticket **low-risk**.
 - [ ] Vérifier les hooks : `PreToolUse` bloque un sous-agent sur `PRD.md` ; `Stop` bloque si `check.sh` est rouge.
+- [ ] Faire le **dry run** de 2 h 30 (`docs/DRY-RUN.md`) sur un clone jetable.
+- [ ] Remplir `dry-run/RETRO.md` : 3 frictions concrètes.
 - [ ] Ajouter un test Playwright qui suit `docs/DEMO.md` (même vide).
 - [ ] Préparer `progress/` et expliquer le protocole aux agents.
 
@@ -52,6 +55,7 @@
 - [ ] Répétition générale de 2 h sur une **idée bidon** : idée → DEMO → PRD → 3 tickets → 2 agents → démo.
 - [ ] Chronométrer : le squelette doit être déployé en < 2 h.
 - [ ] Chaque humain prépare **3 idées** (une phrase, aha, risque n°1) pour samedi.
+- [ ] Corriger les 3 frictions du dry run (tickets dans le vrai repo).
 - [ ] Rechercher les sponsors 2026 et les challenges probables (`researcher`).
 - [ ] Préparer le formulaire de soumission : titre, descriptions, miniature, lien.
 - [ ] Préparer un script de vidéo de secours (2 min) et un dossier de captures.

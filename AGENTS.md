@@ -5,6 +5,8 @@ tâche : il fait foi pour tous les outils (Claude Code, Cursor, Codex, Copilot�
 
 Ensuite, selon la tâche :
 
+- onboarding : [docs/ONBOARDING.md](./docs/ONBOARDING.md)
+- dry run : [docs/DRY-RUN.md](./docs/DRY-RUN.md)
 - faits et règles de l'événement : [docs/LAUZHACK.md](./docs/LAUZHACK.md)
 - stratégie, choix de l'idée, démo : [docs/STRATEGY.md](./docs/STRATEGY.md)
 - recherche sourcée sur les hackathons : [docs/RESEARCH-HACKATHON.md](./docs/RESEARCH-HACKATHON.md)
