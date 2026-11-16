@@ -131,7 +131,7 @@ AFK_OK=1 ./scripts/afk-ralph.sh 4       # bounded loop before a nap
 | `scripts/new-worktree.sh` | Worktree + branche + journal de ticket. |
 | `scripts/ralph-once.sh` | Une itération surveillée. |
 | `scripts/afk-ralph.sh` | Boucle bornée pour la nuit. |
-| `dry-run/` | Starter jetable, tickets et rétro du dry run. |
+| `dry-run/` | Starter jetable, tickets, `REVIEW.md` (retour à envoyer) et `RETRO.md` (rétro interne). |
 | `.github/` | CI, modèle de ticket, modèle de PR. |
 
 ## Règles d'or

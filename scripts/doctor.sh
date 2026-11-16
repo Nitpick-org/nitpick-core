@@ -168,6 +168,7 @@ echo "── CI ─────────────────────�
 [ -f .github/workflows/ci.yml ] && ok "CI workflow present" || warn "no CI workflow"
 [ -f .github/ISSUE_TEMPLATE/ticket.md ] && ok "ticket template present" || warn "no ticket template"
 [ -f dry-run/starter/package.json ] && ok "dry-run starter present" || warn "dry-run starter missing"
+[ -f dry-run/REVIEW.md ] && ok "review template present" || warn "review template missing"
 [ -f .github/ISSUE_TEMPLATE/bug.md ] && ok "bug template present" || warn "no bug template"
 
 echo

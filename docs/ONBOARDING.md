@@ -120,7 +120,7 @@ Le vrai test, c'est `docs/DRY-RUN.md` : un mini-projet fictif de 2 h 30, dans un
 jetable, avec les vrais scripts, les vrais agents et une démo de 3 minutes.
 
 **Ne le fais pas dans le repo partagé** : clone à part, branche `dry-run/base`, puis
-suppression.
+suppression. À la fin, remplis `dry-run/REVIEW.md` et envoie-le.
 
 ## 8. Règles de travail (résumé)
 

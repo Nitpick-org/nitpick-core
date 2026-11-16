@@ -1,7 +1,8 @@
 # Dry run — rétro
 
-> À remplir à la fin du dry run, à chaud. 5 minutes. Le but n'est pas de noter les
-> personnes, c'est de corriger la base avant le vrai hackathon.
+> Rétro interne de 5 minutes, à chaud, pour l'équipe. Pour le retour complet à envoyer aux
+> autres, utiliser `dry-run/REVIEW.md` (20 min). Le but n'est pas de noter les personnes,
+> c'est de corriger la base avant le vrai hackathon.
 
 ## Ce qui a marché
 

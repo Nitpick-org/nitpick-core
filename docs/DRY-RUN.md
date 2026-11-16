@@ -25,7 +25,8 @@
 2. **Aucun secret réel** : pas de clé API, pas de donnée personnelle.
 3. **Ne merge jamais `dry-run/base` dans `main`.**
 4. **Timebox** : 2 h 30. Si une étape dépasse, note-le et passe à la suivante.
-5. **Note les frictions** : chaque blocage de plus de 5 minutes va dans `dry-run/RETRO.md`.
+5. **Note les frictions** : chaque blocage de plus de 5 minutes va dans `dry-run/REVIEW.md`
+   (section bugs) et dans `dry-run/RETRO.md` (synthèse interne).
 
 ## Setup (10 minutes)
 
@@ -73,8 +74,7 @@ pnpm exec playwright install chromium
 | 0:50–1:35 | H2/H3 | Ticket #02 UI, puis #03 e2e/demo ; `reviewer` sur chaque diff | 3 tickets prêts |
 | 1:35–1:55 | H2 | Merge dans `dry-run/base`, `check.sh --demo` | Tout vert |
 | 1:55–2:10 | tous | Démo 3 min ×2 + Q&A 1 min | La démo tient en 2:45 |
-| 2:10–2:25 | tous | Remplir `dry-run/RETRO.md` | 3 correctifs concrets |
-| 2:25–2:30 | tous | Nettoyage, go/no-go | Décision écrite |
+| 2:10–2:30 | tous | Remplir `dry-run/REVIEW.md` (15–20 min) + `dry-run/RETRO.md` (5 min), go/no-go | Review complète + 3 correctifs |
 
 ## Commandes utiles
 
@@ -141,15 +141,17 @@ Si un ticket échoue 2 fois, relance le **même agent** avec le modèle supérie
 - [ ] Un doc a été écrit par `scribe` (Haiku), pas par Opus.
 - [ ] Une escalade a été journalisée si un ticket a échoué 2 fois.
 - [ ] La démo de 3 minutes passe 2 fois, sans slides.
-- [ ] `dry-run/RETRO.md` contient 3 correctifs concrets.
+- [ ] `dry-run/REVIEW.md` est rempli (le retour complet à envoyer).
+- [ ] `dry-run/RETRO.md` contient 3 correctifs concrets (rétro interne).
 - [ ] Aucun secret n'a été commité.
 
 ## Après le dry run
 
-1. Remplir `dry-run/RETRO.md` à chaud.
-2. Créer 3 tickets dans le vrai repo (GitHub Issues, label `ticket`) pour les 3 correctifs.
-3. Les corriger avant H0, avec `check.sh` vert.
-4. Supprimer le clone jetable.
+1. Remplir `dry-run/REVIEW.md` (retour complet, 20 min) et l'envoyer.
+2. Remplir `dry-run/RETRO.md` à chaud (rétro interne, 5 min).
+3. Créer 3 tickets dans le vrai repo (GitHub Issues, label `ticket`) pour les 3 correctifs.
+4. Les corriger avant H0, avec `check.sh` vert.
+5. Supprimer le clone jetable.
 
 > Si le dry run échoue, c'est une réussite : tu viens de trouver un problème avant le
 > hackathon, pas pendant la démo.

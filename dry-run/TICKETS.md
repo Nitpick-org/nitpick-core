@@ -72,7 +72,8 @@ boîte noire. » Critère : le z-score et la ligne fautive sont visibles à l'é
    `implementer` + `qa-demo`.
 3. H1 : écrit `docs/DEMO.md` en parallèle, puis #03 avec H3.
 4. H2 : `reviewer` sur chaque diff, merge après `./scripts/check.sh --demo`.
-5. Tous : démo de 3 minutes, puis `dry-run/RETRO.md`.
+5. Tous : démo de 3 minutes, puis `dry-run/REVIEW.md` (retour complet) et
+   `dry-run/RETRO.md` (rétro interne).
 
 ## Brief agent (à coller)
 
