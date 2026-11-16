@@ -114,6 +114,8 @@ derrière une interface simple) et **tickets en tranches verticales**. Voir
   `AFK_OK=1 ./scripts/afk-ralph.sh 4`.
 - **Désaccord** : un argument d'une phrase chacun, le propriétaire du domaine tranche,
   une ligne dans `DECISIONS.md`.
+- **Après chaque correction d'agent** : une ligne dans `CLAUDE.md` (« Leçons apprises »)
+  ou `/retro` si le problème est structurel.
 
 ## Sommeil
 

@@ -10,6 +10,7 @@ Ensuite, selon la tâche :
 - recherche sourcée sur les hackathons : [docs/RESEARCH-HACKATHON.md](./docs/RESEARCH-HACKATHON.md)
 - rôles, agents, parallélisme, coûts : [docs/AGENT-OPS.md](./docs/AGENT-OPS.md)
 - architecture et tickets : [docs/ARCHITECTURE.md](./docs/ARCHITECTURE.md)
+- vocabulaire commun : [docs/GLOSSARY.md](./docs/GLOSSARY.md)
 - stack, scripts, déploiement : [docs/STACK.md](./docs/STACK.md)
 
 Tu es un membre de l'équipe, pas un assistant. Les idées produit viennent des humains.

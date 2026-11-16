@@ -27,6 +27,24 @@
 
 Tout le monde code et relit. Les rôles disent **qui tranche**, pas qui est le seul à travailler.
 
+### Comment invoquer un agent
+
+Les agents vivent dans `.claude/agents/`. On les appelle par leur nom, ou Claude les
+sélectionne seul si la tâche correspond à leur description.
+
+| Besoin | Phrase à dire | Agent |
+| --- | --- | --- |
+| Vérifier une API / un concurrent | « Utilise le chercheur pour vérifier X ; mets le résultat dans RESEARCH.md. » | `chercheur` |
+| Challenger le PRD | « Utilise l'avocat-du-diable sur docs/PRD.md. » | `avocat-du-diable` |
+| Découper en modules/tickets | « Utilise l'architecte sur le PRD ; propose les interfaces. » | `architecte` |
+| Implémenter un ticket | « Utilise l'implementeur sur le ticket #12. » | `implementeur` |
+| Relire un diff | « Utilise le reviewer sur `git diff main...HEAD`. » | `reviewer` |
+| Tester la démo | « Utilise qa-demo pour rejouer docs/DEMO.md. » | `qa-demo` |
+| Écrire le pitch | « Utilise pitch pour réécrire DEMO.md en 2:45. » | `pitch` |
+
+Un agent sans `Write`/`Edit` (avocat, architecte, reviewer) rend un rapport ;
+c'est à l'humain de décider ce qu'on en garde.
+
 ## Combien de sessions en parallèle ?
 
 | Phase | Écrivains | Lecteurs / QA | Total max | Porte |

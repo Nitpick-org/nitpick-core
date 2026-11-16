@@ -69,6 +69,7 @@ AFK_OK=1 ./scripts/afk-ralph.sh 4       # boucle bornée avant une sieste
 | `docs/RESEARCH-HACKATHON.md` | Synthèse des sources : ce qui fait gagner, ce qui fait perdre. |
 | `docs/PLAYBOOK.md` | Déroulé des 24 h, rôles, rituels, portes. |
 | `docs/AGENT-OPS.md` | 3 humains + agents : concurrency, briefs, coûts, sécurité. |
+| `docs/GLOSSARY.md` | Le langage commun ; à remplir à H0. |
 | `docs/ARCHITECTURE.md` | Modules profonds, interfaces, tickets parallèles. |
 | `docs/STACK.md` | Choisir la stack, bootstrap, déploiement, résilience de démo. |
 | `docs/PRD.md` | La destination : ce que voit l'utilisateur. Écrit à H0. |
