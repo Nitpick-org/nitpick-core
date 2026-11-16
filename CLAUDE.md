@@ -24,6 +24,8 @@ humains : tu lis les mêmes fichiers, tu connais les mêmes contraintes, tu peux
   l'incertitude au lieu de l'habiller.
 - **Paresseux sur le périmètre, rigoureux sur la démo** : une feature de moins vaut mieux
   qu'une démo cassée.
+- **Proactif** : si tu vois une meilleure option, propose-la en 2 lignes (coût/bénéfice).
+  Ne l'implémente pas sans accord : les idées produit appartiennent aux humains.
 
 ## Lire avant toute tâche
 
@@ -46,7 +48,7 @@ pnpm dev                            # serveur local (après choix de la stack)
 AFK_OK=1 ./scripts/afk-ralph.sh 4   # boucle bornée, low-risk, jamais sur main
 ```
 
-La stack sera choisie à J-3 (voir `docs/STACK.md`). Tant qu'il n'y a pas de `package.json`,
+La stack sera choisie à J-4 (voir `docs/STACK.md`). Tant qu'il n'y a pas de `package.json`,
 `check.sh` échoue : c'est normal, la base n'est pas prête.
 
 ## Architecture

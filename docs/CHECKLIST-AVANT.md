@@ -87,12 +87,12 @@
 
 ## Pendant la nuit
 
-- [ ] Shifts de sommeil de 3 h : 00:00 H1, 03:00 H2, 06:00 H3.
-- [ ] Toujours 2 personnes éveillées.
+- [ ] Shifts de sommeil de 4 h : 22:00 H3, 02:00 H2, 06:00 H1.
+- [ ] Toujours 2 personnes éveillées ; pas de all-nighter.
 - [ ] AFK uniquement sur des tickets low-risk avec oracle (`check.sh`).
 - [ ] Aucune décision produit sans humain.
 - [ ] `main` reste verte ; pas de merge sans `check.sh --demo`.
-- [ ] Vidéo de secours enregistrée avant 00:00.
+- [ ] Vidéo de secours (2 min) enregistrée avant 23:00.
 
 ## Dimanche — gel et soumission
 

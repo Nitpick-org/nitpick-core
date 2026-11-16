@@ -7,6 +7,7 @@ Ensuite, selon la tâche :
 
 - faits et règles de l'événement : [docs/LAUZHACK.md](./docs/LAUZHACK.md)
 - stratégie, choix de l'idée, démo : [docs/STRATEGY.md](./docs/STRATEGY.md)
+- recherche sourcée sur les hackathons : [docs/RESEARCH-HACKATHON.md](./docs/RESEARCH-HACKATHON.md)
 - rôles, agents, parallélisme, coûts : [docs/AGENT-OPS.md](./docs/AGENT-OPS.md)
 - architecture et tickets : [docs/ARCHITECTURE.md](./docs/ARCHITECTURE.md)
 - stack, scripts, déploiement : [docs/STACK.md](./docs/STACK.md)

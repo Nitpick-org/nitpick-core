@@ -3,7 +3,7 @@
 > La meilleure stack est celle que **vous savez déboguer à 3 h du matin**. Pas la plus
 > hype. Ce document aide à trancher en 15 minutes et à poser un contrat commun.
 
-## Décider en 15 minutes (J-3)
+## Décider en 15 minutes (J-4)
 
 Chaque humain note de 1 à 5 :
 

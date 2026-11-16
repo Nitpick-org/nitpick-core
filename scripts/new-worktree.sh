@@ -13,7 +13,8 @@ esac
 
 ROOT="$(git rev-parse --show-toplevel)"
 BRANCH="ticket/$NAME"
-DIR="$(dirname "$ROOT")/wt-$NAME"
+BASE_DIR="${WT_BASE:-$(dirname "$ROOT")}"
+DIR="$BASE_DIR/wt-$NAME"
 
 git -C "$ROOT" rev-parse --verify HEAD >/dev/null 2>&1 || {
   echo "❌ No initial commit yet. Commit the base before creating worktrees."
@@ -36,6 +37,7 @@ if git -C "$ROOT" show-ref --verify --quiet refs/remotes/origin/main; then
   BASE="origin/main"
 fi
 
+mkdir -p "$BASE_DIR"
 git -C "$ROOT" worktree add -b "$BRANCH" "$DIR" "$BASE"
 
 # Local secrets are never committed; copy them so the worktree can run.
@@ -64,6 +66,7 @@ fi
 echo "✅ Worktree ready: $DIR (branch $BRANCH from $BASE)"
 echo
 echo "Next:"
+echo "  cd $DIR && pnpm install   # si node_modules n'est pas partagé"
 echo "  cd $DIR && claude"
 echo "  # or, from this checkout: claude --worktree $NAME"
 echo

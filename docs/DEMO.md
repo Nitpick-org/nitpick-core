@@ -10,14 +10,17 @@
 
 ## Script 3 minutes
 
+> Le créneau officiel est 3 minutes. Visez **2:45** : la marge absorbe un imprévu.
+> Enregistrez aussi une **vidéo de secours de 2 minutes**.
+
 | Temps | Contenu | Qui | Ce qu'on voit |
 | --- | --- | --- | --- |
-| 0:00–0:25 | Le problème, une personne précise | H1 | Écran titre simple (image, pas slide) |
-| 0:25–0:40 | L'avant, ce que ça coûte | H1 | Une capture de l'ancien workflow |
-| 0:40–2:15 | **Démo live**, un seul flux | H3 | L'écran réel, pas de montage |
-| 2:15–2:35 | Nouveauté + ce qui est réutilisé | H2 | Une phrase, pas un diagramme |
-| 2:35–2:50 | Impact, qui d'autre, échelle | H1 | Un chiffre crédible ou une citation |
-| 2:50–3:00 | La phrase à retenir | H1 | Écran final |
+| 0:00–0:20 | Le problème, une personne précise | H1 | Écran titre simple (image, pas slide) |
+| 0:20–0:35 | L'avant, ce que ça coûte | H1 | Une capture de l'ancien workflow |
+| 0:35–2:05 | **Démo live**, un seul flux | H3 | L'écran réel, pas de montage |
+| 2:05–2:25 | Nouveauté + ce qui est réutilisé | H2 | Une phrase, pas un diagramme |
+| 2:25–2:40 | Impact, qui d'autre, échelle | H1 | Un chiffre crédible ou une citation |
+| 2:40–2:45 | La phrase à retenir | H1 | Écran final |
 
 ### Règles de la démo live
 
@@ -67,7 +70,7 @@ Préparer 10 réponses de 2 phrases :
 | Écran qui ne s'affiche pas | capture PNG plein écran | [ ] |
 | Démo qui crash | vidéo de 2 min, on continue à parler | [ ] |
 
-- **Vidéo de secours** : `<lien>` (enregistrée avant 00:00, testée sur un autre laptop)
+- **Vidéo de secours** : `<lien>` (2 min, enregistrée avant 23:00, testée sur un autre laptop)
 - **Captures** : `<dossier>`
 - **Données de démo** : `<où>`
 - **URL de secours** : `<preview stable>`
@@ -82,7 +85,7 @@ Préparer 10 réponses de 2 phrases :
 | 4 | | | | | [ ] |
 | 5 | | | | | [ ] |
 
-Objectif : **5 passages**, dont 1 avec une panne simulée. Chronométrer. Si > 3:00,
+Objectif : **5 passages**, dont 1 avec une panne simulée. Chronométrer. Si > 2:45,
 couper.
 
 ## Checklist avant de monter sur scène

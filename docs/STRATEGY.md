@@ -36,22 +36,29 @@ au service d'un problème réel et d'une démo lisible.
 5. Choisir. Écrire `docs/DEMO.md` **avant** le PRD. Si la démo ne s'écrit pas en 5 points,
    l'idée n'est pas prête.
 
-### Grille de score (1 à 5)
+### Grille de score (100 points)
 
-| Critère | Poids | 1 (faible) | 3 (correct) | 5 (fort) |
+| Critère | Points | 1 (faible) | 3 (correct) | 5 (fort) |
 | --- | --- | --- | --- | --- |
-| **Démo-abilité** | 30 % | il faut expliquer avant de montrer | on voit le résultat en 1 min | le aha est visible en 20 s, sans slides |
-| **Nouveauté** | 25 % | c'est un CRUD avec un LLM | combinaison originale | « je n'ai jamais vu ça » + explicable en 1 phrase |
-| **Impact** | 20 % | personne ne paierait | utile pour un groupe | douleur réelle, personne précise, bénéfice évident |
-| **Faisabilité 24 h** | 15 % | 3 intégrations inconnues | 1 intégration risquée | tout est faisable avec les APIs/le matériel disponibles |
-| **Fit challenge sponsor** | 10 % | aucun | correspond à un challenge | le challenge est presque écrit pour l'idée |
+| **Nouveauté** | 30 | re-skin d'un outil existant | combinaison originale | le jury peut nommer ce qui est nouveau |
+| **Démo / fonctionnalité** | 30 | le happy path casse | 3 runs propres | 3 runs + 1 cas limite, en live |
+| **Impact** | 20 | aucun utilisateur identifiable | utile pour un groupe | une personne nommée, une différence claire |
+| **Profondeur technique** | 10 | glue/CRUD | une partie non triviale | le cœur difficile marche en live |
+| **Fit challenge sponsor** | 10 | simple logo | API utilisée | API/matériel au centre, checklist remplie |
+
+Notez chaque critère de 1 à 5, puis convertissez : `points = note / 5 × poids`.
+Le total est sur 100.
 
 **Seuils d'élimination :**
 
-- Démo-abilité ≤ 2 → on coupe, même si l'idée est belle.
-- Faisabilité ≤ 2 → on coupe, sauf si le risque est isolable et mockable.
-- Nouveauté ≤ 2 → on coupe : le jury a vu 10 projets comme ça.
-- Impact ≤ 2 → à discuter : un hack technique impressionnant peut compenser.
+- Démo ≤ 2/5 → on coupe, même si l'idée est belle.
+- Nouveauté ≤ 2/5 → on coupe : le jury a vu 10 projets comme ça.
+- Impact ≤ 2/5 → à discuter : un hack technique impressionnant peut compenser.
+- Faisabilité : si l'intégration la plus risquée n'est pas démontrable **à 19:00 samedi**,
+  on la coupe. Pas de « on verra cette nuit ».
+
+> La présentation est un **seuil**, pas le score : une démo fluide ne sauve pas un produit
+> vide, mais une démo confuse tue un bon produit. Soignez le fond d'abord, le flux ensuite.
 
 ### Questions à poser avant de dire oui
 
@@ -69,7 +76,7 @@ au service d'un problème réel et d'une démo lisible.
 | Auth / comptes / onboarding | 2–4 h perdues, démo fragile | mode invité, session locale, données seedées |
 | Paiement réel | KYC, clés, 3-D Secure | mock clair, capture d'écran |
 | Multi-utilisateur / temps réel complexe | courses, permissions, bugs | un seul utilisateur, état local |
-| 3 intégrations inconnues | une seule peut prendre la journée | 1 intégration réelle + mocks |
+| 3 intégrations inconnues | une seule peut prendre la journée | **1 intégration externe max**, avec fallback fixture |
 | App mobile native / store | build, signature, review | web mobile, PWA |
 | Fine-tuning / entraînement | données, GPU, temps | API pré-entraînée + prompt |
 | Matériel non disponible | impossible à tester | simulateur + vidéo |
@@ -125,6 +132,8 @@ Préparez 10 réponses de 2 phrases :
 
 - Les énoncés arrivent aux tech talks (10:20–11:40) ou sur Discord. **Une personne note.**
 - Ciblez **1 challenge principal**, éventuellement 1 secondaire si le même cœur les sert.
+  Règle pratique : ne visez un challenge que si **≥ 70 % de ses exigences sont déjà sur le
+  chemin de démo**. Sinon, vous construisez deux produits et vous n'en finissez aucun.
 - Chaque challenge = un jury supplémentaire = une chance de prix en plus. Mais un produit
   tordu pour rentrer dans un challenge se voit.
 - Les sponsors jugent **leurs critères**, pas forcément les critères globaux : lisez l'énoncé,
@@ -172,3 +181,7 @@ Si la moyenne < 3 à H12 : **coupez** une feature et refaites la démo, ne rajou
 - [Projets 2025](https://2025.lauzhack.com/projects), [2024](https://2024.lauzhack.com/projects), [2023](https://2023.lauzhack.com/projects)
 - [AI Hero — 7 phases](https://aihero.dev/my-7-phases-of-ai-development) : idée → recherche → prototype → PRD → tickets → exécution → QA.
 - [AI Hero — codebases AI agents love](https://www.aihero.dev/how-to-make-codebases-ai-agents-love) : modules profonds, interface simple, tests.
+- [MLH — judging plan](https://guide.mlh.com/general-information/judging-and-submissions/judging-plan.md) : format court, passages répétés.
+- [WildHacks — rubric](https://dashboard.wildhacks.net/guide/judging-and-awards/project-evaluation) : complexité 30, utilité 30, originalité 20, design 15, présentation 5.
+- [Devpost — judges](https://info.devpost.com/blog/hackathon-judging-tips) : les jurys repèrent les belles landing pages au code vide.
+- [AngelHack — demo tips](https://angelhack.com/blog/10-tips-to-help-you-rock-your-next-hackathon-demo/) : 30 s problème, 90 s démo, 30 s technique, 30 s suite.

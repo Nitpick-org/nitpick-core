@@ -35,9 +35,9 @@ Détail : `docs/CHECKLIST-AVANT.md`.
 | **12:00–13:00** | **Kickoff** | DEMO.md, PRD, modules, tickets | `architecte` propose, `avocat` challenge | Démo écrite en 5 points, 8–12 tickets |
 | 13:00–16:00 | Squelette | 2–3 builders, worktrees | `implementeur` | **Démo bout en bout sur la preview, même moche** |
 | 16:00–19:00 | Cœur | Le aha d'abord | `implementeur`, `qa-demo` | Le aha est visible en < 30 s |
-| 19:00–23:00 | Deuxième feature | Profondeur ou 2ᵉ cas d'usage | `implementeur`, `reviewer` | Démo complète |
-| 23:00–00:00 | Gel v0.1 | Tag, vidéo de secours, soumission brouillon | `qa-demo` | v0.1 enregistrée |
-| 00:00–07:00 | Nuit | Sommeil en shifts de 3 h, 2 éveillés | AFK borné, low-risk uniquement | Personne ne casse `main` |
+| 19:00–22:00 | Deuxième feature | Profondeur ou 2ᵉ cas d'usage | `implementeur`, `reviewer` | Démo complète |
+| 22:00–23:00 | Gel v0.1 | Tag, vidéo de secours, soumission brouillon | `qa-demo` | v0.1 enregistrée |
+| 23:00–07:00 | Nuit | Sommeil en shifts de 4 h, 2 éveillés | AFK borné, low-risk uniquement | Personne ne casse `main` |
 | 07:00–09:30 | Intégration | Corriger, merger, répéter | `qa-demo`, `reviewer` | e2e vert |
 | **09:30–10:30** | **Gel final** | Plus de feature, seulement des bugs | — | Code gelé |
 | 10:30–11:30 | Soumission | Formulaire, README, vidéo | `pitch` | **Soumis avant 12:00** |
@@ -45,6 +45,7 @@ Détail : `docs/CHECKLIST-AVANT.md`.
 | 12:30–15:00 | Judging | Démo 3 min + Q&A 1 min | — | Rester jusqu'à la clôture |
 
 > Une porte non franchie à l'heure → on **coupe du périmètre**, on ne décale pas la suivante.
+> Si l'intégration la plus risquée n'est pas démontrable à **19:00 samedi**, on la coupe.
 
 ## Kickoff H0 — minute par minute
 
@@ -87,11 +88,28 @@ l'issue tracker, les labels et le dossier de docs).
 > Les anciens noms `/to-prd` et `/to-issues` ne sont plus les noms actuels. Utilisez
 > `/to-spec` et `/to-tickets`.
 
+### Mapping AI Hero → ce repo
+
+| Phase AI Hero | Artefact | Où |
+| --- | --- | --- |
+| 1. Idée | 3 idées, scoring, phrase de nouveauté | `docs/STRATEGY.md`, `docs/IDEAS.md` |
+| 2. Recherche | cache sourcé, API, pricing | `docs/RESEARCH.md`, `docs/RESEARCH-HACKATHON.md` |
+| 3. Prototype | route jetable pour trancher l'UX | `src/app/prototype/` (à supprimer) |
+| 4. PRD | destination, user stories, hors-périmètre | `docs/PRD.md` |
+| 5. Kanban | tickets, dépendances, critique démo | GitHub Issues, `.github/ISSUE_TEMPLATE/ticket.md` |
+| 6. Exécution | worktrees, Ralph, check.sh | `scripts/`, `.claude/agents/` |
+| 7. QA | e2e, QA de démo, review | `docs/DEMO.md`, `scripts/demo-check.sh`, `qa-demo` |
+
+Le principe AI Hero qui compte le plus ici : **modules profonds** (beaucoup de logique
+derrière une interface simple) et **tickets en tranches verticales**. Voir
+`docs/ARCHITECTURE.md`.
+
 ## Rituels
 
 - **Sync toutes les 3 h** (10 min, debout) : mergé / bloqué / on coupe quoi.
   À 15:00, 18:00, 21:00, 00:00, 07:00.
 - **Revue de démo à 16:00, 22:00 et 09:00** : on joue la démo sur la preview.
+  Visez **2:45**, pas 3:00 ; enregistrez une vidéo de secours de 2 min.
 - **Avant une sieste** (5 min) : état dans `progress.txt`, puis
   `AFK_OK=1 ./scripts/afk-ralph.sh 4`.
 - **Désaccord** : un argument d'une phrase chacun, le propriétaire du domaine tranche,
@@ -99,16 +117,20 @@ l'issue tracker, les labels et le dossier de docs).
 
 ## Sommeil
 
-3 personnes, 3 h de sommeil chacune, **toujours 2 éveillées** :
+3 personnes, **4 h de sommeil chacune**, toujours 2 éveillées. Pas de all-nighter : la
+démo finale se joue sur la lucidité, pas sur l'héroïsme.
 
 | Créneau | Dort | Éveillés |
 | --- | --- | --- |
-| 00:00–03:00 | H1 | H2, H3 |
-| 03:00–06:00 | H2 | H1, H3 |
-| 06:00–09:00 | H3 | H1, H2 |
+| 22:00–02:00 | H3 | H1, H2 |
+| 02:00–06:00 | H2 | H1, H3 |
+| 06:00–10:00 | H1 | H2, H3 |
 
+- H3 dort pendant le gel v0.1 : H1/H2 enregistrent la vidéo de secours.
+- H2 dort 02:00–06:00 : H1/H3 font l'intégration de nuit ; H2 reprend le merge à 06:00.
+- H1 dort 06:00–10:00 : H2/H3 font l'intégration du matin ; H1 revient pour la répétition.
 - Micro-siestes de 20 min autorisées pour les éveillés.
-- Personne ne conduit la démo finale avec moins de 3 h de sommeil.
+- Personne ne conduit la démo finale avec moins de 4 h de sommeil.
 - La zone de sommeil est accessible avec navettes ; prévoir 20 min de trajet.
 
 ## Communication

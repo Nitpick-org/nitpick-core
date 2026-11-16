@@ -11,6 +11,7 @@ ROOT="$(git rev-parse --show-toplevel 2>/dev/null)" || {
 }
 cd "$ROOT"
 
+IS_CI="${CI:-false}"
 OK=0
 WARN=0
 FAIL=0
@@ -32,6 +33,8 @@ BRANCH="$(git branch --show-current 2>/dev/null || true)"
 HOOKS="$(git config --get core.hooksPath 2>/dev/null || true)"
 if [ "$HOOKS" = ".githooks" ]; then
   ok "core.hooksPath = .githooks"
+elif [ "$IS_CI" = "true" ]; then
+  warn "core.hooksPath not set in CI (expected)"
 else
   fail "core.hooksPath is not .githooks (run: git config core.hooksPath .githooks)"
 fi
@@ -60,7 +63,13 @@ fi
 
 command -v pnpm >/dev/null 2>&1 && ok "pnpm $(pnpm -v)" || warn "pnpm not installed (npm fallback)"
 command -v gh   >/dev/null 2>&1 && ok "gh installed"        || warn "gh not installed"
-command -v claude >/dev/null 2>&1 && ok "claude $(claude --version 2>/dev/null | head -1)" || fail "claude is not installed"
+if command -v claude >/dev/null 2>&1; then
+  ok "claude $(claude --version 2>/dev/null | head -1)"
+elif [ "$IS_CI" = "true" ]; then
+  warn "claude not installed in CI (expected)"
+else
+  fail "claude is not installed"
+fi
 
 if command -v gh >/dev/null 2>&1; then
   gh auth status -h github.com >/dev/null 2>&1 && ok "gh authenticated" || warn "gh not authenticated (run: gh auth login)"
@@ -134,6 +143,7 @@ echo
 echo "── CI ─────────────────────────────────────────────────────"
 [ -f .github/workflows/ci.yml ] && ok "CI workflow present" || warn "no CI workflow"
 [ -f .github/ISSUE_TEMPLATE/ticket.md ] && ok "ticket template present" || warn "no ticket template"
+[ -f .github/ISSUE_TEMPLATE/bug.md ] && ok "bug template present" || warn "no bug template"
 
 echo
 echo "───────────────────────────────────────────────────────────"

@@ -4,6 +4,8 @@
 # stop was already triggered by this hook (prevents an infinite loop).
 set -euo pipefail
 
+[ "${HACKATHON_SKIP_STOP_CHECK:-0}" = "1" ] && exit 0
+
 ROOT="$(git rev-parse --show-toplevel 2>/dev/null || pwd)"
 cd "$ROOT"
 

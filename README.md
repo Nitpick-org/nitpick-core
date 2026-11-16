@@ -14,7 +14,7 @@ profonds et des garde-fous exécutables.
 - La **stack n'est pas choisie** : `package.json` n'existe pas encore.
 - `./scripts/check.sh` et la CI échouent tant que la stack n'est pas initialisée.
   **C'est volontaire** : une base sans stack n'est pas une base prête.
-- Prochaine étape : choisir la stack (J-3) et déployer un hello world (J-2 au plus tard).
+- Prochaine étape : choisir la stack (J-4) et déployer un hello world (J-4 au plus tard).
 
 ## Démarrage rapide
 
@@ -66,6 +66,7 @@ AFK_OK=1 ./scripts/afk-ralph.sh 4       # boucle bornée avant une sieste
 | `AGENTS.md` | Point d'entrée pour les autres outils (Cursor, Codex…). |
 | `docs/LAUZHACK.md` | Faits, règles, horaires, soumission, logistique. **À lire.** |
 | `docs/STRATEGY.md` | Comment choisir l'idée, scorer, construire la démo de 3 min. |
+| `docs/RESEARCH-HACKATHON.md` | Synthèse des sources : ce qui fait gagner, ce qui fait perdre. |
 | `docs/PLAYBOOK.md` | Déroulé des 24 h, rôles, rituels, portes. |
 | `docs/AGENT-OPS.md` | 3 humains + agents : concurrency, briefs, coûts, sécurité. |
 | `docs/ARCHITECTURE.md` | Modules profonds, interfaces, tickets parallèles. |

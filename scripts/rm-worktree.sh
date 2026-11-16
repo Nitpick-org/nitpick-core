@@ -14,7 +14,8 @@ esac
 
 ROOT="$(git rev-parse --show-toplevel)"
 BRANCH="ticket/$NAME"
-DIR="$(dirname "$ROOT")/wt-$NAME"
+BASE_DIR="${WT_BASE:-$(dirname "$ROOT")}"
+DIR="$BASE_DIR/wt-$NAME"
 
 if ! git -C "$ROOT" worktree list --porcelain | grep -Fq "worktree $DIR"; then
   echo "❌ No worktree registered at $DIR"
