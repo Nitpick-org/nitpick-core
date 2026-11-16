@@ -27,8 +27,9 @@ prendre celle qui a le moins de dépendances externes.
 | **Symfony 8 + Turbo/Stimulus + Postgres + Fly.io/Platform.sh** | équipe PHP forte | Turbo = UI rapide sans SPA, solide | bootstrap plus long, moins d'exemples IA |
 
 > Le repo est **agnostique** : `check.sh` ne connaît que les scripts de `package.json`.
-> Si vous choisissez Symfony, gardez les mêmes noms de scripts (`typecheck` → PHPStan,
-> `lint` → PHP-CS-Fixer, `test` → PHPUnit, `e2e` → Playwright) et adaptez `scripts/check.sh`.
+> Si vous choisissez Symfony, gardez les mêmes noms de scripts dans `package.json`
+> (`typecheck` → PHPStan, `lint` → PHP-CS-Fixer, `test` → PHPUnit, `e2e` → Playwright).
+> `check.sh` reste identique : il appelle les scripts, pas la stack.
 
 ## Le contrat de scripts
 
