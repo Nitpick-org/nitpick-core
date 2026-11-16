@@ -1,0 +1,8 @@
+# progress.txt — journal de synthèse (le plus récent en bas)
+# Tenu par l'intégrateur·rice humain·e à chaque sync (toutes les 3 h).
+# Les agents écrivent dans progress/<ticket>.md, jamais ici.
+# Format : [HH:MM] ticket #n — fait / décisions / fichiers / blocages
+#
+# Exemple :
+# [14:32] #12-login — formulaire + validation + redirection ; cookie de session ;
+#         src/modules/auth/* ; bloqué sur la clé sponsor (mock en place).
