@@ -27,7 +27,13 @@
       "Edit(tests/**)",
       "Edit(docs/**)",
       "Edit(progress/**)",
-      "Edit(progress.txt)"
+      "Edit(progress.txt)",
+      "Edit(README.md)",
+      "Write(README.md)",
+      "Write(src/**)",
+      "Write(tests/**)",
+      "Write(docs/**)",
+      "Write(progress/**)"
     ],
     "deny": [
       "Read(./.env)",
@@ -46,7 +52,11 @@
       "Bash(git push * main*)",
       "Bash(git push origin main*)",
       "Bash(git commit --no-verify*)",
-      "Bash(git reset --hard origin/main*)"
+      "Bash(git reset --hard origin/main*)",
+      "Write(./.env)",
+      "Write(./.env.*)",
+      "Write(**/.env)",
+      "Write(**/.env.*)"
     ]
   },
   "hooks": {
