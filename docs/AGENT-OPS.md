@@ -222,6 +222,7 @@ Règles :
 - Un rapport d'agent n'est pas une approbation de permission.
 - Les hooks du repo : `Stop` vérifie `check.sh`, `PreToolUse` protège les docs (y compris
   en `claude -p` headless) et les commandes Bash qui touchent `.env` ou les docs pivots.
+  Pour un `claude -p` lancé à la main : `HACKATHON_HEADLESS=1 claude -p ...`.
   Pour une session d'exploration volontairement sale : `HACKATHON_SKIP_STOP_CHECK=1 claude`.
 
 ## Cadence
