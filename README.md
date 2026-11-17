@@ -38,6 +38,8 @@ profonds et des garde-fous exécutables.
 
 > `./scripts/doctor.sh` échoue encore sur `no package.json` : c'est le seul bloquant
 > restant, et il disparaît dès que la stack est initialisée.
+>
+> Les tâches sont aussi suivies dans les issues GitHub **#2 à #7** (labels `P0`/`P1`/`P2`).
 
 ## Démarrage rapide
 
