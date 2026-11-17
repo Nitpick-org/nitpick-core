@@ -6,16 +6,22 @@ set -euo pipefail
 ROOT="$(git rev-parse --show-toplevel)"
 cd "$ROOT"
 
-# During the scaffolding phase there is nothing to check yet.
+# Never commit secrets, even by accident. This check also runs during scaffolding.
+STAGED_ENV="$(git diff --cached --name-only --diff-filter=ACM \
+  | grep -E '(^|/)\.env($|\.)' \
+  | grep -v '\.env\.example$' \
+  || true)"
+if [ -n "$STAGED_ENV" ]; then
+  echo "❌ A .env file is staged (only .env.example is allowed):"
+  printf '%s\n' "$STAGED_ENV"
+  echo "   Unstage it: git restore --staged <file>"
+  exit 1
+fi
+
+# During the scaffolding phase there is nothing else to check yet.
 if [ ! -f package.json ]; then
   echo "⚠️  No package.json yet: skipping checks (scaffolding phase)."
   exit 0
-fi
-
-# Never commit secrets, even by accident.
-if git diff --cached --name-only --diff-filter=ACM | grep -Eq '(^|/)\.env($|\.)'; then
-  echo "❌ A .env file is staged. Unstage it: git restore --staged .env"
-  exit 1
 fi
 
 BRANCH="$(git branch --show-current 2>/dev/null || true)"

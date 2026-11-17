@@ -22,7 +22,11 @@ if [ ! -f package.json ]; then
 fi
 
 PM="npm"
-if [ -f pnpm-lock.yaml ] && command -v pnpm >/dev/null 2>&1; then PM="pnpm"; fi
+if [ -f pnpm-lock.yaml ] && command -v pnpm >/dev/null 2>&1; then
+  PM="pnpm"
+elif [ ! -f package-lock.json ] && command -v pnpm >/dev/null 2>&1; then
+  PM="pnpm"
+fi
 
 has_script() {
   node -e "const s=require('./package.json').scripts||{}; process.exit(s['$1']?0:1)"

@@ -65,12 +65,12 @@ Next:
   ./scripts/check.sh
   pnpm exec playwright install chromium   # once, for the e2e path
   ./scripts/check.sh --demo
-  WT_FROM=dry-run/base ./scripts/new-worktree.sh 01-anomaly
+  WT_BASE="$PWD/.worktrees" WT_FROM=dry-run/base ./scripts/new-worktree.sh 01-anomaly
 
 Cleanup after the dry run:
   git switch main
   git branch -D dry-run/base
-  git worktree remove --force .worktrees/wt-01-anomaly 2>/dev/null || true
+  WT_BASE="$PWD/.worktrees" ./scripts/rm-worktree.sh 01-anomaly --force
   rm -rf .worktrees
 
 This branch is throwaway. Never merge it into main.

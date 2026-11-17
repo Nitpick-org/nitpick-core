@@ -98,7 +98,7 @@ La stack sera choisie à J-4 (voir `docs/STACK.md`). Tant qu'il n'y a pas de `pa
 
 Un hook `PreToolUse` bloque l'édition de `PRD.md`, `DECISIONS.md`, `STRATEGY.md`,
 `AGENT-OPS.md`, `ULTRA.md`, `MODEL-ROUTING.md`, `CLAUDE.md`, `progress.txt` et `.env` par
-un sous-agent. Un humain peut toujours éditer. Override explicite :
+un sous-agent **ou une session headless** (`HACKATHON_HEADLESS=1`, AFK/Ralph). Un humain peut toujours éditer. Override explicite :
 `HACKATHON_ALLOW_PROTECTED=1`.
 
 ## Définition de « fini »

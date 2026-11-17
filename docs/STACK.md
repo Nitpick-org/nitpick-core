@@ -49,6 +49,7 @@ Exemple de `package.json` (Next.js) :
 
 ```json
 {
+  "packageManager": "pnpm@11.28.5",
   "scripts": {
     "dev": "next dev",
     "build": "next build",
@@ -61,6 +62,10 @@ Exemple de `package.json` (Next.js) :
   }
 }
 ```
+
+> `packageManager` est **obligatoire** si vous utilisez pnpm : la CI s'en sert pour installer
+> la bonne version. Sans lui, `pnpm/action-setup` échoue. Si vous utilisez npm, mettez
+> `"packageManager": "npm@11"` et pas de `pnpm-lock.yaml`.
 
 ## Bootstrap Next.js (si c'est le choix)
 

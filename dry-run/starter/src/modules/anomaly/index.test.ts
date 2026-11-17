@@ -19,6 +19,12 @@ describe("parseCsv", () => {
       /Invalid value/,
     );
   });
+
+  it("rejects an empty value instead of treating it as zero", () => {
+    expect(() => parseCsv("timestamp,value\n2026-01-01T00:00:00Z,")).toThrow(
+      /Invalid value/,
+    );
+  });
 });
 
 describe("detectAnomalies", () => {

@@ -72,8 +72,11 @@ export default function App() {
                 </tr>
               </thead>
               <tbody>
-                {rows.map((row) => (
-                  <tr key={row.timestamp} className={row.isAnomaly ? "anomaly" : ""}>
+                {rows.map((row, index) => (
+                  <tr
+                    key={`${row.timestamp}-${index}`}
+                    className={row.isAnomaly ? "anomaly" : ""}
+                  >
                     <td>{row.timestamp}</td>
                     <td>{row.value}</td>
                     <td>{row.zScore.toFixed(2)}</td>

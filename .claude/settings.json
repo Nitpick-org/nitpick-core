@@ -62,6 +62,15 @@
   "hooks": {
     "PreToolUse": [
       {
+        "matcher": "Bash",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "bash scripts/guard-bash.sh"
+          }
+        ]
+      },
+      {
         "matcher": "Write|Edit",
         "hooks": [
           {
@@ -77,7 +86,7 @@
         "hooks": [
           {
             "type": "command",
-            "command": "bash -c 'if [ -f package.json ]; then pnpm run --silent format >/dev/null 2>&1 || true; fi'"
+            "command": "bash scripts/format-edited.sh"
           }
         ]
       }

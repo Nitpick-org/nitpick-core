@@ -138,6 +138,14 @@ else
   warn "route-task skill missing"
 fi
 
+for script in scripts/guard-protected.sh scripts/guard-bash.sh scripts/format-edited.sh scripts/stop-check.sh; do
+  if [ -x "$script" ]; then
+    ok "hook script: $script"
+  else
+    fail "hook script missing or not executable: $script"
+  fi
+done
+
 if [ -f .claude/settings.json ]; then
   if node -e "JSON.parse(require('fs').readFileSync('.claude/settings.json','utf8'))" 2>/dev/null; then
     ok ".claude/settings.json is valid JSON"

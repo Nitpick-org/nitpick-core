@@ -10,6 +10,9 @@
 # Hard requirements: clean tree, non-main branch, no secrets in the worktree.
 set -euo pipefail
 
+# Headless run: the guard must treat this session as agent-driven (no human in the loop).
+export HACKATHON_HEADLESS=1
+
 [ $# -eq 1 ] || { echo "Usage: AFK_OK=1 $0 <iterations 1-10>"; exit 1; }
 ITERATIONS="$1"
 case "$ITERATIONS" in

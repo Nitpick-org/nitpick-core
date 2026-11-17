@@ -9,6 +9,9 @@
 # Safety: no push, no merge, no main, no secrets, one ticket per run.
 set -euo pipefail
 
+# Headless run: the guard must treat this session as agent-driven (no human in the loop).
+export HACKATHON_HEADLESS=1
+
 if [ -n "${ANTHROPIC_API_KEY:-}" ]; then
   echo "❌ ANTHROPIC_API_KEY is set: Claude Code would bill the API instead of your plan."
   echo "   Run: unset ANTHROPIC_API_KEY   (see docs/ULTRA.md)"

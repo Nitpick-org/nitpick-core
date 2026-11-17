@@ -21,13 +21,22 @@ export function parseCsv(input: string): Row[] {
 
   return rest.map((line, lineIndex) => {
     const cells = line.split(",").map((cell) => cell.trim());
-    const value = Number(cells[valueIndex]);
+    const rawValue = cells[valueIndex];
+    const timestamp = cells[timestampIndex];
 
+    if (!timestamp) {
+      throw new Error(`Missing timestamp on line ${lineIndex + 2}`);
+    }
+    if (rawValue === undefined || rawValue === "") {
+      throw new Error(`Invalid value on line ${lineIndex + 2}`);
+    }
+
+    const value = Number(rawValue);
     if (!Number.isFinite(value)) {
       throw new Error(`Invalid value on line ${lineIndex + 2}`);
     }
 
-    return { timestamp: cells[timestampIndex], value };
+    return { timestamp, value };
   });
 }
 
