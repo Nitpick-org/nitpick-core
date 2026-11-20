@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { detectAnomalies, parseCsv } from "./index";
+import { SAMPLE_CSV, detectAnomalies, parseCsv } from "./index";
 
 describe("parseCsv", () => {
   it("parses timestamp and value columns", () => {
@@ -36,6 +36,11 @@ describe("detectAnomalies", () => {
 
     expect(result.filter((row) => row.isAnomaly)).toHaveLength(1);
     expect(result.at(-1)?.value).toBe(100);
+  });
+
+  it("uses 1.5 as the default threshold on the sample", () => {
+    const result = detectAnomalies(parseCsv(SAMPLE_CSV));
+    expect(result.filter((row) => row.isAnomaly)).toHaveLength(2);
   });
 
   it("returns an empty list for empty input", () => {

@@ -88,6 +88,10 @@ principale + 1 à 2 subagents** maximum ; **2 à 3** pour H2/H3 sur Ultra.
 
 ### Quand utiliser l'AFK
 
+Avant tout AFK : ouvre `claude` une fois dans le worktree et accepte le **trust dialog**.
+Sinon `claude -p` ignore les règles `allow` du projet et l'agent ne peut rien exécuter.
+Le modèle est **Sonnet par défaut** (`AFK_MODEL`/`RALPH_MODEL`) ; Fable est refusé.
+
 Seulement si les trois conditions sont réunies :
 
 1. La tâche a un **oracle déterministe** (`check.sh`, test, lint) qui dit vrai.
@@ -161,7 +165,7 @@ significatif à la fois. C'est pour ça qu'on plafonne à 6 sessions (8 avec Ult
 | `reviewer` | Opus | Trouve les erreurs coûteuses |
 | `pitch` | Opus | Le texte final est lu par le jury |
 | `researcher` | Sonnet | Volume de lecture, synthèse |
-| `implementer` | inherit (Opus sur H2/H3, Sonnet sur H1) | Volume de code, feedback loops |
+| `implementer` | Sonnet (Opus via override explicite) | Volume de code, feedback loops |
 | `qa-demo` | Sonnet | Exécution de tests, rapports |
 | `scribe` | Haiku (Sonnet pour une doc publique nuancée) | Doc, README, progress, résumés |
 

@@ -22,7 +22,7 @@ est justement là pour ça.
 | 2 | Aucun test « situation réelle » | `docs/DRY-RUN.md` + starter Vite/React + `dry-run/TICKETS.md` + `dry-run/RETRO.md` |
 | 3 | Le starter n'était pas exécutable | `scripts/bootstrap-dry-run.sh` : branche jetable, copie, install, commit |
 | 4 | `new-worktree.sh` ne savait pas partir d'une branche de dry run | `WT_FROM` ajouté (`WT_FROM=dry-run/base`) |
-| 5 | Le modèle de `implementer` était décrit « souvent Sonnet » | Corrigé : inherit, donc Opus sur H2/H3 Ultra |
+| 5 | Le modèle de `implementer` était décrit « souvent Sonnet » | Corrigé : Sonnet par défaut, Opus via override explicite |
 | 6 | Les sessions Ultra n'étaient pas intégrées à la concurrence | Table `Total Ultra` dans `AGENT-OPS` (8 sessions, 3 écrivains) |
 | 7 | Roster non optimisé pour Ultra | Section « Roster optimization for Ultra » : plus de lecteurs, jamais plus d'écrivains |
 | 8 | `doctor.sh` ne vérifiait pas onboarding/dry run | Ajout des docs et du starter |
@@ -64,7 +64,7 @@ est justement là pour ça.
 - `maxTurns` sur chaque agent, tools restrictifs pour les lecteurs, `disallowedTools` sur
   `reviewer`.
 - Modèle routé : Opus pour les décisions, Sonnet pour le volume, Haiku pour la doc,
-  `implementer` en inherit (Opus sur H2/H3).
+  `implementer` en Sonnet, Opus via override explicite.
 - Hooks `Stop` et `PreToolUse` : pas de « done » sans `check.sh`, pas d'édition des docs
   pivots par un sous-agent.
 - Garde-fou `ANTHROPIC_API_KEY` dans `doctor.sh`, `ralph-once.sh`, `afk-ralph.sh`.

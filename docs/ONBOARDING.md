@@ -53,6 +53,8 @@ cp .env.example .env
 
 - `core.hooksPath` active le hook pre-commit (check.sh + refus des `.env`).
 - `.env` est ignoré par git. Ne le commit jamais.
+- **Trust dialog** : ouvre `claude` une fois dans le repo (et dans chaque worktree) et accepte
+  le dialogue de confiance. Sans ça, `claude -p` / AFK ignore les règles `allow` du projet.
 
 ## 3. Claude Code + Ultra
 

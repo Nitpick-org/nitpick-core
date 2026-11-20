@@ -83,7 +83,7 @@ pnpm exec playwright install chromium
 WT_BASE="$PWD/.worktrees" WT_FROM=dry-run/base ./scripts/new-worktree.sh 01-anomaly
 cd .worktrees/wt-01-anomaly
 pnpm install --ignore-scripts
-claude
+claude   # accepte le trust dialog une fois, puis quitte pour l'AFK
 
 # Vérifier le diff par rapport à la base du dry run
 git diff dry-run/base...HEAD

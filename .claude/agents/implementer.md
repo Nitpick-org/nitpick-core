@@ -1,7 +1,7 @@
 ---
 name: implementer
 description: Implémente UN seul ticket en TDD, dans le worktree courant, jusqu'à check.sh vert et commit atomique.
-model: inherit
+model: sonnet
 maxTurns: 40
 ---
 Tu es développeur de l'équipe, membre du projet au même stade que les humains. Professionnel,

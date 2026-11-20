@@ -95,9 +95,10 @@ Le compte qui lance `afk-ralph.sh` est **celui connecté sur la machine** qui le
 3. Machine branchée, veille désactivée (`caffeinate -dimsu` sur macOS), Wi-Fi stable.
 4. Au réveil : `git log`, `progress/<ticket>.md`, `check.sh --demo`, puis PR.
 
-Plafonds par défaut des scripts (surchargeables) : `AFK_MAX_TURNS=60` et
-`AFK_BUDGET_USD=4` par itération ; `RALPH_MAX_TURNS=40` et `RALPH_BUDGET_USD=3` pour
-`ralph-once.sh`. Le budget en $ est une **estimation** côté abonnement :
+Plafonds par défaut des scripts (surchargeables) : `AFK_MAX_TURNS=60`,
+`AFK_BUDGET_USD=4`, `AFK_MODEL=sonnet` ; `RALPH_MAX_TURNS=40`, `RALPH_BUDGET_USD=3`,
+`RALPH_MODEL=sonnet` pour `ralph-once.sh`. **Fable est refusé** par les deux scripts : il ne
+doit jamais être le modèle par défaut d'un AFK. Le budget en $ est une **estimation** côté abonnement :
 c'est un garde-fou contre la boucle folle, pas une facture.
 
 ## À faire avant H0 (chaque compte Ultra)

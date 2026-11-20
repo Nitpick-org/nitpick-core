@@ -22,7 +22,7 @@ Budget: <tokens ou $ indicatif>
 | --- | --- | --- | --- |
 | Doc, README, progress, résumé, changelog | `scribe` | `haiku` | 10–15 |
 | Petit code, test, UI simple, fix local | `implementer` | `sonnet` | 20–30 |
-| Code complexe, cross-module, critique démo, auth/sécurité | `implementer` | `opus` | 40–50 |
+| Code complexe/cross-module, auth/sécurité, ou critique démo **avec risque ≥ moyen** | `implementer` | `opus` | 40–50 |
 | Recherche standard (API, pricing, concurrent) | `researcher` | `sonnet` | 20–30 |
 | Recherche ambiguë, décision structurante | `researcher` | `opus` | 30 |
 | Revue de code | `reviewer` | `opus` | 25 |
@@ -40,7 +40,7 @@ Escalade d'un tier (Haiku → Sonnet → Opus) si :
 
 - 2 tentatives échouées sur le même point ;
 - `./scripts/check.sh` rouge après 2 corrections ;
-- ticket `critique démo` ou risque `haut` ;
+- ticket `critique démo` **et** risque `moyen`/`haut` (un critique démo à risque bas reste Sonnet) ;
 - changement cross-module, auth, sécurité, données, contrat d'API ;
 - l'agent dit explicitement « bloqué » ou « incertain » deux fois.
 

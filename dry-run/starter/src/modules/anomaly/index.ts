@@ -40,7 +40,7 @@ export function parseCsv(input: string): Row[] {
   });
 }
 
-export function detectAnomalies(rows: Row[], threshold = 2): Anomaly[] {
+export function detectAnomalies(rows: Row[], threshold = 1.5): Anomaly[] {
   if (rows.length === 0) return [];
 
   const values = rows.map((row) => row.value);

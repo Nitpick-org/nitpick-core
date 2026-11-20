@@ -23,7 +23,7 @@
 | Doc factuelle, README, progress, résumé | `scribe` | Haiku | 10–15 |
 | Doc publique nuancée (onboarding, guide) | `scribe` | Sonnet | 15–20 |
 | Petit code, test, UI simple | `implementer` | Sonnet | 20–30 |
-| Code complexe, cross-module, critique démo | `implementer` | Opus | 40–50 |
+| Code complexe/cross-module, auth/sécurité, ou critique démo avec risque ≥ moyen | `implementer` | Opus | 40–50 |
 | Recherche standard | `researcher` | Sonnet | 20–30 |
 | Recherche ambiguë / structurante | `researcher` | Opus | 30 |
 | Review de code | `reviewer` | Opus | 25 |
@@ -40,7 +40,7 @@ Un tier au-dessus si :
 
 - 2 tentatives échouées sur le même point ;
 - `./scripts/check.sh` rouge après 2 corrections ;
-- ticket `critique démo` ou risque `haut` ;
+- ticket `critique démo` **et** risque `moyen`/`haut` (un critique démo à risque bas reste Sonnet) ;
 - changement cross-module, auth, sécurité, données, contrat d'API ;
 - l'agent dit « bloqué » ou « incertain » deux fois.
 
@@ -84,6 +84,13 @@ Utilise reviewer sur le diff.
 
 Le budget hebdomadaire des comptes Ultra est dans `docs/ULTRA.md`. Vérifie `/usage` à
 chaque sync.
+
+### AFK
+
+`ralph-once.sh` et `afk-ralph.sh` forcent un modèle explicite : `RALPH_MODEL` /
+`AFK_MODEL`, défaut **Sonnet**. Fable est refusé. Sans ce garde-fou, un `claude -p` sans
+`--model` prend le modèle par défaut de la machine — et un AFK peut brûler le budget en
+quelques secondes.
 
 ## Journalisation
 

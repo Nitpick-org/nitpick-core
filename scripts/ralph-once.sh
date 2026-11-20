@@ -34,15 +34,22 @@ if [ -n "$(git status --porcelain)" ]; then
   [ "$answer" = "y" ] || exit 1
 fi
 
+TICKETS_FILE="${RALPH_TICKETS_FILE:-dry-run/TICKETS.md}"
 TICKET="${1:-}"
 if [ -n "$TICKET" ]; then
-  TASK="Travaille uniquement sur le ticket #$TICKET. Lis-le avec: gh issue view $TICKET (ou docs/TICKETS.md)."
+  TASK="Travaille uniquement sur le ticket #$TICKET. Lis-le avec: gh issue view $TICKET (ou $TICKETS_FILE pour le dry run)."
 else
-  TASK="Choisis le ticket non terminé le plus prioritaire. Utilise: gh issue list --label ticket --state open --limit 30 (ou docs/TICKETS.md). Priorise le risqué et les intégrations."
+  TASK="Choisis le ticket non terminé le plus prioritaire. Utilise: gh issue list --label ticket --state open --limit 30 (ou $TICKETS_FILE pour le dry run). Priorise le risqué et les intégrations."
 fi
 
 MAX_TURNS="${RALPH_MAX_TURNS:-40}"
 BUDGET_USD="${RALPH_BUDGET_USD:-3}"
+MODEL="${RALPH_MODEL:-sonnet}"
+case "$MODEL" in
+  sonnet|opus|haiku) ;;
+  fable) echo "❌ RALPH_MODEL=fable is forbidden: Fable is manual-only, never AFK."; exit 1 ;;
+  *) echo "❌ RALPH_MODEL must be sonnet, opus, or haiku."; exit 1 ;;
+esac
 case "$MAX_TURNS" in
   ''|*[!0-9]*) echo "❌ RALPH_MAX_TURNS must be an integer."; exit 1 ;;
 esac
@@ -67,11 +74,12 @@ Règles:
 7. Si plus aucune tâche n'est faisable, écris exactement <promise>COMPLETE</promise>.
 NE TRAVAILLE QUE SUR UNE SEULE TÂCHE."
 
-echo "▶ ralph-once — $BRANCH — log: $LOG"
+echo "▶ ralph-once — $BRANCH — model: $MODEL — log: $LOG"
 set +e
 claude -p \
   --permission-mode acceptEdits \
   --permission-prompts none \
+  --model "$MODEL" \
   --max-turns "$MAX_TURNS" \
   --max-budget-usd "$BUDGET_USD" \
   "$PROMPT" 2>&1 | tee -a "$LOG"
@@ -88,3 +96,4 @@ if grep -q '<promise>COMPLETE</promise>' "$LOG"; then
 fi
 
 echo "Next: git diff, ./scripts/check.sh --demo, then open a PR."
+echo "⚠️  New worktree? Run claude once interactively and accept the trust dialog before AFK."

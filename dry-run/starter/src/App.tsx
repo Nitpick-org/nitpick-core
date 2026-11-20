@@ -60,7 +60,7 @@ export default function App() {
         {submitted && !error ? (
           <div className="results">
             <p className="count" data-testid="anomaly-count">
-              {anomalyCount} anomalies
+              {anomalyCount === 1 ? "1 anomalie" : `${anomalyCount} anomalies`}
             </p>
             <table>
               <thead>
