@@ -16,7 +16,8 @@ profonds et des garde-fous exécutables.
 - La **stack n'est pas choisie** : `package.json` n'existe pas encore.
 - `./scripts/check.sh` et la CI échouent tant que la stack n'est pas initialisée.
   **C'est volontaire** : une base sans stack n'est pas une base prête.
-- Prochaine étape : choisir la stack (J-4) et déployer un hello world (J-4 au plus tard).
+- Prochaine étape : choisir la stack à **H0 (11:40–12:00)**, après l'idée, avec le starter
+  Vite comme fallback ; puis bootstrap et déploiement.
 - Dépôt distant : `git@github.com:zooldyyk/hackathon.git` (**privé**). Il devra être
   **public** au moment de la soumission (le lien doit s'ouvrir sans login).
 - Réglages GitHub : 2 collaborateurs ajoutés, `main` protégée (PR + check), labels et
@@ -26,7 +27,7 @@ profonds et des garde-fous exécutables.
 
 | Priorité | Tâche | Qui | Échéance |
 | --- | --- | --- | --- |
-| P0 | Choisir la stack, bootstrap, hello world **déployé** | H2 | J-4 |
+| P0 | Choisir la stack à H0 (11:40–12:00), bootstrap, hello world **déployé** | H2 | H0 |
 | P0 | `./scripts/check.sh` et la CI verts | H2 | J-4 |
 | P1 | Installer les skills, tester les 8 agents, un worktree, un AFK | tous | J-3 |
 | P1 | Faire le **dry run** de 2 h 30 sur un clone jetable | tous | J-3 |

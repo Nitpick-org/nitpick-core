@@ -51,7 +51,8 @@ pnpm dev                            # local dev server (after the stack is chose
 AFK_OK=1 ./scripts/afk-ralph.sh 4   # bounded loop, low-risk, never on main
 ```
 
-La stack sera choisie à J-4 (voir `docs/STACK.md`). Tant qu'il n'y a pas de `package.json`,
+La stack sera choisie à H0 (11:40–12:00) après l'idée, avec le starter Vite comme fallback
+(voir `docs/STACK.md`). Tant qu'il n'y a pas de `package.json`,
 `check.sh` échoue : c'est normal, la base n'est pas prête.
 
 ## Architecture

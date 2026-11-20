@@ -23,14 +23,10 @@
 
 ## J-4 — mardi 17 novembre
 
-- [ ] Choisir la stack en 15 min (`docs/STACK.md`) — la plus maîtrisée, pas la plus hype.
-- [ ] Bootstrap : app hello world, `package.json` avec `dev`, `build`, `typecheck`, `lint`, `test`, `e2e`, `format`.
-- [ ] `./scripts/check.sh` vert en < 60 s.
-- [ ] Déployer le hello world (preview par branche) et vérifier l'URL.
-- [ ] Ajouter `/api/health` (ou équivalent) qui répond 200.
-- [ ] Mettre `.env.example` à jour ; créer `.env` local.
+- [ ] Préparer le compte d'hébergement (Vercel/Netlify) et le fallback Vite.
+- [ ] Si l'idée est déjà claire : choisir la stack en 15 min (`docs/STACK.md`) et faire le bootstrap.
+- [ ] Sinon : stack à H0 (11:40–12:00), puis bootstrap et déploiement.
 - [ ] Vérifier que `.env` n'est pas commité.
-- [ ] CI verte sur la PR de bootstrap.
 
 **Porte** : une URL de preview publique répond, `check.sh` est vert.
 
@@ -89,7 +85,8 @@
 - [ ] **9:30** mini-sync : rôles, canaux, état du repo, preview qui répond.
 - [ ] **10:00–10:15** cérémonie d'ouverture : noter les annonces.
 - [ ] **10:20–11:40** tech talks : H1 note les challenges ; H2/H3 préparent le repo.
-- [ ] **11:40–12:00** team building : idée, cible, phrase de nouveauté.
+- [ ] **11:40–12:00** team building : idée, cible, phrase de nouveauté, **et stack**
+      (fallback Vite si pas de décision à 12:00).
 - [ ] **12:00** H0 : créer le projet sur app.lauzhack.com, inviter les coéquipiers.
 - [ ] **12:00–13:00** kickoff : DEMO.md, PRD, modules, tickets.
 - [ ] **13:00** premiers worktrees.

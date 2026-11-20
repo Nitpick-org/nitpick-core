@@ -3,7 +3,7 @@
 > La meilleure stack est celle que **vous savez déboguer à 3 h du matin**. Pas la plus
 > hype. Ce document aide à trancher en 15 minutes et à poser un contrat commun.
 
-## Décider en 15 minutes (J-4)
+## Décider en 15 minutes (J-4 ou H0)
 
 Chaque humain note de 1 à 5 :
 
@@ -30,6 +30,32 @@ prendre celle qui a le moins de dépendances externes.
 > Si vous choisissez Symfony, gardez les mêmes noms de scripts dans `package.json`
 > (`typecheck` → PHPStan, `lint` → PHP-CS-Fixer, `test` → PHPUnit, `e2e` → Playwright).
 > `check.sh` reste identique : il appelle les scripts, pas la stack.
+
+## Décision à H0 (11:40–12:00)
+
+Si la stack n'est pas choisie avant, elle se décide **après l'idée**, pendant le team
+building, en 15 minutes. Ne pas laisser ce choix dépasser 12:00.
+
+| Type d'idée | Stack par défaut | Pourquoi |
+| --- | --- | --- |
+| Web + UI + API/LLM | **Next.js 15 + TS** | UI + routes API dans un seul repo, preview Vercel |
+| Web simple, démo visuelle | **Vite + React + TS** (starter du dry run) | déjà testé : `check.sh`, e2e, build en quelques minutes |
+| CLI / backend / data | **Node/TS** ou **Python** | le moins de couches possible |
+| Hardware / capteur | **Python** | bibliothèques et scripts rapides |
+| Mobile | **Expo / React Native** | preview sur téléphone |
+| Équipe PHP forte | **Symfony 8 + Turbo** | la maîtrise prime sur la hype |
+
+Règles :
+
+- Prendre la stack que **2 des 3** savent déboguer sans IA.
+- Une seule intégration externe risquée maximum.
+- **Fallback connu** : le starter Vite/React du dry run (`dry-run/starter/`) a déjà
+  `check.sh`, `check.sh --demo`, build et e2e. En cas d'hésitation à 12:00, on part dessus
+  et on remplace Pulse par l'idée.
+- Si aucune décision à **12:00**, fallback Vite. On ne décale pas le squelette de 16:00.
+
+> Attendre l'idée pour choisir la stack est sain. Attendre l'idée pour **préparer** le
+> bootstrap ne l'est pas : la décision doit coûter 15 minutes, pas 2 heures.
 
 ## Le contrat de scripts
 

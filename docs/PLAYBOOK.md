@@ -21,7 +21,7 @@ de H1. `scribe` (Haiku) est disponible pour tous pour la doc. Détail : `docs/UL
 | Jour | Objectif | Porte |
 | --- | --- | --- |
 | J-5 (lun) | Lire `LAUZHACK.md` et `STRATEGY.md`, appel équipe 60 min, rôles, repo privé + invitations | Rôles + repo partagés |
-| J-4 (mar) | Choisir la stack, bootstrap, hello world déployé, CI verte | URL de preview qui répond |
+| J-4 (mar) | Préparer l'hébergement (Vercel/Netlify) et le fallback Vite ; stack à H0 | Compte d'hébergement prêt |
 | J-3 (mer) | Installer skills, tester agents/worktree/AFK, faire le **dry run** (`docs/DRY-RUN.md`) | 8 agents visibles, dry run passé |
 | J-2 (jeu) | Corriger les 3 frictions du dry run + 3 idées par humain | La boucle tourne sans friction bloquante |
 | J-1 (ven) | Shortlist de 3 idées, clés API, quotas, valises, sommeil | `doctor.sh` sans échec |
@@ -34,7 +34,7 @@ Détail : `docs/PRE-EVENT-CHECKLIST.md`.
 | --- | --- | --- | --- | --- |
 | 8:00–9:30 | Check-in | ID, table, Wi-Fi, prises | — | Installés avant 9:30 |
 | 10:20–11:40 | Tech talks | H1 note les challenges ; H2/H3 préparent le repo | `researcher` en veille | Challenges compris |
-| 11:40–12:00 | Team building | Choisir l'idée, la cible, la phrase de nouveauté | — | Idée + challenge choisis |
+| 11:40–12:00 | Team building | Choisir l'idée, la cible, la phrase de nouveauté, **et la stack** (fallback Vite) | — | Idée + stack + challenge choisis |
 | **12:00–13:00** | **Kickoff** | DEMO.md, PRD, modules, tickets | `architect` propose, `devils-advocate` challenge | Démo écrite en 5 points, 8–12 tickets |
 | 13:00–16:00 | Squelette | 2–3 builders, worktrees | `implementer` | **Démo bout en bout sur la preview, même moche** |
 | 16:00–19:00 | Cœur | Le aha d'abord | `implementer`, `qa-demo` | Le aha est visible en < 30 s |
@@ -52,8 +52,8 @@ Détail : `docs/PRE-EVENT-CHECKLIST.md`.
 
 ## Kickoff H0 — minute par minute
 
-1. **12:00–12:10** — Rôles, repo, board, canaux. Vérifier que `main` est protégée et que
-   la preview répond.
+1. **12:00–12:10** — Rôles, repo, board, canaux. Vérifier que la **stack choisie** est
+   installée, que `main` est protégée et que la preview répond.
 2. **12:10–12:40** — 3 idées par humain, 2 min chacune, scoring
    (`docs/STRATEGY.md`). Garder 2, trancher.
 3. **12:40–13:00** — Écrire `docs/DEMO.md` en 5 points. Si ce n'est pas écrivable,
