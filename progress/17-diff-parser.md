@@ -29,3 +29,4 @@
   l'en-tête ; les lignes `---`/`+++` couvrent le cas courant. Marqué `shortcut:` dans le code.
 - Blocage : aucun.
 - Suivant : #19 (JGit `diffAgainst` branché sur ce parseur) et #20 (agent Koog) sont débloqués.
+- 15:30 — review ponytail : fixture ajoutée pour le libellé JGit `Binary files differ` sans lignes `---`/`+++` (9 tests).

@@ -147,6 +147,21 @@ class UnifiedDiffParserTest {
     }
 
     @Test
+    fun jgitBinaryWordingWithoutPathLinesIsStillBinary() {
+        val jgitBinary = """
+            |diff --git a/icon.png b/icon.png
+            |index 7777777..8888888 100644
+            |Binary files differ
+            |""".trimMargin()
+
+        val diff = parseUnifiedDiff(jgitBinary).single()
+
+        assertEquals("icon.png", diff.path)
+        assertTrue(diff.isBinary)
+        assertTrue(diff.hunks.isEmpty())
+    }
+
+    @Test
     fun noNewlineMarkerIsSkippedAndCountsDefaultToOne() {
         val hunk = parseUnifiedDiff(noNewlineAtEnd).single().hunks.single()
 
