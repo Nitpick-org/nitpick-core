@@ -1,6 +1,6 @@
 # Ticket 22-review-loop
 
-- Statut : prêt pour PR (boucle locale), vrai agent Koog encore à brancher (#20)
+- Statut : prêt pour PR, branché sur l’agent Koog mergé dans #51
 - Propriétaire humain : @zooldyyk
 - Piste : B + A (desktop + core)
 - Agent : lead, sans session Air (à compléter pour le bonus)
@@ -18,9 +18,12 @@
   > 120) derrière `ReviewAgent`. Ce n'est pas le modèle final : il permet de construire et
   démontrer la boucle sans clé API.
 - 18:15 — UI : onglets Diff et Review, liste des fichiers/hunks/lignes, cartes de nits,
-  Apply/Dismiss, barre de commit. Le CTA lance la review locale.
+  Apply/Dismiss, barre de commit. Le CTA lance la review.
 - 18:25 — `RepositoryViewModel` : diff au chargement, review, apply, dismiss, commit,
   rechargement du graph/diff.
+- 18:35 — rebase sur #51 : `AppContainer.reviewAgent` (LlmReviewAgent + KoogLlmClient) est
+  passé au ViewModel. Le vrai agent Koog est donc le chemin de production ; `LocalReviewAgent`
+  ne reste qu’un fallback de test/dev.
 
 ## Décisions
 
@@ -32,20 +35,20 @@
 
 ## Vérifications
 
-- `:shared:jvmTest --rerun-tasks` : JGit 15 tests, anchoring 4, local review 1,
-  diff parser 9, graph 8, settings 8, VM 4 — **0 échec**.
+- `:shared:jvmTest --rerun-tasks` : **71 tests, 0 échec** (JGit, anchoring, prompt,
+  parser, local review, diff, graph, settings, VM).
 - `:shared:compileKotlinJvm` et `:desktopApp:compileKotlin` verts.
 - Check complet non lancé : pas de SDK Android dans cet environnement.
 
 ## Incertain / blocage
 
-- **#20 non fait** : pas de Koog, pas d'appel réel ; l'agent local ne remplace pas le
-  critère « shared AI logic ».
+- #20 est mergé (#51) : le prompt, le parseur, l’ancrage et `KoogLlmClient` sont dans main.
+  La PR #50 ne fait que les brancher à l’UI ; il reste à faire un appel réel avec une clé.
 - Pas de preuve Air pour ce ticket ; à faire par H2/H1 avant la démo.
 - L'UI Apply/Commit n'a pas été rejouée à la main sur un écran (pas de GUI ici).
 
 ## Suivant
 
-1. Brancher `KoogReviewAgent` derrière `ReviewAgent` (#20), avec les settings.
+1. Faire un appel réel avec une clé (Anthropic/OpenAI) et capturer la boucle.
 2. Rejouer la boucle sur le repo de démo et capturer (Air + desktop).
 3. Ajouter le mode « Review en cours » / erreurs du handoff (#33).

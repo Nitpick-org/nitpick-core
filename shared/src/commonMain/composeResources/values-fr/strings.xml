@@ -53,5 +53,5 @@
     <string name="commit_message">Message de commit</string>
     <string name="commit_later">Plus tard</string>
     <string name="commit_stage">Indexer et committer</string>
-    <string name="review_local">Review locale</string>
+    <string name="review_local">Review IA</string>
 </resources>
