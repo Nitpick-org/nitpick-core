@@ -157,8 +157,8 @@ private fun DrawScope.drawLanePath(fromX: Float, fromY: Float, toX: Float, toY: 
 /** Full message, author, date, id and parents of the selected commit. */
 @Composable
 fun CommitDetails(commit: Commit, modifier: Modifier = Modifier) {
-    // fullMessage starts with the subject, already shown as the title.
-    val body = remember(commit.fullMessage) { commit.fullMessage.substringAfter('\n', "").trim() }
+    // Git's subject is the whole first paragraph, already shown as the title.
+    val body = remember(commit.fullMessage) { commit.fullMessage.substringAfter("\n\n", "").trim() }
     val time = remember(commit.timestampEpochSeconds) { formatCommitTime(commit.timestampEpochSeconds) }
     Column(
         modifier = modifier.verticalScroll(rememberScrollState()).padding(20.dp),
