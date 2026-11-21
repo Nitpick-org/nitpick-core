@@ -20,8 +20,8 @@ profonds et des garde-fous exécutables.
   Vite comme fallback ; puis bootstrap et déploiement.
 - Dépôt distant : `git@github.com:zooldyyk/hackathon.git` (**privé**). Il devra être
   **public** au moment de la soumission (le lien doit s'ouvrir sans login).
-- Réglages GitHub : 2 collaborateurs ajoutés, `main` protégée (PR + check), labels et
-  milestone créés, wiki désactivé, branches supprimées après merge.
+- Réglages GitHub : 2 collaborateurs ajoutés, **`main` sans protection** (merge libre),
+  labels et milestone créés, wiki désactivé, branches supprimées après merge.
 
 ## Reste à faire (état au 16/11)
 
@@ -140,7 +140,7 @@ AFK_OK=1 ./scripts/afk-ralph.sh 4       # bounded loop before a nap
 ## Règles d'or
 
 1. Un ticket = un worktree = une zone de fichiers.
-2. `main` uniquement par PR, `check.sh` vert. H2 merge.
+2. `main` : merge libre pendant le hackathon. `check.sh` vert recommandé ; H2 merge si possible.
 3. Squelette de démo bout en bout à **16:00** ; code gelé à **09:30** dimanche.
 4. Les idées viennent des humains ; les agents questionnent, cherchent, exécutent.
 5. Chaque erreur d'agent corrigée → une ligne dans `CLAUDE.md` (« Leçons apprises »).

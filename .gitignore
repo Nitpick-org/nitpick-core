@@ -21,3 +21,6 @@ playwright/.cache/
 .pnpm-store/
 .dry-run-test/
 .playwright-browsers/
+
+# Large recordings: keep them outside the repo
+*.m4a
