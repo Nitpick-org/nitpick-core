@@ -76,4 +76,17 @@
     <string name="clone_error_title">Could not clone this repository</string>
     <string name="review_whole_file">whole file</string>
     <string name="review_nits_on_files">%1$d nits on %2$d changed files</string>
+    <string name="review_clean_title">Clean branch. Nothing to nitpick.</string>
+    <string name="review_clean_body">Reviewed the branch against the base. No bugs, no warnings, no nits.</string>
+    <string name="error_key_title">Add an API key to start</string>
+    <string name="error_key_body">Nitpick needs an API key for the selected provider. Your code stays on this machine until you run a review.</string>
+    <string name="error_key_action">Open Settings</string>
+    <string name="error_network_title">Could not reach the provider</string>
+    <string name="error_network_body">The review request failed before the model answered. Check your connection, then retry. Nothing was sent.</string>
+    <string name="error_timeout_title">The model took too long</string>
+    <string name="error_timeout_body">The provider did not answer in time. Large diffs can take longer; try again.</string>
+    <string name="review_step_diff">Collecting the diff</string>
+    <string name="review_step_read">Reading changed files</string>
+    <string name="review_step_model">Asking the model</string>
+    <string name="review_step_place">Placing nits on lines</string>
 </resources>

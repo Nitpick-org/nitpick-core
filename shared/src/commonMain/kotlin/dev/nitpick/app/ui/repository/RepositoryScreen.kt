@@ -130,6 +130,7 @@ fun RepositoryScreen(
                         onDismissSuggestion = onDismissSuggestion,
                         onCommitMessage = onCommitMessage,
                         onCommit = onCommit,
+                        onOpenSettings = onOpenSettings,
                         modifier = Modifier
                             .width(if (tab == InspectorTab.Details) NitpickTheme.sizes.inspector else InspectorWideWidth)
                             .fillMaxHeight(),
@@ -288,6 +289,7 @@ private fun Inspector(
     onDismissSuggestion: (String) -> Unit,
     onCommitMessage: (String) -> Unit,
     onCommit: () -> Unit,
+    onOpenSettings: () -> Unit,
     onSelectBase: (String) -> Unit,
     onSelectDiffFile: (String) -> Unit,
     modifier: Modifier,
@@ -326,6 +328,7 @@ private fun Inspector(
                 onDismiss = onDismissSuggestion,
                 onCommitMessage = onCommitMessage,
                 onCommit = onCommit,
+                onOpenSettings = onOpenSettings,
                 modifier = Modifier.weight(1f),
             )
         }

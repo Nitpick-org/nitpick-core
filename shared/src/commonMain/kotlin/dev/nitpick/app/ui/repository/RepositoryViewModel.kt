@@ -11,8 +11,10 @@ import dev.nitpick.app.domain.ReviewResult
 import dev.nitpick.app.git.GitRepository
 import dev.nitpick.app.git.GitRepositoryFactory
 import dev.nitpick.app.review.LocalReviewAgent
+import dev.nitpick.app.review.MissingApiKeyException
 import dev.nitpick.app.review.ReviewAgent
 import dev.nitpick.app.review.ReviewAnchoring
+import dev.nitpick.app.review.ReviewProviderException
 import dev.nitpick.app.graph.CommitGraphRow
 import dev.nitpick.app.graph.buildCommitGraph
 import kotlinx.coroutines.CancellationException
@@ -27,6 +29,28 @@ import kotlinx.coroutines.launch
 import kotlinx.coroutines.sync.Mutex
 import kotlinx.coroutines.sync.withLock
 import kotlinx.coroutines.withContext
+
+sealed interface ReviewFailure {
+    data class MissingKey(val provider: String) : ReviewFailure
+    data object Network : ReviewFailure
+    data object Timeout : ReviewFailure
+    data class Other(val message: String) : ReviewFailure
+}
+
+private fun Throwable.toReviewFailure(): ReviewFailure = when {
+    this is MissingApiKeyException -> ReviewFailure.MissingKey(provider.name)
+    isTimeout() -> ReviewFailure.Timeout
+    this is ReviewProviderException -> ReviewFailure.Network
+    else -> ReviewFailure.Other(message ?: toString())
+}
+
+private fun Throwable.isTimeout(): Boolean {
+    val text = generateSequence(this as Throwable?) { it.cause }
+        .mapNotNull { it.message }
+        .joinToString(" ")
+        .lowercase()
+    return "timeout" in text || "timed out" in text
+}
 
 data class RepositoryUiState(
     val path: String? = null,
@@ -43,7 +67,7 @@ data class RepositoryUiState(
     val selectedDiffPath: String? = null,
     val review: ReviewResult? = null,
     val isReviewing: Boolean = false,
-    val reviewError: String? = null,
+    val reviewError: ReviewFailure? = null,
     val appliedIds: Set<String> = emptySet(),
     val appliedFiles: Set<String> = emptySet(),
     val commitMessage: String = "",
@@ -156,7 +180,7 @@ class RepositoryViewModel(
             } catch (e: CancellationException) {
                 throw e
             } catch (e: Exception) {
-                if (repository === git) _state.update { it.copy(isReviewing = false, reviewError = e.message ?: e.toString()) }
+                if (repository === git) _state.update { it.copy(isReviewing = false, reviewError = e.toReviewFailure()) }
             }
         }
     }
@@ -183,7 +207,7 @@ class RepositoryViewModel(
             } catch (e: CancellationException) {
                 throw e
             } catch (e: Exception) {
-                if (repository === git) _state.update { it.copy(reviewError = e.message ?: e.toString()) }
+                if (repository === git) _state.update { it.copy(reviewError = e.toReviewFailure()) }
             }
         }
     }
@@ -228,7 +252,7 @@ class RepositoryViewModel(
             } catch (e: CancellationException) {
                 throw e
             } catch (e: Exception) {
-                if (repository === git) _state.update { it.copy(reviewError = e.message ?: e.toString()) }
+                if (repository === git) _state.update { it.copy(reviewError = e.toReviewFailure()) }
             }
         }
     }

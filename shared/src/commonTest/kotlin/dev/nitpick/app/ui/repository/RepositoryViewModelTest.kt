@@ -10,7 +10,10 @@ import dev.nitpick.app.git.FakeGitRepository
 import dev.nitpick.app.git.FakeGitRepositoryFactory
 import dev.nitpick.app.git.GitRepository
 import dev.nitpick.app.git.GitRepositoryFactory
+import dev.nitpick.app.review.MissingApiKeyException
 import dev.nitpick.app.review.ReviewAgent
+import dev.nitpick.app.review.ReviewProviderException
+import dev.nitpick.app.settings.LlmProvider
 import dev.nitpick.app.domain.ReviewComment
 import dev.nitpick.app.domain.ReviewResult
 import dev.nitpick.app.domain.Severity
@@ -188,6 +191,34 @@ class RepositoryViewModelTest {
     )
 
     private fun fileDiff(path: String) = FileDiff(path, oldPath = null, FileChangeType.MODIFIED, isBinary = false, hunks = emptyList())
+
+    @Test
+    fun aMissingApiKeyIsShownAsAnActionableFailure() = runReviewFailure(
+        MissingApiKeyException(LlmProvider.ANTHROPIC),
+        ReviewFailure.MissingKey("ANTHROPIC"),
+    )
+
+    @Test
+    fun aProviderFailureIsAShownAsNetwork() = runReviewFailure(
+        ReviewProviderException("request failed", IllegalStateException("connection reset")),
+        ReviewFailure.Network,
+    )
+
+    @Test
+    fun aTimeoutIsKeptDistinctFromANetworkFailure() = runReviewFailure(
+        ReviewProviderException("request failed", IllegalStateException("request timed out")),
+        ReviewFailure.Timeout,
+    )
+
+    private fun runReviewFailure(error: Exception, expected: ReviewFailure) {
+        val agent = object : ReviewAgent {
+            override suspend fun review(repository: GitRepository, baseRef: String): ReviewResult = throw error
+        }
+        val viewModel = RepositoryViewModel(repositories, graphDispatcher = dispatcher, reviewAgent = agent)
+        viewModel.openRepository("/work/demo")
+        viewModel.reviewBranch()
+        assertEquals(expected, viewModel.state.value.reviewError)
+    }
 
     @Test
     fun reviewApplyAndCommitWriteTheFileStageItAndResetTheReview() {
