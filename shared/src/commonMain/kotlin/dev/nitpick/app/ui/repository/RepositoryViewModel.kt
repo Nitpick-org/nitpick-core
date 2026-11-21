@@ -197,11 +197,12 @@ class RepositoryViewModel(
 
     fun commitAppliedSuggestions() {
         val git = repository ?: return
-        val state = _state.value
-        if (state.appliedFiles.isEmpty()) return
+        if (_state.value.appliedFiles.isEmpty()) return
         viewModelScope.launch {
             try {
+                // Read the applied files inside the lock: an apply still writing must be included.
                 writeLock.withLock {
+                    val state = _state.value
                     git.stage(state.appliedFiles.toList())
                     git.commit(state.commitMessage)
                 }
