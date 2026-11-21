@@ -44,6 +44,17 @@ class SettingsViewModelTest {
     }
 
     @Test
+    fun reopeningTheRepositoryAlreadyOnTopDoesNotWriteTheFile() {
+        val viewModel = SettingsViewModel(store)
+        store.finishLoading()
+
+        viewModel.update { it.withRecentRepository("/work/demo") }
+        viewModel.update { it.withRecentRepository("/work/demo") }
+
+        assertEquals(1, store.saved.size)
+    }
+
+    @Test
     fun editingThenDiscardingTheDraftSavesNothing() {
         val viewModel = SettingsViewModel(store)
         store.finishLoading()

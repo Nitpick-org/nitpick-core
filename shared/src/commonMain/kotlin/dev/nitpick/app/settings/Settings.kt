@@ -40,7 +40,11 @@ const val DEFAULT_SERVER_URL = "http://localhost:8080"
 
 /** Puts [path] first in the recent list, without duplicates, keeping the newest [MAX_RECENT_REPOSITORIES]. */
 fun Settings.withRecentRepository(path: String): Settings =
-    copy(recentRepositories = (listOf(path) + recentRepositories).distinct().take(MAX_RECENT_REPOSITORIES))
+    if (recentRepositories.firstOrNull() == path) {
+        this
+    } else {
+        copy(recentRepositories = (listOf(path) + recentRepositories).distinct().take(MAX_RECENT_REPOSITORIES))
+    }
 
 interface SettingsStore {
     suspend fun load(): Settings

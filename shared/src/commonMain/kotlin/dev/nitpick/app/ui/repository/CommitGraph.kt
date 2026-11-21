@@ -109,6 +109,7 @@ private fun CommitGraphRowItem(row: CommitGraphRow, graphWidth: Dp, showLanes: B
 @Composable
 private fun CommitGraphLane(row: CommitGraphRow, modifier: Modifier) {
     val palette = NitpickTheme.colors.lanePalette
+    val passThrough = remember(row) { passThroughLanes(row) }
     Canvas(modifier) {
         val laneY = size.height / 2f
         val stroke = 2.dp.toPx()
@@ -116,7 +117,7 @@ private fun CommitGraphLane(row: CommitGraphRow, modifier: Modifier) {
         val selectedRing = 7.dp.toPx()
         fun x(lane: Int): Float = LaneLeftPadding.toPx() + lane * LaneSpacing.toPx()
 
-        for (lane in passThroughLanes(row)) {
+        for (lane in passThrough) {
             val before = row.lanesBefore.getOrNull(lane) != null
             val after = row.lanesAfter.getOrNull(lane) != null
             val top = if (before) 0f else laneY

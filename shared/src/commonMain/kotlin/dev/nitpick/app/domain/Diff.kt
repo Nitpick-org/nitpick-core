@@ -8,7 +8,12 @@ data class FileDiff(
     val changeType: FileChangeType,
     val isBinary: Boolean,
     val hunks: List<Hunk>,
-)
+) {
+    // Counted once when the parser builds the diff: Compose used to rescan every line of every
+    // file on each recomposition of the diff panel.
+    val addedLines: Int = hunks.sumOf { hunk -> hunk.lines.count { it.type == DiffLineType.ADDED } }
+    val removedLines: Int = hunks.sumOf { hunk -> hunk.lines.count { it.type == DiffLineType.REMOVED } }
+}
 
 data class Hunk(
     val oldStart: Int,

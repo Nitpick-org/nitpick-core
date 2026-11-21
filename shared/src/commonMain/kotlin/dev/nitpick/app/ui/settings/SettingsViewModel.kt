@@ -28,7 +28,10 @@ class SettingsViewModel(private val store: SettingsStore) : ViewModel() {
     fun update(transform: (Settings) -> Settings) {
         viewModelScope.launch {
             loaded.join()
-            val next = transform(_settings.value)
+            val current = _settings.value
+            val next = transform(current)
+            // Reopening the repository already on top must not rewrite the settings file.
+            if (next == current) return@launch
             _settings.value = next
             store.save(next)
         }

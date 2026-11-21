@@ -10,6 +10,7 @@ import androidx.compose.material3.lightColorScheme
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.runtime.ReadOnlyComposable
+import androidx.compose.runtime.remember
 import androidx.compose.runtime.staticCompositionLocalOf
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontFamily
@@ -57,26 +58,35 @@ fun NitpickTheme(
         Font(Res.font.jetbrains_mono_regular, FontWeight.Normal),
         Font(Res.font.jetbrains_mono_medium, FontWeight.Medium),
     )
-    val typography = NitpickTypography(codeFamily)
-    val radii = NitpickRadii()
-    val shapes = Shapes(
-        extraSmall = RoundedCornerShape(radii.xs),
-        small = RoundedCornerShape(radii.sm),
-        medium = RoundedCornerShape(radii.md),
-        large = RoundedCornerShape(radii.lg),
-        extraLarge = RoundedCornerShape(radii.xl),
-    )
+    // Every one of these values is immutable for a given [darkTheme]. Remembering them keeps
+    // their identity stable, so a recomposition of the calling screen does not invalidate
+    // every Text through MaterialTheme / the CompositionLocals.
+    val typography = remember(codeFamily) { NitpickTypography(codeFamily) }
+    val spacing = remember { NitpickSpacing() }
+    val radii = remember { NitpickRadii() }
+    val sizes = remember { NitpickSizes() }
+    val shapes = remember(radii) {
+        Shapes(
+            extraSmall = RoundedCornerShape(radii.xs),
+            small = RoundedCornerShape(radii.sm),
+            medium = RoundedCornerShape(radii.md),
+            large = RoundedCornerShape(radii.lg),
+            extraLarge = RoundedCornerShape(radii.xl),
+        )
+    }
+    val colorScheme = remember(darkTheme) { colors.toMaterialColorScheme(darkTheme) }
+    val materialTypography = remember(typography) { typography.toMaterialTypography() }
 
     CompositionLocalProvider(
         LocalNitpickColors provides colors,
         LocalNitpickTypography provides typography,
-        LocalNitpickSpacing provides NitpickSpacing(),
+        LocalNitpickSpacing provides spacing,
         LocalNitpickRadii provides radii,
-        LocalNitpickSizes provides NitpickSizes(),
+        LocalNitpickSizes provides sizes,
     ) {
         MaterialTheme(
-            colorScheme = colors.toMaterialColorScheme(darkTheme),
-            typography = typography.toMaterialTypography(),
+            colorScheme = colorScheme,
+            typography = materialTypography,
             shapes = shapes,
             content = content,
         )

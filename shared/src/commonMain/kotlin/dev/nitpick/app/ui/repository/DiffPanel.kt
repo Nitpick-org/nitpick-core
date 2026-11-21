@@ -28,7 +28,6 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
-import dev.nitpick.app.domain.DiffLineType
 import dev.nitpick.app.domain.FileDiff
 import dev.nitpick.app.domain.Hunk
 import dev.nitpick.app.domain.RefType
@@ -56,7 +55,9 @@ fun DiffPanel(
     Column(modifier) {
         DiffHeader(state, onSelectBase)
         NitpickDivider()
-        val selected = state.selectedDiff
+        val selected = remember(state.diff, state.selectedDiffPath) {
+            state.diff.firstOrNull { it.path == state.selectedDiffPath } ?: state.diff.firstOrNull()
+        }
         when {
             // A reload keeps the current diff on screen instead of flashing a spinner.
             state.isDiffLoading && state.diff.isEmpty() -> Box(Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
@@ -106,9 +107,11 @@ private fun DiffHeader(state: RepositoryUiState, onSelectBase: (String) -> Unit)
             overflow = TextOverflow.Ellipsis,
         )
         // Remote branches too: a clone made with `-b feature` has origin/main but no local main.
-        val bases = state.refs
-            .filter { it.type == RefType.REMOTE_BRANCH || (it.type == RefType.LOCAL_BRANCH && it.name != state.currentBranch) }
-            .map { it.name }
+        val bases = remember(state.refs, state.currentBranch) {
+            state.refs
+                .filter { it.type == RefType.REMOTE_BRANCH || (it.type == RefType.LOCAL_BRANCH && it.name != state.currentBranch) }
+                .map { it.name }
+        }
         BaseSelector(state.baseRef, bases, onSelectBase)
         Box(Modifier.weight(1f))
         if (state.diff.isNotEmpty()) {
@@ -117,7 +120,7 @@ private fun DiffHeader(state: RepositoryUiState, onSelectBase: (String) -> Unit)
                 style = NitpickTheme.typography.small,
                 color = NitpickTheme.colors.textSecondary,
             )
-            LineCounts(state.diff.sumOf { it.count(DiffLineType.ADDED) }, state.diff.sumOf { it.count(DiffLineType.REMOVED) })
+            LineCounts(state.diff.sumOf { it.addedLines }, state.diff.sumOf { it.removedLines })
         }
     }
 }
@@ -171,7 +174,7 @@ private fun ChangedFiles(files: List<FileDiff>, selectedPath: String, onSelectFi
                     maxLines = 1,
                     overflow = TextOverflow.Ellipsis,
                 )
-                LineCounts(file.count(DiffLineType.ADDED), file.count(DiffLineType.REMOVED))
+                LineCounts(file.addedLines, file.removedLines)
             }
         }
     }
@@ -228,5 +231,3 @@ private fun LineCounts(added: Int, removed: Int) {
     Text("+$added", style = NitpickTheme.typography.codeSmall, color = NitpickTheme.colors.success)
     Text("−$removed", style = NitpickTheme.typography.codeSmall, color = NitpickTheme.colors.danger)
 }
-
-private fun FileDiff.count(type: DiffLineType): Int = hunks.sumOf { hunk -> hunk.lines.count { it.type == type } }
