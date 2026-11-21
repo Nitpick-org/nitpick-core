@@ -24,7 +24,6 @@ class CommitGraphTest {
         assertEquals(listOf(0, 0, 0), rows.map { it.lane })
         assertEquals(listOf(listOf(0), listOf(0), emptyList()), rows.map { it.parentLanes })
         assertEquals(listOf(emptyList(), listOf(0), listOf(0)), rows.map { it.incomingLanes })
-        assertEquals(listOf(0, 0, 0), rows.map { it.colorIndex })
         assertEquals(emptyList<String>(), rows.last().lanesAfter.filterNotNull())
     }
 

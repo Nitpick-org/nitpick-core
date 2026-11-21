@@ -14,7 +14,6 @@ import dev.nitpick.app.domain.Commit
 data class CommitGraphRow(
     val commit: Commit,
     val lane: Int,
-    val colorIndex: Int,
     val incomingLanes: List<Int>,
     val parentLanes: List<Int>,
     val lanesBefore: List<String?>,
@@ -22,7 +21,6 @@ data class CommitGraphRow(
 )
 
 private const val MaxCommits = 500
-private const val LaneColorCount = 8
 
 /**
  * Assigns lanes to a newest-first commit list.
@@ -75,7 +73,6 @@ fun buildCommitGraph(commits: List<Commit>): List<CommitGraphRow> {
         rows += CommitGraphRow(
             commit = commit,
             lane = lane,
-            colorIndex = lane % LaneColorCount,
             incomingLanes = expectedBy,
             parentLanes = parentLanes,
             lanesBefore = lanesBefore,
