@@ -119,6 +119,12 @@ data class RepositoryUiState(
     /** One git operation at a time: pull, push and checkout share the same working tree. */
     val isSyncing: Boolean get() = isPulling || isPushing || isCheckingOut || isFetching
 
+    /**
+     * A pull or a checkout is writing files: a suggestion applied meanwhile could be erased by the
+     * reset that undoes a conflicting pull. A fetch or a push leaves the files alone.
+     */
+    val isRewritingWorkingTree: Boolean get() = isPulling || isCheckingOut
+
     /** Local commits the origin does not have yet: true when the current branch is ahead of, or unknown to, origin. */
     val hasUnpushedCommits: Boolean
         get() {
@@ -279,6 +285,7 @@ class RepositoryViewModel(
 
     fun applySuggestion(comment: ReviewComment) {
         val git = repository ?: return
+        if (_state.value.isRewritingWorkingTree) return
         _state.update { it.copy(actionError = null) }
         viewModelScope.launch {
             try {
@@ -318,6 +325,7 @@ class RepositoryViewModel(
 
     fun commitAppliedSuggestions() {
         val git = repository ?: return
+        if (_state.value.isRewritingWorkingTree) return
         _state.update { it.copy(actionError = null) }
         if (_state.value.appliedFiles.isEmpty()) return
         viewModelScope.launch {

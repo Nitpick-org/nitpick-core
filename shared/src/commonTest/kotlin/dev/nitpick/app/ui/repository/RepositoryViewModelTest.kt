@@ -19,6 +19,7 @@ import dev.nitpick.app.domain.ReviewComment
 import dev.nitpick.app.domain.ReviewResult
 import dev.nitpick.app.domain.Severity
 import dev.nitpick.app.graph.buildCommitGraph
+import kotlinx.coroutines.CompletableDeferred
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.delay
 import kotlin.time.Duration.Companion.minutes
@@ -454,6 +455,40 @@ class RepositoryViewModelTest {
 
         assertEquals(listOf("Apply review suggestions"), repo.commitMessages)
         assertEquals(null, viewModel.state.value.actionError)
+    }
+
+    @Test
+    fun anApplyWhileAPullRunsIsIgnored() {
+        // A pull that conflicts ends in a hard reset: a file patched during the fetch would be erased.
+        val original = "fun a() {\n    val lane = 1\n}\n"
+        val files = FakeGitRepository(
+            branch = "main", commits = commits, refs = listOf(mainBranch), diffs = diffs,
+            files = mapOf("graph/CommitGraph.kt" to original),
+        )
+        val pullDone = CompletableDeferred<Unit>()
+        val repo = object : GitRepository by files {
+            override suspend fun pull(credentials: Credentials?): PullResult {
+                pullDone.await()
+                return PullResult(updated = false, conflictedPaths = emptyList())
+            }
+        }
+        val nit = ReviewComment(
+            id = "n1", filePath = "graph/CommitGraph.kt", startLine = 2, endLine = 2, severity = Severity.BUG,
+            category = "logic", message = "wrong lane", originalSnippet = "val lane = 1", suggestion = "    val lane = 0",
+        )
+        val agent = object : ReviewAgent {
+            override suspend fun review(repository: GitRepository, baseRef: String) = ReviewResult("1 bug", listOf(nit))
+        }
+        val viewModel = RepositoryViewModel(FakeGitRepositoryFactory(mapOf("/work/demo" to repo)), graphDispatcher = dispatcher, reviewAgent = agent)
+        viewModel.openRepository("/work/demo")
+        viewModel.reviewBranch()
+
+        viewModel.pullBranch(credentials = null)
+        viewModel.applySuggestion(nit)
+        pullDone.complete(Unit)
+
+        assertEquals(original, files.files["graph/CommitGraph.kt"])
+        assertEquals(emptySet(), viewModel.state.value.appliedIds)
     }
 
     @Test
