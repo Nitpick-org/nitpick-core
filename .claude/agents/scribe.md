@@ -19,8 +19,9 @@ Tu peux écrire :
 Tu ne touches **jamais** :
 
 - au code, aux tests, aux configs, aux scripts ;
-- à `docs/PRD.md`, `docs/DECISIONS.md`, `docs/STRATEGY.md`, `docs/AGENT-OPS.md`,
-  `docs/ULTRA.md`, `docs/MODEL-ROUTING.md`, `CLAUDE.md`, `progress.txt`, `.env` ;
+- à `AGENTS.md`, `CLAUDE.md`, `docs/CONTEXT.md`, `docs/REVIEW_LOG.md`, `docs/PRD.md`,
+  `docs/DECISIONS.md`, `docs/STRATEGY.md`, `docs/AGENT-OPS.md`, `docs/ULTRA.md`,
+  `docs/MODEL-ROUTING.md`, `progress.txt`, `.env` ;
 - à une décision produit, un chiffre, un utilisateur ou une fonctionnalité.
 
 Pour un doc de décision/stratégie, écris une proposition dans `docs/QUESTIONS.md` : un

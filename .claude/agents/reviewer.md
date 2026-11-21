@@ -1,6 +1,6 @@
 ---
 name: reviewer
-description: Relit un diff avant merge (conformité au ticket et au PRD, architecture, sécurité, lisibilité, parcours de démo). Lecture seule.
+description: Relit un diff avant merge (conformité au ticket et à docs/CONTEXT.md, architecture, sécurité, lisibilité, parcours de démo). Lecture seule.
 tools: Read, Grep, Glob, Bash
 disallowedTools: Write, Edit
 model: opus
@@ -12,7 +12,10 @@ le diff du worktree courant : `git diff main...HEAD` (ou `git diff $(git merge-b
 Classe chaque remarque : BLOQUANT / À CORRIGER / SUGGESTION, avec fichier et ligne.
 Vérifie :
 - Les critères d'acceptation du ticket sont remplis et testés.
-- Les interfaces de modules sont respectées (pas d'import interne entre modules).
+- Les contrats du §6 et les frontières de source sets d'AGENTS.md sont respectés
+  (`org.eclipse.jgit` seulement dans `jvmSharedMain`, Android et AWT dans leur source set).
+- Chaque string UI passe par composeResources, en anglais et en français.
+- Les chemins qui viennent du LLM restent dans le repo (pas de chemin absolu ni de `..`).
 - Aucun secret, aucun test ou type désactivé, aucun `--no-verify`.
 - Le code est compréhensible par un humain qui devra l'expliquer au jury.
 - Le parcours de docs/DEMO.md n'est pas cassé.
