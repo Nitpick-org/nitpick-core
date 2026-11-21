@@ -23,6 +23,17 @@
   le test a été corrigé (les lanes 1 et 2 portent les branches, elles convergent à la
   racine). C'est le comportement attendu.
 
+- 16:00 — rebasée sur `main` après le merge de #15 (#27), poussée en
+  `ticket/16-graph-rebased` (pas de force push sur `ticket/16-graph`). Conflit sur `App.kt` :
+  gardé le flux réel de #15.
+- 16:15 — graph branché sur le vrai dépôt : `RepositoryViewModel` calcule
+  `buildCommitGraph(repository.log())` hors du thread UI (`Dispatchers.Default`, injectable
+  pour les tests) et garde le commit sélectionné (le plus récent par défaut). Le rendu des
+  lanes et le panneau de détails passent dans `ui/repository/CommitGraph.kt`, libellés en EN/FR
+  et date localisée via `formatCommitTime` (#15). Supprimés : `CommitGraphScreen`,
+  `PreviewCommits` et `CommitFormat` (doublon UTC). 4 tests du ViewModel, dont la sélection.
+  Vérifié à l'écran sur un vrai dépôt (lanes, merge, détails du commit sélectionné).
+
 ## Comparaison multi-agent (critère bonus du jury)
 
 Deux sous-agents indépendants ont produit un algorithme sur le même modèle `Commit` et
@@ -62,13 +73,11 @@ le garde-fou self-parent de A.
 
 ## Incertain / blocage
 
-- Le rendu sur un **vrai dépôt** dépend de #15 (`JGitRepository.log` + repo picker).
-  L'écran actuel utilise `previewCommits` et l'indique dans le header.
-- Pas de vérification visuelle sur desktop/Android dans cet environnement sans SDK.
-- Le thème sombre n'a pas été capturé ; la palette est choisie pour les deux fonds.
+- Le thème sombre n'a pas été capturé ; la palette est choisie pour les deux fonds (le
+  thème lui-même arrive avec #18).
+- Android n'affiche pas encore le graph : pas de dépôt avant le clone (#21).
 
 ## Suivant
 
-1. Ouvrir la PR, faire relire l'UI.
-2. Quand #15 est mergé, remplacer `previewCommits` par `repository.log(500)`.
-3. Ajouter une capture desktop (clair + sombre) au prochain sync.
+1. Ouvrir la PR depuis `ticket/16-graph-rebased`, faire relire l'UI.
+2. Ajouter une capture desktop en sombre quand #18 est mergé.
