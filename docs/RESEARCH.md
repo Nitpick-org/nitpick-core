@@ -37,3 +37,20 @@
 ## Recherches
 
 <!-- Researcher sections start here. -->
+
+## Talk JetBrains — LauzHack 2026 (21/11)
+
+**Réponse courte :** challenge Kotlin Multiplatform centré sur l'implémentation, l'architecture,
+l'UX et le process de développement. Utiliser JetBrains AI / Junie peut donner un bonus
+(~10–15 %, chiffre à confirmer). Prix : 250/200/150 € par personne.
+
+**Ce que ça change pour Nitpick :** préparer une explication d'architecture de 60 s, montrer
+le process agentique (AGENT_LOG / REVIEW_LOG), soigner l'UX au-delà du demo path, et passer
+au stand JetBrains pour les critères exacts et les ressources.
+
+**Pièges / incertitudes :** noms et pourcentages incertains (ASR), slides/QR non capturés.
+
+**Transcription :** [docs/transcripts/2026-11-21-jetbrains-talk.md](transcripts/2026-11-21-jetbrains-talk.md).
+
+**Sources :** enregistrement audio du 21/11/2026 ; talk sponsor (à recouper avec le stand).
+

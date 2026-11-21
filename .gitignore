@@ -36,3 +36,6 @@ local.properties
 captures
 .externalNativeBuild
 .cxx
+
+# Local Claude/agent scratch outputs (not part of the repo)
+Claude outputs/
