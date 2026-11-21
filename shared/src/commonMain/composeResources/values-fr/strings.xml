@@ -111,4 +111,14 @@
     <string name="connect_token_hide">Masquer</string>
     <string name="connect_action">Connecter</string>
     <string name="connect_edit">Compte</string>
+    <string name="settings_search">Rechercher un réglage</string>
+    <string name="settings_section_general">Général</string>
+    <string name="settings_section_review">Review</string>
+    <string name="settings_section_git">Git</string>
+    <string name="settings_section_keymap">Raccourcis</string>
+    <string name="settings_kicker_appearance">Apparence</string>
+    <string name="settings_kicker_ai_review">Review IA</string>
+    <string name="settings_api_key_help">Stockée dans le fichier de réglages de l’app. Envoyée uniquement à %1$s.</string>
+    <string name="action_cancel">Annuler</string>
+    <string name="action_save">Enregistrer</string>
 </resources>

@@ -39,6 +39,8 @@ import dev.nitpick.app.ui.components.NitpickButtonSize
 import dev.nitpick.app.ui.components.NitpickButtonVariant
 import dev.nitpick.app.ui.components.NitpickCard
 import dev.nitpick.app.ui.components.NitpickKbd
+import dev.nitpick.app.ui.components.NitpickRadioGroup
+import dev.nitpick.app.ui.components.NitpickSegmentedControl
 import dev.nitpick.app.ui.components.NitpickSectionHeader
 import dev.nitpick.app.ui.components.NitpickStatusBar
 import dev.nitpick.app.ui.components.NitpickTab
@@ -166,6 +168,10 @@ private fun ControlsSection() {
             placeholder = "Message, author, hash…",
             modifier = Modifier.width(360.dp),
         )
+        var theme by remember { mutableStateOf("System") }
+        NitpickSegmentedControl(listOf("System", "Light", "Dark"), theme, { it }, { theme = it }, Modifier.width(300.dp))
+        var provider by remember { mutableStateOf("Anthropic") }
+        NitpickRadioGroup(listOf("Anthropic", "OpenAI", "Google", "Ollama"), provider, { it }, { provider = it })
         Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
             NitpickTab("Details", selected = true, onClick = {})
             NitpickTab("Diff", selected = false, onClick = {})
