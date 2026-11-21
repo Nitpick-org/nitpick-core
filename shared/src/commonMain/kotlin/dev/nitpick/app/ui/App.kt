@@ -86,6 +86,7 @@ fun App(
                     onOpenSharedReview = repositoryViewModel::openSharedReview,
                     onFetch = repositoryViewModel::fetchBranch,
                     onConnect = { connection -> settingsViewModel.update { it.copy(gitConnection = connection) } },
+                    deviceFlow = container.deviceFlowClient,
                     onOpenSettings = { showSettings = true },
                     modifier = Modifier.safeContentPadding(),
                 )

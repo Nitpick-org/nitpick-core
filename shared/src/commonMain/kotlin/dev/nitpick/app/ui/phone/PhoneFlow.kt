@@ -16,6 +16,7 @@ import androidx.compose.ui.unit.dp
 import dev.nitpick.app.domain.Credentials
 import dev.nitpick.app.domain.ReviewComment
 import dev.nitpick.app.domain.SharedReview
+import dev.nitpick.app.settings.DeviceFlowClient
 import dev.nitpick.app.settings.GitConnection
 import dev.nitpick.app.settings.Settings
 import dev.nitpick.app.ui.components.NitpickButton
@@ -61,6 +62,7 @@ fun PhoneFlow(
     onOpenSharedReview: (SharedReview) -> Unit,
     onFetch: (Credentials?) -> Unit,
     onConnect: (GitConnection) -> Unit,
+    deviceFlow: DeviceFlowClient,
     onOpenSettings: () -> Unit,
     modifier: Modifier = Modifier,
 ) {
@@ -70,6 +72,7 @@ fun PhoneFlow(
     if (connection == null || editingConnection) {
         ConnectScreen(
             current = connection,
+            deviceFlow = deviceFlow,
             onConnect = {
                 onConnect(it)
                 editingConnection = false
