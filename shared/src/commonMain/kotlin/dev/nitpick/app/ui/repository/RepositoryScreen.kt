@@ -21,15 +21,12 @@ import androidx.compose.material3.OutlinedButton
 import androidx.compose.material3.Text
 import androidx.compose.material3.VerticalDivider
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
-import dev.nitpick.app.domain.Commit
 import dev.nitpick.app.domain.Ref
 import dev.nitpick.app.domain.RefType
 import nitpick.shared.generated.resources.*
@@ -37,8 +34,8 @@ import org.jetbrains.compose.resources.StringResource
 import org.jetbrains.compose.resources.stringResource
 
 /**
- * Desktop layout from docs/CONTEXT.md §12: refs sidebar | commit list | details. The details
- * panel stays a placeholder until the diff and review tickets land.
+ * Desktop layout from docs/CONTEXT.md §12: refs sidebar | commit graph | details of the
+ * selected commit. The diff and review land in the details panel in later tickets.
  *
  * [onOpenRepository] is null on platforms without a folder picker.
  */
@@ -46,6 +43,7 @@ import org.jetbrains.compose.resources.stringResource
 fun RepositoryScreen(
     state: RepositoryUiState,
     onOpenRepository: (() -> Unit)?,
+    onSelectCommit: (String) -> Unit,
     modifier: Modifier = Modifier,
 ) {
     Column(modifier.fillMaxSize()) {
@@ -71,9 +69,21 @@ fun RepositoryScreen(
             else -> Row(Modifier.fillMaxSize()) {
                 RefsSidebar(state.refs, state.currentBranch, Modifier.width(240.dp).fillMaxHeight())
                 VerticalDivider()
-                CommitList(state.commits, Modifier.weight(1f).fillMaxHeight())
+                Column(Modifier.weight(1f).fillMaxHeight()) {
+                    SectionTitle(stringResource(Res.string.commits_title))
+                    if (state.graph.isEmpty()) {
+                        PanelHint(stringResource(Res.string.commits_empty))
+                    } else {
+                        CommitGraphList(state.graph, state.selectedCommitId, onSelectCommit, Modifier.fillMaxSize())
+                    }
+                }
                 VerticalDivider()
-                DetailsPlaceholder(Modifier.width(320.dp).fillMaxHeight())
+                val selected = state.selectedCommit
+                if (selected != null) {
+                    CommitDetails(selected, Modifier.width(320.dp).fillMaxHeight())
+                } else {
+                    DetailsPlaceholder(Modifier.width(320.dp).fillMaxHeight())
+                }
             }
         }
     }
@@ -155,40 +165,6 @@ private fun RefsSidebar(refs: List<Ref>, currentBranch: String, modifier: Modifi
                     overflow = TextOverflow.Ellipsis,
                 )
             }
-        }
-    }
-}
-
-@Composable
-private fun CommitList(commits: List<Commit>, modifier: Modifier) {
-    Column(modifier) {
-        SectionTitle(stringResource(Res.string.commits_title))
-        if (commits.isEmpty()) {
-            PanelHint(stringResource(Res.string.commits_empty))
-        } else {
-            LazyColumn(Modifier.fillMaxSize()) {
-                items(commits, key = { it.id }) { commit -> CommitRow(commit) }
-            }
-        }
-    }
-}
-
-@Composable
-private fun CommitRow(commit: Commit) {
-    val time = remember(commit.timestampEpochSeconds) { formatCommitTime(commit.timestampEpochSeconds) }
-    Column(Modifier.fillMaxWidth().padding(horizontal = 16.dp, vertical = 8.dp)) {
-        Text(
-            commit.shortMessage,
-            style = MaterialTheme.typography.bodyMedium,
-            maxLines = 1,
-            overflow = TextOverflow.Ellipsis,
-        )
-        Row(horizontalArrangement = Arrangement.spacedBy(12.dp)) {
-            val meta = MaterialTheme.typography.bodySmall
-            val metaColor = MaterialTheme.colorScheme.onSurfaceVariant
-            Text(commit.authorName, style = meta, color = metaColor, maxLines = 1)
-            Text(time, style = meta, color = metaColor, maxLines = 1)
-            Text(commit.id.take(7), style = meta, color = metaColor, fontFamily = FontFamily.Monospace)
         }
     }
 }

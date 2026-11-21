@@ -10,5 +10,9 @@
     <string name="refs_empty">Pas encore de branche ni de tag</string>
     <string name="commits_title">Commits</string>
     <string name="commits_empty">Aucun commit sur cette branche pour l’instant</string>
-    <string name="details_placeholder">Les détails du commit et la review s’afficheront ici</string>
+    <string name="details_placeholder">Sélectionnez un commit pour voir ses détails</string>
+    <string name="details_author">Auteur</string>
+    <string name="details_date">Date</string>
+    <string name="details_commit">Commit</string>
+    <string name="details_parents">Parents</string>
 </resources>
