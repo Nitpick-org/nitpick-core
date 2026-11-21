@@ -41,6 +41,8 @@ les sous-agents, le routage des modèles, les hooks, l'AFK et la capacité Ultra
 - **`PreToolUse` Bash** (`scripts/guard-bash.sh`) : bloque tout accès à `.env` et toute
   commande d'écriture (`>`, `sed -i`, `mv`, `python`…) qui nomme un fichier protégé, **même
   dans la session humaine**. Pour les lire, utilise Read ; pour les modifier, Edit ou Write.
+  Un message de commit qui contient `>` et un de ces noms est bloqué aussi : écris-le dans
+  un fichier et passe-le avec `git commit -F`.
 - **`pre-commit`** (`.githooks/pre-commit`) : lance `check.sh` et refuse un `.env` indexé.
 
 ## AFK
