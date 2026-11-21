@@ -1,0 +1,139 @@
+package dev.nitpick.app.git
+
+import dev.nitpick.app.domain.Commit
+import dev.nitpick.app.domain.Credentials
+import dev.nitpick.app.domain.FileDiff
+import dev.nitpick.app.domain.PullResult
+import dev.nitpick.app.domain.Ref
+import dev.nitpick.app.domain.RefType
+import dev.nitpick.app.domain.WorkingTreeStatus
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.withContext
+import org.eclipse.jgit.api.Git
+import org.eclipse.jgit.lib.Constants
+import org.eclipse.jgit.lib.Repository
+import org.eclipse.jgit.revwalk.RevCommit
+import org.eclipse.jgit.revwalk.RevSort
+import org.eclipse.jgit.revwalk.RevWalk
+import java.io.File
+import org.eclipse.jgit.lib.Ref as JGitRef
+
+/**
+ * [GitRepository] backed by JGit, shared by desktop and Android. Every call runs on
+ * [Dispatchers.IO] so callers can stay on the UI thread.
+ */
+class JGitRepository(private val git: Git) : GitRepository {
+
+    private val repository: Repository = git.repository
+    private val workTree: File = repository.workTree.canonicalFile
+
+    override suspend fun log(limit: Int): List<Commit> = withContext(Dispatchers.IO) {
+        val head = repository.resolve(Constants.HEAD) ?: return@withContext emptyList()
+        RevWalk(repository).use { walk ->
+            // Topological order puts every child before its parents, which the graph lanes need.
+            // shortcut: TOPO walks the whole history before returning, revisit if huge repos get slow.
+            walk.sort(RevSort.TOPO, true)
+            walk.sort(RevSort.COMMIT_TIME_DESC, true)
+            walk.markStart(walk.parseCommit(head))
+            walk.take(limit).map { it.toCommit() }
+        }
+    }
+
+    override suspend fun refs(): List<Ref> = withContext(Dispatchers.IO) {
+        repository.refDatabase.refs
+            .filterNot { it.isSymbolic } // origin/HEAD only points at another ref
+            .mapNotNull { it.toDomainRef() }
+            .sortedWith(compareBy({ it.type }, { it.name }))
+    }
+
+    override suspend fun currentBranch(): String = withContext(Dispatchers.IO) {
+        // Short branch name, or the commit id when HEAD is detached.
+        checkNotNull(repository.branch) { "HEAD is missing in ${workTree.path}" }
+    }
+
+    override suspend fun status(): WorkingTreeStatus = withContext(Dispatchers.IO) {
+        val status = git.status().call()
+        WorkingTreeStatus(
+            staged = (status.added + status.changed + status.removed).sorted(),
+            unstaged = (status.modified + status.missing).sorted(),
+            untracked = status.untracked.sorted(),
+            conflicted = status.conflicting.sorted(),
+        )
+    }
+
+    override suspend fun readFile(path: String): String? = withContext(Dispatchers.IO) {
+        val file = resolveInWorkTree(path)
+        if (file.isFile) file.readText() else null
+    }
+
+    override suspend fun listFiles(): List<String> = withContext(Dispatchers.IO) {
+        // The index lists tracked files only, so build outputs and ignored files stay out.
+        val index = repository.readDirCache()
+        (0 until index.entryCount).map { index.getEntry(it).pathString }.distinct()
+    }
+
+    override suspend fun diffAgainst(baseRef: String): List<FileDiff> =
+        TODO("diffAgainst is not implemented yet")
+
+    override suspend fun writeFile(path: String, content: String) =
+        TODO("writeFile is not implemented yet")
+
+    override suspend fun stage(paths: List<String>) =
+        TODO("stage is not implemented yet")
+
+    override suspend fun commit(message: String) =
+        TODO("commit is not implemented yet")
+
+    override suspend fun fetch(credentials: Credentials?) =
+        TODO("fetch is not implemented yet")
+
+    override suspend fun pull(credentials: Credentials?): PullResult =
+        TODO("pull is not implemented yet")
+
+    override suspend fun push(credentials: Credentials?) =
+        TODO("push is not implemented yet")
+
+    override suspend fun checkout(branch: String) =
+        TODO("checkout is not implemented yet")
+
+    /**
+     * Paths can come from the LLM, so they must stay inside the working tree and out of
+     * `.git`, which may hold credentials in its config.
+     */
+    private fun resolveInWorkTree(path: String): File {
+        require(!File(path).isAbsolute) { "Path must be relative to the repository: $path" }
+        val file = File(workTree, path).canonicalFile
+        require(file.toPath().startsWith(workTree.toPath())) { "Path escapes the repository: $path" }
+        val firstSegment = workTree.toPath().relativize(file.toPath()).firstOrNull()?.toString()
+        require(firstSegment != Constants.DOT_GIT) { "Path points inside .git: $path" }
+        return file
+    }
+
+    private fun RevCommit.toCommit() = Commit(
+        id = name,
+        shortMessage = shortMessage,
+        fullMessage = fullMessage,
+        authorName = authorIdent.name,
+        authorEmail = authorIdent.emailAddress,
+        timestampEpochSeconds = authorIdent.`when`.time / 1000,
+        parentIds = parents.map { it.name },
+    )
+
+    private fun JGitRef.toDomainRef(): Ref? {
+        val type = when {
+            name.startsWith(Constants.R_HEADS) -> RefType.LOCAL_BRANCH
+            name.startsWith(Constants.R_REMOTES) -> RefType.REMOTE_BRANCH
+            name.startsWith(Constants.R_TAGS) -> RefType.TAG
+            else -> return null
+        }
+        // An annotated tag points at a tag object; peeling gives the commit behind it.
+        val peeled = repository.refDatabase.peel(this)
+        val target = peeled.peeledObjectId ?: peeled.objectId ?: return null
+        return Ref(
+            name = Repository.shortenRefName(name),
+            fullName = name,
+            commitId = target.name,
+            type = type,
+        )
+    }
+}

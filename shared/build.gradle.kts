@@ -57,12 +57,14 @@ kotlin {
             implementation(libs.androidx.lifecycle.viewmodelCompose)
             implementation(libs.androidx.lifecycle.runtimeCompose)
             implementation(libs.kotlinx.serializationJson)
+            implementation(libs.kotlinx.coroutinesCore)
         }
         getByName("jvmSharedMain").dependencies {
             implementation(libs.jgit)
         }
         commonTest.dependencies {
             implementation(libs.kotlin.test)
+            implementation(libs.kotlinx.coroutinesTest)
         }
         getByName("androidDeviceTest").dependencies {
             implementation(libs.androidx.testRunner)
