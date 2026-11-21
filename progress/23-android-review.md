@@ -54,14 +54,26 @@
 
 - 19:40 — review ponytail : pas de checkout pendant une review en cours (les nits de l'ancienne branche
   arriveraient sur la nouvelle).
+- 19:55 — décision humaine : **l'app mobile a une connexion GitHub ou GitLab** comme base.
+  `Settings.gitConnection` (`GitConnection(host, token)`, sérialisé avec les réglages), écran Connect
+  (choix GitHub/GitLab, token masqué) affiché tant qu'aucun compte n'est connecté, action « Compte »
+  sur Repos pour le changer. Le clone n'a plus de champ token, le push n'en demande plus : les
+  `Credentials` viennent des réglages (`x-access-token` pour GitHub, `oauth2` pour GitLab). Supprimés :
+  credentials de session du ViewModel, `hasCredentials`, strings `clone_token_*` et `push_token_*`.
+  3 tests settings (user name par forge, sérialisation), tests VM ajustés. `check.sh --demo` vert
+  (99 tests JVM, 67 hôte Android).
+
+- 20:05 — review ponytail : `SettingsViewModel.isLoaded` et `App` n'affiche le flux téléphone qu'une fois
+  les réglages lus (plus de flash de l'écran Connect au démarrage) ; l'édition du compte ne préremplit
+  plus le token (champ vide = on garde l'ancien).
 
 ## Décisions
 
 - `checkout` implémenté ici (il est dans le contrat `GitRepository`) : après un clone, le téléphone
   est sur la branche par défaut et n'a rien à relire. #42 garde `pull`. Hypothèse notée sans réponse
   humaine au moment du commit.
-- Push : réutilise le token saisi au clone (mémoire de session). Un dépôt rouvert après relance n'en a
-  pas : l'écran Review demande le token au moment du push (`hasCredentials`).
+- Connexion git dans les réglages (décision H3) : un token par appareil, utilisé par clone, fetch et
+  push. Stocké comme la clé API, dans le fichier de réglages privé de l'app (Keystore : plus tard).
 - « Quelque chose à pousser » se déduit des refs (locale ≠ `origin/<branche>`), pas d'un flag à
   remettre à zéro dans les fonctions de #22.
 - Base de review choisie au chargement : un clone GitHub n'a souvent pas de `main` local

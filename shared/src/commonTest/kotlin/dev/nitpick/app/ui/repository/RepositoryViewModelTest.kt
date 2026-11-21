@@ -174,15 +174,15 @@ class RepositoryViewModelTest {
     }
 
     @Test
-    fun pushReusesTheTokenTypedForTheCloneAndRefreshesTheRemoteBranch() {
+    fun pushSendsTheCredentialsAndRefreshesTheRemoteBranch() {
         val remoteBehind = Ref("origin/main", "refs/remotes/origin/main", parent.id, RefType.REMOTE_BRANCH)
         val remote = PushingRepository(FakeGitRepository(branch = "main", commits = commits, refs = listOf(mainBranch, remoteBehind)))
-        val viewModel = RepositoryViewModel(RecordingCloneFactory(remote), graphDispatcher = dispatcher)
-        val credentials = Credentials("x-access-token", "ghp_secret")
-        viewModel.cloneRepository("https://github.com/acme/demo.git", "/data/repos/demo", credentials)
+        val viewModel = RepositoryViewModel(FakeGitRepositoryFactory(mapOf("/work/demo" to remote)), graphDispatcher = dispatcher)
+        viewModel.openRepository("/work/demo")
         assertTrue(viewModel.state.value.hasUnpushedCommits)
+        val credentials = Credentials("x-access-token", "ghp_secret")
 
-        viewModel.pushBranch()
+        viewModel.pushBranch(credentials)
 
         assertEquals(listOf<Credentials?>(credentials), remote.pushes)
         val state = viewModel.state.value
@@ -192,25 +192,12 @@ class RepositoryViewModelTest {
     }
 
     @Test
-    fun aReopenedRepositoryHasNoTokenUntilTheUserTypesOneForThePush() {
-        val remote = PushingRepository(FakeGitRepository(branch = "main", commits = commits, refs = listOf(mainBranch)))
-        val viewModel = RepositoryViewModel(FakeGitRepositoryFactory(mapOf("/work/demo" to remote)), graphDispatcher = dispatcher)
-        viewModel.openRepository("/work/demo")
-        assertEquals(false, viewModel.state.value.hasCredentials)
-
-        viewModel.pushBranch(Credentials("x-access-token", "ghp_typed"))
-
-        assertEquals(listOf<Credentials?>(Credentials("x-access-token", "ghp_typed")), remote.pushes)
-        assertEquals(true, viewModel.state.value.hasCredentials)
-    }
-
-    @Test
     fun aRejectedPushShowsTheErrorAndKeepsTheReview() {
         val remote = PushingRepository(FakeGitRepository(branch = "main", commits = commits, refs = listOf(mainBranch)), failure = "main: REJECTED_NONFASTFORWARD")
         val viewModel = RepositoryViewModel(FakeGitRepositoryFactory(mapOf("/work/demo" to remote)), graphDispatcher = dispatcher)
         viewModel.openRepository("/work/demo")
 
-        viewModel.pushBranch()
+        viewModel.pushBranch(credentials = null)
 
         assertEquals("main: REJECTED_NONFASTFORWARD", viewModel.state.value.pushError)
         assertEquals(false, viewModel.state.value.isPushing)

@@ -1,5 +1,7 @@
 package dev.nitpick.app.settings
 
+import dev.nitpick.app.domain.Credentials
+import kotlinx.serialization.json.Json
 import kotlin.test.Test
 import kotlin.test.assertEquals
 import kotlin.test.assertTrue
@@ -14,6 +16,21 @@ class SettingsTest {
         assertEquals(LlmProvider.ANTHROPIC.knownModels.first(), settings.model)
         assertEquals("", settings.apiKey)
         assertEquals(emptyList(), settings.recentRepositories)
+        assertEquals(null, settings.gitConnection)
+    }
+
+    @Test
+    fun theConnectionTurnsIntoTheUserNameEachForgeExpects() {
+        assertEquals(Credentials("x-access-token", "ghp_1"), GitConnection(GitHost.GITHUB, "ghp_1").toCredentials())
+        assertEquals(Credentials("oauth2", "glpat_1"), GitConnection(GitHost.GITLAB, "glpat_1").toCredentials())
+        assertEquals(false, GitConnection(GitHost.GITHUB, " ").isComplete)
+    }
+
+    @Test
+    fun theConnectionSurvivesTheSettingsFile() {
+        val settings = Settings(gitConnection = GitConnection(GitHost.GITLAB, "glpat_1"))
+        val json = Json.encodeToString(Settings.serializer(), settings)
+        assertEquals(settings, Json.decodeFromString(Settings.serializer(), json))
     }
 
     @Test

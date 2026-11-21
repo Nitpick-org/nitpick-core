@@ -80,7 +80,6 @@ data class RepositoryUiState(
     val appliedIds: Set<String> = emptySet(),
     val appliedFiles: Set<String> = emptySet(),
     val commitMessage: String = "",
-    val hasCredentials: Boolean = false,
     val isPushing: Boolean = false,
     val pushError: String? = null,
     val isCheckingOut: Boolean = false,
@@ -122,21 +121,17 @@ class RepositoryViewModel(
     // Two applies on the same file must not read the same original and overwrite each other.
     private val writeLock = Mutex()
 
-    // The token typed for the clone, kept for this session's pushes only: never in the state, never saved.
-    private var sessionCredentials: Credentials? = null
-
-    fun openRepository(path: String) = load(path, credentials = null) { gitRepositoryFactory.open(path) }
+    fun openRepository(path: String) = load(path) { gitRepositoryFactory.open(path) }
 
     /** Clones [url] into [path]; the token in [credentials] stays in memory and never reaches the state. */
     fun cloneRepository(url: String, path: String, credentials: Credentials?) =
-        load(path, credentials) { gitRepositoryFactory.clone(url, path, credentials) }
+        load(path) { gitRepositoryFactory.clone(url, path, credentials) }
 
-    private fun load(path: String, credentials: Credentials?, openRepository: suspend () -> GitRepository) {
+    private fun load(path: String, openRepository: suspend () -> GitRepository) {
         // Opening another folder while one is loading must not let the old result win.
         loading?.cancel()
         diffLoading?.cancel()
         repository = null
-        sessionCredentials = credentials
         _state.value = RepositoryUiState(path = path, isLoading = true)
         loading = viewModelScope.launch {
             _state.value = try {
@@ -152,7 +147,6 @@ class RepositoryViewModel(
                     refs = refs,
                     selectedCommitId = graph.firstOrNull()?.commit?.id,
                     baseRef = defaultBaseRef(refs),
-                    hasCredentials = credentials != null,
                 )
             } catch (e: CancellationException) {
                 throw e
@@ -291,18 +285,14 @@ class RepositoryViewModel(
         }
     }
 
-    /**
-     * Pushes the current branch to origin. [credentials] replaces the token typed at clone time
-     * when the user has to enter one again (a repository reopened after a restart has none).
-     */
-    fun pushBranch(credentials: Credentials? = null) {
+    /** Pushes the current branch to origin with the forge connection from the settings. */
+    fun pushBranch(credentials: Credentials?) {
         val git = repository ?: return
         if (_state.value.isPushing) return
-        if (credentials != null) sessionCredentials = credentials
-        _state.update { it.copy(isPushing = true, pushError = null, hasCredentials = sessionCredentials != null) }
+        _state.update { it.copy(isPushing = true, pushError = null) }
         viewModelScope.launch {
             try {
-                git.push(sessionCredentials)
+                git.push(credentials)
                 if (repository !== git) return@launch
                 _state.update { it.copy(isPushing = false, refs = git.refs()) }
             } catch (e: CancellationException) {

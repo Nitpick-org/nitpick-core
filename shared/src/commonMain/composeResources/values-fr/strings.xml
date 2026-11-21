@@ -66,10 +66,6 @@
     <string name="clone_help">Nitpick clone le dépôt dans le stockage de l’app, puis affiche ses commits et ses branches.</string>
     <string name="clone_url_label">URL HTTPS</string>
     <string name="clone_url_placeholder">https://github.com/owner/repo.git</string>
-    <string name="clone_token_label">Jeton d’accès</string>
-    <string name="clone_token_help">Lecture requise. Le push demande l’écriture.</string>
-    <string name="clone_token_show">Afficher</string>
-    <string name="clone_token_hide">Masquer</string>
     <string name="clone_folder_label">Nom du dossier</string>
     <string name="clone_action">Cloner</string>
     <string name="clone_in_progress">Clonage…</string>
@@ -102,8 +98,17 @@
     <string name="push_action">Push</string>
     <string name="push_in_progress">Push en cours…</string>
     <string name="push_error">Le push a échoué</string>
-    <string name="push_token_title">Jeton requis pour le push</string>
-    <string name="push_token_help">Saisissez à nouveau le jeton d’accès : il n’est jamais stocké.</string>
     <string name="branch_checkout_hint">Touchez une branche pour la récupérer</string>
     <string name="repository_loading">Chargement…</string>
+    <string name="connect_title">Connectez votre compte git</string>
+    <string name="connect_help">Nitpick clone et pousse avec ce jeton. Il reste sur cet appareil.</string>
+    <string name="connect_host">Fournisseur</string>
+    <string name="connect_github">GitHub</string>
+    <string name="connect_gitlab">GitLab</string>
+    <string name="connect_token_label">Jeton d’accès</string>
+    <string name="connect_token_help">Lecture requise pour cloner, écriture pour pousser.</string>
+    <string name="connect_token_show">Afficher</string>
+    <string name="connect_token_hide">Masquer</string>
+    <string name="connect_action">Connecter</string>
+    <string name="connect_edit">Compte</string>
 </resources>
