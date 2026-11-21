@@ -107,7 +107,7 @@ fun ReviewPanel(
                                 severity = comment.severity,
                                 message = comment.message,
                                 suggestion = comment.suggestion,
-                                onApply = if (applied) null else { { onApply(comment) } },
+                                onApply = if (applied || comment.isFileLevel) null else { { onApply(comment) } },
                                 onDismiss = if (applied) null else { { onDismiss(comment.id) } },
                             )
                         }

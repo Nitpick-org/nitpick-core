@@ -151,6 +151,7 @@ class RepositoryViewModel(
         viewModelScope.launch {
             try {
                 val result = reviewAgent.review(git, _state.value.baseRef)
+                if (repository !== git) return@launch
                 _state.update { it.copy(review = result, isReviewing = false) }
             } catch (e: CancellationException) {
                 throw e
@@ -169,6 +170,8 @@ class RepositoryViewModel(
                         ?: error("File not found: ${comment.filePath}")
                     git.writeFile(comment.filePath, ReviewAnchoring.apply(content, comment))
                 }
+                // The user may have opened another repository while the write ran.
+                if (repository !== git) return@launch
                 _state.update {
                     it.copy(
                         appliedIds = it.appliedIds + comment.id,
@@ -206,6 +209,7 @@ class RepositoryViewModel(
                     git.stage(state.appliedFiles.toList())
                     git.commit(state.commitMessage)
                 }
+                if (repository !== git) return@launch
                 val commits = git.log()
                 val graph = withContext(graphDispatcher) { buildCommitGraph(commits) }
                 _state.update {
