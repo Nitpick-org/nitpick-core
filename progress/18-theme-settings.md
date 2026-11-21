@@ -66,3 +66,6 @@
 - 18:40 — modèle : select pur par fournisseur (`LlmProvider.knownModels`, `ExposedDropdownMenuBox`
   en lecture seule), défaut `claude-opus-5-5` ; changer de fournisseur sélectionne son premier modèle. Ids
   Anthropic vérifiés (opus/sonnet/haiku 5.5), OpenAI/Google/Ollama non vérifiés (`shortcut:`).
+- 18:55 — review ponytail : écran Réglages scrollable (paysage / petite fenêtre) ; un fichier
+  d'un ancien build avec `model` vide reçoit le premier modèle du fournisseur au chargement
+  (6 tests store).

@@ -17,7 +17,8 @@ class FileSettingsStore(private val file: File) : SettingsStore {
     override suspend fun load(): Settings = withContext(io) {
         if (!file.isFile) return@withContext Settings()
         try {
-            json.decodeFromString(Settings.serializer(), file.readText())
+            val settings = json.decodeFromString(Settings.serializer(), file.readText())
+            if (settings.model.isEmpty()) settings.copy(model = settings.provider.knownModels.first()) else settings
         } catch (e: SerializationException) {
             Settings()
         } catch (e: IOException) {
