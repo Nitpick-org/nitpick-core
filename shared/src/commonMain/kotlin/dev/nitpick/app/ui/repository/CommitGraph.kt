@@ -80,7 +80,7 @@ private fun CommitGraphRowItem(row: CommitGraphRow, graphWidth: Dp, showLanes: B
             .padding(end = 12.dp),
         verticalAlignment = Alignment.CenterVertically,
     ) {
-        if (showLanes) CommitGraphLane(row, Modifier.width(graphWidth).height(RowHeight)) else Spacer(Modifier.width(graphWidth))
+        if (showLanes) CommitGraphLane(row, Modifier.width(graphWidth).height(RowHeight)) else Spacer(Modifier.width(graphWidth).height(RowHeight))
         Column(Modifier.weight(1f).padding(vertical = 6.dp)) {
             Text(
                 text = row.commit.shortMessage,
