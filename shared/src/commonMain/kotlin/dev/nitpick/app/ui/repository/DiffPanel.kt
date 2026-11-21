@@ -36,6 +36,7 @@ import dev.nitpick.app.ui.components.DiffLineRow
 import dev.nitpick.app.ui.components.NitpickButton
 import dev.nitpick.app.ui.components.NitpickButtonSize
 import dev.nitpick.app.ui.components.NitpickButtonVariant
+import dev.nitpick.app.ui.components.NitpickIcon
 import dev.nitpick.app.ui.components.NitpickDivider
 import dev.nitpick.app.ui.components.NitpickEmptyState
 import dev.nitpick.app.ui.theme.NitpickTheme
@@ -126,11 +127,12 @@ private fun BaseSelector(baseRef: String, bases: List<String>, onSelectBase: (St
     var expanded by remember { mutableStateOf(false) }
     Box {
         NitpickButton(
-            text = stringResource(Res.string.diff_base, baseRef) + " ▾",
+            text = stringResource(Res.string.diff_base, baseRef),
             onClick = { expanded = true },
             variant = NitpickButtonVariant.Secondary,
             size = NitpickButtonSize.Small,
             enabled = bases.isNotEmpty(),
+            leading = { NitpickIcon(Res.drawable.ic_chevron_down, null, tint = NitpickTheme.colors.textSecondary) },
         )
         DropdownMenu(expanded = expanded, onDismissRequest = { expanded = false }) {
             bases.forEach { base ->
