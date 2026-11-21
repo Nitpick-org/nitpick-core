@@ -306,8 +306,8 @@ Mapping de travail (à corriger si un handle ne correspond pas) :
 
 | Rôle | GitHub | Issues ouvertes | Air |
 | --- | --- | --- | --- |
-| **H1 — Produit & Pitch** | `@zooldyyk` | #39 démo/soumission/preuves Air, #33 états de review | Une comparaison Junie + un second agent, captures, `AGENT_LOG`/`REVIEW_LOG` |
-| **H2 — Architecte & Intégration** | `@dovatgabriel` | #19 diff desktop, #20 agent Koog, #22 boucle review desktop | Une session Air sur le prompt/le diff, comparaison, review humaine |
+| **H1 — Produit & Pitch** | `@dovatgabriel` | #39 démo/soumission/preuves Air, #33 états de review | Une comparaison Junie + un second agent, captures, `AGENT_LOG`/`REVIEW_LOG` |
+| **H2 — Architecte & Intégration** | `@zooldyyk` | #19 diff desktop, #20 agent Koog, #22 boucle review desktop | Une session Air sur le prompt/le diff, comparaison, review humaine |
 | **H3 — Builder & Démo** | `@pepito2t` | #21 clone Android, #23 boucle review Android, #34/#35 settings Android/desktop | Une session Air sur l'UI/Android, capture, review humaine |
 
 Règles :
