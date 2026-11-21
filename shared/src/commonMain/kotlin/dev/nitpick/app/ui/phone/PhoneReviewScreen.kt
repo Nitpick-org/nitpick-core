@@ -135,7 +135,7 @@ fun PhoneReviewScreen(
             comment = open,
             position = review.comments.indexOf(open) + 1,
             total = review.comments.size,
-            onApply = if (applied || open.suggestion == null || open.isFileLevel) null else ({ onApply(open); openNitId = null }),
+            onApply = if (applied || open.suggestion == null || open.isFileLevel || state.isRewritingWorkingTree) null else ({ onApply(open); openNitId = null }),
             onDismiss = { onDismiss(open.id); openNitId = null },
             onClose = { openNitId = null },
         )
@@ -223,7 +223,7 @@ private fun CommitAndPushBar(
             state.appliedFiles.isNotEmpty() -> {
                 Text(pluralStringResource(Res.plurals.commit_bar_applied, state.appliedIds.size, state.appliedIds.size), style = NitpickTheme.typography.small, color = NitpickTheme.colors.success)
                 NitpickTextField(value = state.commitMessage, onValueChange = onCommitMessage, placeholder = stringResource(Res.string.commit_message))
-                PhoneBottomButton(text = stringResource(Res.string.commit_stage), onClick = onCommit, enabled = state.commitMessage.isNotBlank())
+                PhoneBottomButton(text = stringResource(Res.string.commit_stage), onClick = onCommit, enabled = state.commitMessage.isNotBlank() && !state.isRewritingWorkingTree)
             }
             state.isPushing -> PhoneBottomButton(text = stringResource(Res.string.push_in_progress), onClick = {}, enabled = false)
             else -> {
