@@ -35,7 +35,11 @@ fun App(
     pickRepositoryPath: (() -> String?)? = null,
     cloneRoot: String? = null,
 ) {
-    val repositoryViewModel = viewModel { RepositoryViewModel(container.gitRepositoryFactory, reviewAgent = container.reviewAgent) }
+    val repositoryViewModel = viewModel { RepositoryViewModel(
+            container.gitRepositoryFactory,
+            reviewAgent = container.reviewAgent,
+            shareClient = container.reviewShareClient,
+        ) }
     val settingsViewModel = viewModel { SettingsViewModel(container.settingsStore) }
     val state by repositoryViewModel.state.collectAsStateWithLifecycle()
     val settings by settingsViewModel.settings.collectAsStateWithLifecycle()
@@ -75,6 +79,9 @@ fun App(
                     onCommit = repositoryViewModel::commitAppliedSuggestions,
                     onPush = repositoryViewModel::pushBranch,
                     onPull = repositoryViewModel::pullBranch,
+                    onShareReview = repositoryViewModel::shareReview,
+                    onLoadSharedReviews = repositoryViewModel::loadSharedReviews,
+                    onOpenSharedReview = repositoryViewModel::openSharedReview,
                     onConnect = { connection -> settingsViewModel.update { it.copy(gitConnection = connection) } },
                     onOpenSettings = { showSettings = true },
                     modifier = Modifier.safeContentPadding(),
@@ -96,6 +103,9 @@ fun App(
                     onDismissSuggestion = repositoryViewModel::dismissSuggestion,
                     onCommitMessage = repositoryViewModel::setCommitMessage,
                     onCommit = repositoryViewModel::commitAppliedSuggestions,
+                    onShareReview = repositoryViewModel::shareReview,
+                    onLoadSharedReviews = repositoryViewModel::loadSharedReviews,
+                    onOpenSharedReview = repositoryViewModel::openSharedReview,
                     modifier = Modifier.safeContentPadding(),
                 )
                 if (showSettings) {

@@ -43,6 +43,7 @@ import nitpick.shared.generated.resources.Res
 import nitpick.shared.generated.resources.action_cancel
 import nitpick.shared.generated.resources.action_save
 import nitpick.shared.generated.resources.settings_kicker_ai_review
+import nitpick.shared.generated.resources.settings_kicker_sharing
 import nitpick.shared.generated.resources.settings_kicker_appearance
 import nitpick.shared.generated.resources.settings_model
 import nitpick.shared.generated.resources.settings_provider
@@ -160,6 +161,9 @@ private fun GeneralSection(draft: Settings, onEdit: ((Settings) -> Settings) -> 
         ModelSelector(draft.model, draft.provider.knownModels, { model -> onEdit { it.copy(model = model) } }, Modifier.width(ControlWidth))
 
         ApiKeyField(draft.apiKey, draft.provider, { key -> onEdit { it.copy(apiKey = key) } }, Modifier.width(KeyFieldWidth))
+
+        Kicker(Res.string.settings_kicker_sharing, topPadding = 12.dp)
+        ServerUrlField(draft.serverUrl, { url -> onEdit { it.copy(serverUrl = url) } }, Modifier.width(KeyFieldWidth))
     }
 }
 
