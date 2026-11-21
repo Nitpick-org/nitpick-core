@@ -30,7 +30,10 @@ import dev.nitpick.app.ui.theme.NitpickTone
 import nitpick.shared.generated.resources.Res
 import nitpick.shared.generated.resources.commit_message
 import nitpick.shared.generated.resources.commit_stage
+import nitpick.shared.generated.resources.diff_empty
 import nitpick.shared.generated.resources.error_key_action
+import nitpick.shared.generated.resources.review_ai_badge
+import nitpick.shared.generated.resources.review_clean_badge
 import nitpick.shared.generated.resources.error_key_body
 import nitpick.shared.generated.resources.error_key_title
 import nitpick.shared.generated.resources.error_network_body
@@ -83,9 +86,21 @@ fun ReviewPanel(
                 actionLabel = stringResource(Res.string.review_run),
                 onAction = onReview,
             )
+            state.diff.isEmpty() -> NitpickEmptyState(
+                title = stringResource(Res.string.diff_empty, state.baseRef),
+                modifier = Modifier.weight(1f),
+            )
             state.review.comments.isEmpty() -> CleanReviewState()
             else -> {
                 val review = requireNotNull(state.review)
+                state.actionError?.let { error ->
+                    Text(
+                        text = error,
+                        modifier = Modifier.padding(horizontal = 12.dp, vertical = 8.dp),
+                        style = NitpickTheme.typography.small,
+                        color = NitpickTheme.colors.danger,
+                    )
+                }
                 LazyColumn(
                     modifier = Modifier.weight(1f),
                     contentPadding = androidx.compose.foundation.layout.PaddingValues(12.dp),
@@ -139,7 +154,7 @@ private fun ReviewProgress() {
     Column(Modifier.fillMaxSize().padding(16.dp), verticalArrangement = Arrangement.spacedBy(12.dp)) {
         NitpickCard(verticalArrangement = Arrangement.spacedBy(10.dp)) {
             Row(verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(8.dp)) {
-                NitpickBadge("AI", tone = NitpickTone.Ai)
+                NitpickBadge(stringResource(Res.string.review_ai_badge), tone = NitpickTone.Ai)
                 Text(stringResource(Res.string.review_running), style = NitpickTheme.typography.section)
             }
             CircularProgressIndicator(color = NitpickTheme.colors.primary, modifier = Modifier.padding(start = 2.dp))
@@ -165,7 +180,7 @@ private fun ReviewFailureState(
         is ReviewFailure.MissingKey -> FailureContent(
             NitpickTone.Warning,
             stringResource(Res.string.error_key_title),
-            stringResource(Res.string.error_key_body),
+            stringResource(Res.string.error_key_body, stringResource(failure.provider.label)),
             stringResource(Res.string.error_key_action),
             onOpenSettings,
         )
@@ -211,7 +226,7 @@ private data class FailureContent(
 @Composable
 private fun CleanReviewState() {
     Column(Modifier.fillMaxSize().padding(24.dp), verticalArrangement = Arrangement.Center, horizontalAlignment = Alignment.CenterHorizontally) {
-        NitpickBadge("CLEAN", tone = NitpickTone.Success)
+        NitpickBadge(stringResource(Res.string.review_clean_badge), tone = NitpickTone.Success)
         Text(
             stringResource(Res.string.review_clean_title),
             modifier = Modifier.padding(top = 12.dp),

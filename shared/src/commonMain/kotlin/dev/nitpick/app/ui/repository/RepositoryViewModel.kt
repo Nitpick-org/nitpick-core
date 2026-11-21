@@ -18,6 +18,10 @@ import dev.nitpick.app.review.ReviewProviderException
 import dev.nitpick.app.graph.CommitGraphRow
 import dev.nitpick.app.graph.buildCommitGraph
 import kotlinx.coroutines.CancellationException
+import kotlinx.coroutines.TimeoutCancellationException
+import kotlinx.coroutines.withTimeout
+import kotlin.time.Duration.Companion.seconds
+import dev.nitpick.app.settings.LlmProvider
 import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.Job
@@ -30,15 +34,18 @@ import kotlinx.coroutines.sync.Mutex
 import kotlinx.coroutines.sync.withLock
 import kotlinx.coroutines.withContext
 
+// The handoff promises an answer within 90 s; past that the user gets a Retry, not a spinner.
+internal val REVIEW_TIMEOUT = 90.seconds
+
 sealed interface ReviewFailure {
-    data class MissingKey(val provider: String) : ReviewFailure
+    data class MissingKey(val provider: LlmProvider) : ReviewFailure
     data object Network : ReviewFailure
     data object Timeout : ReviewFailure
     data class Other(val message: String) : ReviewFailure
 }
 
 private fun Throwable.toReviewFailure(): ReviewFailure = when {
-    this is MissingApiKeyException -> ReviewFailure.MissingKey(provider.name)
+    this is MissingApiKeyException -> ReviewFailure.MissingKey(provider)
     isTimeout() -> ReviewFailure.Timeout
     this is ReviewProviderException -> ReviewFailure.Network
     else -> ReviewFailure.Other(message ?: toString())
@@ -68,6 +75,7 @@ data class RepositoryUiState(
     val review: ReviewResult? = null,
     val isReviewing: Boolean = false,
     val reviewError: ReviewFailure? = null,
+    val actionError: String? = null,
     val appliedIds: Set<String> = emptySet(),
     val appliedFiles: Set<String> = emptySet(),
     val commitMessage: String = "",
@@ -174,9 +182,12 @@ class RepositoryViewModel(
         _state.update { it.copy(isReviewing = true, reviewError = null) }
         viewModelScope.launch {
             try {
-                val result = reviewAgent.review(git, _state.value.baseRef)
+                val result = withTimeout(REVIEW_TIMEOUT) { reviewAgent.review(git, _state.value.baseRef) }
                 if (repository !== git) return@launch
                 _state.update { it.copy(review = result, isReviewing = false) }
+            } catch (e: TimeoutCancellationException) {
+                // A CancellationException subclass: it must be caught before the generic one.
+                if (repository === git) _state.update { it.copy(isReviewing = false, reviewError = ReviewFailure.Timeout) }
             } catch (e: CancellationException) {
                 throw e
             } catch (e: Exception) {
@@ -187,6 +198,7 @@ class RepositoryViewModel(
 
     fun applySuggestion(comment: ReviewComment) {
         val git = repository ?: return
+        _state.update { it.copy(actionError = null) }
         viewModelScope.launch {
             try {
                 writeLock.withLock {
@@ -207,7 +219,7 @@ class RepositoryViewModel(
             } catch (e: CancellationException) {
                 throw e
             } catch (e: Exception) {
-                if (repository === git) _state.update { it.copy(reviewError = e.toReviewFailure()) }
+                if (repository === git) _state.update { it.copy(actionError = e.message ?: e.toString()) }
             }
         }
     }
@@ -224,6 +236,7 @@ class RepositoryViewModel(
 
     fun commitAppliedSuggestions() {
         val git = repository ?: return
+        _state.update { it.copy(actionError = null) }
         if (_state.value.appliedFiles.isEmpty()) return
         viewModelScope.launch {
             try {
@@ -252,7 +265,7 @@ class RepositoryViewModel(
             } catch (e: CancellationException) {
                 throw e
             } catch (e: Exception) {
-                if (repository === git) _state.update { it.copy(reviewError = e.toReviewFailure()) }
+                if (repository === git) _state.update { it.copy(actionError = e.message ?: e.toString()) }
             }
         }
     }

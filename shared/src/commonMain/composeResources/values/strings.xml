@@ -79,7 +79,7 @@
     <string name="review_clean_title">Clean branch. Nothing to nitpick.</string>
     <string name="review_clean_body">Reviewed the branch against the base. No bugs, no warnings, no nits.</string>
     <string name="error_key_title">Add an API key to start</string>
-    <string name="error_key_body">Nitpick needs an API key for the selected provider. Your code stays on this machine until you run a review.</string>
+    <string name="error_key_body">Nitpick needs an API key for %1$s. Your code stays on this machine until you run a review.</string>
     <string name="error_key_action">Open Settings</string>
     <string name="error_network_title">Could not reach the provider</string>
     <string name="error_network_body">The review request failed before the model answered. Check your connection, then retry. Nothing was sent.</string>
@@ -89,4 +89,6 @@
     <string name="review_step_read">Reading changed files</string>
     <string name="review_step_model">Asking the model</string>
     <string name="review_step_place">Placing nits on lines</string>
+    <string name="review_ai_badge">AI</string>
+    <string name="review_clean_badge">CLEAN</string>
 </resources>

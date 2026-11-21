@@ -358,7 +358,7 @@ private fun StatusText(text: String) {
     Text(text = text, style = NitpickTheme.typography.micro, color = NitpickTheme.colors.onStatusBar, maxLines = 1)
 }
 
-private val dev.nitpick.app.settings.LlmProvider.label: StringResource
+internal val dev.nitpick.app.settings.LlmProvider.label: StringResource
     get() = when (this) {
         dev.nitpick.app.settings.LlmProvider.ANTHROPIC -> Res.string.provider_anthropic
         dev.nitpick.app.settings.LlmProvider.OPENAI -> Res.string.provider_openai

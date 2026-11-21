@@ -19,6 +19,10 @@ import dev.nitpick.app.domain.ReviewResult
 import dev.nitpick.app.domain.Severity
 import dev.nitpick.app.graph.buildCommitGraph
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.delay
+import kotlin.time.Duration.Companion.minutes
+import kotlin.test.assertNotNull
+import kotlin.test.assertNull
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.test.UnconfinedTestDispatcher
 import kotlinx.coroutines.test.resetMain
@@ -195,7 +199,7 @@ class RepositoryViewModelTest {
     @Test
     fun aMissingApiKeyIsShownAsAnActionableFailure() = runReviewFailure(
         MissingApiKeyException(LlmProvider.ANTHROPIC),
-        ReviewFailure.MissingKey("ANTHROPIC"),
+        ReviewFailure.MissingKey(LlmProvider.ANTHROPIC),
     )
 
     @Test
@@ -248,5 +252,39 @@ class RepositoryViewModelTest {
         assertEquals(listOf("Apply review suggestions"), repo.commitMessages)
         assertEquals(null, viewModel.state.value.review)
         assertEquals(emptySet(), viewModel.state.value.appliedIds)
+    }
+
+    @Test
+    fun aReviewThatNeverAnswersEndsAsATimeout() {
+        val agent = object : ReviewAgent {
+            override suspend fun review(repository: GitRepository, baseRef: String): ReviewResult { delay(10.minutes); error("unreachable") }
+        }
+        val viewModel = RepositoryViewModel(repositories, graphDispatcher = dispatcher, reviewAgent = agent)
+        viewModel.openRepository("/work/demo")
+        viewModel.reviewBranch()
+        assertNull(viewModel.state.value.reviewError)
+
+        dispatcher.scheduler.advanceTimeBy(REVIEW_TIMEOUT.inWholeMilliseconds + 1)
+        dispatcher.scheduler.runCurrent()
+
+        assertEquals(ReviewFailure.Timeout, viewModel.state.value.reviewError)
+    }
+
+    @Test
+    fun aFailedApplyKeepsTheReviewAndReportsTheActionError() {
+        val repo = FakeGitRepository(branch = "main", commits = commits, refs = listOf(mainBranch), diffs = diffs, files = mapOf("graph/CommitGraph.kt" to "nothing here\n"))
+        val nit = ReviewComment("n1", "graph/CommitGraph.kt", 1, 1, Severity.BUG, "logic", "m", originalSnippet = "val lane = 1", suggestion = "val lane = 0")
+        val agent = object : ReviewAgent {
+            override suspend fun review(repository: GitRepository, baseRef: String) = ReviewResult("1 bug", listOf(nit))
+        }
+        val viewModel = RepositoryViewModel(FakeGitRepositoryFactory(mapOf("/work/demo" to repo)), graphDispatcher = dispatcher, reviewAgent = agent)
+        viewModel.openRepository("/work/demo")
+        viewModel.reviewBranch()
+
+        viewModel.applySuggestion(nit)
+
+        assertNotNull(viewModel.state.value.actionError)
+        assertNull(viewModel.state.value.reviewError)
+        assertEquals(listOf(nit), viewModel.state.value.review?.comments)
     }
 }
