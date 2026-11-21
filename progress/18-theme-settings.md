@@ -63,3 +63,6 @@
 - 18:15 — émulateur installé (`sdkmanager emulator` + image android-36 arm64, AVD `nitpick`),
   persistance Android vérifiée ; libellés des boutons segmentés sur une ligne (auto-size, sans
   coche) pour que « Anthropic » tienne sur téléphone.
+- 18:40 — modèle : liste par fournisseur (`LlmProvider.knownModels`, champ éditable via
+  `ExposedDropdownMenuBox`) ; changer de fournisseur sélectionne son premier modèle. Ids
+  Anthropic vérifiés (opus/sonnet/haiku 5.5), OpenAI/Google/Ollama non vérifiés (`shortcut:`).
