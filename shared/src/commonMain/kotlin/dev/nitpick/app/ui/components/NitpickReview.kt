@@ -26,6 +26,12 @@ import dev.nitpick.app.domain.Severity
 import dev.nitpick.app.ui.theme.NitpickTheme
 import nitpick.shared.generated.resources.Res
 import nitpick.shared.generated.resources.review_dismiss
+import nitpick.shared.generated.resources.review_apply
+import nitpick.shared.generated.resources.review_suggested_change
+import nitpick.shared.generated.resources.severity_bug
+import nitpick.shared.generated.resources.severity_info
+import nitpick.shared.generated.resources.severity_suggestion
+import nitpick.shared.generated.resources.severity_warning
 import nitpick.shared.generated.resources.review_whole_file
 import org.jetbrains.compose.resources.stringResource
 import dev.nitpick.app.ui.theme.NitpickTone
@@ -82,14 +88,14 @@ fun ReviewCommentCard(
                     verticalArrangement = Arrangement.spacedBy(6.dp),
                 ) {
                     Text(
-                        text = "SUGGESTED CHANGE",
+                        text = stringResource(Res.string.review_suggested_change),
                         style = NitpickTheme.typography.kicker,
                         color = colors.textMuted,
                     )
                     Text(text = suggestion, style = NitpickTheme.typography.code, color = colors.text)
                     if (onApply != null) {
                         NitpickButton(
-                            text = "Apply suggestion",
+                            text = stringResource(Res.string.review_apply),
                             onClick = onApply,
                             size = NitpickButtonSize.Small,
                         )
@@ -173,9 +179,10 @@ private fun severityTone(severity: Severity): NitpickTone = when (severity) {
     Severity.BUG -> NitpickTone.Danger
 }
 
+@Composable
 private fun severityLabel(severity: Severity): String = when (severity) {
-    Severity.INFO -> "INFO"
-    Severity.SUGGESTION -> "SUGGESTION"
-    Severity.WARNING -> "WARNING"
-    Severity.BUG -> "BUG"
+    Severity.INFO -> stringResource(Res.string.severity_info)
+    Severity.SUGGESTION -> stringResource(Res.string.severity_suggestion)
+    Severity.WARNING -> stringResource(Res.string.severity_warning)
+    Severity.BUG -> stringResource(Res.string.severity_bug)
 }

@@ -179,4 +179,9 @@
     <string name="review_tools_used">Tools used</string>
     <string name="publish_action">Publish branch</string>
     <string name="publish_in_progress">Publishing…</string>
+    <string name="severity_info">INFO</string>
+    <string name="severity_suggestion">SUGGESTION</string>
+    <string name="severity_warning">WARNING</string>
+    <string name="severity_bug">BUG</string>
+    <string name="review_suggested_change">SUGGESTED CHANGE</string>
 </resources>
