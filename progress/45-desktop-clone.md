@@ -22,6 +22,15 @@
 - Toolbar : « Clone repository… » à côté de « Open repository… », seulement si la plateforme a
   un sélecteur de dossier (desktop). `recentRepositories` : effet existant de `App`.
 - `check.sh` vert.
+- Review ponytail, points 1 et 2 corrigés :
+  - Un clone raté fermait le dépôt ouvert (`load()` vide l'état avant git). Le clone tourne
+    maintenant dans son propre job et passe par `RepositoryUiState.clone` (chemin + erreur) ;
+    seul un clone réussi remplace l'état. Test `aFailedCloneKeepsTheOpenRepositoryAndReportsTheError`
+    exécuté, vert. Effet aussi sur Android : un clone raté laisse l'état précédent.
+  - La logique « clone en cours / erreur / fini » de `CloneScreen` et `CloneDialog` est
+    partagée dans `rememberCloneProgress` (`ui/phone/CloneScreen.kt`).
+  - Points 3 (GitLab détecté sur l'URL entière) et 4 (repli sur `Settings.gitConnection`)
+    laissés de côté.
 
 ## Décisions
 
