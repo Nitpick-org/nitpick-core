@@ -153,7 +153,10 @@ class RepositoryViewModel(
     private var repository: GitRepository? = null
     private var loading: Job? = null
     private var cloning: Job? = null
-    private var diffLoading: Job? = null
+    private var diffJob: Job? = null
+    // A refresh asked while a diff is running (apply, tab switch) must not start a second
+    // JGit walk: remember the newest base and let the running job loop once more.
+    private var pendingDiffBase: String? = null
     private var sharedLoading: Job? = null
 
     // Two applies on the same file must not read the same original and overwrite each other.
@@ -181,7 +184,8 @@ class RepositoryViewModel(
     private fun load(path: String, openRepository: suspend () -> GitRepository) {
         // Opening another folder while one is loading must not let the old result win.
         loading?.cancel()
-        diffLoading?.cancel()
+        diffJob?.cancel()
+        pendingDiffBase = null
         repository = null
         _state.value = RepositoryUiState(path = path, isLoading = true)
         loading = viewModelScope.launch {
@@ -225,18 +229,24 @@ class RepositoryViewModel(
     /** Reloads the diff, which also picks up edits made in the working tree since the last load. */
     fun refreshDiff() {
         val git = repository ?: return
-        val baseRef = _state.value.baseRef
-        diffLoading?.cancel()
-        _state.update { it.copy(isDiffLoading = true, diffError = null) }
-        diffLoading = viewModelScope.launch {
-            try {
-                val diff = git.diffAgainst(baseRef)
-                _state.update { it.copy(diff = diff, isDiffLoading = false) }
-            } catch (e: CancellationException) {
-                throw e
-            } catch (e: Exception) {
-                _state.update {
-                    it.copy(diff = emptyList(), isDiffLoading = false, diffError = e.message ?: e.toString())
+        pendingDiffBase = _state.value.baseRef
+        if (diffJob?.isActive == true) return
+        diffJob = viewModelScope.launch {
+            while (true) {
+                val baseRef = pendingDiffBase ?: break
+                pendingDiffBase = null
+                _state.update { it.copy(isDiffLoading = true, diffError = null) }
+                try {
+                    val diff = git.diffAgainst(baseRef)
+                    if (repository !== git) return@launch
+                    _state.update { it.copy(diff = diff, isDiffLoading = false) }
+                } catch (e: CancellationException) {
+                    throw e
+                } catch (e: Exception) {
+                    if (repository !== git) return@launch
+                    _state.update {
+                        it.copy(diff = emptyList(), isDiffLoading = false, diffError = e.message ?: e.toString())
+                    }
                 }
             }
         }
@@ -576,8 +586,14 @@ class RepositoryViewModel(
     }
 
     /** Moves each nit to where its snippet is in the files on disk now, or to the whole file. */
-    private suspend fun reanchor(git: GitRepository, comments: List<ReviewComment>): List<ReviewComment> =
-        comments.map { ReviewAnchoring.anchorOrFileLevel(git.readFile(it.filePath), it) }
+    private suspend fun reanchor(git: GitRepository, comments: List<ReviewComment>): List<ReviewComment> {
+        // Several nits often share a file: read it once instead of once per nit.
+        val contents = HashMap<String, String?>()
+        return comments.map { comment ->
+            if (!contents.containsKey(comment.filePath)) contents[comment.filePath] = git.readFile(comment.filePath)
+            ReviewAnchoring.anchorOrFileLevel(contents[comment.filePath], comment)
+        }
+    }
 }
 
 private sealed interface ShareOutcome<out T> {

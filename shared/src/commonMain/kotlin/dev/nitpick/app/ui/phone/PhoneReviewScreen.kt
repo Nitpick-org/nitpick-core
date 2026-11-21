@@ -18,6 +18,7 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
@@ -140,7 +141,7 @@ private fun NitList(
     onShare: () -> Unit,
     modifier: Modifier,
 ) {
-    val byFile = comments.groupBy { it.filePath }
+    val byFile = remember(comments) { comments.groupBy { it.filePath } }
     LazyColumn(modifier, contentPadding = PaddingValues(16.dp), verticalArrangement = Arrangement.spacedBy(8.dp)) {
         item {
             NitpickCard(verticalArrangement = Arrangement.spacedBy(8.dp)) {

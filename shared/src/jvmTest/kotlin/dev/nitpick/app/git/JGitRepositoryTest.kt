@@ -76,6 +76,28 @@ class JGitRepositoryTest {
     }
 
     @Test
+    fun logKeepsChildrenBeforeParentsWhenAClockSkewInvertsCommitTimes() = runBlocking<Unit> {
+        repo.write("a.txt", "base")
+        repo.commit("base", at = 1_000)
+        repo.git("checkout", "-b", "feature")
+        repo.write("feature.txt", "feature")
+        val onFeature = repo.commit("on feature", at = 3_000)
+        repo.git("checkout", "main")
+        repo.write("main.txt", "main")
+        val onMain = repo.commit("on main", at = 2_000)
+        // The merge is older than the feature commit it contains: time order alone would show
+        // the parent before the child.
+        val merge = repo.git("merge", "--no-ff", "feature", "-m", "merge feature", at = 2_500).let { _ ->
+            repo.git("rev-parse", "HEAD").trim()
+        }
+
+        val position = open().log().withIndex().associate { (index, commit) -> commit.id to index }
+
+        assertTrue(position.getValue(merge) < position.getValue(onFeature))
+        assertTrue(position.getValue(merge) < position.getValue(onMain))
+    }
+
+    @Test
     fun logOfARepositoryWithoutCommitsIsEmpty() = runBlocking<Unit> {
         assertEquals(emptyList(), open().log())
     }
@@ -235,6 +257,21 @@ class JGitRepositoryTest {
     }
 
     @Test
+    fun diffAgainstABranchWithACleanWorkingTreeStillShowsItsCommits() = runBlocking<Unit> {
+        repo.write("a.txt", "1\n")
+        repo.commit("base", at = 1_000)
+        repo.git("checkout", "-b", "feature")
+        repo.write("a.txt", "2\n")
+        repo.commit("feature work", at = 2_000)
+
+        val diff = open().diffAgainst("main").single()
+
+        assertEquals("a.txt", diff.path)
+        assertEquals(1, diff.addedLines)
+        assertEquals(1, diff.removedLines)
+    }
+
+    @Test
     fun diffAgainstTheBaseItselfIsEmpty() = runBlocking<Unit> {
         repo.write("a.txt", "1\n")
         repo.commit("base")
@@ -265,6 +302,20 @@ class JGitRepositoryTest {
         val commits = git.log()
         assertEquals("apply review suggestion", commits.first().shortMessage)
         assertEquals("one\ntwo\n", git.readFile("a.txt"))
+    }
+
+    @Test
+    fun stageStagesEveryPathInOneCallIncludingDeletions() = runBlocking<Unit> {
+        repo.write("a.txt", "a")
+        repo.write("b.txt", "b")
+        repo.commit("base", at = 1_000)
+        val git = open()
+        git.writeFile("a.txt", "a2")
+        File(repo.dir, "b.txt").delete()
+
+        git.stage(listOf("a.txt", "b.txt"))
+
+        assertEquals(listOf("a.txt", "b.txt"), git.status().staged.sorted())
     }
 
     @Test

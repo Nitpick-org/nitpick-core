@@ -59,6 +59,11 @@ import org.jetbrains.compose.resources.StringResource
 import org.jetbrains.compose.resources.stringResource
 
 private val InspectorWideWidth = 680.dp
+private val RefSections = listOf(
+    RefType.LOCAL_BRANCH to Res.string.refs_local,
+    RefType.REMOTE_BRANCH to Res.string.refs_remote_branches,
+    RefType.TAG to Res.string.refs_tags,
+)
 private const val ReviewShortcut = "⌘⇧R"
 private const val FetchShortcut = "⌘⇧F"
 private const val PullShortcut = "⌘⇧L"
@@ -270,12 +275,8 @@ private fun RepositoryToolbar(
 internal fun RefsSidebar(refs: List<Ref>, currentBranch: String, modifier: Modifier, ahead: Int? = null, onSelectBranch: ((String) -> Unit)? = null) {
     var filter by rememberSaveable { mutableStateOf("") }
     var collapsed by rememberSaveable { mutableStateOf(emptySet<RefType>()) }
-    val visibleRefs = refs.filter { it.name.contains(filter, ignoreCase = true) }
-    val sections: List<Pair<RefType, StringResource>> = listOf(
-        RefType.LOCAL_BRANCH to Res.string.refs_local,
-        RefType.REMOTE_BRANCH to Res.string.refs_remote_branches,
-        RefType.TAG to Res.string.refs_tags,
-    )
+    val visibleRefs = remember(refs, filter) { refs.filter { it.name.contains(filter, ignoreCase = true) } }
+    val sections = RefSections
 
     Column(modifier.background(NitpickTheme.colors.surface)) {
         NitpickToolWindowHeader(stringResource(Res.string.refs_local_branches))

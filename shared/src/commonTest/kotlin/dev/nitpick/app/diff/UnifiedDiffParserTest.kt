@@ -109,6 +109,14 @@ class UnifiedDiffParserTest {
     }
 
     @Test
+    fun lineCountsArePrecomputedForTheUi() {
+        val diff = parseUnifiedDiff(modifiedTwoHunks).single()
+
+        assertEquals(3, diff.addedLines)
+        assertEquals(2, diff.removedLines)
+    }
+
+    @Test
     fun addedFileNumbersOnlyTheNewSide() {
         val diff = parseUnifiedDiff(addedFile).single()
 

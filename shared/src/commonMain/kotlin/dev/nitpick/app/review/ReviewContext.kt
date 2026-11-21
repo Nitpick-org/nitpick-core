@@ -68,8 +68,7 @@ internal fun selectReviewDiffs(diffs: List<FileDiff>, limit: Int = MAX_FILES): L
         .sortedWith(compareByDescending<FileDiff> { changedLineCount(it) }.thenBy { it.path })
         .take(limit)
 
-private fun changedLineCount(diff: FileDiff): Int =
-    diff.hunks.sumOf { hunk -> hunk.lines.count { it.type != dev.nitpick.app.domain.DiffLineType.CONTEXT } }
+private fun changedLineCount(diff: FileDiff): Int = diff.addedLines + diff.removedLines
 
 suspend fun buildReviewContext(repository: GitRepository, baseRef: String): ReviewContext {
     val diffs = selectReviewDiffs(repository.diffAgainst(baseRef))
