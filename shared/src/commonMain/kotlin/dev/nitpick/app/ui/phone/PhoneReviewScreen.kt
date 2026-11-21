@@ -60,6 +60,7 @@ import nitpick.shared.generated.resources.review_title
 import nitpick.shared.generated.resources.review_vs
 import nitpick.shared.generated.resources.review_whole_file_short
 import nitpick.shared.generated.resources.shared_badge
+import org.jetbrains.compose.resources.pluralStringResource
 import org.jetbrains.compose.resources.stringResource
 
 private val NitRowHeight = 56.dp
@@ -210,7 +211,7 @@ private fun CommitAndPushBar(
     Column(Modifier.fillMaxWidth().padding(horizontal = 16.dp, vertical = 8.dp), verticalArrangement = Arrangement.spacedBy(8.dp)) {
         when {
             state.appliedFiles.isNotEmpty() -> {
-                Text(stringResource(Res.string.commit_bar_applied, state.appliedIds.size), style = NitpickTheme.typography.small, color = NitpickTheme.colors.success)
+                Text(pluralStringResource(Res.plurals.commit_bar_applied, state.appliedIds.size, state.appliedIds.size), style = NitpickTheme.typography.small, color = NitpickTheme.colors.success)
                 NitpickTextField(value = state.commitMessage, onValueChange = onCommitMessage, placeholder = stringResource(Res.string.commit_message))
                 PhoneBottomButton(text = stringResource(Res.string.commit_stage), onClick = onCommit, enabled = state.commitMessage.isNotBlank())
             }

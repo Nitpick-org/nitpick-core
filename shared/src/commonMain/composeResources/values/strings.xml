@@ -30,7 +30,10 @@
     <string name="details_parents">Parents</string>
     <string name="action_back">Back</string>
     <string name="status_no_branch">no branch</string>
-    <string name="status_commits">%1$d commits</string>
+    <plurals name="status_commits">
+        <item quantity="one">%1$d commit</item>
+        <item quantity="other">%1$d commits</item>
+    </plurals>
     <string name="status_git">Git</string>
     <string name="review_cta">Nitpick branch</string>
     <string name="review_cta_tooltip">Review this branch against main</string>
@@ -75,7 +78,14 @@
     <string name="clone_destination_label">Destination folder</string>
     <string name="clone_choose">Choose…</string>
     <string name="review_whole_file">whole file</string>
-    <string name="review_nits_on_files">%1$d nits on %2$d changed files</string>
+    <plurals name="review_nits">
+        <item quantity="one">%1$d nit</item>
+        <item quantity="other">%1$d nits</item>
+    </plurals>
+    <plurals name="review_changed_files">
+        <item quantity="one">on %1$d changed file</item>
+        <item quantity="other">on %1$d changed files</item>
+    </plurals>
     <string name="review_clean_title">Clean branch. Nothing to nitpick.</string>
     <string name="review_clean_body">Reviewed the branch against the base. No bugs, no warnings, no nits.</string>
     <string name="error_key_title">Add an API key to start</string>
@@ -98,7 +108,10 @@
     <string name="review_nit_position">%1$d of %2$d</string>
     <string name="review_line">line %1$d</string>
     <string name="review_whole_file_short">whole file</string>
-    <string name="commit_bar_applied">%1$d suggestion applied</string>
+    <plurals name="commit_bar_applied">
+        <item quantity="one">%1$d suggestion applied</item>
+        <item quantity="other">%1$d suggestions applied</item>
+    </plurals>
     <string name="push_action">Push</string>
     <string name="push_in_progress">Pushing…</string>
     <string name="push_error">Push failed</string>

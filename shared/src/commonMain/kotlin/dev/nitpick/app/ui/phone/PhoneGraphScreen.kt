@@ -58,6 +58,7 @@ import nitpick.shared.generated.resources.status_commits
 import nitpick.shared.generated.resources.sync_ahead_behind
 import nitpick.shared.generated.resources.sync_pull_count
 import nitpick.shared.generated.resources.sync_push_count
+import org.jetbrains.compose.resources.pluralStringResource
 import org.jetbrains.compose.resources.stringResource
 
 private enum class GraphTab { Commits, Branches }
@@ -136,7 +137,7 @@ private fun BranchCard(
                 modifier = Modifier.weight(1f, fill = false),
             )
             Text(
-                text = stringResource(Res.string.status_commits, state.graph.size),
+                text = pluralStringResource(Res.plurals.status_commits, state.graph.size, state.graph.size),
                 style = NitpickTheme.typography.small,
                 color = NitpickTheme.colors.textMuted,
             )

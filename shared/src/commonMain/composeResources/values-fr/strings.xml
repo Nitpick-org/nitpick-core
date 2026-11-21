@@ -30,7 +30,10 @@
     <string name="details_parents">Parents</string>
     <string name="action_back">Retour</string>
     <string name="status_no_branch">aucune branche</string>
-    <string name="status_commits">%1$d commits</string>
+    <plurals name="status_commits">
+        <item quantity="one">%1$d commit</item>
+        <item quantity="other">%1$d commits</item>
+    </plurals>
     <string name="status_git">Git</string>
     <string name="review_cta">Nitpicker la branche</string>
     <string name="review_cta_tooltip">Relire cette branche par rapport à main</string>
@@ -75,7 +78,14 @@
     <string name="clone_destination_label">Dossier de destination</string>
     <string name="clone_choose">Choisir…</string>
     <string name="review_whole_file">fichier entier</string>
-    <string name="review_nits_on_files">%1$d nits sur %2$d fichiers modifiés</string>
+    <plurals name="review_nits">
+        <item quantity="one">%1$d nit</item>
+        <item quantity="other">%1$d nits</item>
+    </plurals>
+    <plurals name="review_changed_files">
+        <item quantity="one">sur %1$d fichier modifié</item>
+        <item quantity="other">sur %1$d fichiers modifiés</item>
+    </plurals>
     <string name="review_clean_title">Branche propre. Rien à redire.</string>
     <string name="review_clean_body">La branche a été relue par rapport à la base. Aucun bug, aucun avertissement, aucun nit.</string>
     <string name="error_key_title">Ajoutez une clé API pour commencer</string>
@@ -98,7 +108,10 @@
     <string name="review_nit_position">%1$d sur %2$d</string>
     <string name="review_line">ligne %1$d</string>
     <string name="review_whole_file_short">fichier entier</string>
-    <string name="commit_bar_applied">%1$d suggestion appliquée</string>
+    <plurals name="commit_bar_applied">
+        <item quantity="one">%1$d suggestion appliquée</item>
+        <item quantity="other">%1$d suggestions appliquées</item>
+    </plurals>
     <string name="push_action">Push</string>
     <string name="push_in_progress">Push en cours…</string>
     <string name="push_error">Le push a échoué</string>
