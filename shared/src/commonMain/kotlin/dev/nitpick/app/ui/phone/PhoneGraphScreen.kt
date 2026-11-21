@@ -156,11 +156,12 @@ private fun BranchCard(
                 )
             }
         }
-        val syncing = state.isSyncing
+        val enabled = !state.isSyncing
         Row(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.spacedBy(8.dp)) {
             SyncButton(
                 text = stringResource(if (state.isFetching) Res.string.fetch_in_progress else Res.string.fetch_action),
-                onClick = { if (!syncing) onFetch() },
+                onClick = onFetch,
+                enabled = enabled,
                 modifier = Modifier.weight(1f),
             )
             SyncButton(
@@ -169,7 +170,8 @@ private fun BranchCard(
                     (state.tracking?.behind ?: 0) > 0 -> stringResource(Res.string.sync_pull_count, state.tracking!!.behind)
                     else -> stringResource(Res.string.pull_action)
                 },
-                onClick = { if (!syncing) onPull() },
+                onClick = onPull,
+                enabled = enabled,
                 modifier = Modifier.weight(1f),
             )
             if (state.tracking != null || state.hasOrigin) {
@@ -180,7 +182,8 @@ private fun BranchCard(
                         state.tracking.ahead > 0 -> stringResource(Res.string.sync_push_count, state.tracking.ahead)
                         else -> stringResource(Res.string.push_action)
                     },
-                    onClick = { if (!syncing) if (state.tracking == null) onPublish() else onPush() },
+                    onClick = if (state.tracking == null) onPublish else onPush,
+                    enabled = enabled,
                     modifier = Modifier.weight(1f),
                 )
             }
@@ -189,13 +192,14 @@ private fun BranchCard(
 }
 
 @Composable
-private fun SyncButton(text: String, onClick: () -> Unit, modifier: Modifier) {
+private fun SyncButton(text: String, onClick: () -> Unit, enabled: Boolean, modifier: Modifier) {
     NitpickButton(
         text = text,
         onClick = onClick,
         modifier = modifier.height(SyncActionHeight),
         variant = NitpickButtonVariant.Secondary,
         size = NitpickButtonSize.Large,
+        enabled = enabled,
     )
 }
 
