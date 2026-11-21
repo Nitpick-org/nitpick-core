@@ -16,6 +16,7 @@ import androidx.lifecycle.viewmodel.compose.viewModel
 import dev.nitpick.app.AppContainer
 import dev.nitpick.app.settings.withRecentRepository
 import dev.nitpick.app.ui.phone.PhoneFlow
+import dev.nitpick.app.ui.repository.CloneDialog
 import dev.nitpick.app.ui.repository.RepositoryScreen
 import dev.nitpick.app.ui.repository.RepositoryViewModel
 import dev.nitpick.app.ui.settings.SettingsDialog
@@ -45,6 +46,7 @@ fun App(
     val settings by settingsViewModel.settings.collectAsStateWithLifecycle()
     val settingsLoaded by settingsViewModel.isLoaded.collectAsStateWithLifecycle()
     var showSettings by rememberSaveable { mutableStateOf(false) }
+    var showClone by rememberSaveable { mutableStateOf(false) }
     val openRepository: (() -> Unit)? = pickRepositoryPath?.let { pick ->
         { pick()?.let(repositoryViewModel::openRepository) }
     }
@@ -92,6 +94,7 @@ fun App(
                     state = state,
                     settings = settings,
                     onOpenRepository = openRepository,
+                    onCloneRepository = pickRepositoryPath?.let { { showClone = true } },
                     onSelectCommit = repositoryViewModel::selectCommit,
                     onShowDiff = repositoryViewModel::refreshDiff,
                     onCheckoutBranch = repositoryViewModel::checkoutBranch,
@@ -111,6 +114,15 @@ fun App(
                     onOpenSharedReview = repositoryViewModel::openSharedReview,
                     modifier = Modifier.safeContentPadding(),
                 )
+                if (showClone && pickRepositoryPath != null) {
+                    CloneDialog(
+                        state = state,
+                        pickDirectory = pickRepositoryPath,
+                        onClone = repositoryViewModel::cloneRepository,
+                        onCancel = { showClone = false },
+                        onCloned = { showClone = false },
+                    )
+                }
                 if (showSettings) {
                     val draft by settingsViewModel.draft.collectAsStateWithLifecycle()
                     LaunchedEffect(Unit) { settingsViewModel.startEditing() }

@@ -70,6 +70,10 @@
     <string name="clone_action">Cloner</string>
     <string name="clone_in_progress">Clonage…</string>
     <string name="clone_error_title">Impossible de cloner ce dépôt</string>
+    <string name="clone_open">Cloner un dépôt…</string>
+    <string name="clone_token_help">Lecture requise. Le push demande l’écriture.</string>
+    <string name="clone_destination_label">Dossier de destination</string>
+    <string name="clone_choose">Choisir…</string>
     <string name="review_whole_file">fichier entier</string>
     <string name="review_nits_on_files">%1$d nits sur %2$d fichiers modifiés</string>
     <string name="review_clean_title">Branche propre. Rien à redire.</string>

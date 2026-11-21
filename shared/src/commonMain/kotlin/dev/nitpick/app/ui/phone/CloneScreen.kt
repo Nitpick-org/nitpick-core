@@ -48,15 +48,10 @@ fun CloneScreen(
 ) {
     var url by rememberSaveable { mutableStateOf("") }
     var folder by rememberSaveable { mutableStateOf("") }
-    var targetPath by rememberSaveable { mutableStateOf<String?>(null) }
     val folderName = folder.trim().ifBlank { defaultCloneFolderName(url) }
-    val isOurs = targetPath != null && state.path == targetPath
-    val isCloning = isOurs && state.isLoading
-    val errorMessage = if (isOurs) state.errorMessage else null
-
-    LaunchedEffect(state.path, state.isLoading, state.errorMessage) {
-        if (isOurs && !state.isLoading && state.errorMessage == null) onCloned()
-    }
+    val progress = rememberCloneProgress(state, onCloned)
+    val isCloning = progress.isCloning
+    val errorMessage = progress.errorMessage
 
     Column(modifier.fillMaxSize().background(NitpickTheme.colors.canvas)) {
         PhoneTopBar(title = stringResource(Res.string.clone_title), onBack = onCancel)
@@ -86,7 +81,7 @@ fun CloneScreen(
             enabled = !isCloning && url.isNotBlank() && isValidCloneFolderName(folderName),
             onClick = {
                 val path = "$cloneRoot/$folderName"
-                targetPath = path
+                progress.start(path)
                 onClone(url.trim(), path)
             },
         )
@@ -99,6 +94,26 @@ private fun CloneError(message: String) {
         Text(stringResource(Res.string.clone_error_title), style = NitpickTheme.typography.bodyStrong, color = NitpickTheme.colors.danger)
         Text(message, style = NitpickTheme.typography.small, color = NitpickTheme.colors.textSecondary)
     }
+}
+
+/** What a clone form shows of the clone it started with [start]. */
+internal class CloneProgress(val isCloning: Boolean, val errorMessage: String?, val start: (path: String) -> Unit)
+
+/** Tracks the clone a form started; [onCloned] fires once that repository is loaded. */
+@Composable
+internal fun rememberCloneProgress(state: RepositoryUiState, onCloned: () -> Unit): CloneProgress {
+    var targetPath by rememberSaveable { mutableStateOf<String?>(null) }
+    val clone = state.clone?.takeIf { it.path == targetPath }
+    // The clone is done and its repository replaced the state; loading the log may still fail.
+    val isLoaded = targetPath != null && state.clone == null && state.path == targetPath
+    val isCloning = (clone != null && clone.errorMessage == null) || (isLoaded && state.isLoading)
+    val errorMessage = clone?.errorMessage ?: state.errorMessage.takeIf { isLoaded }
+
+    LaunchedEffect(isLoaded, state.isLoading, state.errorMessage) {
+        if (isLoaded && !state.isLoading && state.errorMessage == null) onCloned()
+    }
+
+    return CloneProgress(isCloning, errorMessage, start = { targetPath = it })
 }
 
 /** `https://github.com/acme/demo.git` → `demo`, like `git clone` does. */

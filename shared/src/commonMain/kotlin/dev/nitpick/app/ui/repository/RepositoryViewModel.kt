@@ -72,6 +72,9 @@ private fun Throwable.isTimeout(): Boolean {
     return "timeout" in text || "timed out" in text
 }
 
+/** The clone into [path]: running while [errorMessage] is null. */
+data class CloneStatus(val path: String, val errorMessage: String? = null)
+
 data class RepositoryUiState(
     val path: String? = null,
     val isLoading: Boolean = false,
@@ -110,6 +113,8 @@ data class RepositoryUiState(
     val isFetching: Boolean = false,
     val fetchError: String? = null,
     val tracking: TrackingStatus? = null,
+    // A clone in progress or failed; the open repository stays on screen until the clone succeeds.
+    val clone: CloneStatus? = null,
 ) {
     /** One git operation at a time: pull, push and checkout share the same working tree. */
     val isSyncing: Boolean get() = isPulling || isPushing || isCheckingOut || isFetching
@@ -147,6 +152,7 @@ class RepositoryViewModel(
 
     private var repository: GitRepository? = null
     private var loading: Job? = null
+    private var cloning: Job? = null
     private var diffLoading: Job? = null
     private var sharedLoading: Job? = null
 
@@ -156,8 +162,21 @@ class RepositoryViewModel(
     fun openRepository(path: String) = load(path) { gitRepositoryFactory.open(path) }
 
     /** Clones [url] into [path]; the token in [credentials] stays in memory and never reaches the state. */
-    fun cloneRepository(url: String, path: String, credentials: Credentials?) =
-        load(path) { gitRepositoryFactory.clone(url, path, credentials) }
+    fun cloneRepository(url: String, path: String, credentials: Credentials?) {
+        cloning?.cancel()
+        _state.update { it.copy(clone = CloneStatus(path)) }
+        cloning = viewModelScope.launch {
+            val cloned = try {
+                gitRepositoryFactory.clone(url, path, credentials)
+            } catch (e: CancellationException) {
+                throw e
+            } catch (e: Exception) {
+                _state.update { it.copy(clone = CloneStatus(path, e.message ?: e.toString())) }
+                return@launch
+            }
+            load(path) { cloned }
+        }
+    }
 
     private fun load(path: String, openRepository: suspend () -> GitRepository) {
         // Opening another folder while one is loading must not let the old result win.
