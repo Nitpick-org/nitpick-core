@@ -64,7 +64,8 @@ fun RepositoryScreen(
             )
             state.path == null -> MessageState(
                 title = stringResource(Res.string.repository_empty_title),
-                detail = stringResource(Res.string.repository_empty_hint),
+                // The hint asks to pick a folder, so it only makes sense with a picker.
+                detail = if (onOpenRepository != null) stringResource(Res.string.repository_empty_hint) else null,
                 onOpenRepository = onOpenRepository,
             )
             else -> Row(Modifier.fillMaxSize()) {
@@ -88,7 +89,7 @@ private fun RepositoryHeader(path: String, currentBranch: String, onOpenReposito
         Text(folderName(path), style = MaterialTheme.typography.titleMedium)
         if (currentBranch.isNotEmpty()) {
             Text(
-                stringResource(Res.string.repository_on_branch, currentBranch),
+                stringResource(Res.string.repository_on_branch, branchLabel(currentBranch)),
                 style = MaterialTheme.typography.bodyMedium,
                 color = MaterialTheme.colorScheme.onSurfaceVariant,
             )
@@ -103,20 +104,22 @@ private fun RepositoryHeader(path: String, currentBranch: String, onOpenReposito
 }
 
 @Composable
-private fun MessageState(title: String, detail: String, onOpenRepository: (() -> Unit)?) {
+private fun MessageState(title: String, detail: String?, onOpenRepository: (() -> Unit)?) {
     Column(
         modifier = Modifier.fillMaxSize().padding(32.dp),
         horizontalAlignment = Alignment.CenterHorizontally,
         verticalArrangement = Arrangement.Center,
     ) {
         Text(title, style = MaterialTheme.typography.titleLarge, textAlign = TextAlign.Center)
-        Spacer(Modifier.height(8.dp))
-        Text(
-            detail,
-            style = MaterialTheme.typography.bodyMedium,
-            color = MaterialTheme.colorScheme.onSurfaceVariant,
-            textAlign = TextAlign.Center,
-        )
+        if (detail != null) {
+            Spacer(Modifier.height(8.dp))
+            Text(
+                detail,
+                style = MaterialTheme.typography.bodyMedium,
+                color = MaterialTheme.colorScheme.onSurfaceVariant,
+                textAlign = TextAlign.Center,
+            )
+        }
         if (onOpenRepository != null) {
             Spacer(Modifier.height(24.dp))
             Button(onClick = onOpenRepository) {
@@ -217,6 +220,14 @@ private fun PanelHint(text: String) {
         textAlign = TextAlign.Center,
     )
 }
+
+// On a detached HEAD, currentBranch is a full commit id: shorten it like the commit list does.
+private fun branchLabel(currentBranch: String): String =
+    if (currentBranch.length == 40 && currentBranch.all { it in "0123456789abcdef" }) {
+        currentBranch.take(7)
+    } else {
+        currentBranch
+    }
 
 private fun folderName(path: String): String =
     path.trimEnd('/', '\\').substringAfterLast('/').substringAfterLast('\\')
