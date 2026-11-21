@@ -103,7 +103,7 @@ echo
 echo "── Stack ──────────────────────────────────────────────────"
 if [ -x gradlew ]; then
   ok "gradlew present"
-  [ -d composeApp/src/commonMain ] && ok "composeApp/src/commonMain present" || fail "composeApp/src/commonMain missing (see docs/CONTEXT.md §6)"
+  [ -d shared/src/commonMain ] && ok "shared/src/commonMain present" || fail "shared/src/commonMain missing (see docs/CONTEXT.md §6)"
 else
   fail "no gradlew: the KMP project is not generated yet (see docs/CONTEXT.md §5)"
 fi

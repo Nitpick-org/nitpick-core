@@ -25,7 +25,7 @@ le problème : deux agents ne touchent jamais le même fichier.
 - Décisions : une lane par parent non encore placé, réutilisée dès qu'elle se libère.
 - Modèle : sonnet.
 - Escalades : sonnet → opus (2 échecs sur la validation).
-- Fichiers : composeApp/src/commonMain/kotlin/dev/nitpick/app/graph/*, composeApp/src/commonTest/.../graph/*.
+- Fichiers : shared/src/commonMain/kotlin/dev/nitpick/app/graph/*, shared/src/commonTest/.../graph/*.
 - Incertain : couleurs des lanes non testées en thème sombre.
 - Blocage : aucun.
 - Suivant : brancher sur `GitRepository.log()` réel (piste B).

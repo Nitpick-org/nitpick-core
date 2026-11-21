@@ -70,7 +70,7 @@ if [ ! -f "$DIR/progress/$NAME.md" ]; then
 - Agent : @implementer
 - Model : <haiku|sonnet|opus>
 - Escalations :
-- Fichiers autorisés : composeApp/src/<sourceSet>/<...>
+- Fichiers autorisés : shared/src/<sourceSet>/<...>
 
 ## Journal
 

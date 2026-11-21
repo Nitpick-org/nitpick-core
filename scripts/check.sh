@@ -5,9 +5,8 @@
 #   ./scripts/check.sh            # shared tests + desktop + Android builds
 #   ./scripts/check.sh --demo     # same, then a reminder to play docs/DEMO.md
 #
-# allTests compiles and tests every target (desktop included) without
-# depending on the target names the KMP wizard picks; assembleDebug compiles
-# Android, which has no host tests to force it.
+# :shared:allTests runs the JVM and Android host tests; the two app modules
+# hold no tests, so they are only built.
 set -euo pipefail
 
 ROOT="$(git rev-parse --show-toplevel 2>/dev/null)" || {
@@ -24,8 +23,8 @@ fi
 
 START=$SECONDS
 
-echo "▶ gradle: allTests + assembleDebug"
-./gradlew --quiet :composeApp:allTests :composeApp:assembleDebug
+echo "▶ gradle: shared tests, desktop and Android builds"
+./gradlew --quiet :shared:allTests :desktopApp:assemble :androidApp:assembleDebug
 
 if [ "${1:-}" = "--demo" ]; then
   # shortcut: no automated UI test on Compose yet, add one if time allows after the freeze.

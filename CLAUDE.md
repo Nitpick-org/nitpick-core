@@ -49,21 +49,26 @@ humains : tu lis les mêmes fichiers, tu connais les mêmes contraintes, tu peux
 ./scripts/doctor.sh                 # readiness check (before the event)
 ./scripts/check.sh                  # all tests + desktop + Android builds
 ./scripts/check.sh --demo           # + reminder: play docs/DEMO.md by hand
-./gradlew :composeApp:run           # launch the desktop app
+./gradlew :desktopApp:run           # launch the desktop app
+./gradlew :androidApp:installDebug  # install on the connected phone/emulator
 ./scripts/new-worktree.sh 12-graph  # one worktree per ticket
 AFK_OK=1 ./scripts/afk-ralph.sh 4   # bounded loop, low-risk, never on main
 ```
 
 Stack figée : Kotlin Multiplatform + Compose Multiplatform, Koog, JGit (`docs/CONTEXT.md` §5).
-`docs/STACK.md` décrit l'ancienne base TypeScript et ne s'applique plus. Tant que le projet
-du wizard n'est pas généré (pas de `gradlew`), `check.sh` échoue : c'est normal.
+`docs/STACK.md` décrit l'ancienne base TypeScript et ne s'applique plus.
 
 ## Architecture
 
-- Tout ce qui peut l'être vit dans `composeApp/src/commonMain` (domain, git, graph, diff,
-  review, settings, ui). Le code plateforme reste mince et ennuyeux.
-- **Aucun import `org.eclipse.jgit` hors de `jvmShared`.** Aucun import Android ou AWT hors
-  de `androidMain` / `desktopMain`.
+Le wizard génère trois modules au lieu du `composeApp` du §6 de `docs/CONTEXT.md` ; les
+dossiers `domain/`, `git/`, `graph/`… du §6 restent les mêmes, sous `shared/src/commonMain`.
+
+- `shared/` : le module KMP. Tout ce qui peut l'être vit dans `shared/src/commonMain`
+  (domain, git, graph, diff, review, settings, ui). Cibles : `jvm` (desktop) et `android`.
+- `desktopApp/` et `androidApp/` : uniquement le point d'entrée (fenêtre, `MainActivity`).
+- **Aucun import `org.eclipse.jgit` hors de `jvmShared`.** Aucun import Android hors de
+  `shared/src/androidMain` et `androidApp/`, aucun import AWT/Swing hors de
+  `shared/src/jvmMain` et `desktopApp/`.
 - Les pistes ne se parlent que par les contrats du §6 de `docs/CONTEXT.md` (`GitRepository`,
   `ReviewResult`…). Changer un contrat = accord de H2.
 - Pas de nouveau package de premier niveau sous `commonMain` sans accord de H2.
