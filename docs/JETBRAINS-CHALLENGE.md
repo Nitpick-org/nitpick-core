@@ -94,7 +94,7 @@ Une app qui tourne sur **au moins 2 plateformes**.
 | Dark/light | `ThemeMode` + thème | en place |
 | Localisation EN/FR | `composeResources` | en cours |
 | Shared AI/agent logic (Koog) | `ReviewAgent` + Koog | P0 — #20 |
-| Kotlin backend | non — app locale | hors scope |
+| Kotlin backend | `server/` Ktor local, cache et partage des reviews, sans déploiement | SHOULD — après 02:00 |
 | Air / Junie process | H1/H2/H3 utilisent Air | à prouver |
 | Multi-agent | Junie + second agent sur une tâche | à faire |
 | Démo claire | `docs/DEMO.md` + captures Air | à faire |

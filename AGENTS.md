@@ -61,6 +61,7 @@ shared/src/jvmMain/                                  ← desktop seul (sélecteu
 shared/src/androidMain/                              ← Android seul (stockage…)
 desktopApp/                                          ← main(), fenêtre « Nitpick »
 androidApp/                                          ← MainActivity ; androidTest/ = tests sur ART
+server/                                              ← Ktor local (SHOULD) : cache des reviews, dépend de shared
 ```
 
 - Le code plateforme reste mince et ennuyeux ; la logique vit dans `commonMain`.

@@ -52,8 +52,9 @@ branchée sur le LLM choisi par l'utilisateur (Claude, OpenAI, Gemini, ou Ollama
   spécifique à chaque plateforme.
 
 Features bonus explicitement listées : dark/light mode, localisation, Compose
-Multiplatform, backend Kotlin, IA partagée via Koog. Les quatre que nous visons
-(dark/light, localisation, Compose MP, Koog) sont obligatoires pour nous.
+Multiplatform, backend Kotlin, IA partagée via Koog. Les quatre premières que nous visons
+(dark/light, localisation, Compose MP, Koog) sont obligatoires pour nous ; le backend
+Kotlin est un SHOULD **local** (§5, §8), après le chemin critique.
 
 > Le challenge recommande Air pour **construire** le projet. Le moteur IA **du produit**
 > reste Koog : Air/Junie ne sont pas appelés par l'app. Le brief officiel est dans
@@ -125,6 +126,13 @@ changé, l'adapter et le signaler.
   le jury.
 - **Développement** : JetBrains Air + agents (Junie, Codex, Gemini, Copilot, Claude) pour
   produire le code. Ce sont des outils d'IDE, pas des dépendances de l'app.
+- **Backend Kotlin (SHOULD, local)** : un module `server/` Ktor, lancé sur le laptop
+  (`./gradlew :server:run`), **sans déploiement** pour le hackathon. Rôle unique : cache et
+  partage des `ReviewResult` entre desktop et Android (même repo, même review, même code,
+  point 5 de la démo). Il réutilise les modèles de `shared` (artefact JVM) ; la review
+  reste calculée par Koog dans `commonMain` sur chaque cible, le serveur ne parle jamais à
+  un LLM et ne voit jamais de clé API. L'app marche sans lui : URL vide dans les réglages
+  = désactivé. Proxy de clé, authentification et déploiement : hors scope (§8).
 - **Stockage local** (réglages, clé API, repos récents) : un expect/actual minimal (fichier
   de préférences côté desktop, SharedPreferences/DataStore côté Android). Ne jamais
   commiter de clé API.
@@ -151,6 +159,7 @@ composeApp/src/
 │   └── git/               JGitRepository : implémentation de GitRepository avec JGit
 ├── desktopMain/           main(), fenêtre, sélecteur de dossier natif, SettingsStore desktop
 └── androidMain/           MainActivity, SettingsStore Android, emplacement de stockage des clones
+server/                    ← module JVM Ktor (SHOULD) : cache de ReviewResult, dépend de shared
 ```
 
 `jvmShared` est un source set intermédiaire dont dépendent desktopMain et androidMain (via
@@ -270,12 +279,16 @@ Modèle de review (à affiner, mais la forme doit rester celle-ci) :
 - Résumé global de la review et score ou compteur par sévérité.
 - Streaming ou indicateur de progression pendant la review.
 - Layout adaptatif : panneaux côte à côte sur desktop, navigation par écrans sur Android.
+- Backend Kotlin local (§5) : `server/` Ktor qui cache et partage les reviews entre
+  desktop et Android, optionnel dans les réglages. Après la porte 02:00 seulement.
 
 ### WON'T (ne pas commencer, même si « c'est rapide »)
 
 - Résolution de conflits interactive (c'est seulement de la roadmap dans le pitch).
 - Rebase interactif, stash UI, submodules, LFS, SSH.
-- iOS, web, backend serveur.
+- iOS, web.
+- Déploiement du backend, proxy de clé API, authentification du serveur, Koog côté serveur :
+  le `server/` reste local, sans LLM et sans clé (§5).
 - Authentification OAuth GitHub (un token personnel suffit).
 - Intégration runtime d'Air/Junie (appeler Air/Junie depuis l'app, en faire un provider de
   review ou lancer la CLI dans le produit) : hors scope pour le hackathon. Air/Junie sont
@@ -289,7 +302,7 @@ contrats du §6.
 | Piste | Périmètre | Source sets |
 | --- | --- | --- |
 | A : Core partagé | Modèles, algorithme de lanes du graph (+ tests), parsing du diff, agent Koog de review, validation de l'ancrage, application des suggestions | commonMain (domain, graph, diff, review) |
-| B : Git + desktop | JGitRepository, configuration Gradle des source sets, fenêtre desktop, sélecteur de dossier, écrans principaux en layout desktop | jvmShared, desktopMain, commonMain/ui |
+| B : Git + desktop | JGitRepository, configuration Gradle des source sets, fenêtre desktop, sélecteur de dossier, écrans principaux en layout desktop, backend local `server/` (SHOULD) | jvmShared, desktopMain, commonMain/ui, server |
 | C : Android + finitions | Cible Android (clone HTTPS, stockage), layout mobile, thème clair/sombre, strings EN/FR, réglages, script de comptage des lignes partagées, préparation de la démo | androidMain, commonMain/ui, composeResources |
 
 Pour coller au critère multi-agent : sur au moins une tâche (idéalement l'algorithme de
@@ -414,6 +427,7 @@ au cas où le Wi-Fi ou le LLM lâcherait.
 | Gradle ou KMP qui bloque des débutants | Ne pas « optimiser » la config : rester au plus près du template du wizard. |
 | Air/Junie indisponible (EAP, compte, réseau) | Utiliser Claude Code/Codex CLI ; le produit ne dépend pas d'Air ; documenter le fallback dans `AGENT_LOG.md`. |
 | Air demande un trust projet / des permissions | Accepter le trust sur le repo, vérifier `.junie`/MCP, ne jamais exposer `.env` ; garder les agents dans le repo ouvert. |
+| Le backend local tombe ou le téléphone ne joint pas le laptop (Wi-Fi) | L'app ne dépend pas du serveur : URL vide = review locale. En démo, le téléphone relance la review en local si le cache ne répond pas en 2 s. |
 
 ## 15. Références
 
