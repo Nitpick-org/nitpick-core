@@ -1,154 +1,143 @@
-# LauzHack 2026 — base d'équipe (3 humains + agents)
+# Nitpick
 
-Base de travail pour **LauzHack 2026** (21–22 novembre, EPFL BC) : 24 h de hack, démo de
-3 minutes, équipe de 3. L'idée n'est pas encore choisie : ce repo contient tout ce qui ne
-dépend pas d'elle — méthode, rôles, agents, scripts, garde-fous, faits de l'événement.
+**Nitpick your branch before main does.**
 
-Méthode inspirée d'[AI Hero](https://www.aihero.dev) (Matt Pocock) :
-**idée → recherche → prototype → PRD → tickets → exécution → QA**, avec des modules
-profonds et des garde-fous exécutables.
+Nitpick is a visual git client for desktop and Android, built with Kotlin Multiplatform,
+that reviews your current branch with the LLM of your choice **locally, before you push**:
+comments anchored on lines like a pull-request review (*nits*), and suggestions you apply
+in one click.
 
-## État actuel (16/11/2026)
+Built in 24 hours at [LauzHack 2026](https://lauzhack.com/) (EPFL, 21–22 November 2026)
+for the JetBrains Kotlin Multiplatform challenge.
 
-- La base a été auditée et corrigée : voir [docs/AUDIT-2026-11-16.md](./docs/AUDIT-2026-11-16.md).
-- Un **dry run** complet est prêt : [docs/DRY-RUN.md](./docs/DRY-RUN.md), avec un starter
-  Vite/React jetable dans `dry-run/starter/`.
-- La **stack n'est pas choisie** : `package.json` n'existe pas encore.
-- `./scripts/check.sh` et la CI échouent tant que la stack n'est pas initialisée.
-  **C'est volontaire** : une base sans stack n'est pas une base prête.
-- Prochaine étape : choisir la stack à **H0 (11:40–12:00)**, après l'idée, avec le starter
-  Vite comme fallback ; puis bootstrap et déploiement.
-- Dépôt distant : `git@github.com:zooldyyk/hackathon.git` (**privé**). Il devra être
-  **public** au moment de la soumission (le lien doit s'ouvrir sans login).
-- Réglages GitHub : 2 collaborateurs ajoutés, **`main` sans protection** (merge libre),
-  labels et milestone créés, wiki désactivé, branches supprimées après merge.
+## Why
 
-## Reste à faire (état au 16/11)
+Coding agents write more of what lands on `main`, and fewer people read it end to end.
+AI review tools such as CodeRabbit, Copilot review or Graphite run after the push, on the
+pull request, on a server. Nitpick runs **before** the push, on your machine, with the
+repository's context, and talks to the provider you pick: Anthropic, OpenAI, Google, or
+Ollama running locally.
 
-| Priorité | Tâche | Qui | Échéance |
-| --- | --- | --- | --- |
-| P0 | Choisir la stack à H0 (11:40–12:00), bootstrap, hello world **déployé** | H2 | H0 |
-| P0 | `./scripts/check.sh` et la CI verts | H2 | J-4 |
-| P1 | Installer les skills, tester les 8 agents, un worktree, un AFK | tous | J-3 |
-| P1 | Faire le **dry run** de 2 h 30 sur un clone jetable | tous | J-3 |
-| P1 | Corriger les 3 frictions du dry run + 3 idées par humain | tous | J-2 |
-| P1 | Créer le Project board (Todo / Doing / Review / Done) | H1 | J-3 |
-| P1 | Comptes Ultra vérifiés, reset hebdo noté, `/usage` ≥ 75 % | H2, H3 | J-1 |
-| P1 | Clés/quotas, reçus de voyage, repo public, `doctor.sh` | H2 | J-1 |
-| H0 | Idée, DEMO.md, PRD.md, 8–12 tickets | tous | sam 21, 12:00 |
+## Status
 
-> `./scripts/doctor.sh` échoue encore sur `no package.json` : c'est le seul bloquant
-> restant, et il disparaît dès que la stack est initialisée.
->
-> Les tâches sont aussi suivies dans les issues GitHub **#2 à #7** (labels `P0`/`P1`/`P2`).
+> Updated at each team sync. Only what runs today is listed as done.
 
-## Démarrage rapide
-
-```bash
-# 1. Git hooks (block commits if check.sh fails)
-git config core.hooksPath .githooks
-
-# 2. Environment variables
-cp .env.example .env      # fill in, never commit
-unset ANTHROPIC_API_KEY   # Claude Code must use your plan (docs/ULTRA.md)
-
-# 3. Readiness check
-./scripts/doctor.sh
-
-# 4. Claude Code + AI Hero skills (once per repo)
-claude plugin install mattpocock-skills@claude-plugins-official
-# then in a session: /setup-matt-pocock-skills
-```
-
-Vérifier : `claude` puis « liste les sous-agents du projet » → les 8 agents de
-`.claude/agents/` doivent apparaître.
-
-## Partager avec les 2 autres
-
-1. GitHub → repo → **Settings → Collaborators → Add people** (le repo est privé).
-2. Chacun accepte l'invitation et clone le repo.
-3. Chacun suit **[docs/ONBOARDING.md](./docs/ONBOARDING.md)** : outils, hooks, `.env`,
-   Claude Code/Ultra, skills, `doctor.sh`.
-4. Puis **[docs/DRY-RUN.md](./docs/DRY-RUN.md)** : mini-projet fictif de 2 h 30 dans un
-   clone jetable, pour tester la base, les agents et la démo.
-
-> Ne pas travailler directement dans le repo partagé pour le dry run : clone à part,
-> branche `dry-run/base`, suppression après.
-
-## Les 5 jours avant
-
-| Jour | Objectif | Porte |
-| --- | --- | --- |
-| **J-5 lun 16** | Lire les docs, appel équipe, rôles, repo GitHub public | Rôles + repo |
-| **J-4 mar 17** | Choisir la stack, hello world déployé, CI verte | URL de preview |
-| **J-3 mer 18** | Agents testés, worktree testé, `doctor.sh` | 8 agents, check.sh vert |
-| **J-2 jeu 19** | Répétition générale de 2 h sur une idée bidon | La boucle tourne |
-| **J-1 ven 20** | Shortlist de 3 idées, clés, quotas, valises, sommeil | `doctor.sh` sans échec |
-
-Détail : [docs/PRE-EVENT-CHECKLIST.md](./docs/PRE-EVENT-CHECKLIST.md).
-
-## Le jour J en 5 commandes
-
-```bash
-claude                                  # kickoff: /grill-with-docs, /to-spec, /to-tickets
-./scripts/new-worktree.sh 12-login      # one worktree per ticket
-cd ../wt-12-login && claude             # one agent per worktree (2–3 per human, more on Ultra)
-./scripts/check.sh --demo               # before each PR
-AFK_OK=1 ./scripts/afk-ralph.sh 4       # bounded loop before a nap
-```
-
-## Carte du repo
-
-| Chemin | Rôle |
+| Piece | State |
 | --- | --- |
-| `CLAUDE.md` | Contrat lu par chaque agent : état, règles, commandes, définitions. |
-| `AGENTS.md` | Point d'entrée pour les autres outils (Cursor, Codex…). |
-| `docs/LAUZHACK.md` | Faits, règles, horaires, soumission, logistique. **À lire.** |
-| `docs/ONBOARDING.md` | Rejoindre le repo en 20 minutes. |
-| `docs/DRY-RUN.md` | Test « situation réelle » de 2 h 30 sur un mini-projet fictif. |
-| `docs/STRATEGY.md` | Comment choisir l'idée, scorer, construire la démo de 3 min. |
-| `docs/RESEARCH-HACKATHON.md` | Synthèse des sources : ce qui fait gagner, ce qui fait perdre. |
-| `docs/PLAYBOOK.md` | Déroulé des 24 h, rôles, rituels, portes. |
-| `docs/AGENT-OPS.md` | 3 humains + agents : concurrency, briefs, coûts, sécurité. |
-| `docs/ULTRA.md` | Exploiter les 2 abonnements Claude Ultra : répartition, budget, Fable, AFK. |
-| `docs/MODEL-ROUTING.md` | Haiku/Sonnet/Opus/Fable, escalade, budgets. |
-| `docs/GLOSSARY.md` | Le langage commun ; à remplir à H0. |
-| `docs/ARCHITECTURE.md` | Modules profonds, interfaces, tickets parallèles. |
-| `docs/STACK.md` | Choisir la stack, bootstrap, déploiement, résilience de démo. |
-| `docs/PRD.md` | La destination : ce que voit l'utilisateur. Écrit à H0. |
-| `docs/DEMO.md` | Script de démo 3 min + plan B. Écrit **avant** le code. |
-| `docs/DECISIONS.md` | Une ligne par décision durable. |
-| `docs/QUESTIONS.md` | File de questions agents → humains. |
-| `docs/IDEAS.md` | Idées hors périmètre. |
-| `docs/RESEARCH.md` | Recherche externe mise en cache. |
-| `docs/PRE-EVENT-CHECKLIST.md` | Checklist J-5 → J0. |
-| `docs/AUDIT-2026-11-16.md` | Review de la base et corrections. |
-| `docs/AUDIT-2.md` | Deuxième audit : partage, dry run, agents Ultra. |
-| `progress.txt` | Synthèse tenue par l'intégrateur. |
-| `progress/<ticket>.md` | Journal par ticket, sans conflit. |
-| `.claude/agents/` | 8 subagents : `researcher`, `devils-advocate`, `architect`, `implementer`, `reviewer`, `qa-demo`, `pitch`, `scribe`. |
-| `.claude/skills/` | Skill `/route-task` : choisir l'agent et le modèle avant de déléguer. |
-| `.claude/settings.json` | Permissions, hooks, limites de concurrence. |
-| `scripts/check.sh` | Typecheck + lint + tests (+ e2e avec `--demo`). |
-| `scripts/doctor.sh` | Readiness check. |
-| `scripts/new-worktree.sh` | Worktree + branche + journal de ticket. |
-| `scripts/ralph-once.sh` | Une itération surveillée. |
-| `scripts/afk-ralph.sh` | Boucle bornée pour la nuit. |
-| `dry-run/` | Starter jetable, tickets, `REVIEW.md` (retour à envoyer) et `RETRO.md` (rétro interne). |
-| `.github/` | CI, modèle de ticket, modèle de PR. |
+| KMP project (desktop + Android, shared Compose UI) | ✅ generated, builds on both targets |
+| JGit behind a shared source set (`jvmSharedMain`) | ✅ init, commit and log run on the desktop JVM and on Android (emulator, API 36) |
+| Shared contracts (`GitRepository`, review model) | ⏳ next |
+| Commit graph, branch diff | ⏳ planned |
+| AI review with Koog, inline nits, apply a suggestion, commit | ⏳ planned, the core loop |
+| Light/dark theme, English/French | ⏳ planned |
 
-## Règles d'or
+Full scope (MUST / SHOULD / WON'T) and the hour-by-hour plan: [docs/CONTEXT.md](docs/CONTEXT.md).
 
-1. Un ticket = un worktree = une zone de fichiers.
-2. `main` : merge libre pendant le hackathon. `check.sh` vert recommandé ; H2 merge si possible.
-3. Squelette de démo bout en bout à **16:00** ; code gelé à **09:30** dimanche.
-4. Les idées viennent des humains ; les agents questionnent, cherchent, exécutent.
-5. Chaque erreur d'agent corrigée → une ligne dans `CLAUDE.md` (« Leçons apprises »).
-6. La démo de 3 minutes est **sans slides** ; images/vidéos de secours autorisées.
-7. La nouveauté doit être **explicite** : ce qu'on a créé vs ce qu'on a réutilisé.
+## Platforms
 
-## Sources
+| Target | Role |
+| --- | --- |
+| Desktop (macOS, Windows, Linux) | The main app: full git client + AI review |
+| Android | Review on the go: clone over HTTPS with a token, see the graph, run the review, accept suggestions, commit and push |
+| iOS, web | Out of scope: JGit does not run there |
 
-- [LauzHack 2026](https://lauzhack.com/) · [détails](https://lauzhack.com/details) · [règles](https://lauzhack.com/pdf/rules.pdf)
-- [AI Hero — 7 phases](https://aihero.dev/my-7-phases-of-ai-development) · [skills](https://www.aihero.dev/skills) · [Ralph](https://www.aihero.dev/tips-for-ai-coding-with-ralph-wiggum)
-- [Claude Code — subagents](https://code.claude.com/docs/en/sub-agents) · [worktrees](https://code.claude.com/docs/en/worktrees)
+## Architecture
+
+As much as possible lives in `commonMain`; platform code stays thin.
+
+```text
+shared/                       Kotlin Multiplatform module (targets: jvm, android)
+  src/commonMain/             domain, git contract, commit graph, diff parsing,
+                              Koog review agent, settings, Compose UI, EN/FR strings
+  src/jvmSharedMain/          JGit implementation, written once for desktop and Android
+  src/jvmMain/                desktop-only pieces (folder picker, settings store)
+  src/androidMain/            Android-only pieces (settings store, clone location)
+desktopApp/                   main() and the "Nitpick" window
+androidApp/                   MainActivity; androidTest/ runs on a real device or emulator
+```
+
+- **No `org.eclipse.jgit` import outside `jvmSharedMain`.** The rest of the app only sees the
+  `GitRepository` interface in `commonMain`.
+- **Shared AI logic**: the review agent (Koog), the repo context, the output validation and
+  the code that applies a suggestion all live in `commonMain`. Only API-key storage is
+  per platform.
+- **Reliable anchoring**: the LLM sees every diff line prefixed with its new line number and
+  must copy back the snippet it comments on. Nitpick checks that snippet against the file,
+  re-anchors it if the lines moved, and falls back to a file-level comment rather than
+  crash.
+
+## Tech stack
+
+| Piece | Choice | Version |
+| --- | --- | --- |
+| Language | Kotlin Multiplatform | 2.4.21 |
+| UI | Compose Multiplatform + Material 3 | 1.12.2 |
+| Android build | AGP, minSdk 26, targetSdk 37 | 9.1.1 |
+| Git | JGit | 6.10.1 |
+| AI agents | Koog | planned |
+
+JGit is pinned to 6.10: JGit 7 ships Java records, which the Android dexer refuses below
+API 34 (details in commit `df36830`).
+
+## Run it
+
+Prerequisites: JDK 17+, the Android SDK with `ANDROID_HOME` set, and an emulator or a
+phone for Android. Gradle downloads everything else, including the JDK 21 its daemon runs on.
+
+```bash
+git clone https://github.com/zooldyyk/hackathon.git nitpick && cd nitpick
+git config core.hooksPath .githooks      # pre-commit runs scripts/check.sh
+
+./gradlew :desktopApp:run                # desktop app
+./gradlew :androidApp:installDebug       # Android app on the connected device
+
+./scripts/check.sh                       # shared tests + desktop and Android builds
+./gradlew :androidApp:connectedDebugAndroidTest   # tests on Android (device needed)
+./scripts/doctor.sh                      # checks the toolchain and the repo setup
+```
+
+API keys are entered in the app's settings and never committed.
+
+## How we build it: 3 humans, many agents
+
+The JetBrains challenge rewards an authentic development process, so ours is in the repo.
+
+- **Three tracks** work in parallel and only meet through the shared contracts: A (shared
+  core: graph, diff, review agent), B (JGit + desktop), C (Android + finishing touches).
+- **Agents do real work, humans review it.** Each ticket gets its own git worktree and one
+  writing agent. A read-only reviewer agent goes over every diff before a human merges it.
+- **Everything is logged**: each agent keeps a journal in `progress/<ticket>.md`, compiled
+  into [docs/AGENT_LOG.md](docs/AGENT_LOG.md). Every time a human rejects or corrects an
+  agent's work, it goes into [docs/REVIEW_LOG.md](docs/REVIEW_LOG.md).
+- **Multi-agent comparison**: at least one task is solved by two different agents and the
+  comparison is documented.
+- **Dogfooding**: once the review works, Nitpick reviews the branches our agents produce.
+
+The rules every agent follows are in [AGENTS.md](AGENTS.md) (Claude Code adds
+[CLAUDE.md](CLAUDE.md)); hooks enforce them (`scripts/`, `.githooks/`).
+
+## Repository map
+
+| Path | What it is |
+| --- | --- |
+| `shared/`, `desktopApp/`, `androidApp/` | The app |
+| [docs/CONTEXT.md](docs/CONTEXT.md) | Master project brief: mission, stack, scope, plan, demo (French) |
+| [AGENTS.md](AGENTS.md) | Team rules for every agent, plus an index of all team docs (French) |
+| `docs/` | Team docs: event facts, demo script, decisions, questions, research, agent ops |
+| `progress/` | One journal per ticket, written by the agent working on it |
+| `scripts/` | `check.sh`, `doctor.sh`, worktree and AFK helpers, hook scripts |
+| `.claude/` | Claude Code subagents, the `/route-task` skill, settings and hooks |
+| `dry-run/` | Leftovers from the pre-event rehearsal (TypeScript, not part of the app) |
+
+Team docs are written in French; code, comments and commit messages are in English.
+
+## Created during the event vs reused
+
+LauzHack asks every team to state this explicitly.
+
+- **Reused**: Kotlin Multiplatform and Compose Multiplatform (the KMP wizard template),
+  JGit, and our team's pre-event tooling (the docs, agent definitions and scripts in
+  `docs/`, `.claude/`, `scripts/`). Koog and the LLM providers' APIs join this list once
+  integrated.
+- **Created during the event**: the Nitpick app itself. This section will list the shipped
+  pieces at submission time.
