@@ -34,6 +34,18 @@ class FileSettingsStoreTest {
     }
 
     @Test
+    fun aSecondSaveReplacesTheFirst() = runBlocking {
+        val file = tempFile()
+        val store = FileSettingsStore(file)
+
+        store.save(Settings(apiKey = "first"))
+        store.save(Settings(apiKey = "second"))
+
+        assertEquals("second", store.load().apiKey)
+        assertFalse(File(file.path + ".tmp").exists())
+    }
+
+    @Test
     fun missingFileGivesDefaults() = runBlocking {
         assertEquals(Settings(), FileSettingsStore(tempFile()).load())
     }
