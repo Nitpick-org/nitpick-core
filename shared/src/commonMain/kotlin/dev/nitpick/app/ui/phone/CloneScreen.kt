@@ -50,12 +50,14 @@ fun CloneScreen(
     var folder by rememberSaveable { mutableStateOf("") }
     var targetPath by rememberSaveable { mutableStateOf<String?>(null) }
     val folderName = folder.trim().ifBlank { defaultCloneFolderName(url) }
-    val isOurs = targetPath != null && state.path == targetPath
-    val isCloning = isOurs && state.isLoading
-    val errorMessage = if (isOurs) state.errorMessage else null
+    val clone = state.clone?.takeIf { it.path == targetPath }
+    // The clone is done and its repository replaced the state; loading the log may still fail.
+    val isLoaded = targetPath != null && state.clone == null && state.path == targetPath
+    val isCloning = (clone != null && clone.errorMessage == null) || (isLoaded && state.isLoading)
+    val errorMessage = clone?.errorMessage ?: state.errorMessage.takeIf { isLoaded }
 
-    LaunchedEffect(state.path, state.isLoading, state.errorMessage) {
-        if (isOurs && !state.isLoading && state.errorMessage == null) onCloned()
+    LaunchedEffect(isLoaded, state.isLoading, state.errorMessage) {
+        if (isLoaded && !state.isLoading && state.errorMessage == null) onCloned()
     }
 
     Column(modifier.fillMaxSize().background(NitpickTheme.colors.canvas)) {

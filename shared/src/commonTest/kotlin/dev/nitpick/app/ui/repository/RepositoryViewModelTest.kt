@@ -163,15 +163,15 @@ class RepositoryViewModelTest {
     }
 
     @Test
-    fun aFailedCloneShowsTheErrorOnTheTargetPath() {
-        val viewModel = RepositoryViewModel(RecordingCloneFactory(cloned = null), graphDispatcher = dispatcher)
+    fun aFailedCloneKeepsTheOpenRepositoryAndReportsTheError() {
+        val open = FakeGitRepository(branch = "main", commits = commits, refs = listOf(mainBranch))
+        val viewModel = RepositoryViewModel(RecordingCloneFactory(cloned = null, opened = open), graphDispatcher = dispatcher)
+        viewModel.openRepository("/work/nitpick")
+        val before = viewModel.state.value
 
         viewModel.cloneRepository("https://github.com/acme/demo.git", "/data/repos/demo", credentials = null)
 
-        assertEquals(
-            RepositoryUiState(path = "/data/repos/demo", errorMessage = "not authorized"),
-            viewModel.state.value,
-        )
+        assertEquals(before.copy(clone = CloneStatus("/data/repos/demo", errorMessage = "not authorized")), viewModel.state.value)
     }
 
     @Test
@@ -338,10 +338,10 @@ class RepositoryViewModelTest {
     }
 
     /** Records the last clone request; a null [cloned] repository makes the clone fail like a bad token. */
-    private class RecordingCloneFactory(private val cloned: GitRepository?) : GitRepositoryFactory {
+    private class RecordingCloneFactory(private val cloned: GitRepository?, private val opened: GitRepository? = null) : GitRepositoryFactory {
         var lastClone: Triple<String, String, Credentials?>? = null
 
-        override suspend fun open(path: String): GitRepository = throw IllegalArgumentException("Not a git repository: $path")
+        override suspend fun open(path: String): GitRepository = opened ?: throw IllegalArgumentException("Not a git repository: $path")
 
         override suspend fun clone(url: String, path: String, credentials: Credentials?): GitRepository {
             lastClone = Triple(url, path, credentials)
