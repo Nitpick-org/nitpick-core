@@ -13,7 +13,7 @@ INPUT="$(cat 2>/dev/null || true)"
 ACTIVE="$(jq -r '.stop_hook_active // false' <<<"$INPUT" 2>/dev/null || echo false)"
 [ "$ACTIVE" = "true" ] && exit 0
 
-[ -f package.json ] || exit 0
+[ -x gradlew ] || exit 0
 [ -n "$(git status --porcelain 2>/dev/null || true)" ] || exit 0
 
 mkdir -p .ralph

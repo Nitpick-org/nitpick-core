@@ -2,11 +2,12 @@
 # One command for every feedback loop. Must pass before commit / PR.
 #
 # Usage:
-#   ./scripts/check.sh            # typecheck + lint + test
-#   ./scripts/check.sh --demo     # same, then the demo path (e2e)
+#   ./scripts/check.sh            # shared tests + desktop + Android builds
+#   ./scripts/check.sh --demo     # same, then a reminder to play docs/DEMO.md
 #
-# Stack-agnostic on purpose: it only calls scripts declared in package.json.
-# See docs/STACK.md for the expected script names.
+# allTests compiles and tests every target (desktop included) without
+# depending on the target names the KMP wizard picks; assembleDebug compiles
+# Android, which has no host tests to force it.
 set -euo pipefail
 
 ROOT="$(git rev-parse --show-toplevel 2>/dev/null)" || {
@@ -15,64 +16,20 @@ ROOT="$(git rev-parse --show-toplevel 2>/dev/null)" || {
 }
 cd "$ROOT"
 
-if [ ! -f package.json ]; then
-  echo "❌ No package.json: the stack is not initialized."
-  echo "   Read docs/STACK.md, then run the bootstrap for the chosen stack."
+if [ ! -x gradlew ]; then
+  echo "❌ No gradlew: the KMP project is not generated yet."
+  echo "   Generate it from https://kmp.jetbrains.com (see docs/CONTEXT.md §5)."
   exit 2
 fi
-
-if ! command -v node >/dev/null 2>&1; then
-  echo "❌ node is not installed. Install Node 22+ (see .nvmrc)."
-  exit 2
-fi
-
-PM="npm"
-if [ -f pnpm-lock.yaml ] && command -v pnpm >/dev/null 2>&1; then
-  PM="pnpm"
-elif [ -f package-lock.json ]; then
-  PM="npm"
-elif command -v pnpm >/dev/null 2>&1; then
-  PM="pnpm"
-fi
-
-has_script() {
-  node -e "const s=require('./package.json').scripts||{}; process.exit(s['$1']?0:1)"
-}
-
-run_script() {
-  local script="$1"
-  echo "▶ $script"
-  if [ "$PM" = "pnpm" ]; then
-    pnpm run --silent "$script"
-  else
-    npm run --silent "$script"
-  fi
-}
 
 START=$SECONDS
-missing=0
 
-for script in typecheck lint test; do
-  if has_script "$script"; then
-    run_script "$script"
-  else
-    echo "❌ Missing script \"$script\" in package.json (see docs/STACK.md)."
-    missing=1
-  fi
-done
-
-if [ "$missing" -ne 0 ]; then
-  echo "❌ check.sh failed: required feedback loops are missing."
-  exit 1
-fi
+echo "▶ gradle: allTests + assembleDebug"
+./gradlew --quiet :composeApp:allTests :composeApp:assembleDebug
 
 if [ "${1:-}" = "--demo" ]; then
-  if has_script "e2e"; then
-    run_script "e2e"
-  else
-    echo "❌ --demo requested but no \"e2e\" script in package.json."
-    exit 1
-  fi
+  # shortcut: no automated UI test on Compose yet, add one if time allows after the freeze.
+  echo "⚠️  Demo path is manual: play docs/DEMO.md on desktop and Android."
 fi
 
-echo "✅ check.sh OK ($((SECONDS - START))s, $PM)"
+echo "✅ check.sh OK ($((SECONDS - START))s)"

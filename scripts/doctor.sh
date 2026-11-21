@@ -50,18 +50,24 @@ fi
 
 echo
 echo "── Toolchain ──────────────────────────────────────────────"
-if command -v node >/dev/null 2>&1; then
-  NODE_MAJOR="$(node -p "process.versions.node.split('.')[0]" 2>/dev/null || echo 0)"
-  if [ "$NODE_MAJOR" -ge 22 ]; then
-    ok "node $(node -v)"
+if command -v java >/dev/null 2>&1; then
+  JAVA_MAJOR="$(java -version 2>&1 | head -1 | sed -E 's/[^"]*"([0-9]+).*/\1/')"
+  if [ "${JAVA_MAJOR:-0}" -ge 17 ]; then
+    ok "java $JAVA_MAJOR"
   else
-    fail "node $(node -v) is too old (need 22+)"
+    fail "java $JAVA_MAJOR is too old (need 17+)"
   fi
 else
-  fail "node is not installed"
+  fail "java is not installed (need a JDK 17+)"
 fi
 
-command -v pnpm >/dev/null 2>&1 && ok "pnpm $(pnpm -v)" || warn "pnpm not installed (npm fallback)"
+if [ -n "${ANDROID_HOME:-}" ] && [ -d "$ANDROID_HOME/platforms" ]; then
+  ok "Android SDK: $ANDROID_HOME"
+else
+  fail "ANDROID_HOME is not set or has no platforms (install the Android SDK)"
+fi
+
+command -v adb >/dev/null 2>&1 && ok "adb installed" || warn "adb not on PATH (needed to install on a phone)"
 command -v gh   >/dev/null 2>&1 && ok "gh installed"        || warn "gh not installed"
 if command -v claude >/dev/null 2>&1; then
   ok "claude $(claude --version 2>/dev/null | head -1)"
@@ -95,30 +101,15 @@ fi
 
 echo
 echo "── Stack ──────────────────────────────────────────────────"
-if [ -f package.json ]; then
-  ok "package.json present"
-  if [ -d node_modules ]; then ok "node_modules present"; else warn "node_modules missing (run the install command)"; fi
-
-  for script in typecheck lint test e2e; do
-    if node -e "const s=require('./package.json').scripts||{}; process.exit(s['$script']?0:1)" 2>/dev/null; then
-      ok "script: $script"
-    else
-      [ "$script" = "e2e" ] && warn "script: e2e missing (demo path not automated)" || fail "script: $script missing"
-    fi
-  done
-
-  if [ -f pnpm-lock.yaml ] || [ -f package-lock.json ]; then
-    ok "lockfile present"
-  else
-    warn "no lockfile yet (install dependencies, then commit it)"
-  fi
+if [ -x gradlew ]; then
+  ok "gradlew present"
+  [ -d composeApp/src/commonMain ] && ok "composeApp/src/commonMain present" || fail "composeApp/src/commonMain missing (see docs/CONTEXT.md §6)"
 else
-  fail "no package.json: the stack is not initialized (see docs/STACK.md)"
+  fail "no gradlew: the KMP project is not generated yet (see docs/CONTEXT.md §5)"
 fi
 
 if [ -f .env ]; then
   ok ".env present"
-  grep -q '^DEPLOY_URL=' .env 2>/dev/null && ok "DEPLOY_URL set in .env" || warn "DEPLOY_URL missing in .env (no preview URL to verify)"
 else
   warn ".env missing (copy .env.example once the stack is chosen)"
 fi
@@ -147,7 +138,7 @@ for script in scripts/guard-protected.sh scripts/guard-bash.sh scripts/format-ed
 done
 
 if [ -f .claude/settings.json ]; then
-  if node -e "JSON.parse(require('fs').readFileSync('.claude/settings.json','utf8'))" 2>/dev/null; then
+  if jq empty .claude/settings.json 2>/dev/null; then
     ok ".claude/settings.json is valid JSON"
   else
     fail ".claude/settings.json is invalid JSON"

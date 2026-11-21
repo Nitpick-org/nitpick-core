@@ -19,8 +19,8 @@ if [ -n "$STAGED_ENV" ]; then
 fi
 
 # During the scaffolding phase there is nothing else to check yet.
-if [ ! -f package.json ]; then
-  echo "⚠️  No package.json yet: skipping checks (scaffolding phase)."
+if [ ! -x gradlew ]; then
+  echo "⚠️  No gradlew yet: skipping checks (scaffolding phase)."
   exit 0
 fi
 
