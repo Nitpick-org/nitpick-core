@@ -29,4 +29,6 @@ if [ "$BRANCH" = "main" ] && git rev-parse --verify HEAD >/dev/null 2>&1; then
   echo "⚠️  Direct commit on main. Team rule: main only through a PR."
 fi
 
-exec ./scripts/check.sh
+# git exports GIT_DIR and GIT_INDEX_FILE to hooks; in-process JGit tests would read them and
+# write their fixture clones into this repository's own index.
+exec env -u GIT_DIR -u GIT_INDEX_FILE -u GIT_WORK_TREE -u GIT_PREFIX ./scripts/check.sh
