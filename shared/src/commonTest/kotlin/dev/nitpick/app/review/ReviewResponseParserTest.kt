@@ -15,7 +15,7 @@ class ReviewResponseParserTest {
             ```json
             {"summary": "1 bug", "comments": [
               {"filePath": "a.kt", "startLine": 3, "endLine": 4, "severity": "bug", "category": "logic",
-               "message": "off by one", "originalSnippet": "x", "suggestion": "y", "confidence": 0.9}
+               "message": "off by one", "originalSnippet": "x", "suggestion": "y", "title": " Fix the bound ", "confidence": 0.9}
             ]}
             ```
         """.trimIndent()
@@ -29,6 +29,7 @@ class ReviewResponseParserTest {
         assertEquals(4, comment.endLine)
         assertEquals("a.kt:3:0", comment.id)
         assertEquals("y", comment.suggestion)
+        assertEquals("Fix the bound", comment.title)
     }
 
     @Test

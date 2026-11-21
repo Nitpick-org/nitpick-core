@@ -56,6 +56,13 @@ class ReviewPromptTest {
     }
 
     @Test
+    fun asksForAFixTitleAndForCommentsTheFixMakesWrong() {
+        val system = buildReviewPrompt(context).system
+        assertContains(system, "\"title\"")
+        assertContains(system, "must not leave a comment that lies")
+    }
+
+    @Test
     fun lockfilesBinariesAndBuildOutputAreNotReviewable() {
         fun diffAt(path: String, binary: Boolean = false) = diff.copy(path = path, isBinary = binary)
         assertFalse(isReviewable(diffAt("package-lock.json")))

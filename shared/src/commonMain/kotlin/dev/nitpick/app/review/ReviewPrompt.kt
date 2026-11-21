@@ -23,6 +23,7 @@ Answer with ONE JSON object and nothing else, no markdown fences:
       "severity": "BUG" | "WARNING" | "SUGGESTION" | "INFO",
       "category": "logic" | "security" | "perf" | "readability" | "tests" | "other",
       "message": "what is wrong and why, in plain words",
+      "title": "the fix in a few words, imperative, e.g. unlock on cache miss",
       "originalSnippet": "the exact text of lines startLine..endLine, copied verbatim",
       "suggestion": "replacement text for lines startLine..endLine, or null"
     }
@@ -35,6 +36,7 @@ Rules:
 - Only comment on added or context lines (lines with a number). A removed line has no number.
 - A comment about a whole file uses startLine = 0 and endLine = 0.
 - suggestion replaces lines startLine..endLine entirely; keep the original indentation; null when there is nothing to apply.
+- When the fix makes a nearby comment or doc line wrong, widen startLine..endLine to include it and rewrite it in the suggestion: an applied suggestion must not leave a comment that lies.
 - Prefer few precise comments over many vague ones. Severity BUG only when the code is wrong.
 """.trim()
 

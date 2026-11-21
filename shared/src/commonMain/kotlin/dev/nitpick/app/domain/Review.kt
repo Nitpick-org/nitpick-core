@@ -22,6 +22,8 @@ data class ReviewComment(
     val message: String,
     val originalSnippet: String,
     val suggestion: String? = null,
+    // The fix in a few words, for the commit message; empty when the model gave none.
+    val title: String = "",
 ) {
     /** A nit the reviewer could not anchor to lines: startLine = endLine = 0 means the whole file. */
     val isFileLevel: Boolean get() = startLine == 0 && endLine == 0

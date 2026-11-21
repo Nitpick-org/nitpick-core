@@ -191,6 +191,7 @@ class RepositoryViewModelTest {
         assertEquals(false, state.isPushing)
         assertEquals(null, state.pushError)
         assertEquals(false, state.hasUnpushedCommits)
+        assertEquals("main", state.lastPushedBranch)
     }
 
     @Test
@@ -453,7 +454,7 @@ class RepositoryViewModelTest {
         viewModel.commitAppliedSuggestions()
         viewModel.commitAppliedSuggestions()
 
-        assertEquals(listOf("Apply review suggestions"), repo.commitMessages)
+        assertEquals(listOf("fix: wrong lane"), repo.commitMessages)
         assertEquals(null, viewModel.state.value.actionError)
     }
 
@@ -516,7 +517,7 @@ class RepositoryViewModelTest {
 
         viewModel.commitAppliedSuggestions()
         assertEquals(listOf("graph/CommitGraph.kt"), repo.staged)
-        assertEquals(listOf("Apply review suggestions"), repo.commitMessages)
+        assertEquals(listOf("fix: wrong lane"), repo.commitMessages)
         assertEquals(null, viewModel.state.value.review)
         assertEquals(emptySet(), viewModel.state.value.appliedIds)
     }
