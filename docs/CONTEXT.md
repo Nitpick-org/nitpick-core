@@ -28,9 +28,10 @@ branchée sur le LLM choisi par l'utilisateur (Claude, OpenAI, Gemini, ou Ollama
   branche »). Un commentaire de review s'appelle un nit dans l'UI (« 7 nits · 1 bug »).
 - **Identifiants techniques** : nom Gradle `nitpick`, package `dev.nitpick.app`,
   applicationId Android `dev.nitpick.app`, fenêtre desktop titrée « Nitpick ».
-- **Ton visuel** : outil de dev sobre et précis. Accent de couleur unique (à choisir par la
-  piste C, cohérent en clair et en sombre), icône d'app simple (loupe ou pince à épiler
-  stylisée, rien de générique).
+- **Ton visuel** : outil de dev sobre et précis, aligné sur la DA **JetBrains IDE /
+  New UI** (`docs/DESIGN-SYSTEM.md`). Accent unique **teal** (clair/sombre), chrome
+  graphite, contrôles 28 dp, code en JetBrains Mono. Icône d'app simple (loupe ou pince à
+  épiler stylisée, rien de générique).
 
 ## 2. Ce que le jury évalue (et donc ce qu'on optimise)
 
@@ -41,16 +42,21 @@ branchée sur le LLM choisi par l'utilisateur (Claude, OpenAI, Gemini, ou Ollama
   dupliqué par plateforme. Points bonus pour : Compose Multiplatform, localisation, logique
   IA/agent partagée (Koog), backend Kotlin.
 - **Innovation / créativité** : l'originalité de l'idée.
-- **Process agentique (bonus)** : des agents dans JetBrains Air font du vrai travail pendant
-  que les humains relisent et pilotent, au lieu de tout accepter. Bonus supplémentaire pour
-  le multi-agent (agents différents sur le code partagé et sur le code plateforme, ou
-  comparaison de leurs résultats).
+- **Process agentique (bonus)** : construire avec **JetBrains Air** dans l'IDE. Air
+  orchestre côte à côte les agents (Junie, Codex, Gemini, GitHub Copilot, Claude, autres via
+  ACP) ; les humains relisent, corrigent et pilotent au lieu de tout accepter. Air est un
+  **outil de développement**, pas un provider IA ni une dépendance runtime de Nitpick.
+  Bonus supplémentaire pour le multi-agent (agents différents sur le code partagé et sur le
+  code plateforme, ou comparaison de leurs résultats).
 - **Présentation** : une démo claire, qui explique ce qui est partagé et ce qui reste
   spécifique à chaque plateforme.
 
 Features bonus explicitement listées : dark/light mode, localisation, Compose
 Multiplatform, backend Kotlin, IA partagée via Koog. Les quatre que nous visons
 (dark/light, localisation, Compose MP, Koog) sont obligatoires pour nous.
+
+> Le challenge recommande Air pour **construire** le projet. Le moteur IA **du produit**
+> reste Koog : Air/Junie ne sont pas appelés par l'app.
 
 ## 3. Équipe et contraintes humaines
 
@@ -68,6 +74,11 @@ Conséquences pour les agents :
   desktop et Android.
 - Les humains relisent tout et rejettent ce qui ne va pas. C'est un critère de jugement
   (voir §11).
+- Chaque humain installe le plugin **Air** dans son IDE et connecte un agent (Junie Lite en
+  free tier, ou Codex/Gemini/Copilot/Claude). Chaque piste travaille dans Air, avec un
+  humain qui relit les diffs.
+- Les preuves de process (agents lancés, corrections humaines) vont dans `AGENT_LOG.md` et
+  `REVIEW_LOG.md` ; garder 2–3 captures Air pour la démo.
 
 ## 4. Plateformes cibles
 
@@ -89,7 +100,8 @@ changé, l'adapter et le signaler.
 - **Langage** : Kotlin (dernière stable), Kotlin Multiplatform.
 - **Projet** : généré depuis le wizard kmp.jetbrains.com (cibles Android + Desktop, UI
   partagée en Compose).
-- **UI** : Compose Multiplatform + Material 3, toute l'UI dans commonMain.
+- **UI** : Compose Multiplatform + Material 3, toute l'UI dans commonMain, tokens et
+  composants dans `docs/DESIGN-SYSTEM.md` (DA JetBrains New UI, accent teal, shell IDE).
 - **Thème** : clair et sombre, qui suit le système par défaut, avec un toggle manuel dans
   les réglages.
 - **Localisation** : Compose Multiplatform Resources
@@ -106,9 +118,12 @@ changé, l'adapter et le signaler.
   thread UI (`Dispatchers.IO` côté JVM).
 - **Sérialisation** : kotlinx.serialization.
 - **Git** : JGit (Eclipse), utilisé derrière une interface définie dans commonMain.
-- **IA** : Koog (framework d'agents Kotlin de JetBrains), dans commonMain. Koog supporte
-  JVM, Android, iOS, JS et Wasm, ainsi que plusieurs fournisseurs (Anthropic, OpenAI,
-  Google, Ollama…). C'est la pièce qui démontre le « shared AI logic » demandé par le jury.
+- **IA produit** : Koog (framework d'agents Kotlin de JetBrains), dans commonMain. Koog
+  supporte JVM, Android, iOS, JS et Wasm, ainsi que plusieurs fournisseurs (Anthropic,
+  OpenAI, Google, Ollama…). C'est la pièce qui démontre le « shared AI logic » demandé par
+  le jury.
+- **Développement** : JetBrains Air + agents (Junie, Codex, Gemini, Copilot, Claude) pour
+  produire le code. Ce sont des outils d'IDE, pas des dépendances de l'app.
 - **Stockage local** (réglages, clé API, repos récents) : un expect/actual minimal (fichier
   de préférences côté desktop, SharedPreferences/DataStore côté Android). Ne jamais
   commiter de clé API.
@@ -200,6 +215,8 @@ Modèle de review (à affiner, mais la forme doit rester celle-ci) :
 4. L'agent Koog produit un `ReviewResult` en sortie structurée (Koog sait le faire
    nativement, avec des retries et une correction de sortie quand le modèle ne supporte pas
    le JSON natif).
+   > Le moteur de review est Koog. Air/Junie servent à construire et relire le code pendant
+   > le hackathon ; ils ne font pas partie du runtime de Nitpick.
 5. **Validation de l'ancrage** : pour chaque commentaire, on vérifie que `originalSnippet`
    correspond bien aux lignes `startLine..endLine` du fichier. Sinon, on recherche le
    snippet dans le fichier pour recaler les numéros. Sinon, le commentaire est rattaché au
@@ -259,6 +276,9 @@ Modèle de review (à affiner, mais la forme doit rester celle-ci) :
 - Rebase interactif, stash UI, submodules, LFS, SSH.
 - iOS, web, backend serveur.
 - Authentification OAuth GitHub (un token personnel suffit).
+- Intégration runtime d'Air/Junie (appeler Air/Junie depuis l'app, en faire un provider de
+  review ou lancer la CLI dans le produit) : hors scope pour le hackathon. Air/Junie sont
+  les outils de **développement** ; le produit garde Koog.
 
 ## 9. Pistes de travail parallèles (multi-agent)
 
@@ -275,11 +295,16 @@ Pour coller au critère multi-agent : sur au moins une tâche (idéalement l'alg
 lanes ou le prompt de review), faire produire deux agents différents sur le même problème,
 comparer leurs résultats, garder le meilleur, et documenter la comparaison.
 
+**Process** : chaque piste est pilotée dans **Air** (agent Junie/Codex/Gemini/Copilot/Claude),
+avec un humain qui relit chaque diff. Air/Junie ne sont pas une dépendance du produit : le
+code de Nitpick ne les importe pas. Le fallback est Claude Code/Codex CLI, documenté dans
+`AGENT_LOG.md`.
+
 ## 10. Planning (les checkpoints sont des points de contrôle bloquants)
 
 | Heure | Objectif | Checkpoint |
 | --- | --- | --- |
-| 12h–13h | Projet généré via le wizard, build OK sur desktop et Android, contrats du §6 écrits et validés, spike JGit sur Android | ✅ « Hello » sur les 2 cibles, JGit lit un log sur Android |
+| 12h–13h | Projet généré via le wizard, build OK sur desktop et Android, contrats du §6 écrits et validés, spike JGit sur Android, **Air installé + premier agent loggé** | ✅ « Hello » sur les 2 cibles, JGit lit un log sur Android, capture Air |
 | 13h–17h | A : lanes + diff + 1er appel Koog. B : JGitRepository + écran graph desktop. C : thème, strings, coquille Android | ✅ Graph réel affiché sur desktop |
 | 17h–21h | Boucle review complète sur desktop (diff → Koog → commentaires inline → apply) | ✅ Boucle review de bout en bout qui marche (checkpoint critique) |
 | 21h–02h | Android branché sur le même core, clone HTTPS, fetch/pull/push, polish UI | ✅ Boucle review sur Android |
@@ -315,6 +340,11 @@ WON'T). On ne repousse pas le checkpoint suivant.
 - **Dogfooding** : dès que la review IA marche, s'en servir pour relire les branches
   produites par les agents, et garder 2 ou 3 captures des cas où elle a trouvé un vrai
   problème. C'est la chute de la présentation.
+- **Air/Junie** : lancer les tâches agentiques dans Air, avec un humain qui relit chaque
+  diff. Ne jamais importer Air/Junie dans le code de l'app : ce sont des outils de
+  développement, pas des dépendances runtime.
+- **Si Air est indisponible** : fallback Claude Code/Codex CLI, et le noter dans
+  `AGENT_LOG.md`. Le produit ne dépend pas d'Air.
 
 ## 12. UX : exigences
 
@@ -340,9 +370,10 @@ WON'T). On ne repousse pas le checkpoint suivant.
 5. Sur Android : même repo, même review, même code. Accepter une suggestion depuis le
    téléphone, puis push.
 6. Slide partagé vs spécifique : pourcentage de lignes par source set, avec le schéma du §6.
-7. Slide process agentique : les 3 pistes, la comparaison multi-agent, quelques entrées du
-   REVIEW_LOG (« voici ce qu'on a refusé à nos agents »). Le message : on a utilisé notre
-   propre outil pour relire nos agents.
+7. Slide process agentique : captures Air (agents côte à côte), les 3 pistes, la
+   comparaison multi-agent, quelques entrées du REVIEW_LOG (« voici ce qu'on a refusé à nos
+   agents »). Le message : on a utilisé Air/Junie pour construire, et notre propre outil
+   pour relire nos agents.
 8. Roadmap en une phrase : résolution de conflits assistée par IA, iOS via l'API GitHub.
 
 Préparer un repo de démo dédié, avec une branche contenant des défauts volontaires mais
@@ -359,6 +390,8 @@ au cas où le Wi-Fi ou le LLM lâcherait.
 | Latence du LLM pendant la démo | Indicateur de progression, modèle rapide par défaut, et un résultat de review mis en cache pour le repo de démo (activable dans les réglages). |
 | Graph lent sur un gros repo | Limiter à 500 commits, LazyColumn, et calcul des lanes hors du thread UI. |
 | Gradle ou KMP qui bloque des débutants | Ne pas « optimiser » la config : rester au plus près du template du wizard. |
+| Air/Junie indisponible (EAP, compte, réseau) | Utiliser Claude Code/Codex CLI ; le produit ne dépend pas d'Air ; documenter le fallback dans `AGENT_LOG.md`. |
+| Air demande un trust projet / des permissions | Accepter le trust sur le repo, vérifier `.junie`/MCP, ne jamais exposer `.env` ; garder les agents dans le repo ouvert. |
 
 ## 15. Références
 
@@ -366,5 +399,8 @@ au cas où le Wi-Fi ou le LLM lâcherait.
 - Doc KMP : https://kotlinlang.org/docs/multiplatform/multiplatform-create-first-app.html
 - Compose Multiplatform : https://www.jetbrains.com/compose-multiplatform/
 - Koog : https://docs.koog.ai et https://github.com/JetBrains/koog
+- Air in JetBrains IDEs (EAP) : https://blog.jetbrains.com/ai/2026/10/air-in-ides-eap/
+- Air docs : https://www.jetbrains.com/help/air/
+- Junie / Junie Lite : https://junie.jetbrains.com
 - JGit : https://github.com/eclipse-jgit/jgit (cookbook : https://github.com/centic9/jgit-cookbook)
 - Vidéo MVI + Compose MP : https://youtu.be/dveR4xWid4Q
