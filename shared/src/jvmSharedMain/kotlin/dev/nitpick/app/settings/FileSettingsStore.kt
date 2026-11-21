@@ -17,8 +17,6 @@ class FileSettingsStore(private val file: File) : SettingsStore {
             json.decodeFromString(Settings.serializer(), file.readText())
         } catch (e: SerializationException) {
             Settings()
-        } catch (e: IllegalArgumentException) {
-            Settings()
         } catch (e: IOException) {
             Settings()
         }
