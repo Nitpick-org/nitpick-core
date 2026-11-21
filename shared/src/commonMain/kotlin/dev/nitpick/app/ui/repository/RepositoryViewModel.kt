@@ -128,6 +128,10 @@ data class RepositoryUiState(
             return remote?.commitId != local.commitId
         }
 
+    /** A remote named origin, even when the current branch has no upstream yet. */
+    val hasOrigin: Boolean
+        get() = refs.any { it.type == RefType.REMOTE_BRANCH && it.name.startsWith("origin/") }
+
     val selectedCommit: Commit?
         get() = graph.firstOrNull { it.commit.id == selectedCommitId }?.commit
 
@@ -473,6 +477,31 @@ class RepositoryViewModel(
                 throw e
             } catch (e: Exception) {
                 if (repository === git) _state.update { it.copy(isFetching = false, fetchError = e.message ?: e.toString()) }
+            }
+        }
+    }
+
+    /** Publishes a local branch with no upstream to origin and records the upstream. */
+    fun publishBranch(credentials: Credentials?) {
+        val git = repository ?: return
+        if (_state.value.isSyncing) return
+        _state.update { it.copy(isPushing = true, pushError = null) }
+        viewModelScope.launch {
+            try {
+                git.publishBranch(credentials)
+                if (repository !== git) return@launch
+                _state.update {
+                    it.copy(
+                        isPushing = false,
+                        refs = git.refs(),
+                        tracking = git.trackingStatus(),
+                        lastPull = null,
+                    )
+                }
+            } catch (e: CancellationException) {
+                throw e
+            } catch (e: Exception) {
+                if (repository === git) _state.update { it.copy(isPushing = false, pushError = e.message ?: e.toString()) }
             }
         }
     }

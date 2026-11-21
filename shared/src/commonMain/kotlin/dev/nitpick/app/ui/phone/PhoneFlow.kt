@@ -55,6 +55,7 @@ fun PhoneFlow(
     onCommitMessage: (String) -> Unit,
     onCommit: () -> Unit,
     onPush: (Credentials?) -> Unit,
+    onPublish: (Credentials?) -> Unit,
     onPull: (Credentials?) -> Unit,
     onShareReview: () -> Unit,
     onLoadSharedReviews: () -> Unit,
@@ -106,6 +107,7 @@ fun PhoneFlow(
             onCheckoutBranch = onCheckoutBranch,
             onPull = { onPull(connection.toCredentials()) },
             onPush = { onPush(connection.toCredentials()) },
+            onPublish = { onPublish(connection.toCredentials()) },
             onFetch = { onFetch(connection.toCredentials()) },
             onReview = {
                 if (state.review == null && !state.isReviewing) onRunReview()

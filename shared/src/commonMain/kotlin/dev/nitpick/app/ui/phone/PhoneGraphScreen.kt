@@ -37,6 +37,8 @@ import nitpick.shared.generated.resources.fetch_action
 import nitpick.shared.generated.resources.fetch_in_progress
 import nitpick.shared.generated.resources.pull_action
 import nitpick.shared.generated.resources.pull_in_progress
+import nitpick.shared.generated.resources.publish_action
+import nitpick.shared.generated.resources.publish_in_progress
 import nitpick.shared.generated.resources.push_action
 import nitpick.shared.generated.resources.push_in_progress
 import nitpick.shared.generated.resources.repository_loading
@@ -64,6 +66,7 @@ fun PhoneGraphScreen(
     onCheckoutBranch: (String) -> Unit,
     onPull: () -> Unit,
     onPush: () -> Unit,
+    onPublish: () -> Unit,
     onFetch: () -> Unit,
     onReview: () -> Unit,
     onOpenShared: () -> Unit,
@@ -86,14 +89,15 @@ fun PhoneGraphScreen(
                     },
                     onClick = { if (!syncing) onPull() },
                 )
-                if (state.tracking != null) {
+                if (state.tracking != null || state.hasOrigin) {
                     NitpickToolbarAction(
                         text = when {
                             state.isPushing -> stringResource(Res.string.push_in_progress)
+                            state.tracking == null -> stringResource(Res.string.publish_action)
                             state.tracking.ahead > 0 -> stringResource(Res.string.sync_push_count, state.tracking.ahead)
                             else -> stringResource(Res.string.push_action)
                         },
-                        onClick = { if (!syncing) onPush() },
+                        onClick = { if (!syncing) if (state.tracking == null) onPublish() else onPush() },
                     )
                 }
             }

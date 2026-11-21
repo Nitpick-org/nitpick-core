@@ -28,4 +28,7 @@ interface GitRepository {
 
     /** Ahead/behind of the current branch vs its upstream; null when there is no upstream. */
     suspend fun trackingStatus(): TrackingStatus? = null
+
+    /** Pushes a local branch without upstream to origin and records the upstream. */
+    suspend fun publishBranch(credentials: Credentials?): Unit = throw UnsupportedOperationException("publish not supported")
 }
