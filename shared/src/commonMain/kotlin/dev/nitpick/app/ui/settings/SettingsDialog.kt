@@ -26,6 +26,8 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.window.Dialog
 import androidx.compose.ui.window.DialogProperties
+import dev.nitpick.app.settings.GitConnection
+import dev.nitpick.app.settings.GitHost
 import dev.nitpick.app.settings.LlmProvider
 import dev.nitpick.app.settings.Settings
 import dev.nitpick.app.settings.ThemeMode
@@ -42,7 +44,11 @@ import dev.nitpick.app.ui.theme.NitpickTheme
 import nitpick.shared.generated.resources.Res
 import nitpick.shared.generated.resources.action_cancel
 import nitpick.shared.generated.resources.action_save
+import nitpick.shared.generated.resources.connect_github
+import nitpick.shared.generated.resources.connect_gitlab
+import nitpick.shared.generated.resources.connect_host
 import nitpick.shared.generated.resources.settings_kicker_ai_review
+import nitpick.shared.generated.resources.settings_kicker_git
 import nitpick.shared.generated.resources.settings_kicker_sharing
 import nitpick.shared.generated.resources.settings_kicker_appearance
 import nitpick.shared.generated.resources.settings_model
@@ -142,6 +148,10 @@ private fun GeneralSection(draft: Settings, onEdit: ((Settings) -> Settings) -> 
     // Labels are resolved here: the option lambdas of the controls are not composable.
     val themeLabels = ThemeMode.entries.associateWith { stringResource(it.label) }
     val providerLabels = LlmProvider.entries.associateWith { stringResource(it.label) }
+    val hostLabels = mapOf(
+        GitHost.GITHUB to stringResource(Res.string.connect_github),
+        GitHost.GITLAB to stringResource(Res.string.connect_gitlab),
+    )
     Column(modifier, verticalArrangement = Arrangement.spacedBy(14.dp)) {
         Kicker(Res.string.settings_kicker_appearance)
         FieldLabel(Res.string.settings_theme)
@@ -166,6 +176,24 @@ private fun GeneralSection(draft: Settings, onEdit: ((Settings) -> Settings) -> 
         ModelSelector(draft.model, draft.provider.knownModels, { model -> onEdit { it.copy(model = model) } }, Modifier.width(ControlWidth))
 
         ApiKeyField(draft.apiKey, draft.provider, { key -> onEdit { it.copy(apiKey = key) } }, Modifier.width(KeyFieldWidth))
+
+        Kicker(Res.string.settings_kicker_git, topPadding = 12.dp)
+        FieldLabel(Res.string.connect_host)
+        NitpickRadioGroup(
+            options = GitHost.entries,
+            selected = draft.gitConnection?.host ?: GitHost.GITHUB,
+            label = { host -> hostLabels.getValue(host) },
+            onSelect = { host ->
+                onEdit { it.copy(gitConnection = (it.gitConnection ?: GitConnection()).copy(host = host)) }
+            },
+        )
+        GitTokenField(
+            token = draft.gitConnection?.token.orEmpty(),
+            onChange = { token ->
+                onEdit { it.copy(gitConnection = (it.gitConnection ?: GitConnection()).copy(token = token)) }
+            },
+            modifier = Modifier.width(KeyFieldWidth),
+        )
 
         Kicker(Res.string.settings_kicker_sharing, topPadding = 12.dp)
         ServerUrlField(draft.serverUrl, { url -> onEdit { it.copy(serverUrl = url) } }, Modifier.width(KeyFieldWidth))
