@@ -14,6 +14,7 @@ import androidx.compose.ui.unit.dp
  */
 @Immutable
 data class NitpickColors(
+    val isDark: Boolean,
     val canvas: Color,
     val surface: Color,
     val surfaceRaised: Color,
@@ -128,6 +129,7 @@ data class NitpickSizes(
 )
 
 val NitpickLightColors = NitpickColors(
+    isDark = false,
     canvas = Color(0xFFF7F8FA),
     surface = Color(0xFFFFFFFF),
     surfaceRaised = Color(0xFFFFFFFF),
@@ -186,6 +188,7 @@ val NitpickLightColors = NitpickColors(
 )
 
 val NitpickDarkColors = NitpickColors(
+    isDark = true,
     canvas = Color(0xFF1E1F22),
     surface = Color(0xFF2B2D30),
     surfaceRaised = Color(0xFF393B40),
