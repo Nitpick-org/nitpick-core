@@ -2,6 +2,7 @@ package dev.nitpick.app.review
 
 import ai.koog.prompt.Prompt
 import ai.koog.prompt.dsl.prompt
+import ai.koog.http.client.ktor.KtorKoogHttpClient
 import ai.koog.prompt.executor.clients.LLMClient
 import ai.koog.prompt.executor.clients.LLMClientException
 import ai.koog.prompt.executor.clients.anthropic.AnthropicModels
@@ -123,7 +124,8 @@ class KoogLlmClient(private val settingsStore: SettingsStore) : ToolCallingLlmCl
             throw MissingApiKeyException(settings.provider)
         }
         val model = koogModelFor(settings)
-        val client = llmClient(settings, model)
+        // The Android Koog AAR ships no KoogHttpClient.Factory service entry: pass one explicitly.
+        val client = llmClient(settings, model, KtorKoogHttpClient.Factory())
         try {
             return block(client, model, settings)
         } catch (e: LLMClientException) {
@@ -174,13 +176,14 @@ private fun textOf(answer: Message.Assistant): String {
     return text
 }
 
-private fun llmClient(settings: Settings, model: LLModel): LLMClient = when (settings.provider) {
+private fun llmClient(settings: Settings, model: LLModel, httpClientFactory: KtorKoogHttpClient.Factory): LLMClient = when (settings.provider) {
     // Koog 1.3.0 only sends models listed in its version map, so a newer id needs its own entry.
     LlmProvider.ANTHROPIC -> AnthropicLLMClient(
         apiKey = settings.apiKey,
         settings = AnthropicClientSettings(modelVersionsMap = mapOf(model to model.id)),
+        httpClientFactory = httpClientFactory,
     )
-    LlmProvider.OPENAI -> OpenAILLMClient(apiKey = settings.apiKey)
-    LlmProvider.GOOGLE -> GoogleLLMClient(apiKey = settings.apiKey)
-    LlmProvider.OLLAMA -> OllamaClient(baseUrl = OLLAMA_BASE_URL)
+    LlmProvider.OPENAI -> OpenAILLMClient(apiKey = settings.apiKey, httpClientFactory = httpClientFactory)
+    LlmProvider.GOOGLE -> GoogleLLMClient(apiKey = settings.apiKey, httpClientFactory = httpClientFactory)
+    LlmProvider.OLLAMA -> OllamaClient(baseUrl = OLLAMA_BASE_URL, httpClientFactory = httpClientFactory)
 }
