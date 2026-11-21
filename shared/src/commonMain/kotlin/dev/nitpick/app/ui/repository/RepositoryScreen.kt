@@ -70,13 +70,14 @@ enum class InspectorTab { Details, Diff, Review }
  * Desktop shell from docs/design/UI-HANDOFF.md §3.1: branches tool window | commit graph |
  * tabbed inspector, framed by the IDE toolbar and status bar.
  *
- * [onOpenRepository] is null on platforms without a folder picker.
+ * [onOpenRepository] and [onCloneRepository] are null on platforms without a folder picker.
  */
 @Composable
 fun RepositoryScreen(
     state: RepositoryUiState,
     settings: Settings,
     onOpenRepository: (() -> Unit)?,
+    onCloneRepository: (() -> Unit)?,
     onSelectCommit: (String) -> Unit,
     onShowDiff: () -> Unit,
     onCheckoutBranch: (String) -> Unit,
@@ -104,6 +105,7 @@ fun RepositoryScreen(
             state = state,
             hasRepository = hasRepository,
             onOpenRepository = onOpenRepository,
+            onCloneRepository = onCloneRepository,
             onPull = onPull,
             onPush = onPush,
             onFetch = onFetch,
@@ -176,6 +178,7 @@ private fun RepositoryToolbar(
     state: RepositoryUiState,
     hasRepository: Boolean,
     onOpenRepository: (() -> Unit)?,
+    onCloneRepository: (() -> Unit)?,
     onPull: () -> Unit,
     onPush: () -> Unit,
     onFetch: () -> Unit,
@@ -208,6 +211,9 @@ private fun RepositoryToolbar(
         Spacer(Modifier.weight(1f))
         if (onOpenRepository != null) {
             NitpickToolbarAction(text = stringResource(Res.string.repository_open), onClick = onOpenRepository)
+        }
+        if (onCloneRepository != null) {
+            NitpickToolbarAction(text = stringResource(Res.string.clone_open), onClick = onCloneRepository)
         }
         if (hasRepository) {
             val syncing = state.isSyncing
