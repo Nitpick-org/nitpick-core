@@ -21,6 +21,8 @@
 - 17:45 : ViewModel : `baseRef`, `isDiffLoading`, `diffError`, `selectedDiffPath`,
   `selectBase`, `selectDiffFile`, `refreshDiff`. 7 tests verts.
 - 17:50 : `DiffPanel` selon UI-HANDOFF §3.3. `check.sh` vert.
+- 18:20 : review ponytail : non suivis exclus, branches distantes dans le sélecteur, plus
+  de clignotement au rechargement, `shortcut:` sur le hachage.
 - 17:55 : #50 mergée entre-temps. Rebasé sur `main`, conflits résolus : la review,
   l'apply et le commit de #50 restent, et rechargent le diff par `refreshDiff`.
 
@@ -30,14 +32,18 @@
   cela, un commit arrivé sur `main` après la bifurcation apparaît comme retiré par la
   branche. Sans ancêtre commun, on compare à la base elle-même.
 - Le côté droit est l'**arbre de travail** (demande de la review de #51) : une suggestion
-  appliquée apparaît tout de suite. Un nouveau fichier non suivi apparaît aussi ; les fichiers
-  ignorés par `.gitignore` sont exclus par le `FileTreeIterator`.
+  appliquée apparaît tout de suite. Les fichiers **non suivis** sont exclus (`TrackedFilter`) :
+  la review envoie chaque fichier du diff au provider, et un fichier de secrets absent du
+  `.gitignore` ne doit pas partir. Un nouveau fichier compte dès qu'il est indexé (`git add`).
+  Les fichiers ignorés sont aussi exclus par le `FileTreeIterator`.
 - Lockfiles, binaires et fichiers générés : déjà filtrés pour la review par `isReviewable`
   (`review/ReviewContext.kt`, #20). Le diff les montre ; un binaire affiche « Binary file,
   not shown ».
 - Le diff se recharge à l'ouverture du repo, au changement de base, en ouvrant l'onglet Diff
   (l'arbre de travail a pu changer) et après apply ou commit.
-- Le sélecteur de base liste les branches locales, sauf la branche courante.
+- Le sélecteur de base liste les branches locales (sauf la courante) et distantes : un clone
+  `-b feature` n'a pas de `main` local, et l'utilisateur restait bloqué sur l'erreur.
+- Un rechargement garde le diff affiché ; le spinner n'apparaît que s'il n'y a rien à montrer.
 - `DiffLineRow` affichait « null » pour le numéro absent d'une ligne ajoutée ou retirée :
   corrigé.
 

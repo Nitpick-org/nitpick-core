@@ -57,7 +57,8 @@ fun DiffPanel(
         NitpickDivider()
         val selected = state.selectedDiff
         when {
-            state.isDiffLoading -> Box(Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
+            // A reload keeps the current diff on screen instead of flashing a spinner.
+            state.isDiffLoading && state.diff.isEmpty() -> Box(Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
                 CircularProgressIndicator(color = NitpickTheme.colors.primary)
             }
             state.diffError != null -> Column(
@@ -103,12 +104,13 @@ private fun DiffHeader(state: RepositoryUiState, onSelectBase: (String) -> Unit)
             maxLines = 1,
             overflow = TextOverflow.Ellipsis,
         )
+        // Remote branches too: a clone made with `-b feature` has origin/main but no local main.
         val bases = state.refs
-            .filter { it.type == RefType.LOCAL_BRANCH && it.name != state.currentBranch }
+            .filter { it.type == RefType.REMOTE_BRANCH || (it.type == RefType.LOCAL_BRANCH && it.name != state.currentBranch) }
             .map { it.name }
         BaseSelector(state.baseRef, bases, onSelectBase)
         Box(Modifier.weight(1f))
-        if (state.diff.isNotEmpty() && !state.isDiffLoading) {
+        if (state.diff.isNotEmpty()) {
             Text(
                 text = stringResource(Res.string.diff_files, state.diff.size),
                 style = NitpickTheme.typography.small,
