@@ -24,7 +24,7 @@ private const val OLLAMA_BASE_URL = "http://localhost:11434"
 
 class MissingApiKeyException(val provider: LlmProvider) : Exception("No API key for ${provider.name}")
 
-class ReviewProviderException(message: String) : Exception(message)
+class ReviewProviderException(message: String, cause: Throwable) : Exception(message, cause)
 
 /**
  * The only file that talks to Koog. Settings are read at call time so a key or model changed
@@ -44,7 +44,7 @@ class KoogLlmClient(private val settingsStore: SettingsStore) : LlmClient {
             return answer.parts.filterIsInstance<MessagePart.Text>().joinToString("") { it.text }
         } catch (e: LLMClientException) {
             // Provider errors can echo request headers: never forward their text as-is.
-            throw ReviewProviderException("The ${settings.provider.name} request failed (${e::class.simpleName})")
+            throw ReviewProviderException("The ${settings.provider.name} request failed (${e::class.simpleName})", e)
         } finally {
             client.close()
         }
