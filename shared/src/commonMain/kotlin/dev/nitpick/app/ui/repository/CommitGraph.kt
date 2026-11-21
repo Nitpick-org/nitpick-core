@@ -7,6 +7,7 @@ import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
@@ -40,22 +41,27 @@ private val LaneSpacing = 16.dp
 private val LaneLeftPadding = 10.dp
 private val RowHeight = 40.dp
 
-/** The commit list drawn as a graph: one lane and one color per line of history. */
+/**
+ * The commit list drawn as a graph: one lane and one color per line of history. [showLanes] is
+ * false for a filtered subset, whose lanes would point at rows that are no longer there.
+ */
 @Composable
 fun CommitGraphList(
     graph: List<CommitGraphRow>,
     selectedCommitId: String?,
     onSelectCommit: (String) -> Unit,
     modifier: Modifier = Modifier,
+    showLanes: Boolean = true,
 ) {
     val laneCount = remember(graph) { graph.maxOfOrNull(::laneCountForRow)?.coerceAtLeast(1) ?: 1 }
-    val graphWidth = LaneLeftPadding * 2 + LaneSpacing * laneCount
+    val graphWidth = if (showLanes) LaneLeftPadding * 2 + LaneSpacing * laneCount else LaneLeftPadding
 
     LazyColumn(modifier, contentPadding = PaddingValues(vertical = 4.dp)) {
         items(graph, key = { it.commit.id }) { row ->
             CommitGraphRowItem(
                 row = row,
                 graphWidth = graphWidth,
+                showLanes = showLanes,
                 selected = row.commit.id == selectedCommitId,
                 onClick = { onSelectCommit(row.commit.id) },
             )
@@ -64,7 +70,7 @@ fun CommitGraphList(
 }
 
 @Composable
-private fun CommitGraphRowItem(row: CommitGraphRow, graphWidth: Dp, selected: Boolean, onClick: () -> Unit) {
+private fun CommitGraphRowItem(row: CommitGraphRow, graphWidth: Dp, showLanes: Boolean, selected: Boolean, onClick: () -> Unit) {
     val time = remember(row.commit.timestampEpochSeconds) { formatCommitTime(row.commit.timestampEpochSeconds) }
     Row(
         modifier = Modifier
@@ -74,7 +80,7 @@ private fun CommitGraphRowItem(row: CommitGraphRow, graphWidth: Dp, selected: Bo
             .padding(end = 12.dp),
         verticalAlignment = Alignment.CenterVertically,
     ) {
-        CommitGraphLane(row, Modifier.width(graphWidth).height(RowHeight))
+        if (showLanes) CommitGraphLane(row, Modifier.width(graphWidth).height(RowHeight)) else Spacer(Modifier.width(graphWidth).height(RowHeight))
         Column(Modifier.weight(1f).padding(vertical = 6.dp)) {
             Text(
                 text = row.commit.shortMessage,
