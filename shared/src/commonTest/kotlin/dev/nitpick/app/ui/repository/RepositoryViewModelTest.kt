@@ -5,6 +5,7 @@ import dev.nitpick.app.domain.Ref
 import dev.nitpick.app.domain.RefType
 import dev.nitpick.app.git.FakeGitRepository
 import dev.nitpick.app.git.FakeGitRepositoryFactory
+import dev.nitpick.app.graph.buildCommitGraph
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.test.UnconfinedTestDispatcher
@@ -18,35 +19,34 @@ import kotlin.test.assertEquals
 @OptIn(ExperimentalCoroutinesApi::class)
 class RepositoryViewModelTest {
 
-    private val commit = Commit(
-        id = "a1b2c3d4e5",
-        shortMessage = "Add the graph",
-        fullMessage = "Add the graph\n",
-        authorName = "Ada Lovelace",
-        authorEmail = "ada@nitpick.dev",
-        timestampEpochSeconds = 1_700_000_000,
-        parentIds = emptyList(),
+    private val dispatcher = UnconfinedTestDispatcher()
+
+    private val parent = commit(id = "1111111aaaa", message = "Add the parser", parents = emptyList())
+    private val child = commit(id = "2222222bbbb", message = "Add the graph", parents = listOf(parent.id))
+    private val commits = listOf(child, parent)
+    private val mainBranch = Ref("main", "refs/heads/main", child.id, RefType.LOCAL_BRANCH)
+
+    private val repositories = FakeGitRepositoryFactory(
+        mapOf("/work/demo" to FakeGitRepository(branch = "main", commits = commits, refs = listOf(mainBranch))),
     )
-    private val mainBranch = Ref("main", "refs/heads/main", commit.id, RefType.LOCAL_BRANCH)
 
     // viewModelScope runs on Dispatchers.Main, which tests have to provide.
     @BeforeTest
-    fun setUp() = Dispatchers.setMain(UnconfinedTestDispatcher())
+    fun setUp() = Dispatchers.setMain(dispatcher)
 
     @AfterTest
     fun tearDown() = Dispatchers.resetMain()
 
+    private fun viewModel() = RepositoryViewModel(repositories, graphDispatcher = dispatcher)
+
     @Test
     fun startsWithNoRepositoryOpen() {
-        val viewModel = RepositoryViewModel(FakeGitRepositoryFactory(emptyMap()))
-
-        assertEquals(RepositoryUiState(), viewModel.state.value)
+        assertEquals(RepositoryUiState(), viewModel().state.value)
     }
 
     @Test
-    fun openingARepositoryShowsItsBranchCommitsAndRefs() {
-        val repository = FakeGitRepository(branch = "main", commits = listOf(commit), refs = listOf(mainBranch))
-        val viewModel = RepositoryViewModel(FakeGitRepositoryFactory(mapOf("/work/demo" to repository)))
+    fun openingARepositoryShowsItsBranchGraphAndRefsWithTheNewestCommitSelected() {
+        val viewModel = viewModel()
 
         viewModel.openRepository("/work/demo")
 
@@ -54,16 +54,28 @@ class RepositoryViewModelTest {
             RepositoryUiState(
                 path = "/work/demo",
                 currentBranch = "main",
-                commits = listOf(commit),
+                graph = buildCommitGraph(commits),
                 refs = listOf(mainBranch),
+                selectedCommitId = child.id,
             ),
             viewModel.state.value,
         )
+        assertEquals(child, viewModel.state.value.selectedCommit)
+    }
+
+    @Test
+    fun selectingACommitShowsItsDetails() {
+        val viewModel = viewModel()
+        viewModel.openRepository("/work/demo")
+
+        viewModel.selectCommit(parent.id)
+
+        assertEquals(parent, viewModel.state.value.selectedCommit)
     }
 
     @Test
     fun openingAFolderThatIsNotARepositoryShowsTheError() {
-        val viewModel = RepositoryViewModel(FakeGitRepositoryFactory(emptyMap()))
+        val viewModel = viewModel()
 
         viewModel.openRepository("/tmp/photos")
 
@@ -72,4 +84,14 @@ class RepositoryViewModelTest {
             viewModel.state.value,
         )
     }
+
+    private fun commit(id: String, message: String, parents: List<String>) = Commit(
+        id = id,
+        shortMessage = message,
+        fullMessage = "$message\n",
+        authorName = "Ada Lovelace",
+        authorEmail = "ada@nitpick.dev",
+        timestampEpochSeconds = 1_700_000_000,
+        parentIds = parents,
+    )
 }

@@ -27,7 +27,7 @@ fun App(container: AppContainer, pickRepositoryPath: (() -> String?)? = null) {
 
     MaterialTheme {
         Surface(Modifier.fillMaxSize()) {
-            RepositoryScreen(state, openRepository, Modifier.safeContentPadding())
+            RepositoryScreen(state, openRepository, viewModel::selectCommit, Modifier.safeContentPadding())
         }
     }
 }
