@@ -130,6 +130,7 @@ fun RepositoryScreen(
                         onDismissSuggestion = onDismissSuggestion,
                         onCommitMessage = onCommitMessage,
                         onCommit = onCommit,
+                        onOpenSettings = onOpenSettings,
                         modifier = Modifier
                             .width(if (tab == InspectorTab.Details) NitpickTheme.sizes.inspector else InspectorWideWidth)
                             .fillMaxHeight(),
@@ -288,6 +289,7 @@ private fun Inspector(
     onDismissSuggestion: (String) -> Unit,
     onCommitMessage: (String) -> Unit,
     onCommit: () -> Unit,
+    onOpenSettings: () -> Unit,
     onSelectBase: (String) -> Unit,
     onSelectDiffFile: (String) -> Unit,
     modifier: Modifier,
@@ -326,6 +328,7 @@ private fun Inspector(
                 onDismiss = onDismissSuggestion,
                 onCommitMessage = onCommitMessage,
                 onCommit = onCommit,
+                onOpenSettings = onOpenSettings,
                 modifier = Modifier.weight(1f),
             )
         }
@@ -355,7 +358,7 @@ private fun StatusText(text: String) {
     Text(text = text, style = NitpickTheme.typography.micro, color = NitpickTheme.colors.onStatusBar, maxLines = 1)
 }
 
-private val dev.nitpick.app.settings.LlmProvider.label: StringResource
+internal val dev.nitpick.app.settings.LlmProvider.label: StringResource
     get() = when (this) {
         dev.nitpick.app.settings.LlmProvider.ANTHROPIC -> Res.string.provider_anthropic
         dev.nitpick.app.settings.LlmProvider.OPENAI -> Res.string.provider_openai

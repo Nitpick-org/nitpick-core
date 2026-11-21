@@ -76,4 +76,19 @@
     <string name="clone_error_title">Impossible de cloner ce dépôt</string>
     <string name="review_whole_file">fichier entier</string>
     <string name="review_nits_on_files">%1$d nits sur %2$d fichiers modifiés</string>
+    <string name="review_clean_title">Branche propre. Rien à redire.</string>
+    <string name="review_clean_body">La branche a été relue par rapport à la base. Aucun bug, aucun avertissement, aucun nit.</string>
+    <string name="error_key_title">Ajoutez une clé API pour commencer</string>
+    <string name="error_key_body">Nitpick a besoin d’une clé API pour %1$s. Votre code reste sur cette machine tant qu’aucune review n’est lancée.</string>
+    <string name="error_key_action">Ouvrir les réglages</string>
+    <string name="error_network_title">Impossible de joindre le fournisseur</string>
+    <string name="error_network_body">La requête a échoué avant la réponse du modèle. Vérifiez la connexion puis réessayez. Rien n’a été envoyé.</string>
+    <string name="error_timeout_title">Le modèle a mis trop de temps</string>
+    <string name="error_timeout_body">Le fournisseur n’a pas répondu à temps. Les gros diffs peuvent être plus longs ; réessayez.</string>
+    <string name="review_step_diff">Collecte du diff</string>
+    <string name="review_step_read">Lecture des fichiers modifiés</string>
+    <string name="review_step_model">Interrogation du modèle</string>
+    <string name="review_step_place">Placement des nits</string>
+    <string name="review_ai_badge">IA</string>
+    <string name="review_clean_badge">PROPRE</string>
 </resources>
