@@ -25,6 +25,9 @@ class TestGitRepo private constructor(val dir: File) {
             .directory(dir)
             .redirectErrorStream(true)
             .apply {
+                // A git hook (pre-commit runs check.sh) exports GIT_DIR and GIT_INDEX_FILE: inherited,
+                // they would point these commands at the real repository instead of this one.
+                environment().keys.removeAll { it.startsWith("GIT_") }
                 environment()["GIT_CONFIG_NOSYSTEM"] = "1"
                 environment()["GIT_CONFIG_GLOBAL"] = emptyConfig.path
                 environment()["GIT_AUTHOR_NAME"] = AUTHOR_NAME
