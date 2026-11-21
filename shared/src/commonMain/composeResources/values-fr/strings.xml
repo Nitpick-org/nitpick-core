@@ -121,4 +121,15 @@
     <string name="settings_api_key_help">Stockée dans le fichier de réglages de l’app. Envoyée uniquement à %1$s.</string>
     <string name="action_cancel">Annuler</string>
     <string name="action_save">Enregistrer</string>
+    <string name="commits_filter_placeholder">Texte ou hash</string>
+    <string name="filter_all">Tous</string>
+    <string name="filter_branch">Branche</string>
+    <string name="filter_user">Auteur</string>
+    <string name="filter_date">Date</string>
+    <string name="filter_today">Aujourd’hui</string>
+    <string name="filter_week">Cette semaine</string>
+    <string name="filter_month">Ce mois-ci</string>
+    <string name="filter_clear">Effacer</string>
+    <string name="commits_no_match">Aucun commit ne correspond à ces filtres</string>
+    <string name="filter_graph_hidden">Graphe masqué pendant le filtrage</string>
 </resources>

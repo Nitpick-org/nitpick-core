@@ -1,5 +1,6 @@
 package dev.nitpick.app.ui.repository
 
+import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Box
@@ -14,16 +15,21 @@ import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.material3.CircularProgressIndicator
+import androidx.compose.material3.DropdownMenu
+import androidx.compose.material3.DropdownMenuItem
+import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import dev.nitpick.app.domain.Ref
@@ -43,6 +49,7 @@ import dev.nitpick.app.ui.components.NitpickToolWindowHeader
 import dev.nitpick.app.ui.components.NitpickTooltip
 import dev.nitpick.app.ui.components.NitpickVerticalDivider
 import dev.nitpick.app.ui.theme.NitpickTheme
+import kotlin.time.Clock
 import nitpick.shared.generated.resources.*
 import org.jetbrains.compose.resources.StringResource
 import org.jetbrains.compose.resources.stringResource
@@ -260,10 +267,24 @@ private fun RefSectionTitle(text: String, collapsed: Boolean, onClick: () -> Uni
 
 @Composable
 private fun CommitsPanel(state: RepositoryUiState, onSelectCommit: (String) -> Unit, modifier: Modifier) {
+    var query by rememberSaveable { mutableStateOf("") }
+    var branch by rememberSaveable { mutableStateOf<String?>(null) }
+    var author by rememberSaveable { mutableStateOf<String?>(null) }
+    var date by rememberSaveable { mutableStateOf(CommitDateFilter.ALL) }
+    val filters = CommitFilters(query = query, branch = branch, author = author, date = date)
+    val authors = remember(state.graph) { state.graph.map { it.commit.authorName }.distinct().sorted() }
+    val branches = remember(state.refs) {
+        state.refs.filter { it.type != RefType.TAG }.map { it.name }.distinct().sorted()
+    }
+    val now = remember { Clock.System.now().epochSeconds }
+    val filtered = remember(state.graph, state.refs, filters, now) {
+        filterCommits(state.graph, state.refs, filters, now)
+    }
+
     Column(modifier) {
         NitpickToolWindowHeader(stringResource(Res.string.commits_title)) {
             Text(
-                text = stringResource(Res.string.status_commits, state.graph.size),
+                text = if (filters.isActive) "${filtered.size}/${state.graph.size}" else stringResource(Res.string.status_commits, state.graph.size),
                 style = NitpickTheme.typography.micro,
                 color = NitpickTheme.colors.onPanelHeader,
             )
@@ -271,12 +292,203 @@ private fun CommitsPanel(state: RepositoryUiState, onSelectCommit: (String) -> U
         if (state.graph.isEmpty()) {
             PanelHint(stringResource(Res.string.commits_empty))
         } else {
-            CommitGraphList(
-                graph = state.graph,
-                selectedCommitId = state.selectedCommitId,
-                onSelectCommit = onSelectCommit,
-                modifier = Modifier.weight(1f).fillMaxWidth(),
+            CommitFilterBar(
+                query = query,
+                onQueryChange = { query = it },
+                branch = branch,
+                branches = branches,
+                onBranchChange = { branch = it },
+                author = author,
+                authors = authors,
+                onAuthorChange = { author = it },
+                date = date,
+                onDateChange = { date = it },
+                active = filters.isActive,
+                onClear = {
+                    query = ""
+                    branch = null
+                    author = null
+                    date = CommitDateFilter.ALL
+                },
             )
+            if (filters.isActive) {
+                if (filtered.isEmpty()) {
+                    PanelHint(stringResource(Res.string.commits_no_match))
+                } else {
+                    FilteredCommitList(
+                        graph = filtered,
+                        selectedCommitId = state.selectedCommitId,
+                        onSelectCommit = onSelectCommit,
+                        modifier = Modifier.weight(1f).fillMaxWidth(),
+                    )
+                }
+            } else {
+                CommitGraphList(
+                    graph = state.graph,
+                    selectedCommitId = state.selectedCommitId,
+                    onSelectCommit = onSelectCommit,
+                    modifier = Modifier.weight(1f).fillMaxWidth(),
+                )
+            }
+        }
+    }
+}
+
+@Composable
+private fun CommitFilterBar(
+    query: String,
+    onQueryChange: (String) -> Unit,
+    branch: String?,
+    branches: List<String>,
+    onBranchChange: (String?) -> Unit,
+    author: String?,
+    authors: List<String>,
+    onAuthorChange: (String?) -> Unit,
+    date: CommitDateFilter,
+    onDateChange: (CommitDateFilter) -> Unit,
+    active: Boolean,
+    onClear: () -> Unit,
+) {
+    Column(Modifier.fillMaxWidth().padding(horizontal = 8.dp, vertical = 6.dp), verticalArrangement = androidx.compose.foundation.layout.Arrangement.spacedBy(6.dp)) {
+        NitpickTextField(
+            value = query,
+            onValueChange = onQueryChange,
+            placeholder = stringResource(Res.string.commits_filter_placeholder),
+            modifier = Modifier.fillMaxWidth(),
+        )
+        Row(horizontalArrangement = androidx.compose.foundation.layout.Arrangement.spacedBy(6.dp), verticalAlignment = Alignment.CenterVertically) {
+            StringFilterDropdown(
+                label = stringResource(Res.string.filter_branch),
+                options = branches,
+                selected = branch,
+                onSelect = onBranchChange,
+            )
+            StringFilterDropdown(
+                label = stringResource(Res.string.filter_user),
+                options = authors,
+                selected = author,
+                onSelect = onAuthorChange,
+            )
+            DateFilterDropdown(date, onDateChange)
+            if (active) {
+                Text(
+                    text = stringResource(Res.string.filter_clear),
+                    modifier = Modifier.clickable(onClick = onClear).padding(horizontal = 6.dp, vertical = 4.dp),
+                    style = NitpickTheme.typography.micro,
+                    color = NitpickTheme.colors.primary,
+                )
+            }
+        }
+        if (active) {
+            Text(
+                text = stringResource(Res.string.filter_graph_hidden),
+                style = NitpickTheme.typography.micro,
+                color = NitpickTheme.colors.textMuted,
+            )
+        }
+    }
+}
+
+@Composable
+private fun StringFilterDropdown(label: String, options: List<String>, selected: String?, onSelect: (String?) -> Unit) {
+    var expanded by remember { mutableStateOf(false) }
+    Box {
+        FilterChip(text = "$label: ${selected ?: stringResource(Res.string.filter_all)}", onClick = { expanded = true })
+        DropdownMenu(expanded = expanded, onDismissRequest = { expanded = false }) {
+            DropdownMenuItem(text = { Text(stringResource(Res.string.filter_all)) }, onClick = { onSelect(null); expanded = false })
+            options.forEach { option ->
+                DropdownMenuItem(text = { Text(option) }, onClick = { onSelect(option); expanded = false })
+            }
+        }
+    }
+}
+
+@Composable
+private fun DateFilterDropdown(selected: CommitDateFilter, onSelect: (CommitDateFilter) -> Unit) {
+    var expanded by remember { mutableStateOf(false) }
+    val label = when (selected) {
+        CommitDateFilter.ALL -> stringResource(Res.string.filter_all)
+        CommitDateFilter.TODAY -> stringResource(Res.string.filter_today)
+        CommitDateFilter.WEEK -> stringResource(Res.string.filter_week)
+        CommitDateFilter.MONTH -> stringResource(Res.string.filter_month)
+    }
+    Box {
+        FilterChip(text = "${stringResource(Res.string.filter_date)}: $label", onClick = { expanded = true })
+        DropdownMenu(expanded = expanded, onDismissRequest = { expanded = false }) {
+            CommitDateFilter.entries.forEach { option ->
+                val optionLabel = when (option) {
+                    CommitDateFilter.ALL -> stringResource(Res.string.filter_all)
+                    CommitDateFilter.TODAY -> stringResource(Res.string.filter_today)
+                    CommitDateFilter.WEEK -> stringResource(Res.string.filter_week)
+                    CommitDateFilter.MONTH -> stringResource(Res.string.filter_month)
+                }
+                DropdownMenuItem(text = { Text(optionLabel) }, onClick = { onSelect(option); expanded = false })
+            }
+        }
+    }
+}
+
+@Composable
+private fun FilterChip(text: String, onClick: () -> Unit) {
+    Surface(
+        onClick = onClick,
+        shape = RoundedCornerShape(NitpickTheme.radii.sm),
+        color = NitpickTheme.colors.surface,
+        contentColor = NitpickTheme.colors.textSecondary,
+        border = BorderStroke(1.dp, NitpickTheme.colors.border),
+        tonalElevation = 0.dp,
+    ) {
+        Text(
+            text = text,
+            modifier = Modifier.padding(horizontal = 8.dp, vertical = 5.dp),
+            style = NitpickTheme.typography.micro,
+            color = NitpickTheme.colors.textSecondary,
+            maxLines = 1,
+        )
+    }
+}
+
+@Composable
+private fun FilteredCommitList(
+    graph: List<dev.nitpick.app.graph.CommitGraphRow>,
+    selectedCommitId: String?,
+    onSelectCommit: (String) -> Unit,
+    modifier: Modifier,
+) {
+    LazyColumn(modifier) {
+        items(graph, key = { it.commit.id }) { row ->
+            val selected = row.commit.id == selectedCommitId
+            Row(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .background(if (selected) NitpickTheme.colors.selection else Color.Transparent)
+                    .clickable { onSelectCommit(row.commit.id) }
+                    .padding(horizontal = 12.dp, vertical = 6.dp),
+                verticalAlignment = Alignment.CenterVertically,
+            ) {
+                Column(Modifier.weight(1f)) {
+                    Text(
+                        text = row.commit.shortMessage,
+                        style = NitpickTheme.typography.body,
+                        fontWeight = if (selected) FontWeight.Medium else FontWeight.Normal,
+                        color = if (selected) NitpickTheme.colors.onSelection else NitpickTheme.colors.text,
+                        maxLines = 1,
+                        overflow = TextOverflow.Ellipsis,
+                    )
+                    Text(
+                        text = "${row.commit.authorName} · ${row.commit.id.take(7)}",
+                        style = NitpickTheme.typography.codeSmall,
+                        color = if (selected) NitpickTheme.colors.onSelection.copy(alpha = 0.72f) else NitpickTheme.colors.textMuted,
+                        maxLines = 1,
+                        overflow = TextOverflow.Ellipsis,
+                    )
+                }
+                Text(
+                    text = formatCommitTime(row.commit.timestampEpochSeconds),
+                    style = NitpickTheme.typography.codeSmall,
+                    color = NitpickTheme.colors.textMuted,
+                )
+            }
         }
     }
 }
