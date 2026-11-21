@@ -122,6 +122,7 @@ The rules every agent follows are in [AGENTS.md](AGENTS.md) (Claude Code adds
 | --- | --- |
 | `shared/`, `desktopApp/`, `androidApp/` | The app |
 | [docs/CONTEXT.md](docs/CONTEXT.md) | Master project brief: mission, stack, scope, plan, demo (French) |
+| [docs/DESIGN-SYSTEM.md](docs/DESIGN-SYSTEM.md) | JetBrains New UI design system: tokens, components, rules (French) |
 | [AGENTS.md](AGENTS.md) | Team rules for every agent, plus an index of all team docs (French) |
 | `docs/` | Team docs: event facts, demo script, decisions, questions, research, agent ops |
 | `progress/` | One journal per ticket, written by the agent working on it |

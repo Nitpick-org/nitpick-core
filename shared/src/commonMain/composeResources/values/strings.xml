@@ -22,10 +22,14 @@
     <string name="refs_empty">No branches or tags yet</string>
     <string name="commits_title">Commits</string>
     <string name="commits_empty">No commits on this branch yet</string>
+    <string name="details_title">Details</string>
     <string name="details_placeholder">Select a commit to see its details</string>
     <string name="details_author">Author</string>
     <string name="details_date">Date</string>
     <string name="details_commit">Commit</string>
     <string name="details_parents">Parents</string>
     <string name="action_back">Back</string>
+    <string name="status_no_branch">no branch</string>
+    <string name="status_commits">%1$d commits</string>
+    <string name="status_git">Git</string>
 </resources>
