@@ -115,6 +115,15 @@ fun PhoneReviewScreen(
                 else -> NitList(state, review.summary, review.comments, onOpenFile, onOpenNit = { openNitId = it }, onShare, Modifier.fillMaxSize())
             }
         }
+        // Outside the commit bar, which is hidden while nothing is applied: a first apply that fails must still show why.
+        state.actionError?.let { error ->
+            Text(
+                text = error,
+                modifier = Modifier.fillMaxWidth().padding(horizontal = 16.dp, vertical = 8.dp),
+                style = NitpickTheme.typography.small,
+                color = NitpickTheme.colors.danger,
+            )
+        }
         CommitAndPushBar(state, onCommitMessage, onCommit, onPush)
     }
 
