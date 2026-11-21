@@ -177,7 +177,7 @@ class JGitRepository(private val git: Git) : GitRepository {
     ): Set<String> {
         val changed = workingTreeChanged.toMutableSet()
         val headTree = CanonicalTreeParser(null, walk.objectReader, headCommit.tree)
-        DiffFormatter(DiscardOutputStream).use { formatter ->
+        DiffFormatter(OutputStream.nullOutputStream()).use { formatter ->
             formatter.setRepository(repository)
             formatter.isDetectRenames = true
             formatter.scan(forkTree, headTree).forEach { header ->
@@ -367,9 +367,3 @@ private val ACCEPTED_PUSH_STATUSES = setOf(RemoteRefUpdate.Status.OK, RemoteRefU
 
 private fun commitOrDiscardFirst(paths: Collection<String>): String =
     "Commit or discard your changes before pulling: ${paths.sorted().joinToString(", ")}"
-
-/** `OutputStream.nullOutputStream()` is Java 11 / Android 33: discard by hand for minSdk 26. */
-private object DiscardOutputStream : OutputStream() {
-    override fun write(b: Int) = Unit
-    override fun write(b: ByteArray, off: Int, len: Int) = Unit
-}
