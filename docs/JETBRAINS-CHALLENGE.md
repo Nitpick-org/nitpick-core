@@ -94,7 +94,7 @@ Une app qui tourne sur **au moins 2 plateformes**.
 | Dark/light | `ThemeMode` + thème | en place |
 | Localisation EN/FR | `composeResources` | en cours |
 | Shared AI/agent logic (Koog) | `ReviewAgent` + Koog | P0 — #20 |
-| Kotlin backend | non — app locale | hors scope |
+| Kotlin backend | serveur Ktor `server/` : partage des reviews (`CONTEXT.md` §7.1) | P0 après la porte de 21:00 |
 | Air / Junie process | H1/H2/H3 utilisent Air | à prouver |
 | Multi-agent | Junie + second agent sur une tâche | à faire |
 | Démo claire | `docs/DEMO.md` + captures Air | à faire |
@@ -107,11 +107,14 @@ Une app qui tourne sur **au moins 2 plateformes**.
 4. **Pas d'intégration runtime Air/Junie** dans Nitpick pour le hackathon : hors scope,
    fallback CLI documenté si besoin.
 5. **Au moins 2 plateformes** : desktop + Android ; la démo doit le montrer.
+6. **Les 5 features bonus sont visées**, backend Kotlin compris : un serveur Ktor qui
+   partage les reviews, alors que la review elle-même reste locale.
 
 ## 9. Ce qu'il faut montrer au jury
 
 - Une app qui tourne sur desktop **et** Android.
 - La boucle review : diff → nits inline → apply → commit.
+- Une review partagée depuis le desktop par le backend Ktor, puis ouverte sur Android.
 - Ce qui est partagé (`commonMain`, Koog) vs spécifique.
 - Les captures Air avec les agents côte à côte + une correction humaine.
 - Une comparaison multi-agent (même tâche, deux agents, résultat conservé).

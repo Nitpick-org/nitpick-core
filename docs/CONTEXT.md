@@ -52,8 +52,10 @@ branchée sur le LLM choisi par l'utilisateur (Claude, OpenAI, Gemini, ou Ollama
   spécifique à chaque plateforme.
 
 Features bonus explicitement listées : dark/light mode, localisation, Compose
-Multiplatform, backend Kotlin, IA partagée via Koog. Les quatre que nous visons
-(dark/light, localisation, Compose MP, Koog) sont obligatoires pour nous.
+Multiplatform, backend Kotlin, IA partagée via Koog. Nous visons **les cinq**, et elles
+sont obligatoires pour nous : dark/light, localisation, Compose MP, Koog, et un backend
+Kotlin (Ktor) pour partager les reviews (§7.1). Le critère 5 (Air, multi-agent) est
+traité comme obligatoire lui aussi.
 
 > Le challenge recommande Air pour **construire** le projet. Le moteur IA **du produit**
 > reste Koog : Air/Junie ne sont pas appelés par l'app. Le brief officiel est dans
@@ -86,7 +88,8 @@ Conséquences pour les agents :
 | Cible | Rôle | Priorité |
 | --- | --- | --- |
 | Desktop JVM (macOS, Windows, Linux) | L'app principale : client git complet + review IA | P0 |
-| Android | Mode « review en déplacement » : cloner un repo en HTTPS avec un token, voir le graph, lancer la review IA, accepter des suggestions, commit et push | P0 |
+| Android | Mode « review en déplacement » : cloner un repo en HTTPS avec un token, voir le graph, lancer la review IA ou ouvrir une review partagée, accepter des suggestions, commit et push | P0 |
+| Serveur Kotlin (Ktor, JVM) | Partage des reviews entre appareils et coéquipiers (§7.1). Pas une cible UI : un module `server/` | P0, après la boucle review |
 | iOS / Web | Hors scope. Pas de JGit sur ces cibles, il faudrait réécrire tout le backend git. | ✗ |
 
 macOS, Windows et Linux forment une seule cible KMP. Android est la deuxième plateforme
@@ -123,6 +126,9 @@ changé, l'adapter et le signaler.
   supporte JVM, Android, iOS, JS et Wasm, ainsi que plusieurs fournisseurs (Anthropic,
   OpenAI, Google, Ollama…). C'est la pièce qui démontre le « shared AI logic » demandé par
   le jury.
+- **Backend** : Ktor server (JVM) dans un module Gradle `server/`, qui réutilise les modèles
+  `@Serializable` de `domain`. Côté app, un client Ktor dans commonMain (moteur CIO dans
+  `jvmSharedMain`, commun desktop + Android).
 - **Développement** : JetBrains Air + agents (Junie, Codex, Gemini, Copilot, Claude) pour
   produire le code. Ce sont des outils d'IDE, pas des dépendances de l'app.
 - **Stockage local** (réglages, clé API, repos récents) : un expect/actual minimal (fichier
@@ -145,13 +151,18 @@ composeApp/src/
 │   ├── review/            agent Koog, construction du contexte repo, parsing/validation de
 │   │                      la sortie, application des suggestions (patch sur le texte)
 │   ├── settings/          modèle des réglages + interface SettingsStore (expect)
+│   ├── share/             client du backend : ReviewShareClient (Ktor client), §7.1
 │   ├── ui/                tous les écrans et composants Compose, thème, ViewModels
 │   └── composeResources/  strings EN/FR, icônes
 ├── jvmShared/             ← source set intermédiaire partagé desktop + Android
 │   └── git/               JGitRepository : implémentation de GitRepository avec JGit
 ├── desktopMain/           main(), fenêtre, sélecteur de dossier natif, SettingsStore desktop
 └── androidMain/           MainActivity, SettingsStore Android, emplacement de stockage des clones
+
+server/                    ← module JVM séparé : Ktor server, dépend de shared pour domain
 ```
+
+Le serveur n'importe ni Compose ni JGit : il ne voit que les modèles de `domain`.
 
 `jvmShared` est un source set intermédiaire dont dépendent desktopMain et androidMain (via
 `applyDefaultHierarchyTemplate { common { group("jvmShared") { withJvm(); withAndroidTarget() } } }`
@@ -205,6 +216,25 @@ Modèle de review (à affiner, mais la forme doit rester celle-ci) :
 )
 ```
 
+Contrat du backend (§7.1), à figer avant d'écrire le serveur :
+
+```kotlin
+@Serializable data class SharedReview(
+    val id: String,                // attribué par le serveur
+    val repoUrl: String,           // URL du remote origin : identifie le repo sur tous les appareils
+    val branch: String,
+    val baseRef: String,
+    val headCommit: String,
+    val result: ReviewResult,
+)
+
+interface ReviewShareClient {
+    suspend fun share(review: SharedReview): String          // renvoie l'id
+    suspend fun list(repoUrl: String): List<SharedReview>
+    suspend fun get(id: String): SharedReview?
+}
+```
+
 ## 7. La review IA (cœur du projet)
 
 ### Flux
@@ -249,6 +279,27 @@ Modèle de review (à affiner, mais la forme doit rester celle-ci) :
   clé API.
 - Tout ce code est dans commonMain. Seul le stockage de la clé est un expect/actual.
 
+## 7.1 Partage des reviews (backend Kotlin)
+
+La review reste **locale** : le LLM est appelé depuis l'app, avec la clé de l'utilisateur.
+Le backend ne reçoit que ce qu'on choisit de partager, c'est-à-dire un `ReviewResult` déjà produit.
+
+- **Bouton « Share review »** après une review : l'app envoie un `SharedReview` au serveur.
+- **Écran « Shared reviews »** : la liste des reviews partagées pour le repo ouvert
+  (filtrée par `repoUrl`). En ouvrir une affiche les nits inline comme une review locale.
+  L'ancrage par `originalSnippet` (§7) s'applique tel quel, donc une review faite sur un
+  autre commit ne casse rien : les nits se recalent ou passent au niveau du fichier.
+- **API** : `POST /reviews`, `GET /reviews?repoUrl=…`, `GET /reviews/{id}`, en JSON
+  (kotlinx.serialization, ContentNegotiation).
+- **Stockage** : en mémoire, plus un fichier JSON pour survivre à un redémarrage. Pas de
+  base de données, pas de comptes.
+- **URL du serveur** dans les réglages, `http://localhost:8080` par défaut. Sur Android :
+  `adb reverse tcp:8080 tcp:8080` en USB, ou l'IP LAN du laptop.
+- **Sans serveur, l'app marche** : le partage est grisé, avec un message d'erreur clair.
+
+Pour la démo, c'est aussi le plan B de la latence du LLM : Android ouvre la review partagée
+par le desktop, sans nouvel appel au LLM.
+
 ## 8. Scope
 
 ### MUST (sans ça, pas de démo)
@@ -262,6 +313,8 @@ Modèle de review (à affiner, mais la forme doit rester celle-ci) :
   qui gagne. Elle doit marcher en premier, même sur une UI moche.
 - Thème clair/sombre et localisation EN/FR.
 - Ça tourne sur desktop et Android.
+- Backend Ktor : partager une review depuis le desktop, l'ouvrir sur Android (§7.1). On ne
+  le commence **qu'après la porte de 21:00** : la boucle review passe avant.
 
 ### SHOULD
 
@@ -275,7 +328,9 @@ Modèle de review (à affiner, mais la forme doit rester celle-ci) :
 
 - Résolution de conflits interactive (c'est seulement de la roadmap dans le pitch).
 - Rebase interactif, stash UI, submodules, LFS, SSH.
-- iOS, web, backend serveur.
+- iOS, web.
+- Au-delà du partage de reviews côté backend : comptes, authentification, base de
+  données, hébergement cloud, review exécutée côté serveur.
 - Authentification OAuth GitHub (un token personnel suffit).
 - Intégration runtime d'Air/Junie (appeler Air/Junie depuis l'app, en faire un provider de
   review ou lancer la CLI dans le produit) : hors scope pour le hackathon. Air/Junie sont
@@ -291,6 +346,7 @@ contrats du §6.
 | A : Core partagé | Modèles, algorithme de lanes du graph (+ tests), parsing du diff, agent Koog de review, validation de l'ancrage, application des suggestions | commonMain (domain, graph, diff, review) |
 | B : Git + desktop | JGitRepository, configuration Gradle des source sets, fenêtre desktop, sélecteur de dossier, écrans principaux en layout desktop | jvmShared, desktopMain, commonMain/ui |
 | C : Android + finitions | Cible Android (clone HTTPS, stockage), layout mobile, thème clair/sombre, strings EN/FR, réglages, script de comptage des lignes partagées, préparation de la démo | androidMain, commonMain/ui, composeResources |
+| D : Backend | Module `server/` (Ktor), `ReviewShareClient`, bouton Share, écran Shared reviews. Démarre après la porte de 21:00, quand l'écrivain de la boucle desktop se libère : on reste à 3 écrivains de code en parallèle | server/, commonMain/share, jvmSharedMain (moteur client) |
 
 Pour coller au critère multi-agent : sur au moins une tâche (idéalement l'algorithme de
 lanes ou le prompt de review), faire produire deux agents différents sur le même problème,
@@ -307,7 +363,7 @@ Mapping de travail (à corriger si un handle ne correspond pas) :
 
 | Rôle | GitHub | Issues ouvertes | Air |
 | --- | --- | --- | --- |
-| **H1 — Produit & Pitch** | `@dovatgabriel` | #39 démo/soumission/preuves Air, #33 états de review | Une comparaison Junie + un second agent, captures, `AGENT_LOG`/`REVIEW_LOG` |
+| **H1 — Produit & Pitch** | `@dovatgabriel` | #39 démo/soumission/preuves Air, #33 états de review, piste D backend (issue à créer, à confirmer par H2) | Une comparaison Junie + un second agent, captures, `AGENT_LOG`/`REVIEW_LOG` |
 | **H2 — Architecte & Intégration** | `@zooldyyk` | #19 diff desktop, #20 agent Koog, #22 boucle review desktop | Une session Air sur le prompt/le diff, comparaison, review humaine |
 | **H3 — Builder & Démo** | `@pepito2t` | #21 clone Android, #23 boucle review Android, #34/#35 settings Android/desktop | Une session Air sur l'UI/Android, capture, review humaine |
 
@@ -327,7 +383,7 @@ Règles :
 | 12h–13h | Projet généré via le wizard, build OK sur desktop et Android, contrats du §6 écrits et validés, spike JGit sur Android | ✅ « Hello » sur les 2 cibles, JGit lit un log sur Android |
 | 13h–17h | A : lanes + diff + 1er appel Koog. B : JGitRepository + écran graph desktop. C : thème, strings, coquille Android. **Air installé sur les 3 laptops + premier agent loggé (17:30, #39)** | ✅ Graph réel affiché sur desktop, capture Air |
 | 17h–21h | Boucle review complète sur desktop (diff → Koog → commentaires inline → apply) | ✅ Boucle review de bout en bout qui marche (checkpoint critique) |
-| 21h–02h | Android branché sur le même core, clone HTTPS, fetch/pull/push, polish UI | ✅ Boucle review sur Android |
+| 21h–02h | Android branché sur le même core, clone HTTPS, fetch/pull/push, polish UI. Piste D : serveur Ktor + partage desktop → Android | ✅ Boucle review sur Android, review partagée ouverte sur Android |
 | 02h–07h | Dormir en rotation (au moins 3h chacun). Une personne au plus continue sur du polish non risqué. | |
 | 07h–09h30 | Bugfix, outils agentiques si stables, finitions UX | ✅ Feature freeze à 09h30 |
 | 09h30–11h | Repo de démo préparé, script de démo, images plein écran (partagé vs spécifique, process agentique : pas de slides, règlement LauzHack), vidéo de secours | |
@@ -375,6 +431,8 @@ WON'T). On ne repousse pas le checkpoint suivant.
   d'action, bottom sheet pour un commentaire de review.
 - **Commentaires de review** : badge de sévérité coloré, message, bloc de diff « avant /
   après » pour la suggestion, boutons Appliquer et Ignorer.
+- **Partage** : bouton « Share review » sur le résultat d'une review ; écran « Shared
+  reviews » (branche, commit, compteur de nits), accessible sur les 2 cibles.
 - États vides, chargement et erreur soignés partout. Ce sont les détails qui font paraître
   l'app « native » et « polished » (critère 2).
 - Police mono pour le code, coloration ajout/suppression lisible dans les deux thèmes.
@@ -386,12 +444,13 @@ WON'T). On ne repousse pas le checkpoint suivant.
 2. Ouvrir un repo sur desktop : le graph, les branches.
 3. Se placer sur une branche écrite par un agent pendant le hackathon et cliquer sur
    « Nitpick this branch » : les nits apparaissent inline, dont un vrai bug.
-4. Appliquer la suggestion, puis commit.
-5. Sur Android : même repo, même review, même code. Accepter une suggestion depuis le
-   téléphone, puis push.
+4. Appliquer la suggestion, puis commit. Cliquer sur « Share review ».
+5. Sur Android : même repo, et la review partagée arrive par le backend Ktor (mêmes nits,
+   sans rappeler le LLM). Accepter une suggestion depuis le téléphone, puis push.
 6. Partagé vs spécifique, sans slide (règlement LauzHack, Q-007/Q-016) : la sortie du script
    de comptage des lignes par source set (#40) en live, ou une image plein écran avec le
-   schéma du §6.
+   schéma du §6. Message : les mêmes modèles `domain` tournent sur desktop, Android **et**
+   le serveur.
 7. Process agentique, sans slide : 2–3 captures Air en images plein écran (agents côte à
    côte), les 3 pistes, la comparaison multi-agent, quelques entrées du REVIEW_LOG (« voici
    ce qu'on a refusé à nos agents »). Le message : on a utilisé Air/Junie pour construire,
@@ -410,6 +469,7 @@ au cas où le Wi-Fi ou le LLM lâcherait.
 | API Koog différente de ce qu'on croit | Doc officielle + exemples du repo GitHub de Koog. Commencer par l'appel le plus simple (un prompt, une sortie structurée), et n'ajouter les outils qu'ensuite. |
 | Le LLM renvoie des numéros de ligne faux | La validation par `originalSnippet` (§7) et le rattachement au fichier entier en dernier recours. |
 | Latence du LLM pendant la démo | Indicateur de progression, modèle rapide par défaut, et un résultat de review mis en cache pour le repo de démo (activable dans les réglages). |
+| Le téléphone n'atteint pas le serveur (Wi-Fi qui isole les clients) | `adb reverse tcp:8080 tcp:8080` en USB, ou l'émulateur (`10.0.2.2`). L'app reste utilisable sans serveur. |
 | Graph lent sur un gros repo | Limiter à 500 commits, LazyColumn, et calcul des lanes hors du thread UI. |
 | Gradle ou KMP qui bloque des débutants | Ne pas « optimiser » la config : rester au plus près du template du wizard. |
 | Air/Junie indisponible (EAP, compte, réseau) | Utiliser Claude Code/Codex CLI ; le produit ne dépend pas d'Air ; documenter le fallback dans `AGENT_LOG.md`. |
@@ -423,6 +483,7 @@ au cas où le Wi-Fi ou le LLM lâcherait.
 - Doc KMP : https://kotlinlang.org/docs/multiplatform/multiplatform-create-first-app.html
 - Compose Multiplatform : https://www.jetbrains.com/compose-multiplatform/
 - Koog : https://docs.koog.ai et https://github.com/JetBrains/koog
+- Ktor (server et client) : https://ktor.io/docs/
 - Air in JetBrains IDEs (EAP) : https://blog.jetbrains.com/ai/2026/10/air-in-ides-eap/
 - Air docs : https://www.jetbrains.com/help/air/
 - Junie / Junie Lite : https://junie.jetbrains.com

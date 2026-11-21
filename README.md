@@ -39,6 +39,7 @@ Full scope (MUST / SHOULD / WON'T) and the hour-by-hour plan: [docs/CONTEXT.md](
 | --- | --- |
 | Desktop (macOS, Windows, Linux) | The main app: full git client + AI review |
 | Android | Review on the go: clone over HTTPS with a token, see the graph, run the review, accept suggestions, commit and push |
+| Kotlin server (Ktor) | Shares a finished review between devices and teammates; the review itself still runs locally |
 | iOS, web | Out of scope: JGit does not run there |
 
 ## Architecture
@@ -54,6 +55,7 @@ shared/                       Kotlin Multiplatform module (targets: jvm, android
   src/androidMain/            Android-only pieces (settings store, clone location)
 desktopApp/                   main() and the "Nitpick" window
 androidApp/                   MainActivity; androidTest/ runs on a real device or emulator
+server/                       Ktor server that shares reviews, reusing the domain models (planned)
 ```
 
 - **No `org.eclipse.jgit` import outside `jvmSharedMain`.** The rest of the app only sees the
@@ -75,6 +77,7 @@ androidApp/                   MainActivity; androidTest/ runs on a real device o
 | Android build | AGP, minSdk 26, targetSdk 37 | 9.1.1 |
 | Git | JGit | 6.10.1 |
 | AI agents | Koog | planned |
+| Backend | Ktor server + client | planned |
 
 JGit is pinned to 6.10: JGit 7 ships Java records, which the Android dexer refuses below
 API 34 (details in commit `df36830`).
