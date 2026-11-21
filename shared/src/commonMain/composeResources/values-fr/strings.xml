@@ -132,4 +132,6 @@
     <string name="filter_clear">Effacer</string>
     <string name="commits_no_match">Aucun commit ne correspond à ces filtres</string>
     <string name="filter_graph_hidden">Graphe masqué pendant le filtrage</string>
+    <string name="provider_cloud_hint">API cloud, utilise votre clé</string>
+    <string name="provider_ollama_hint">Auto-hébergé sur cette machine, sans clé API</string>
 </resources>

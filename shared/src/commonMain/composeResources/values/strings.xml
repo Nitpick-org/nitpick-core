@@ -132,4 +132,6 @@
     <string name="filter_clear">Clear</string>
     <string name="commits_no_match">No commits match these filters</string>
     <string name="filter_graph_hidden">Graph hidden while filtering</string>
+    <string name="provider_cloud_hint">Cloud API, uses your API key</string>
+    <string name="provider_ollama_hint">Self-hosted on this machine, no API key</string>
 </resources>
