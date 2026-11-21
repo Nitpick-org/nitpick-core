@@ -25,7 +25,7 @@ class ReviewStore(private val file: Path) {
 
     /** Stores [review] under a new id and returns it with that id. */
     fun add(review: SharedReview): SharedReview = synchronized(lock) {
-        val saved = review.copy(id = UUID.randomUUID().toString())
+        val saved = review.copy(id = UUID.randomUUID().toString(), repoUrl = normalizeRepoUrl(review.repoUrl))
         val updated = reviews + saved
         // Disk first: if the write fails, memory does not claim a review the next start would lose.
         write(updated)
@@ -35,7 +35,8 @@ class ReviewStore(private val file: Path) {
 
     /** Newest first. */
     fun list(repoUrl: String): List<SharedReview> = synchronized(lock) {
-        reviews.filter { it.repoUrl == repoUrl }.reversed()
+        val key = normalizeRepoUrl(repoUrl)
+        reviews.filter { it.repoUrl == key }.reversed()
     }
 
     fun get(id: String): SharedReview? = synchronized(lock) { reviews.firstOrNull { it.id == id } }
@@ -47,4 +48,18 @@ class ReviewStore(private val file: Path) {
         temporary.writeText(Json.encodeToString(content))
         Files.move(temporary, file, REPLACE_EXISTING, ATOMIC_MOVE)
     }
+}
+
+private val SCP_REMOTE = Regex("""[\w.-]+@([^:/]+):(.+)""")
+private val SCHEME_REMOTE = Regex("""(?:https?|ssh|git)://(?:[^@/]+@)?([^/:]+)(?::\d+)?/(.+)""")
+
+/**
+ * One key per repository whatever the clone used: the laptop's `git@github.com:o/r.git` and the
+ * phone's `https://github.com/o/r` both become `https://github.com/o/r`. Anything else is kept as is.
+ */
+internal fun normalizeRepoUrl(url: String): String {
+    val scp = SCP_REMOTE.matchEntire(url)
+    val withScheme = if (scp != null) "https://${scp.groupValues[1]}/${scp.groupValues[2]}" else url
+    val (host, path) = SCHEME_REMOTE.matchEntire(withScheme)?.destructured ?: return url
+    return "https://${host.lowercase()}/${path.trimEnd('/').removeSuffix(".git")}"
 }

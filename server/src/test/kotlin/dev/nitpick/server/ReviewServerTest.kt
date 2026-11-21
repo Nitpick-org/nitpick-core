@@ -13,8 +13,11 @@ import io.ktor.client.statement.HttpResponse
 import io.ktor.client.statement.bodyAsText
 import io.ktor.http.ContentType
 import io.ktor.http.HttpStatusCode
+import io.ktor.http.content.OutgoingContent
 import io.ktor.http.contentType
 import io.ktor.server.testing.ApplicationTestBuilder
+import io.ktor.utils.io.ByteWriteChannel
+import io.ktor.utils.io.writeFully
 import io.ktor.server.testing.testApplication
 import java.nio.file.Files
 import kotlin.io.path.deleteRecursively
@@ -106,6 +109,40 @@ class ReviewServerTest {
         assertEquals(HttpStatusCode.BadRequest, blankRepo.status)
         assertEquals(HttpStatusCode.PayloadTooLarge, tooLarge.status)
         assertEquals(HttpStatusCode.BadRequest, client.get("/reviews").status)
+    }
+
+    @Test
+    fun aBodyWithoutContentLengthIsStillLimited() = serverTest {
+        val streamed = client.post("/reviews") {
+            setBody(object : OutgoingContent.WriteChannelContent() {
+                override val contentType = ContentType.Application.Json
+                override suspend fun writeTo(channel: ByteWriteChannel) =
+                    channel.writeFully(ByteArray(MAX_BODY_BYTES.toInt() + 1) { 'x'.code.toByte() })
+            })
+        }
+
+        assertEquals(HttpStatusCode.PayloadTooLarge, streamed.status)
+    }
+
+    @Test
+    fun theLaptopSshRemoteAndThePhoneHttpsCloneShareOneList() = serverTest {
+        val id = client.shareId(review(repoUrl = "git@github.com:Nitpick-org/pocket-ledger.git"))
+
+        val listed = Json.decodeFromString<List<SharedReview>>(client.get("/reviews") { parameter("repoUrl", "$LEDGER.git") }.bodyAsText())
+
+        assertEquals(listOf(id), listed.map { it.id })
+    }
+
+    @Test
+    fun remotesOfOneRepositoryNormalizeToOneKey() {
+        listOf(
+            "git@github.com:Nitpick-org/pocket-ledger.git",
+            "ssh://git@github.com/Nitpick-org/pocket-ledger.git",
+            "https://GitHub.com/Nitpick-org/pocket-ledger/",
+            "https://user@github.com/Nitpick-org/pocket-ledger.git",
+            LEDGER,
+        ).forEach { assertEquals(LEDGER, normalizeRepoUrl(it), it) }
+        assertEquals("/Users/me/repo", normalizeRepoUrl("/Users/me/repo"))
     }
 
     @Test

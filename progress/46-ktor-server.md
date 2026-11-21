@@ -39,10 +39,20 @@
   par repoUrl identiques, id inconnu → 404, fichier écrit. Données de test supprimées ensuite.
 - `./scripts/check.sh` (inclut désormais `:server:test`).
 
+## Review ponytail (corrigée)
+
+- `./gradlew build` était rouge : `:server:distZip` refusait deux jars lifecycle de même nom
+  (androidx et JetBrains, tirés par `:shared`). `duplicatesStrategy = EXCLUDE` sur la
+  distribution ; `distZip` et `installDist` passent (c'était aussi la cause de l'échec
+  d'`installDist`).
+- `repoUrl` normalisé à l'écriture et à la lecture : le remote SSH du laptop
+  (`git@github.com:o/r.git`) et le clone HTTPS du téléphone donnent la même clé
+  `https://github.com/o/r`. Sinon la liste Android revenait vide au point 5 de la démo.
+- Test de la limite de 1 Mo sans `Content-Length` (corps en flux) ; vérifié qu'il échoue si
+  le contrôle de taille du corps est retiré. 9 tests, 0 échec.
+
 ## Incertain
 
-- `:server:installDist` échoue (« installation directory is neither empty… ») : non creusé,
-  `:server:run` suffit pour la démo.
 - slf4j-nop 2.0.16 choisi connu, pas vérifié comme le dernier 2.0.x.
 
 ## Suivant

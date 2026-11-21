@@ -23,7 +23,7 @@ fi
 
 START=$SECONDS
 
-echo "▶ gradle: shared tests, desktop and Android builds"
+echo "▶ gradle: shared + server tests, desktop and Android builds"
 ./gradlew --quiet :shared:allTests :server:test :desktopApp:assemble :androidApp:assembleDebug
 
 if [ "${1:-}" = "--demo" ]; then
