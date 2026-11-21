@@ -128,16 +128,25 @@ private fun BranchCard(
     modifier: Modifier,
 ) {
     NitpickCard(modifier, verticalArrangement = Arrangement.spacedBy(12.dp)) {
-        Text(
-            text = branchLabel(state.currentBranch),
-            style = NitpickTheme.typography.code,
-            color = NitpickTheme.colors.text,
-        )
+        Row(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.SpaceBetween, verticalAlignment = Alignment.CenterVertically) {
+            Text(
+                text = branchLabel(state.currentBranch),
+                style = NitpickTheme.typography.code,
+                color = NitpickTheme.colors.text,
+                modifier = Modifier.weight(1f, fill = false),
+            )
+            Text(
+                text = stringResource(Res.string.status_commits, state.graph.size),
+                style = NitpickTheme.typography.small,
+                color = NitpickTheme.colors.textMuted,
+            )
+        }
         Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
             Text(
                 text = state.tracking?.upstream ?: stringResource(Res.string.branch_no_upstream),
                 style = NitpickTheme.typography.small,
                 color = NitpickTheme.colors.textMuted,
+                modifier = Modifier.weight(1f, fill = false),
             )
             state.tracking?.let {
                 Text(
@@ -146,11 +155,6 @@ private fun BranchCard(
                     color = NitpickTheme.colors.textMuted,
                 )
             }
-            Text(
-                text = stringResource(Res.string.status_commits, state.graph.size),
-                style = NitpickTheme.typography.small,
-                color = NitpickTheme.colors.textMuted,
-            )
         }
         val syncing = state.isSyncing
         Row(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.spacedBy(8.dp)) {
