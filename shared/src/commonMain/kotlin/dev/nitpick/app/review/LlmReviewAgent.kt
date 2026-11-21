@@ -5,7 +5,10 @@ import dev.nitpick.app.domain.ReviewResult
 import dev.nitpick.app.git.GitRepository
 
 /** One prompt, one answer: builds the context, asks [client], parses and re-anchors every nit. */
-class LlmReviewAgent(private val client: LlmClient) : ReviewAgent {
+class LlmReviewAgent(
+    private val client: LlmClient,
+    private val onToolUse: (ReviewToolUse) -> Unit = {},
+) : ReviewAgent {
 
     override suspend fun review(repository: GitRepository, baseRef: String): ReviewResult {
         val context = buildReviewContext(repository, baseRef)
@@ -13,10 +16,24 @@ class LlmReviewAgent(private val client: LlmClient) : ReviewAgent {
         val toolsAvailable = client is ToolCallingLlmClient
         val prompt = buildReviewPrompt(context, toolsAvailable = toolsAvailable)
         val answer = when (client) {
-            is ToolCallingLlmClient -> client.completeWithTools(prompt, ReviewToolbox(repository))
+            is ToolCallingLlmClient -> client.completeWithTools(
+                prompt,
+                ReviewToolbox(repository, onUse = onToolUse),
+            )
             else -> client.complete(prompt.system, prompt.user)
         }
-        val parsed = parseReviewResponse(answer)
+        val parsed = try {
+            parseReviewResponse(answer)
+        } catch (e: ReviewResponseException) {
+            // Tool-using models sometimes answer in prose after the tool round. Ask once more,
+            // without tools, for the JSON contract instead of failing the whole review.
+            val repaired = client.complete(
+                prompt.system,
+                prompt.user + "\n\nYour previous answer did not contain a JSON object. " +
+                    "Return ONLY the review JSON object now, with no prose and no markdown fences.",
+            )
+            parseReviewResponse(repaired)
+        }
         val reviewedPaths = context.diffs.mapTo(HashSet()) { it.path }
         val anchored = parsed.comments
             .filter { it.filePath in reviewedPaths }

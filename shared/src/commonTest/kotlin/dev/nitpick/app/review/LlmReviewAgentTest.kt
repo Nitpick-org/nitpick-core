@@ -26,6 +26,14 @@ class LlmReviewAgentTest {
         files = mapOf("Main.kt" to content, "README.md" to "# Demo"),
     )
 
+    private class RepairingClient : LlmClient {
+        var calls = 0
+        override suspend fun complete(system: String, user: String): String {
+            calls++
+            return if (calls == 1) "I read Pricing.kt and found nothing." else """{"summary":"clean","comments":[]}"""
+        }
+    }
+
     private class RecordingClient(private val answer: String) : LlmClient {
         var user = ""
         override suspend fun complete(system: String, user: String): String { this.user = user; return answer }
@@ -59,6 +67,16 @@ class LlmReviewAgentTest {
         val nit = result.comments.single()
         assertEquals(Severity.BUG, nit.severity)
         assertEquals(3 to 3, nit.startLine to nit.endLine)
+    }
+
+    @Test
+    fun aProseAnswerIsRetriedAsJson() = runTest {
+        val client = RepairingClient()
+
+        val result = LlmReviewAgent(client).review(repository, "main")
+
+        assertEquals(2, client.calls)
+        assertEquals("clean", result.summary)
     }
 
     @Test
