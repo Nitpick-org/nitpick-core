@@ -39,4 +39,19 @@
     <string name="tab_review">Review</string>
     <string name="refs_local">Local</string>
     <string name="refs_filter_placeholder">Filter branches and tags</string>
+    <string name="diff_base">Base</string>
+    <string name="diff_empty">No changes against the base branch</string>
+    <string name="review_run">Nitpick branch</string>
+    <string name="review_running">Reviewing…</string>
+    <string name="review_empty">Run a review to see nits on this branch</string>
+    <string name="review_error">Review failed</string>
+    <string name="review_retry">Retry</string>
+    <string name="review_summary">%1$d nits · %2$d bug</string>
+    <string name="review_applied">Applied</string>
+    <string name="review_apply">Apply suggestion</string>
+    <string name="review_dismiss">Dismiss</string>
+    <string name="commit_message">Commit message</string>
+    <string name="commit_later">Later</string>
+    <string name="commit_stage">Stage &amp; commit</string>
+    <string name="review_local">AI review</string>
 </resources>

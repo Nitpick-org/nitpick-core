@@ -25,7 +25,7 @@ import dev.nitpick.app.ui.theme.NitpickTheme
  */
 @Composable
 fun App(container: AppContainer, pickRepositoryPath: (() -> String?)? = null) {
-    val repositoryViewModel = viewModel { RepositoryViewModel(container.gitRepositoryFactory) }
+    val repositoryViewModel = viewModel { RepositoryViewModel(container.gitRepositoryFactory, reviewAgent = container.reviewAgent) }
     val settingsViewModel = viewModel { SettingsViewModel(container.settingsStore) }
     val state by repositoryViewModel.state.collectAsStateWithLifecycle()
     val settings by settingsViewModel.settings.collectAsStateWithLifecycle()
@@ -45,6 +45,11 @@ fun App(container: AppContainer, pickRepositoryPath: (() -> String?)? = null) {
                     onOpenRepository = openRepository,
                     onSelectCommit = repositoryViewModel::selectCommit,
                     onOpenSettings = { showSettings = true },
+                    onRunReview = repositoryViewModel::reviewBranch,
+                    onApplySuggestion = repositoryViewModel::applySuggestion,
+                    onDismissSuggestion = repositoryViewModel::dismissSuggestion,
+                    onCommitMessage = repositoryViewModel::setCommitMessage,
+                    onCommit = repositoryViewModel::commitAppliedSuggestions,
                     modifier = Modifier.safeContentPadding(),
                 )
             }
