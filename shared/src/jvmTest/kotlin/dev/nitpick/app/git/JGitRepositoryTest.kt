@@ -182,6 +182,20 @@ class JGitRepositoryTest {
     }
 
     @Test
+    fun openExplainsThatLinkedWorktreesAreNotSupportedYet() {
+        repo.write("a.txt", "1")
+        repo.commit("first")
+        val parent = Files.createTempDirectory("nitpick-worktree").toFile().canonicalFile
+        cleanUp += parent
+        val worktree = File(parent, "wt-feature")
+        repo.git("worktree", "add", "-b", "feature", worktree.path)
+
+        val error = assertFailsWith<IllegalArgumentException> { open(worktree) }
+
+        assertTrue(error.message.orEmpty().contains("worktree"), error.message)
+    }
+
+    @Test
     fun writeAndNetworkOperationsAreNotImplementedYet() = runBlocking<Unit> {
         val git = open()
 

@@ -12,7 +12,11 @@ class JGitRepositoryFactory : GitRepositoryFactory {
     override suspend fun open(path: String): GitRepository = withContext(Dispatchers.IO) {
         // findGitDir walks up the parent folders, so picking a subfolder of a repository works.
         val builder = FileRepositoryBuilder().findGitDir(File(path))
-        requireNotNull(builder.gitDir) { "Not a git repository: $path" }
+        val gitDir = requireNotNull(builder.gitDir) { "Not a git repository: $path" }
+        // A linked worktree (`git worktree add`) has a `commondir` file; JGit 6.10 cannot open it.
+        require(!File(gitDir, "commondir").isFile) {
+            "Git worktrees are not supported yet, open the main repository folder instead: $path"
+        }
         val repository = builder.setMustExist(true).build()
         if (repository.isBare) {
             repository.close()
