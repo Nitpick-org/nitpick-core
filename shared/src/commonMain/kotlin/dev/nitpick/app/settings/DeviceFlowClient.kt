@@ -23,7 +23,7 @@ import kotlin.time.Duration.Companion.seconds
  * with the device flow enabled and paste its id here; an empty id hides the sign-in button.
  */
 object ForgeOAuthClientIds {
-    const val GITHUB = ""
+    const val GITHUB = "Ov23liWfSIx46RdkA69k"
     const val GITLAB = ""
 
     fun forHost(host: GitHost): String = when (host) {
