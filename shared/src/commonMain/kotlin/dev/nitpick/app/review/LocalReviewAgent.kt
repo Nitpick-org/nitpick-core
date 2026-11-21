@@ -29,7 +29,7 @@ class LocalReviewAgent : ReviewAgent {
                         }
                     }
                 }
-            }.sortedWith(compareBy<ReviewComment>({ it.severity }, { it.filePath }, { it.startLine }))
+            }.sortedWith(compareByDescending<ReviewComment> { it.severity }.thenBy { it.filePath }.thenBy { it.startLine })
             val bugs = comments.count { it.severity == Severity.BUG }
             ReviewResult(
                 summary = "${comments.size} nits · $bugs bug",

@@ -24,6 +24,8 @@ import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.sync.Mutex
+import kotlinx.coroutines.sync.withLock
 import kotlinx.coroutines.withContext
 
 data class RepositoryUiState(
@@ -70,6 +72,9 @@ class RepositoryViewModel(
     private var repository: GitRepository? = null
     private var loading: Job? = null
     private var diffLoading: Job? = null
+
+    // Two applies on the same file must not read the same original and overwrite each other.
+    private val writeLock = Mutex()
 
     fun openRepository(path: String) = load(path) { gitRepositoryFactory.open(path) }
 
@@ -146,11 +151,12 @@ class RepositoryViewModel(
         viewModelScope.launch {
             try {
                 val result = reviewAgent.review(git, _state.value.baseRef)
+                if (repository !== git) return@launch
                 _state.update { it.copy(review = result, isReviewing = false) }
             } catch (e: CancellationException) {
                 throw e
             } catch (e: Exception) {
-                _state.update { it.copy(isReviewing = false, reviewError = e.message ?: e.toString()) }
+                if (repository === git) _state.update { it.copy(isReviewing = false, reviewError = e.message ?: e.toString()) }
             }
         }
     }
@@ -159,10 +165,13 @@ class RepositoryViewModel(
         val git = repository ?: return
         viewModelScope.launch {
             try {
-                val content = git.readFile(comment.filePath)
-                    ?: error("File not found: ${comment.filePath}")
-                val updated = ReviewAnchoring.apply(content, comment)
-                git.writeFile(comment.filePath, updated)
+                writeLock.withLock {
+                    val content = git.readFile(comment.filePath)
+                        ?: error("File not found: ${comment.filePath}")
+                    git.writeFile(comment.filePath, ReviewAnchoring.apply(content, comment))
+                }
+                // The user may have opened another repository while the write ran.
+                if (repository !== git) return@launch
                 _state.update {
                     it.copy(
                         appliedIds = it.appliedIds + comment.id,
@@ -174,7 +183,7 @@ class RepositoryViewModel(
             } catch (e: CancellationException) {
                 throw e
             } catch (e: Exception) {
-                _state.update { it.copy(reviewError = e.message ?: e.toString()) }
+                if (repository === git) _state.update { it.copy(reviewError = e.message ?: e.toString()) }
             }
         }
     }
@@ -191,12 +200,16 @@ class RepositoryViewModel(
 
     fun commitAppliedSuggestions() {
         val git = repository ?: return
-        val state = _state.value
-        if (state.appliedFiles.isEmpty()) return
+        if (_state.value.appliedFiles.isEmpty()) return
         viewModelScope.launch {
             try {
-                git.stage(state.appliedFiles.toList())
-                git.commit(state.commitMessage)
+                // Read the applied files inside the lock: an apply still writing must be included.
+                writeLock.withLock {
+                    val state = _state.value
+                    git.stage(state.appliedFiles.toList())
+                    git.commit(state.commitMessage)
+                }
+                if (repository !== git) return@launch
                 val commits = git.log()
                 val graph = withContext(graphDispatcher) { buildCommitGraph(commits) }
                 _state.update {
@@ -215,7 +228,7 @@ class RepositoryViewModel(
             } catch (e: CancellationException) {
                 throw e
             } catch (e: Exception) {
-                _state.update { it.copy(reviewError = e.message ?: e.toString()) }
+                if (repository === git) _state.update { it.copy(reviewError = e.message ?: e.toString()) }
             }
         }
     }

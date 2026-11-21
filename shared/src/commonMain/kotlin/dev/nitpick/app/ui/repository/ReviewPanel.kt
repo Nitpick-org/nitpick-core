@@ -28,6 +28,7 @@ import dev.nitpick.app.ui.components.ReviewCommentCard
 import dev.nitpick.app.ui.theme.NitpickTheme
 import dev.nitpick.app.ui.theme.NitpickTone
 import nitpick.shared.generated.resources.Res
+import nitpick.shared.generated.resources.review_nits_on_files
 import nitpick.shared.generated.resources.commit_message
 import nitpick.shared.generated.resources.commit_stage
 import nitpick.shared.generated.resources.review_applied
@@ -88,7 +89,7 @@ fun ReviewPanel(
                                 Text(review.summary, style = NitpickTheme.typography.section)
                             }
                             Text(
-                                "${review.comments.size} nits on ${state.diff.size} changed files",
+                                stringResource(Res.string.review_nits_on_files, review.comments.size, state.diff.size),
                                 style = NitpickTheme.typography.small,
                                 color = NitpickTheme.colors.textSecondary,
                             )
@@ -106,7 +107,7 @@ fun ReviewPanel(
                                 severity = comment.severity,
                                 message = comment.message,
                                 suggestion = comment.suggestion,
-                                onApply = if (applied) null else { { onApply(comment) } },
+                                onApply = if (applied || comment.isFileLevel) null else { { onApply(comment) } },
                                 onDismiss = if (applied) null else { { onDismiss(comment.id) } },
                             )
                         }

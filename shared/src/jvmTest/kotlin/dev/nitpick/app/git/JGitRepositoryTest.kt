@@ -12,6 +12,7 @@ import java.nio.file.Files
 import kotlin.test.AfterTest
 import kotlin.test.Test
 import kotlin.test.assertEquals
+import kotlin.test.assertFails
 import kotlin.test.assertFailsWith
 import kotlin.test.assertFalse
 import kotlin.test.assertNull
@@ -317,5 +318,16 @@ class JGitRepositoryTest {
     @Test
     fun networkOperationsAreNotImplementedYet() = runBlocking<Unit> {
         assertFailsWith<NotImplementedError> { open().push(credentials = null) }
+    }
+
+    @Test
+    fun commitWithNothingStagedFailsInsteadOfCreatingAnEmptyCommit() = runBlocking<Unit> {
+        repo.write("a.txt", "1")
+        repo.commit("base")
+        val before = repo.git("rev-parse", "HEAD").trim()
+
+        assertFails { open().commit("empty") }
+
+        assertEquals(before, repo.git("rev-parse", "HEAD").trim())
     }
 }

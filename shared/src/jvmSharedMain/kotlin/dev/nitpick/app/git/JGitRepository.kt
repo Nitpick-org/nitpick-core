@@ -133,9 +133,8 @@ class JGitRepository(private val git: Git) : GitRepository {
     override suspend fun commit(message: String) =
         withContext(Dispatchers.IO) {
             require(message.isNotBlank()) { "Commit message must not be blank" }
-            checkNotNull(git.commit().setMessage(message).setSign(false).call()) {
-                "Nothing to commit"
-            }
+            // JGit commits an unchanged index by default, unlike the git CLI.
+            git.commit().setMessage(message).setSign(false).setAllowEmpty(false).call()
             Unit
         }
 
