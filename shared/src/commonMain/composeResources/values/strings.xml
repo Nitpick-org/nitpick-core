@@ -1,0 +1,14 @@
+<resources>
+    <string name="repository_open">Open repository…</string>
+    <string name="repository_empty_title">No repository open</string>
+    <string name="repository_empty_hint">Pick a local git repository to see its commits and branches.</string>
+    <string name="repository_error_title">Could not open this repository</string>
+    <string name="repository_on_branch">on %1$s</string>
+    <string name="refs_local_branches">Branches</string>
+    <string name="refs_remote_branches">Remote branches</string>
+    <string name="refs_tags">Tags</string>
+    <string name="refs_empty">No branches or tags yet</string>
+    <string name="commits_title">Commits</string>
+    <string name="commits_empty">No commits on this branch yet</string>
+    <string name="details_placeholder">Commit details and the review will appear here</string>
+</resources>
