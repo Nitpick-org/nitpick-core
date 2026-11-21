@@ -12,14 +12,17 @@ class FakeGitRepository(
     private val branch: String = "main",
     private val commits: List<Commit> = emptyList(),
     private val refs: List<Ref> = emptyList(),
+    private val diffs: Map<String, List<FileDiff>> = emptyMap(),
+    private val files: Map<String, String> = emptyMap(),
 ) : GitRepository {
     override suspend fun log(limit: Int): List<Commit> = commits.take(limit)
     override suspend fun refs(): List<Ref> = refs
     override suspend fun currentBranch(): String = branch
     override suspend fun status() = WorkingTreeStatus(emptyList(), emptyList(), emptyList(), emptyList())
-    override suspend fun readFile(path: String): String? = TODO("not faked yet")
-    override suspend fun listFiles(): List<String> = TODO("not faked yet")
-    override suspend fun diffAgainst(baseRef: String): List<FileDiff> = TODO("not faked yet")
+    override suspend fun readFile(path: String): String? = files[path]
+    override suspend fun listFiles(): List<String> = files.keys.sorted()
+    override suspend fun diffAgainst(baseRef: String): List<FileDiff> =
+        diffs[baseRef] ?: throw IllegalArgumentException("Unknown base: $baseRef")
     override suspend fun writeFile(path: String, content: String) = TODO("not faked yet")
     override suspend fun stage(paths: List<String>) = TODO("not faked yet")
     override suspend fun commit(message: String) = TODO("not faked yet")

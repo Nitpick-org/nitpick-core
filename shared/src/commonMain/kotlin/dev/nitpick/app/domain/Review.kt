@@ -21,4 +21,7 @@ data class ReviewComment(
     val message: String,
     val originalSnippet: String,
     val suggestion: String? = null,
-)
+) {
+    /** A nit the reviewer could not anchor to lines: startLine = endLine = 0 means the whole file. */
+    val isFileLevel: Boolean get() = startLine == 0 && endLine == 0
+}

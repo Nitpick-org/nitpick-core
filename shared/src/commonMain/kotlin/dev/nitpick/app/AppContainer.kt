@@ -1,6 +1,9 @@
 package dev.nitpick.app
 
 import dev.nitpick.app.git.GitRepositoryFactory
+import dev.nitpick.app.review.KoogLlmClient
+import dev.nitpick.app.review.LlmReviewAgent
+import dev.nitpick.app.review.ReviewAgent
 import dev.nitpick.app.settings.SettingsStore
 
 /**
@@ -10,4 +13,5 @@ import dev.nitpick.app.settings.SettingsStore
 class AppContainer(
     val gitRepositoryFactory: GitRepositoryFactory,
     val settingsStore: SettingsStore,
+    val reviewAgent: ReviewAgent = LlmReviewAgent(KoogLlmClient(settingsStore)),
 )

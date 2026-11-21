@@ -1,0 +1,70 @@
+package dev.nitpick.app.review
+
+import dev.nitpick.app.domain.FileDiff
+import dev.nitpick.app.git.GitRepository
+
+private const val MAX_FILES = 20
+private const val MAX_FILE_CHARS = 20_000
+private const val MAX_README_CHARS = 2_000
+private const val MAX_TREE_ENTRIES = 200
+private const val RECENT_COMMITS = 10
+
+private val IGNORED_FILE_NAMES = setOf(
+    "package-lock.json", "yarn.lock", "pnpm-lock.yaml", "bun.lockb", "Cargo.lock", "Gemfile.lock",
+    "poetry.lock", "composer.lock", "gradle.lockfile", "go.sum", "Podfile.lock",
+)
+private val IGNORED_EXTENSIONS = setOf("min.js", "min.css", "map", "pb.go", "g.dart", "generated.kt")
+private val IGNORED_DIRECTORIES = setOf("build", "dist", "node_modules", ".gradle", "generated", "vendor")
+
+private val LANGUAGE_BY_EXTENSION = mapOf(
+    "kt" to "Kotlin", "kts" to "Kotlin", "java" to "Java", "ts" to "TypeScript", "tsx" to "TypeScript",
+    "js" to "JavaScript", "jsx" to "JavaScript", "py" to "Python", "go" to "Go", "rs" to "Rust",
+    "swift" to "Swift", "rb" to "Ruby", "php" to "PHP", "cs" to "C#", "c" to "C", "cpp" to "C++",
+)
+
+data class ReviewContext(
+    val baseRef: String,
+    val branch: String,
+    val diffs: List<FileDiff>,
+    val files: Map<String, String>,
+    val fileTree: List<String>,
+    val readme: String?,
+    val recentCommits: List<String>,
+    val language: String?,
+)
+
+/** Keeps the diff the model can use: lockfiles, binaries and generated files are noise. */
+fun isReviewable(diff: FileDiff): Boolean {
+    val name = diff.path.substringAfterLast('/')
+    val segments = diff.path.split('/')
+    return !diff.isBinary &&
+        name !in IGNORED_FILE_NAMES &&
+        IGNORED_EXTENSIONS.none { name.endsWith(".$it") } &&
+        segments.dropLast(1).none { it in IGNORED_DIRECTORIES }
+}
+
+fun detectLanguage(paths: List<String>): String? =
+    paths.mapNotNull { LANGUAGE_BY_EXTENSION[it.substringAfterLast('.', "")] }
+        .groupingBy { it }.eachCount().maxByOrNull { it.value }?.key
+
+suspend fun buildReviewContext(repository: GitRepository, baseRef: String): ReviewContext {
+    val diffs = repository.diffAgainst(baseRef).filter(::isReviewable).take(MAX_FILES)
+    val files = diffs
+        .filter { it.hunks.isNotEmpty() }
+        .mapNotNull { diff -> repository.readFile(diff.path)?.let { diff.path to it } }
+        .filter { (_, content) -> content.length <= MAX_FILE_CHARS }
+        .toMap()
+    val tree = repository.listFiles()
+    val readme = tree.firstOrNull { it.equals("README.md", ignoreCase = true) }
+        ?.let { repository.readFile(it) }?.take(MAX_README_CHARS)
+    return ReviewContext(
+        baseRef = baseRef,
+        branch = repository.currentBranch(),
+        diffs = diffs,
+        files = files,
+        fileTree = tree.take(MAX_TREE_ENTRIES),
+        readme = readme,
+        recentCommits = repository.log(RECENT_COMMITS).map { it.shortMessage },
+        language = detectLanguage(diffs.map { it.path }),
+    )
+}
