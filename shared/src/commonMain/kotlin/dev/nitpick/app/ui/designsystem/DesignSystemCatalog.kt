@@ -1,6 +1,7 @@
 package dev.nitpick.app.ui.designsystem
 
 import androidx.compose.foundation.background
+import androidx.compose.foundation.isSystemInDarkTheme
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -43,6 +44,7 @@ import dev.nitpick.app.ui.components.NitpickTab
 import dev.nitpick.app.ui.components.NitpickTextField
 import dev.nitpick.app.ui.components.NitpickToolbar
 import dev.nitpick.app.ui.components.NitpickToolbarAction
+import dev.nitpick.app.ui.components.NitpickTooltip
 import dev.nitpick.app.ui.components.NitpickToolWindowHeader
 import dev.nitpick.app.ui.components.RefBadge
 import dev.nitpick.app.ui.components.ReviewCommentCard
@@ -54,8 +56,8 @@ import dev.nitpick.app.ui.theme.NitpickTone
  * from the IDE preview or temporarily route App() here when changing tokens.
  */
 @Composable
-fun DesignSystemCatalog() {
-    NitpickTheme {
+fun DesignSystemCatalog(darkTheme: Boolean = isSystemInDarkTheme()) {
+    NitpickTheme(darkTheme = darkTheme) {
         LazyColumn(
             modifier = Modifier.background(NitpickTheme.colors.canvas),
             contentPadding = androidx.compose.foundation.layout.PaddingValues(20.dp),
@@ -65,7 +67,7 @@ fun DesignSystemCatalog() {
                 NitpickSectionHeader(
                     kicker = "JetBrains New UI",
                     title = "Nitpick design system",
-                    subtitle = "Dense IDE chrome, one blue action, colour only where it means something.",
+                    subtitle = "Dense IDE chrome, one teal action, colour only where it means something.",
                 )
             }
             item { ColourSection() }
@@ -87,6 +89,7 @@ private fun ColourSection() {
             Swatch("border", NitpickTheme.colors.border)
             Swatch("text", NitpickTheme.colors.text)
             Swatch("action", NitpickTheme.colors.primary)
+            Swatch("hover", NitpickTheme.colors.primaryHover)
             Swatch("selection", NitpickTheme.colors.selection)
         }
         Row(horizontalArrangement = Arrangement.spacedBy(10.dp)) {
@@ -140,7 +143,9 @@ private fun ControlsSection() {
     NitpickCard(verticalArrangement = Arrangement.spacedBy(14.dp)) {
         NitpickSectionHeader(title = "Controls", kicker = "28dp density")
         Row(horizontalArrangement = Arrangement.spacedBy(8.dp), verticalAlignment = Alignment.CenterVertically) {
-            NitpickButton(text = "Nitpick branch", onClick = {})
+            NitpickTooltip(text = "Review this branch against main", shortcut = "⌘⇧R") {
+                NitpickButton(text = "Nitpick branch", onClick = {})
+            }
             NitpickButton(text = "Cancel", onClick = {}, variant = NitpickButtonVariant.Secondary)
             NitpickButton(text = "Dismiss", onClick = {}, variant = NitpickButtonVariant.Ghost)
             NitpickButton(text = "Delete", onClick = {}, variant = NitpickButtonVariant.Danger, size = NitpickButtonSize.Small)
@@ -160,8 +165,9 @@ private fun ControlsSection() {
             modifier = Modifier.width(360.dp),
         )
         Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
-            NitpickTab("Commits", selected = true, onClick = {})
+            NitpickTab("Details", selected = true, onClick = {})
             NitpickTab("Diff", selected = false, onClick = {})
+            NitpickTab("Review", selected = false, onClick = {})
         }
     }
 }
@@ -235,6 +241,12 @@ private fun ShellSection() {
 
 @Preview
 @Composable
-private fun DesignSystemCatalogPreview() {
-    DesignSystemCatalog()
+private fun DesignSystemCatalogLightPreview() {
+    DesignSystemCatalog(darkTheme = false)
+}
+
+@Preview
+@Composable
+private fun DesignSystemCatalogDarkPreview() {
+    DesignSystemCatalog(darkTheme = true)
 }

@@ -1,0 +1,541 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>Nitpick Android</title>
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&amp;family=JetBrains+Mono:wght@400;500;600&amp;display=swap" rel="stylesheet">
+<style>body{margin:0}</style>
+</helmet>
+<div style="width: 393px; height: 852px; position: relative; overflow: hidden; display: flex; flex-direction: column; font-family: 'Inter', system-ui, sans-serif; font-size: 14px; line-height: 1.4; background: {{rootBg}}; color: {{t.text}}">
+
+  <!-- Top app bar -->
+  <header style="height: 56px; flex: none; display: flex; align-items: center; gap: 2px; padding: 0 4px; box-sizing: border-box; background: {{bar.bg}}; color: {{t.headFg}}">
+    <sc-if value="{{bar.app}}" hint-placeholder-val="{{ false }}">
+      <div style="width: 48px; height: 48px; display: flex; align-items: center; justify-content: center">
+        <div style="width: 30px; height: 30px; border-radius: 7px; background: #0F766E; display: flex; align-items: center; justify-content: center">
+          <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#F0FDFA" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="{{ic.tweezers}}"></path><circle cx="12" cy="21" r="1.4" fill="#5EEAD4" stroke="none"></circle></svg>
+        </div>
+      </div>
+    </sc-if>
+    <sc-if value="{{bar.lead}}" hint-placeholder-val="{{ true }}">
+      <button aria-label="{{bar.leadLabel}}" style="width: 48px; height: 48px; border: none; border-radius: 8px; background: transparent; color: {{t.headFg}}; display: flex; align-items: center; justify-content: center">
+        <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="{{bar.leadIcon}}"></path></svg>
+      </button>
+    </sc-if>
+    <div style="flex: 1; min-width: 0; display: flex; flex-direction: column; padding-left: 4px">
+      <span style="font-size: 16px; font-weight: 600; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; font-family: {{bar.font}}">{{bar.title}}</span>
+      <sc-if value="{{bar.sub}}" hint-placeholder-val="{{ false }}">
+        <span style="font-size: 12px; color: {{t.headSub}}; white-space: nowrap; overflow: hidden; text-overflow: ellipsis">{{bar.sub}}</span>
+      </sc-if>
+    </div>
+    <sc-for list="{{bar.acts}}" as="a" hint-placeholder-count="1">
+      <button aria-label="{{a.label}}" style="width: 48px; height: 48px; border: none; border-radius: 8px; background: transparent; color: {{a.t.headFg}}; display: flex; align-items: center; justify-content: center">
+        <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="{{a.sw}}" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="{{a.icon}}"></path></svg>
+      </button>
+    </sc-for>
+  </header>
+
+  <div style="flex: 1; min-height: 0; position: relative; overflow: hidden">
+
+    <!-- 1 · Repos -->
+    <sc-if value="{{s.repos}}" hint-placeholder-val="{{ true }}">
+      <div style="padding: 8px 16px 120px; display: flex; flex-direction: column; gap: 10px">
+        <label style="height: 48px; display: flex; align-items: center; gap: 10px; padding: 0 14px; box-sizing: border-box; border-radius: 6px; border: 1px solid {{t.outline}}; background: {{t.field}}; color: {{t.subtle}}; margin-bottom: 6px">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="{{ic.search}}"></path></svg>
+          <input aria-label="Search repos" placeholder="Search repos" style="flex: 1; min-width: 0; border: none; outline: none; background: transparent; font: inherit; font-size: 16px; color: {{t.text}}">
+        </label>
+        <sc-for list="{{repos}}" as="r" hint-placeholder-count="3">
+          <a href="#" style="display: flex; flex-direction: column; gap: 8px; padding: 14px 16px; border-radius: 8px; text-decoration: none; border: 1px solid {{r.t.line}}; background: {{r.t.surf}}; color: {{r.t.text}}">
+            <div style="display: flex; align-items: center; gap: 8px">
+              <span style="font-size: 16px; font-weight: 600; flex: 1">{{r.name}}</span>
+              <span style="height: 20px; display: flex; align-items: center; padding: 0 7px; box-sizing: border-box; border-radius: 6px; font-size: 11px; font-weight: 600; letter-spacing: 0.3px; background: {{r.bbg}}; color: {{r.bfg}}; border: 1px solid {{r.bbd}}">{{r.badge}}</span>
+            </div>
+            <div style="display: flex; align-items: center; gap: 6px; color: {{r.t.muted}}; font-size: 13px">
+              <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="{{r.branchIcon}}"></path></svg>
+              <span style="font-family: 'JetBrains Mono', monospace; font-size: 12px">{{r.branch}}</span>
+              <span style="color: {{r.t.subtle}}">· {{r.meta}}</span>
+            </div>
+          </a>
+        </sc-for>
+      </div>
+      <a href="#" style="position: absolute; right: 16px; bottom: 24px; height: 56px; display: flex; align-items: center; gap: 10px; padding: 0 20px 0 16px; border-radius: 12px; text-decoration: none; background: {{t.acc}}; color: {{t.onAcc}}; font-weight: 600; font-size: 15px; box-shadow: 0 4px 14px rgba(0,0,0,0.22)">
+        <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><path d="{{ic.plus}}"></path></svg>Clone repo
+      </a>
+    </sc-if>
+
+    <!-- 1b · Clone -->
+    <sc-if value="{{s.clone}}" hint-placeholder-val="{{ false }}">
+      <div style="padding: 12px 16px; display: flex; flex-direction: column; gap: 22px">
+        <p style="margin: 0; color: {{t.muted}}; line-height: 1.5">Clone over HTTPS. The token is stored in Android Keystore and never leaves this phone.</p>
+        <label style="display: flex; flex-direction: column; gap: 6px">
+          <span style="font-size: 12px; font-weight: 500; color: {{t.muted}}">HTTPS URL</span>
+          <input value="https://github.com/acme/nitpick-app.git" style="height: 48px; padding: 0 12px; box-sizing: border-box; border: 2px solid {{t.acc}}; border-radius: 6px; outline: none; background: transparent; font-family: 'JetBrains Mono', monospace; font-size: 13px; color: {{t.text}}">
+        </label>
+        <label style="display: flex; flex-direction: column; gap: 6px">
+          <span style="font-size: 12px; font-weight: 500; color: {{t.muted}}">Access token</span>
+          <span style="height: 48px; display: flex; align-items: center; padding: 0 2px 0 12px; box-sizing: border-box; border: 1px solid {{t.outline}}; border-radius: 6px; background: {{t.field}}">
+            <input type="password" value="ghp_xxxxxxxxxxxxxxxxxxxx" aria-label="Access token" style="flex: 1; min-width: 0; border: none; outline: none; background: transparent; font-family: 'JetBrains Mono', monospace; font-size: 14px; letter-spacing: 0.12em; color: {{t.text}}">
+            <button aria-label="Show token" style="width: 44px; height: 44px; border: none; border-radius: 6px; background: transparent; color: {{t.muted}}; display: flex; align-items: center; justify-content: center">
+              <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="{{ic.eye}}"></path><circle cx="12" cy="12" r="3"></circle></svg>
+            </button>
+          </span>
+          <span style="font-size: 12px; color: {{t.subtle}}">Needs read access. Push needs write access.</span>
+        </label>
+        <label style="display: flex; flex-direction: column; gap: 6px">
+          <span style="font-size: 12px; font-weight: 500; color: {{t.muted}}">Folder name</span>
+          <input value="nitpick-app" style="height: 48px; padding: 0 12px; box-sizing: border-box; border: 1px solid {{t.outline}}; border-radius: 6px; outline: none; background: {{t.field}}; font: inherit; font-size: 16px; color: {{t.text}}">
+        </label>
+      </div>
+      <div style="position: absolute; left: 16px; right: 16px; bottom: 24px">
+        <button style="width: 100%; height: 56px; border: none; border-radius: 8px; background: {{t.acc}}; color: {{t.onAcc}}; font: inherit; font-size: 16px; font-weight: 600">Clone</button>
+      </div>
+    </sc-if>
+
+    <!-- 2 · Graph -->
+    <sc-if value="{{s.graph}}" hint-placeholder-val="{{ false }}">
+      <div style="padding: 4px 16px 12px; display: flex; flex-direction: column; gap: 12px">
+        <div style="padding: 12px; border-radius: 8px; border: 1px solid {{t.line}}; background: {{t.surf}}; display: flex; flex-direction: column; gap: 12px">
+          <div style="display: flex; align-items: center; gap: 10px">
+            <button style="height: 36px; display: flex; align-items: center; gap: 6px; padding: 0 10px 0 12px; border: none; border-radius: 6px; background: {{t.selRow}}; color: {{t.onAccC}}; font-size: 14px; font-weight: 600">
+              <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="{{ic.branch}}"></path></svg>
+              feature/nit-sheet
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="{{ic.chevDown}}"></path></svg>
+            </button>
+            <span style="color: {{t.subtle}}; font-size: 13px">↑3 ↓0</span>
+          </div>
+          <div style="display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 8px">
+            <sc-for list="{{gitActs}}" as="ga" hint-placeholder-count="3">
+              <button style="height: 44px; display: flex; align-items: center; justify-content: center; gap: 6px; border: 1px solid {{ga.t.outline}}; border-radius: 6px; background: {{ga.t.field}}; color: {{ga.t.text}}; font: inherit; font-weight: 600">
+                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="{{ga.icon}}"></path></svg>{{ga.label}}<span style="font-size: 12px; color: {{ga.t.subtle}}">{{ga.n}}</span>
+              </button>
+            </sc-for>
+          </div>
+        </div>
+        <div style="position: relative">
+          <sc-for list="{{prow}}" as="r" hint-placeholder-count="9">
+            <div style="height: 60px; display: flex; flex-direction: column; justify-content: center; gap: 3px; padding: 0 8px 0 60px; box-sizing: border-box; border-radius: 6px; background: {{r.bg}}">
+              <div style="display: flex; align-items: center; gap: 6px; min-width: 0">
+                <sc-for list="{{r.chips}}" as="c" hint-placeholder-count="1">
+                  <span style="flex: none; height: 20px; display: flex; align-items: center; padding: 0 6px; box-sizing: border-box; border-radius: 4px; font-size: 12px; background: {{c.bg}}; color: {{c.fg}}; border: 1px solid {{c.bd}}">{{c.label}}</span>
+                </sc-for>
+                <span style="font-size: 14px; font-weight: {{r.fw}}; white-space: nowrap; overflow: hidden; text-overflow: ellipsis">{{r.msg}}</span>
+              </div>
+              <span style="font-size: 12px; color: {{r.t.subtle}}">{{r.author}} · {{r.date}} · <span style="font-family: 'JetBrains Mono', monospace">{{r.sha}}</span></span>
+            </div>
+          </sc-for>
+          <svg width="56" height="600" viewBox="0 0 56 600" style="position: absolute; left: 4px; top: 0" fill="none" stroke-width="2" stroke-linecap="round" aria-hidden="true">
+            <path d="{{pg.p0}}" stroke="{{t.l0}}"></path>
+            <path d="{{pg.p3}}" stroke="{{t.l3}}"></path>
+            <path d="{{pg.p2}}" stroke="{{t.l2}}"></path>
+            <path d="{{pg.p1}}" stroke="{{t.l1}}"></path>
+          </svg>
+          <sc-for list="{{prow}}" as="r" hint-placeholder-count="9">
+            <span style="position: absolute; border-radius: 50%; box-sizing: border-box; {{r.dot}}"></span>
+          </sc-for>
+        </div>
+      </div>
+      <a href="#" style="position: absolute; right: 16px; bottom: 24px; height: 60px; display: flex; align-items: center; gap: 12px; padding: 0 22px 0 18px; border-radius: 12px; text-decoration: none; background: {{t.acc}}; color: {{t.onAcc}}; font-weight: 600; font-size: 16px; box-shadow: 0 6px 18px rgba(0,0,0,0.25)">
+        <svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="{{ic.tweezers}}"></path><circle cx="12" cy="21" r="1.4" fill="currentColor" stroke="none"></circle></svg>Nitpick branch
+      </a>
+    </sc-if>
+
+    <!-- 3a · Review: files -->
+    <sc-if value="{{s.files}}" hint-placeholder-val="{{ false }}">
+      <div style="padding: 4px 16px 24px; display: flex; flex-direction: column; gap: 12px">
+        <section style="padding: 14px 16px; border-radius: 8px; border: 1px solid {{t.line}}; background: {{t.surf}}; display: flex; flex-direction: column; gap: 10px">
+          <span style="display: flex; align-items: center; gap: 8px"><span style="height: 20px; display: flex; align-items: center; padding: 0 6px; box-sizing: border-box; border-radius: 6px; font-size: 11px; font-weight: 600; background: {{t.aiSoft}}; color: {{t.ai}}; border: 1px solid {{t.aiBd}}">AI</span><span style="font-size: 15px; line-height: 20px; font-weight: 600">8 nits · 1 bug</span></span>
+          <p style="margin: 0; color: {{t.muted}}; font-size: 14px; line-height: 1.5; text-wrap: pretty">Solid refactor, one real bug: nit anchors use a 1-based index and crash on the last line. A blocking call in ReviewViewModel will freeze the UI.</p>
+          <div style="display: flex; gap: 6px; flex-wrap: wrap">
+            <sc-for list="{{counters}}" as="c" hint-placeholder-count="4">
+              <span style="height: 22px; display: flex; align-items: center; padding: 0 8px; box-sizing: border-box; border-radius: 6px; font-size: 11px; font-weight: 600; letter-spacing: 0.3px; background: {{c.bg}}; color: {{c.fg}}; border: 1px solid {{c.bd}}">{{c.n}} {{c.label}}</span>
+            </sc-for>
+          </div>
+        </section>
+        <div style="display: flex; justify-content: space-between; padding: 6px 4px 0; color: {{t.subtle}}; font-size: 12px; font-weight: 600; letter-spacing: 0.06em; text-transform: uppercase"><span>Files with nits · 4</span><span style="text-transform: none; letter-spacing: 0; font-weight: 500">By severity</span></div>
+        <div style="display: flex; flex-direction: column; border-radius: 8px; overflow: hidden; border: 1px solid {{t.line}}; background: {{t.surf}}">
+          <sc-for list="{{pfiles}}" as="f" hint-placeholder-count="4">
+            <a href="#" style="min-height: 72px; display: flex; align-items: center; gap: 12px; padding: 12px 8px 12px 16px; box-sizing: border-box; text-decoration: none; color: {{f.t.text}}; border-bottom: 1px solid {{f.bd}}">
+              <div style="flex: 1; min-width: 0; display: flex; flex-direction: column; gap: 6px">
+                <span style="font-size: 15px; font-weight: 600">{{f.name}} <span style="font-weight: 400; font-size: 13px; color: {{f.t.subtle}}">{{f.dir}}</span></span>
+                <span style="display: flex; gap: 6px; flex-wrap: wrap">
+                  <sc-for list="{{f.badges}}" as="b" hint-placeholder-count="2">
+                    <span style="height: 20px; display: flex; align-items: center; padding: 0 7px; box-sizing: border-box; border-radius: 6px; font-size: 11px; font-weight: 600; letter-spacing: 0.3px; background: {{b.bg}}; color: {{b.fg}}; border: 1px solid {{b.bd}}">{{b.label}}</span>
+                  </sc-for>
+                </span>
+              </div>
+              <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="{{f.t.subtle}}" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="{{f.chev}}"></path></svg>
+            </a>
+          </sc-for>
+        </div>
+        <span style="padding: 0 4px; color: {{t.subtle}}; font-size: 13px">2 more files reviewed, no nits.</span>
+      </div>
+    </sc-if>
+
+    <!-- 3b/3c · Diff -->
+    <sc-if value="{{s.diffish}}" hint-placeholder-val="{{ false }}">
+      <div style="height: 56px; display: flex; align-items: center; gap: 8px; padding: 0 12px 0 16px; border-bottom: 1px solid {{t.line}}">
+        <span style="flex: 1; color: {{t.muted}}; font-size: 13px">2 nits · 1 applied</span>
+        <button style="height: 44px; padding: 0 14px; border: 1px solid {{t.outline}}; border-radius: 6px; background: {{t.field}}; color: {{t.link}}; font: inherit; font-weight: 600">Apply all for this file</button>
+      </div>
+      <div style="padding: 4px 0 3px 12px; font-family: 'JetBrains Mono', monospace; font-size: 11px; color: {{t.subtle}}; background: {{t.hunk}}">@@ -18,7 +18,11 @@ fun anchorFor</div>
+      <sc-for list="{{pdiff}}" as="it" hint-placeholder-count="12">
+        <div>
+          <sc-if value="{{it.isLine}}" hint-placeholder-val="{{ true }}">
+            <div style="display: flex; height: 24px; font-family: 'JetBrains Mono', monospace; font-size: 12px; line-height: 24px; background: {{it.bg}}">
+              <span style="width: 34px; flex: none; text-align: right; padding-right: 6px; box-sizing: border-box; color: {{it.t.gutFg}}; background: {{it.gut}}">{{it.n}}</span>
+              <span style="width: 18px; flex: none; text-align: center; font-weight: 600; color: {{it.sc}}">{{it.s}}</span>
+              <span style="white-space: pre; overflow: hidden; color: {{it.t.text}}">{{it.c}}</span>
+            </div>
+          </sc-if>
+          <sc-if value="{{it.isNit}}" hint-placeholder-val="{{ false }}">
+            <a href="#" style="margin: 6px 12px 8px 40px; min-height: 56px; display: flex; align-items: center; gap: 10px; padding: 8px 6px 8px 12px; box-sizing: border-box; border-radius: 8px; text-decoration: none; border: 1px solid {{it.bd}}; background: {{it.t.surf}}; color: {{it.t.text}}">
+              <span style="height: 20px; display: flex; align-items: center; padding: 0 7px; box-sizing: border-box; border-radius: 6px; font-size: 11px; font-weight: 600; letter-spacing: 0.3px; background: {{it.bbg}}; color: {{it.bfg}}; border: 1px solid {{it.bbd}}">{{it.sev}}</span>
+              <span style="flex: 1; min-width: 0; font-weight: 600; font-size: 14px; line-height: 1.3">{{it.title}}</span>
+              <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="{{it.t.subtle}}" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="{{it.chev}}"></path></svg>
+            </a>
+          </sc-if>
+          <sc-if value="{{it.isApplied}}" hint-placeholder-val="{{ false }}">
+            <div style="margin: 6px 12px 8px 40px; height: 44px; display: flex; align-items: center; gap: 8px; padding: 0 12px; border-radius: 6px; border: 1px solid {{it.t.sug}}; background: {{it.t.sugSoft}}; color: {{it.t.text}}; font-size: 13px">
+              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="{{it.check}}"></path></svg>
+              <span style="font-weight: 600">Applied</span><span style="flex: 1; white-space: nowrap; overflow: hidden; text-overflow: ellipsis">{{it.title}}</span>
+            </div>
+          </sc-if>
+        </div>
+      </sc-for>
+      <sc-if value="{{s.diff}}" hint-placeholder-val="{{ false }}">
+        <div style="position: absolute; left: 12px; right: 12px; bottom: 20px; min-height: 56px; display: flex; align-items: center; gap: 8px; padding: 4px 6px 4px 16px; box-sizing: border-box; border-radius: 8px; background: {{t.inv}}; color: {{t.onInv}}; box-shadow: 0 6px 18px rgba(0,0,0,0.25)">
+          <span style="flex: 1">1 suggestion applied</span>
+          <button style="height: 44px; padding: 0 12px; border: none; border-radius: 6px; background: transparent; color: {{t.invAcc}}; font: inherit; font-weight: 600">Stage &amp; commit</button>
+        </div>
+      </sc-if>
+    </sc-if>
+
+    <!-- 4 · Settings -->
+    <sc-if value="{{s.settings}}" hint-placeholder-val="{{ false }}">
+      <div style="padding: 8px 16px 24px; display: flex; flex-direction: column; gap: 24px">
+        <div style="display: flex; flex-direction: column; gap: 10px">
+          <span style="font-size: 14px; font-weight: 600">Theme</span>
+          <div role="radiogroup" aria-label="Theme" style="display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); height: 48px; padding: 3px; box-sizing: border-box; border: 1px solid {{t.outline}}; border-radius: 6px; background: {{t.surf}}">
+            <sc-for list="{{themeSeg}}" as="sg" hint-placeholder-count="3">
+              <button role="radio" style="display: flex; align-items: center; justify-content: center; gap: 6px; border: 1px solid {{sg.bd}}; border-radius: 4px; background: {{sg.bg}}; color: {{sg.fg}}; font: inherit; font-weight: 600">
+                <sc-if value="{{sg.on}}" hint-placeholder-val="{{ false }}"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="{{sg.check}}"></path></svg></sc-if>
+                {{sg.label}}
+              </button>
+            </sc-for>
+          </div>
+        </div>
+        <div style="display: flex; flex-direction: column; gap: 4px">
+          <span style="font-size: 14px; font-weight: 600; padding-bottom: 4px">LLM provider</span>
+          <div role="radiogroup" aria-label="LLM provider" style="display: flex; flex-direction: column">
+            <sc-for list="{{provs}}" as="p" hint-placeholder-count="4">
+              <label style="min-height: 52px; display: flex; align-items: center; gap: 12px; padding: 0 4px; border-bottom: 1px solid {{p.t.line}}">
+                <span style="width: 20px; height: 20px; flex: none; box-sizing: border-box; border-radius: 10px; border: 1px solid {{p.ring}}; background: {{p.fill}}; display: flex; align-items: center; justify-content: center"><span style="width: 8px; height: 8px; border-radius: 4px; background: {{p.dot}}"></span></span>
+                <span style="flex: 1; display: flex; flex-direction: column">
+                  <span style="font-size: 16px">{{p.label}}</span>
+                  <span style="font-size: 12px; color: {{p.t.subtle}}">{{p.sub}}</span>
+                </span>
+              </label>
+            </sc-for>
+          </div>
+        </div>
+        <label style="display: flex; flex-direction: column; gap: 6px">
+          <span style="font-size: 12px; font-weight: 500; color: {{t.muted}}">Model</span>
+          <span style="height: 48px; display: flex; align-items: center; padding: 0 10px 0 12px; box-sizing: border-box; border: 1px solid {{t.outline}}; border-radius: 6px; background: {{t.field}}">
+            <select aria-label="Model" style="flex: 1; border: none; outline: none; background: transparent; font-family: 'JetBrains Mono', monospace; font-size: 14px; color: {{t.text}}"><option>claude-sonnet-4-5</option><option>claude-haiku-4-5</option></select>
+          </span>
+        </label>
+        <label style="display: flex; flex-direction: column; gap: 6px">
+          <span style="font-size: 12px; font-weight: 500; color: {{t.muted}}">API key</span>
+          <span style="height: 48px; display: flex; align-items: center; padding: 0 2px 0 12px; box-sizing: border-box; border: 1px solid {{t.outline}}; border-radius: 6px; background: {{t.field}}">
+            <input type="password" aria-label="API key" value="sk-ant-api03-xxxxxxxxxxxx3f9a" style="flex: 1; min-width: 0; border: none; outline: none; background: transparent; font-family: 'JetBrains Mono', monospace; font-size: 14px; letter-spacing: 0.12em; color: {{t.text}}">
+            <button aria-label="Show API key" style="width: 44px; height: 44px; border: none; border-radius: 6px; background: transparent; color: {{t.muted}}; display: flex; align-items: center; justify-content: center">
+              <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="{{ic.eye}}"></path><circle cx="12" cy="12" r="3"></circle></svg>
+            </button>
+          </span>
+          <span style="font-size: 12px; color: {{t.subtle}}">Stored in Android Keystore.</span>
+        </label>
+      </div>
+    </sc-if>
+
+    <!-- Empty: no repos -->
+    <sc-if value="{{s.reposEmpty}}" hint-placeholder-val="{{ false }}">
+      <div style="position: absolute; inset: 0 24px 120px; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 12px; text-align: center">
+        <div style="width: 88px; height: 88px; border-radius: 20px; background: {{t.accC}}; color: {{t.onAccC}}; display: flex; align-items: center; justify-content: center">
+          <svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="{{ic.tweezers}}"></path><circle cx="12" cy="21" r="1.3" fill="currentColor" stroke="none"></circle></svg>
+        </div>
+        <h1 style="margin: 12px 0 0; font-size: 20px; line-height: 26px; font-weight: 600">No repository open</h1>
+        <p style="margin: 0; color: {{t.muted}}; line-height: 1.5; text-wrap: pretty">Clone a git repository over HTTPS to see its commits and branches.</p>
+      </div>
+      <div style="position: absolute; left: 16px; right: 16px; bottom: 24px">
+        <button style="width: 100%; height: 56px; display: flex; align-items: center; justify-content: center; gap: 8px; border: none; border-radius: 8px; background: {{t.acc}}; color: {{t.onAcc}}; font: inherit; font-size: 16px; font-weight: 600">
+          <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><path d="{{ic.plus}}"></path></svg>Clone repo
+        </button>
+      </div>
+    </sc-if>
+
+    <!-- Loading -->
+    <sc-if value="{{s.loading}}" hint-placeholder-val="{{ false }}">
+      <div style="padding: 32px 24px; display: flex; flex-direction: column; align-items: center; gap: 14px; text-align: center">
+        <svg width="72" height="72" viewBox="0 0 72 72" fill="none" stroke-width="6" stroke-linecap="round" role="img" aria-label="Review 45% done"><circle cx="36" cy="36" r="30" stroke="{{t.accC}}"></circle><path d="M36 6a30 30 0 0 1 9.3 58.5" stroke="{{t.acc}}"></path></svg>
+        <h1 style="margin: 6px 0 0; font-size: 20px; line-height: 26px; font-weight: 600">Reading 12 files…</h1>
+        <span style="color: {{t.muted}}">7 of 12 · feature/nit-sheet vs main</span>
+      </div>
+      <div style="margin: 0 16px; padding: 16px; border-radius: 8px; border: 1px solid {{t.line}}; background: {{t.surf}}; display: flex; flex-direction: column; gap: 14px">
+        <sc-for list="{{steps}}" as="st" hint-placeholder-count="4">
+          <div style="display: flex; align-items: center; gap: 12px; color: {{st.fg}}; font-weight: {{st.fw}}">
+            <sc-if value="{{st.done}}" hint-placeholder-val="{{ false }}"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="{{st.t.success}}" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="{{st.check}}"></path></svg></sc-if>
+            <sc-if value="{{st.now}}" hint-placeholder-val="{{ false }}"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="{{st.t.acc}}" stroke-width="2.6" stroke-linecap="round" aria-hidden="true"><circle cx="12" cy="12" r="8" stroke-opacity="0.25"></circle><path d="M12 4a8 8 0 0 1 8 8"></path></svg></sc-if>
+            <sc-if value="{{st.todo}}" hint-placeholder-val="{{ false }}"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true"><circle cx="12" cy="12" r="7"></circle></svg></sc-if>
+            <span>{{st.label}}</span>
+          </div>
+        </sc-for>
+      </div>
+      <div style="position: absolute; left: 16px; right: 16px; bottom: 24px; display: flex; flex-direction: column; gap: 10px; align-items: center">
+        <span style="font-size: 12px; color: {{t.subtle}}">You can leave this screen, the review keeps running.</span>
+        <button style="width: 100%; height: 56px; border: 1px solid {{t.outline}}; border-radius: 8px; background: {{t.field}}; color: {{t.text}}; font: inherit; font-size: 16px; font-weight: 600">Cancel</button>
+      </div>
+    </sc-if>
+
+    <!-- Clean + errors -->
+    <sc-if value="{{msg.show}}" hint-placeholder-val="{{ false }}">
+      <div style="position: absolute; inset: 0 24px 120px; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 12px; text-align: center">
+        <div style="width: 88px; height: 88px; border-radius: 44px; background: {{msg.iconBg}}; color: {{msg.iconFg}}; display: flex; align-items: center; justify-content: center">
+          <svg width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="{{msg.icon}}"></path></svg>
+        </div>
+        <h1 style="margin: 12px 0 0; font-size: 20px; line-height: 26px; font-weight: 600; text-wrap: balance">{{msg.title}}</h1>
+        <p style="margin: 0; color: {{t.muted}}; line-height: 1.5; text-wrap: pretty">{{msg.body}}</p>
+        <sc-if value="{{msg.hasCode}}" hint-placeholder-val="{{ false }}">
+          <span style="font-family: 'JetBrains Mono', monospace; font-size: 11px; color: {{t.subtle}}; padding: 4px 8px; border-radius: 6px; background: {{t.surf}}">{{msg.code}}</span>
+        </sc-if>
+      </div>
+      <div style="position: absolute; left: 16px; right: 16px; bottom: 24px">
+        <button style="width: 100%; height: 56px; border: none; border-radius: 8px; background: {{t.acc}}; color: {{t.onAcc}}; font: inherit; font-size: 16px; font-weight: 600">{{msg.action}}</button>
+      </div>
+    </sc-if>
+
+    <!-- 3c · Bottom sheet -->
+    <sc-if value="{{s.sheet}}" hint-placeholder-val="{{ false }}">
+      <div style="position: absolute; inset: 0; background: {{t.scrim}}"></div>
+      <section role="dialog" aria-label="Nit details" style="position: absolute; left: 0; right: 0; bottom: 0; padding: 10px 20px 24px; box-sizing: border-box; border-radius: 12px 12px 0 0; border-top: 1px solid {{t.outline}}; background: {{t.sheet}}; display: flex; flex-direction: column; gap: 14px; box-shadow: 0 -8px 30px rgba(0,0,0,0.2)">
+        <span style="align-self: center; width: 32px; height: 4px; border-radius: 2px; background: {{t.outline}}"></span>
+        <div style="display: flex; align-items: center; gap: 8px; padding-top: 4px">
+          <span style="height: 20px; display: flex; align-items: center; padding: 0 7px; box-sizing: border-box; border-radius: 6px; font-size: 11px; font-weight: 600; letter-spacing: 0.3px; background: {{t.bugBg}}; color: {{t.bugFg}}; border: 1px solid {{t.bugBd}}">BUG</span>
+          <span style="font-family: 'JetBrains Mono', monospace; font-size: 12px; color: {{t.subtle}}">NitAnchor.kt · line 23</span>
+          <div style="flex: 1"></div>
+          <span style="font-size: 12px; color: {{t.subtle}}">1 of 8</span>
+        </div>
+        <h2 style="margin: 0; font-size: 17px; font-weight: 600">Off-by-one on the anchor line</h2>
+        <p style="margin: 0; color: {{t.muted}}; line-height: 1.5; text-wrap: pretty">nit.line is 1-based. This reads the line below the anchor and throws IndexOutOfBoundsException on the last line of a file.</p>
+        <div style="display: flex; flex-direction: column; border-radius: 6px; overflow: hidden; border: 1px solid {{t.line}}; font-family: 'JetBrains Mono', monospace; font-size: 12px; line-height: 18px">
+          <span style="padding: 6px 12px; font-family: 'Inter', system-ui, sans-serif; font-size: 11px; font-weight: 600; letter-spacing: 0.5px; color: {{t.sug}}; background: {{t.hunk}}">SUGGESTED CHANGE</span>
+          <span style="padding: 6px 12px; white-space: pre-wrap; background: {{t.delBg}}">- val anchor = diff.lines[nit.line]</span>
+                    <span style="padding: 6px 12px; white-space: pre-wrap; background: {{t.addBg}}">+ val anchor = diff.lines
+    .getOrNull(nit.line - 1) ?: return null</span>
+        </div>
+        <div style="display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 12px; padding-top: 6px">
+          <button style="height: 56px; border: 1px solid {{t.outline}}; border-radius: 8px; background: {{t.field}}; color: {{t.text}}; font: inherit; font-size: 16px; font-weight: 600">Dismiss</button>
+          <button style="height: 56px; display: flex; align-items: center; justify-content: center; gap: 8px; border: none; border-radius: 8px; background: {{t.acc}}; color: {{t.onAcc}}; font: inherit; font-size: 16px; font-weight: 600">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="{{ic.check}}"></path></svg>Apply suggestion
+          </button>
+        </div>
+      </section>
+    </sc-if>
+  </div>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props='{"dark":{"editor":"boolean","default":false},"screen":{"editor":"enum","default":"repos","options":["repos","clone","graph","files","diff","sheet","settings","repos-empty","loading","clean","error-key","error-network","error-timeout"]},"$preview":{"width":393,"height":852}}'>
+class Component extends DCLogic {
+  renderVals() {
+    const dark = this.props.dark ?? false;
+    const scr = this.props.screen ?? 'repos';
+    const L = {
+      head: '#27282E', headFg: '#EBECF0', headSub: '#A8ADBD',
+      bg: '#F7F8FA', surf: '#FFFFFF', surf2: '#F7F8FA', line: '#EBECF0', outline: '#C9CCD6', field: '#FFFFFF',
+      text: '#000000', muted: '#6C707E', subtle: '#818594', link: '#0F766E',
+      acc: '#0F766E', onAcc: '#FFFFFF', accC: '#E3F4F1', onAccC: '#0F766E', accBd: 'rgba(15,118,110,0.32)', selRow: '#D2EFEA', hunk: '#F7F8FA',
+      addBg: '#BEE6BE', addGut: '#AADEAA', addFg: '#1F6F32', delBg: '#D6D6D6', delGut: '#C8C8C8', delFg: '#9A2E39', gutCtx: '#F0F0F0', gutFg: '#999999', code: '#FFFFFF',
+      bugBg: '#FFEBEC', bugFg: '#DB3B4B', bugBd: 'rgba(219,59,75,0.32)', warnBg: '#FFF5DB', warnFg: '#A46704', warnBd: 'rgba(164,103,4,0.32)',
+      styleBg: '#F7F8FA', styleFg: '#6C707E', styleBd: '#C9CCD6', sug: '#1F8039', sugSoft: '#E3F7E7', success: '#208A3C',
+      ai: '#7444D4', aiSoft: '#F5EDFF', aiBd: 'rgba(116,68,212,0.32)',
+      l0: '#0F766E', l1: '#208A3C', l2: '#CE6117', l3: '#7444D4',
+      scrim: 'rgba(0,0,0,0.32)', sheet: '#FFFFFF', inv: '#27282E', onInv: '#EBECF0', invAcc: '#5EEAD4'
+    };
+    const D = {
+      head: '#2B2D30', headFg: '#DFE1E5', headSub: '#9DA0A8',
+      bg: '#1E1F22', surf: '#2B2D30', surf2: '#1E1F22', line: '#393B40', outline: '#4E5157', field: '#2B2D30',
+      text: '#DFE1E5', muted: '#9DA0A8', subtle: '#6F737A', link: '#5EEAD4',
+      acc: '#5EEAD4', onAcc: '#0B2E2A', accC: '#1D3533', onAccC: '#5EEAD4', accBd: 'rgba(94,234,212,0.32)', selRow: '#1F403C', hunk: '#1E1F22',
+      addBg: '#294436', addGut: '#447152', addFg: '#5FAD65', delBg: '#484A4A', delGut: '#656E76', delFg: '#DB5C5C', gutCtx: '#313335', gutFg: '#606366', code: '#1E1F22',
+      bugBg: '#402929', bugFg: '#DB5C5C', bugBd: 'rgba(219,92,92,0.32)', warnBg: '#3D3223', warnFg: '#BA9752', warnBd: 'rgba(186,151,82,0.32)',
+      styleBg: '#1E1F22', styleFg: '#9DA0A8', styleBd: '#4E5157', sug: '#5FAD65', sugSoft: '#253627', success: '#5FAD65',
+      ai: '#8150BE', aiSoft: '#2F2936', aiBd: 'rgba(129,80,190,0.32)',
+      l0: '#5EEAD4', l1: '#5FAD65', l2: '#E08855', l3: '#8150BE',
+      scrim: 'rgba(0,0,0,0.55)', sheet: '#2B2D30', inv: '#393B40', onInv: '#DFE1E5', invAcc: '#5EEAD4'
+    };
+    const t = dark ? D : L;
+    const ic = {
+      tweezers: 'M10.4 2.5h3.2 M10.4 2.5L6.8 14.2l3.6 5 M13.6 2.5l3.6 11.7-3.6 5',
+      back: 'M19 12H5 M12 19l-7-7 7-7', close: 'M18 6L6 18 M6 6l12 12',
+      chevDown: 'M6 9l6 6 6-6', chevRight: 'M9 6l6 6-6 6',
+      fetch: 'M20 12a8 8 0 0 1-14 5.3 M4 12a8 8 0 0 1 14-5.3 M18 3v4h-4 M6 21v-4h4',
+      pull: 'M12 4v11 M7.5 10.5L12 15l4.5-4.5 M5 20h14', push: 'M12 20V9 M7.5 13.5L12 9l4.5 4.5 M5 4h14',
+      gear: 'M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 1 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 1 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 1 1-2.83-2.83l.06-.06A1.65 1.65 0 0 0 4.68 15a1.65 1.65 0 0 0-1.51-1H3a2 2 0 1 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 1 1 2.83-2.83l.06.06A1.65 1.65 0 0 0 9 4.68a1.65 1.65 0 0 0 1-1.51V3a2 2 0 1 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 1 1 2.83 2.83l-.06.06A1.65 1.65 0 0 0 19.4 9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 1 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z M12 15a3 3 0 1 0 0-6 3 3 0 0 0 0 6z',
+      more: 'M12 5h.01 M12 12h.01 M12 19h.01',
+      branch: 'M6 3v12 M18 9a3 3 0 1 0 0-6 3 3 0 0 0 0 6z M6 21a3 3 0 1 0 0-6 3 3 0 0 0 0 6z M18 9a9 9 0 0 1-9 9',
+      search: 'M11 19a8 8 0 1 0 0-16 8 8 0 0 0 0 16z M21 21l-4.3-4.3',
+      plus: 'M12 5v14 M5 12h14', check: 'M20 6L9 17l-5-5',
+      eye: 'M2 12s3.6-7 10-7 10 7 10 7-3.6 7-10 7S2 12 2 12z',
+      rerun: 'M20 12a8 8 0 1 1-2.3-5.6 M20 4v4h-4',
+      key: 'M15.5 7.5a3 3 0 1 1-6 0 3 3 0 0 1 6 0z M12.5 10.5L4 19v2h3v-2h2v-2h2l1.5-1.5',
+      wifiOff: 'M3 3l18 18 M8.5 16.4a5 5 0 0 1 7 0 M5 12.8a10 10 0 0 1 4.6-2.6 M19 12.8a10 10 0 0 0-2.2-1.6 M2 8.8a15 15 0 0 1 3.7-2.3 M22 8.8A15 15 0 0 0 11 5.1 M12 20h.01',
+      clock: 'M12 21a9 9 0 1 0 0-18 9 9 0 0 0 0 18z M12 7v5l3 2',
+      okCircle: 'M12 21a9 9 0 1 0 0-18 9 9 0 0 0 0 18z M8 12.5l2.6 2.6L16 9.5'
+    };
+    const act = (label, icon, sw) => ({ t, label, icon, sw: sw || 1.8 });
+    const reviewBar = { lead: true, leadIcon: ic.back, leadLabel: 'Back', title: 'Review', sub: 'feature/nit-sheet vs main', acts: [] };
+    const bars = {
+      repos: { app: true, title: 'Repositories', acts: [act('Settings', ic.gear)] },
+      'repos-empty': { app: true, title: 'Repositories', acts: [act('Settings', ic.gear)] },
+      clone: { lead: true, leadIcon: ic.close, leadLabel: 'Close', title: 'Clone repo', acts: [] },
+      graph: { lead: true, leadIcon: ic.back, leadLabel: 'Back', title: 'nitpick-app', acts: [act('Settings', ic.gear), act('More', ic.more, 3)] },
+      files: Object.assign({}, reviewBar, { acts: [act('Re-run review', ic.rerun)] }),
+      loading: reviewBar, clean: reviewBar, 'error-key': reviewBar, 'error-network': reviewBar, 'error-timeout': reviewBar,
+      diff: { lead: true, leadIcon: ic.back, leadLabel: 'Back', title: 'NitAnchor.kt', sub: 'review/ · +18 −3', mono: true, acts: [act('More', ic.more, 3)] },
+      sheet: { lead: true, leadIcon: ic.back, leadLabel: 'Back', title: 'NitAnchor.kt', sub: 'review/ · +18 −3', mono: true, acts: [act('More', ic.more, 3)] },
+      settings: { lead: true, leadIcon: ic.back, leadLabel: 'Back', title: 'Settings', acts: [] }
+    };
+    const b0 = bars[scr] || bars.repos;
+    const bar = Object.assign({ app: false, lead: false, sub: '', bg: t.head }, b0, { font: b0.mono ? "'JetBrains Mono', monospace" : "'Inter', system-ui, sans-serif" });
+    const s = {
+      repos: scr === 'repos', clone: scr === 'clone', graph: scr === 'graph', files: scr === 'files',
+      diffish: scr === 'diff' || scr === 'sheet', diff: scr === 'diff', sheet: scr === 'sheet', settings: scr === 'settings',
+      reposEmpty: scr === 'repos-empty', loading: scr === 'loading'
+    };
+
+    const shapes = { Bug: 'M8 1.5a6.5 6.5 0 1 0 0 13 6.5 6.5 0 0 0 0-13z', Warning: 'M8 1.5L15 14H1z', Nit: 'M8 1.5L14.5 8 8 14.5 1.5 8z', Style: 'M3 3h10v10H3z' };
+    const sev = {
+      Bug: { bg: t.bugBg, fg: t.bugFg, bd: t.bugBd }, Warning: { bg: t.warnBg, fg: t.warnFg, bd: t.warnBd },
+      Nit: { bg: t.accC, fg: t.onAccC, bd: t.accBd }, Style: { bg: t.styleBg, fg: t.styleFg, bd: t.styleBd }
+    };
+    const badge = (k, n) => ({ label: n + ' ' + (k.toUpperCase() + (n > 1 && k !== 'Style' ? 'S' : '')), bg: sev[k].bg, fg: sev[k].fg, bd: sev[k].bd });
+
+    const repos = [
+      { name: 'nitpick-app', branch: 'feature/nit-sheet', meta: 'reviewed 2 h ago', badge: '1 BUG', bbg: t.bugBg, bfg: t.bugFg, bbd: t.bugBd },
+      { name: 'socraft-web', branch: 'main', meta: 'reviewed yesterday', badge: 'CLEAN', bbg: t.sugSoft, bfg: t.sug, bbd: t.sug },
+      { name: 'android-sandbox', branch: 'develop', meta: 'not reviewed', badge: 'NEW', bbg: t.surf2, bfg: t.muted, bbd: t.outline }
+    ].map((r) => Object.assign({ t, branchIcon: ic.branch }, r));
+
+    const gitActs = [
+      { label: 'Fetch', icon: ic.fetch, n: '' }, { label: 'Pull', icon: ic.pull, n: '2' }, { label: 'Push', icon: ic.push, n: '3' }
+    ].map((g) => Object.assign({ t }, g));
+
+    // compact graph
+    const X = (l) => 12 + l * 12;
+    const Y = (r) => r * 60 + 30;
+    const v = (l, a, y2) => 'M' + X(l) + ' ' + Y(a) + ' L' + X(l) + ' ' + y2;
+    const pg = {
+      p0: v(0, 4, 600),
+      p1: v(1, 0, 600),
+      p2: 'M' + X(2) + ' ' + Y(2) + ' L' + X(2) + ' ' + (Y(8) - 60) + ' C' + X(2) + ' ' + (Y(8) - 30) + ' ' + X(0) + ' ' + (Y(8) - 30) + ' ' + X(0) + ' ' + Y(8),
+      p3: v(3, 5, 600) + ' M' + X(0) + ' ' + Y(4) + ' C' + X(0) + ' ' + (Y(4) + 34) + ' ' + X(3) + ' ' + (Y(5) - 34) + ' ' + X(3) + ' ' + Y(5)
+    };
+    const lanes = [t.l0, t.l1, t.l2, t.l3];
+    const ch = (kind, label) => kind === 'head' ? { label, bg: t.selRow, fg: t.onAccC, bd: t.selRow }
+      : kind === 'tag' ? { label, bg: t.warnBg, fg: t.warnFg, bd: t.warnBg }
+      : { label, bg: t.surf2, fg: t.text, bd: t.surf2 };
+    const PC = [
+      [1, 'Render nits inline under diff lines', 'Thomas B.', '2 h', 'a41f9c2', [ch('head', 'HEAD')]],
+      [1, 'Sort nits by severity, then by line', 'Thomas B.', '3 h', '7d03e1b', []],
+      [2, 'Raise contrast of deleted lines', 'Léa M.', '5 h', 'e19b4a0', [ch('local', 'fix/diff-colors')]],
+      [1, 'Nit bottom sheet for Android', 'Thomas B.', '1 d', '3c88f17', []],
+      [0, "Merge branch 'release/1.2'", 'Jonas K.', '1 d', '9f2e6d4', [ch('local', 'main')]],
+      [3, 'Bump version to 1.2.0', 'Jonas K.', '2 d', '51ab0c9', [ch('tag', 'v1.2.0')]],
+      [1, 'Wire LLM provider settings', 'Thomas B.', '2 d', '0b7e3aa', []],
+      [2, 'Extract DiffLine composable', 'Léa M.', '2 d', 'c6d1e58', []],
+      [0, 'Validate Ollama base URL', 'Ana R.', '3 d', '84fa2b1', []],
+      [1, 'Add Review tab scaffold', 'Thomas B.', '3 d', '2e90c4d', []]
+    ];
+    const prow = PC.map((c, i) => {
+      const lc = lanes[c[0]];
+      const x = X(c[0]) + 4, y = Y(i);
+      const head = i === 0;
+      const dot = head
+        ? 'left: ' + (x - 7) + 'px; top: ' + (y - 7) + 'px; width: 14px; height: 14px; background: ' + t.selRow + '; border: 3px solid ' + lc
+        : 'left: ' + (x - 5) + 'px; top: ' + (y - 5) + 'px; width: 10px; height: 10px; background: ' + lc + '; box-shadow: 0 0 0 2px ' + t.bg;
+      return { t, msg: c[1], author: c[2], date: c[3], sha: c[4], chips: c[5], bg: head ? t.selRow : 'transparent', fw: head ? 600 : 400, dot };
+    });
+
+    const counters = [['Bug', 1, 'bug'], ['Warning', 2, 'warnings'], ['Nit', 4, 'nits'], ['Style', 1, 'style']]
+      .map((c) => ({ n: c[1], label: c[2].toUpperCase(), bg: sev[c[0]].bg, fg: sev[c[0]].fg, bd: sev[c[0]].bd }));
+    const pfiles = [
+      { name: 'NitAnchor.kt', dir: 'review/', badges: [badge('Bug', 1), badge('Nit', 1)] },
+      { name: 'ReviewViewModel.kt', dir: 'review/', badges: [badge('Warning', 1), badge('Nit', 1)] },
+      { name: 'DiffLine.kt', dir: 'review/ui/', badges: [badge('Warning', 1), badge('Style', 1), badge('Nit', 1)] },
+      { name: 'SettingsScreen.kt', dir: 'settings/', badges: [badge('Nit', 1)] }
+    ].map((f, i, a) => Object.assign({ t, chev: ic.chevRight, bd: i === a.length - 1 ? 'transparent' : t.line }, f));
+
+    const ln = (n, k, c) => {
+      const base = { t, isLine: true, n, c };
+      if (k === '+') return Object.assign(base, { s: '+', bg: t.addBg, gut: t.addGut, sc: t.addFg });
+      if (k === '-') return Object.assign(base, { s: '-', bg: t.delBg, gut: t.delGut, sc: t.delFg });
+      return Object.assign(base, { s: '', bg: 'transparent', gut: t.gutCtx, sc: t.subtle });
+    };
+    const pdiff = [
+      ln(18, ' ', 'internal fun anchorFor('),
+      ln(19, ' ', '  nit: Nit,'),
+      ln(20, ' ', '  diff: FileDiff,'),
+      ln(21, '-', '): DiffLine = diff.lines.first {'),
+      ln(21, '+', '): DiffLine? {'),
+      ln(22, '+', '  if (nit.line < 1) return null'),
+      ln(23, '+', '  val anchor = diff.lines[nit.line]'),
+      { t, isNit: true, sev: 'BUG', title: 'Off-by-one on the anchor line', bbg: t.bugBg, bfg: t.bugFg, bbd: t.bugBd, bd: t.outline, chev: ic.chevRight },
+      ln(24, '+', '  return anchor.takeIf {'),
+      ln(25, '+', '    it.kind != Kind.Deleted }'),
+      ln(26, '+', '}'),
+      ln(27, ' ', ''),
+      ln(28, ' ', 'internal fun visible(nits: List<Nit>)'),
+      ln(29, '+', '  val visibleNits = nits.filter {'),
+      { t, isApplied: true, title: 'Rename tmp to visibleNits', check: ic.check },
+      ln(30, '+', '    !it.ignored && it.line > 0 }'),
+      ln(31, ' ', '  return visibleNits.sortedWith(…)')
+    ];
+
+    const seg = (labels, on) => labels.map((label, i) => ({
+      label, on: false, check: ic.check, bg: i === on ? t.field : 'transparent', fg: t.text,
+      bd: i === on ? t.acc : 'transparent'
+    }));
+    const provs = [
+      ['Anthropic', 'Claude models'], ['OpenAI', 'GPT models'], ['Google', 'Gemini models'], ['Ollama', 'Self-hosted, needs a server URL']
+    ].map((p, i) => ({ t, label: p[0], sub: p[1], ring: i === 0 ? t.acc : t.outline, fill: i === 0 ? t.acc : t.field, dot: i === 0 ? t.onAcc : 'transparent' }));
+
+    const steps = [
+      { label: 'Collecting diff against main', done: true },
+      { label: 'Reading 12 files…', now: true },
+      { label: 'Asking the model…', todo: true },
+      { label: 'Placing nits on lines', todo: true }
+    ].map((x) => Object.assign({ t, check: ic.check, fg: x.todo ? t.subtle : t.text, fw: x.now ? 600 : 400 }, x));
+
+    const msgs = {
+      clean: { title: 'Clean branch. Nothing to nitpick.', body: '6 files on feature/nit-sheet reviewed against main. No bugs, no warnings, no nits.', icon: ic.okCircle, iconBg: t.accC, iconFg: t.onAccC, action: 'Push 3 commits' },
+      'error-key': { title: 'Add an API key to start', body: 'Nitpick needs an Anthropic API key to ask the model.', icon: ic.key, iconBg: t.accC, iconFg: t.onAccC, action: 'Open Settings' },
+      'error-network': { title: 'Can’t reach Anthropic', body: 'Check your connection, then try again. Nothing was sent.', icon: ic.wifiOff, iconBg: t.bugBg, iconFg: t.bugFg, action: 'Retry', code: 'ENOTFOUND api.anthropic.com' },
+      'error-timeout': { title: 'The model took too long', body: 'No answer within 90 s. Large diffs can take longer.', icon: ic.clock, iconBg: t.warnBg, iconFg: t.warnFg, action: 'Try again', code: 'Timeout after 90 s · 12 files' }
+    };
+    const m = msgs[scr];
+    const msg = m ? Object.assign({ show: true, hasCode: !!m.code }, m) : { show: false };
+
+    return {
+      rootBg: (scr === 'diff' || scr === 'sheet') ? t.code : t.bg,
+      t, ic, bar, s, repos, gitActs, pg, prow, counters, pfiles, pdiff, steps, msg, provs,
+      themeSeg: seg(['System', 'Light', 'Dark'], 0)
+    };
+  }
+}
+</script>
+</body>
+</html>

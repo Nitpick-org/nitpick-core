@@ -1,0 +1,230 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>Nitpick token sheet</title>
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&amp;family=JetBrains+Mono:wght@400;500;600&amp;display=swap" rel="stylesheet">
+<style>body{margin:0}</style>
+</helmet>
+<div style="width: 1440px; min-height: 2000px; box-sizing: border-box; padding: 72px 80px; display: flex; flex-direction: column; gap: 56px; font-family: 'Inter', system-ui, sans-serif; font-size: 14px; line-height: 1.45; background: #FFFFFF; color: #000000">
+
+  <header style="display: flex; align-items: center; gap: 40px">
+    <div style="display: flex; align-items: flex-end; gap: 20px">
+      <div style="width: 128px; height: 128px; border-radius: 30px; background: #0F766E; display: flex; align-items: center; justify-content: center">
+        <svg width="88" height="88" viewBox="0 0 24 24" fill="none" stroke="#F0FDFA" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" role="img" aria-label="Nitpick app icon"><path d="M10.4 2.5h3.2 M10.4 2.5L6.8 14.2l3.6 5 M13.6 2.5l3.6 11.7-3.6 5"></path><circle cx="12" cy="21" r="1.4" fill="#5EEAD4" stroke="none"></circle></svg>
+      </div>
+      <div style="width: 64px; height: 64px; border-radius: 15px; background: #0F766E; display: flex; align-items: center; justify-content: center">
+        <svg width="44" height="44" viewBox="0 0 24 24" fill="none" stroke="#F0FDFA" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M10.4 2.5h3.2 M10.4 2.5L6.8 14.2l3.6 5 M13.6 2.5l3.6 11.7-3.6 5"></path><circle cx="12" cy="21" r="1.5" fill="#5EEAD4" stroke="none"></circle></svg>
+      </div>
+      <div style="width: 32px; height: 32px; border-radius: 8px; background: #0F766E; display: flex; align-items: center; justify-content: center">
+        <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#F0FDFA" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M10.4 2.5h3.2 M10.4 2.5L6.8 14.2l3.6 5 M13.6 2.5l3.6 11.7-3.6 5"></path><circle cx="12" cy="21" r="1.7" fill="#5EEAD4" stroke="none"></circle></svg>
+      </div>
+      <div style="width: 64px; height: 64px; border-radius: 15px; background: #111113; border: 1px solid #2E2E33; box-sizing: border-box; display: flex; align-items: center; justify-content: center">
+        <svg width="44" height="44" viewBox="0 0 24 24" fill="none" stroke="#5EEAD4" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M10.4 2.5h3.2 M10.4 2.5L6.8 14.2l3.6 5 M13.6 2.5l3.6 11.7-3.6 5"></path><circle cx="12" cy="21" r="1.5" fill="#F4F4F5" stroke="none"></circle></svg>
+      </div>
+    </div>
+    <div style="display: flex; flex-direction: column; gap: 8px">
+      <h1 style="margin: 0; font-size: 44px; font-weight: 700; letter-spacing: -0.02em">Nitpick · tokens</h1>
+      <p style="margin: 0; font-size: 18px; color: #52525B">Nitpick your branch before main does.</p>
+      <p style="margin: 0; color: #6B6B73; max-width: 640px">Source of truth: Eliot’s design system (docs/DESIGN-SYSTEM.md, NitpickTokens.kt), JetBrains New UI / expUI. One deliberate change: primary is Nitpick teal instead of Blue6 #3574F0. Everything else (graphite surfaces, diff, semantic tones, sizes, radii, type) is his.</p>
+    </div>
+  </header>
+
+  <!-- Color roles -->
+  <section style="display: flex; flex-direction: column; gap: 16px">
+    <h2 style="margin: 0; font-size: 22px; font-weight: 600">NitpickColors · light / dark</h2>
+    <div style="display: grid; grid-template-columns: 260px 1fr 1fr 1.4fr; border: 1px solid #E4E4E7; border-radius: 16px; overflow: hidden">
+      <span style="padding: 12px 16px; background: #F7F7F8; font-size: 12px; font-weight: 600; color: #52525B">Role</span>
+      <span style="padding: 12px 16px; background: #F7F7F8; font-size: 12px; font-weight: 600; color: #52525B">Light</span>
+      <span style="padding: 12px 16px; background: #F7F7F8; font-size: 12px; font-weight: 600; color: #52525B">Dark</span>
+      <span style="padding: 12px 16px; background: #F7F7F8; font-size: 12px; font-weight: 600; color: #52525B">Used for</span>
+      <sc-for list="{{roles}}" as="r" hint-placeholder-count="14">
+        <span style="padding: 10px 16px; border-top: 1px solid #E4E4E7; font-family: 'JetBrains Mono', monospace; font-size: 13px; font-weight: 500">{{r.role}}</span>
+        <span style="padding: 10px 16px; border-top: 1px solid #E4E4E7; display: flex; align-items: center; gap: 10px; font-family: 'JetBrains Mono', monospace; font-size: 12px"><span style="width: 28px; height: 20px; border-radius: 5px; border: 1px solid rgba(0,0,0,0.12); background: {{r.l}}"></span>{{r.l}}</span>
+        <span style="padding: 10px 16px; border-top: 1px solid #E4E4E7; display: flex; align-items: center; gap: 10px; font-family: 'JetBrains Mono', monospace; font-size: 12px"><span style="width: 28px; height: 20px; border-radius: 5px; border: 1px solid rgba(0,0,0,0.12); background: {{r.d}}"></span>{{r.d}}</span>
+        <span style="padding: 10px 16px; border-top: 1px solid #E4E4E7; color: #52525B">{{r.use}}</span>
+      </sc-for>
+    </div>
+  </section>
+
+  <!-- Severity + diff + lanes -->
+  <section style="display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 32px">
+    <div style="display: flex; flex-direction: column; gap: 16px">
+      <h2 style="margin: 0; font-size: 22px; font-weight: 600">Severity palette</h2>
+      <div style="display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); border-radius: 16px; overflow: hidden; border: 1px solid #E4E4E7">
+        <div style="padding: 20px; display: flex; flex-direction: column; gap: 12px; background: #FFFFFF">
+          <span style="font-size: 12px; font-weight: 600; color: #52525B">Light</span>
+          <sc-for list="{{sevL}}" as="s" hint-placeholder-count="6">
+            <div style="display: flex; align-items: center; gap: 10px">
+              <span style="height: 22px; display: flex; align-items: center; padding: 0 9px; border-radius: 6px; font-size: 11px; font-weight: 600; letter-spacing: 0.3px; border: 1px solid {{s.fg}}; box-sizing: border-box; background: {{s.bg}}; color: {{s.fg}}">{{s.label}}</span>
+              <span style="font-family: 'JetBrains Mono', monospace; font-size: 11px; color: #6B6B73">{{s.fg}} on {{s.bg}}</span>
+            </div>
+          </sc-for>
+        </div>
+        <div style="padding: 20px; display: flex; flex-direction: column; gap: 12px; background: #1E1F22">
+          <span style="font-size: 12px; font-weight: 600; color: #B4B4BB">Dark</span>
+          <sc-for list="{{sevD}}" as="s" hint-placeholder-count="6">
+            <div style="display: flex; align-items: center; gap: 10px">
+              <span style="height: 22px; display: flex; align-items: center; padding: 0 9px; border-radius: 6px; font-size: 11px; font-weight: 600; letter-spacing: 0.3px; border: 1px solid {{s.fg}}; box-sizing: border-box; background: {{s.bg}}; color: {{s.fg}}">{{s.label}}</span>
+              <span style="font-family: 'JetBrains Mono', monospace; font-size: 11px; color: #868A91">{{s.fg}} on {{s.bg}}</span>
+            </div>
+          </sc-for>
+        </div>
+      </div>
+      <p style="margin: 0; color: #52525B">Severity uses Eliot’s tones: BUG = danger, WARNING = warning. NIT (primary) and STYLE (neutral) are Nitpick additions. Badges: 11 sp uppercase, 1 px border at 32 % of the tone, radius 6. Summary format: <span style="font-family: 'JetBrains Mono', monospace; font-size: 13px">“8 nits · 1 bug”</span>.</p>
+    </div>
+    <div style="display: flex; flex-direction: column; gap: 16px">
+      <h2 style="margin: 0; font-size: 22px; font-weight: 600">Diff &amp; graph lanes</h2>
+      <div style="display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); border-radius: 16px; overflow: hidden; border: 1px solid #E4E4E7; font-family: 'JetBrains Mono', monospace; font-size: 12px; line-height: 22px">
+        <div style="padding: 16px 0; background: #FFFFFF; color: #000000">
+          <div style="display: flex; background: #D6D6D6"><span style="width: 36px; text-align: right; padding-right: 6px; background: #C8C8C8; color: #6B6B73">21</span><span style="width: 18px; text-align: center; color: #9A2E39; font-weight: 600">-</span>diff.lines.first {</div>
+          <div style="display: flex; background: #BEE6BE"><span style="width: 36px; text-align: right; padding-right: 6px; background: #AADEAA; color: #6B6B73">21</span><span style="width: 18px; text-align: center; color: #1F6F32; font-weight: 600">+</span>diff.lines.getOrNull(</div>
+          <div style="display: flex"><span style="width: 36px; text-align: right; padding-right: 6px; background: #F0F0F0; color: #999999">22</span><span style="width: 18px"></span>return anchor</div>
+        </div>
+        <div style="padding: 16px 0; background: #1E1F22; color: #DFE1E5">
+          <div style="display: flex; background: #484A4A"><span style="width: 36px; text-align: right; padding-right: 6px; background: #656E76; color: #868A91">21</span><span style="width: 18px; text-align: center; color: #DB5C5C; font-weight: 600">-</span>diff.lines.first {</div>
+          <div style="display: flex; background: #294436"><span style="width: 36px; text-align: right; padding-right: 6px; background: #447152; color: #868A91">21</span><span style="width: 18px; text-align: center; color: #5FAD65; font-weight: 600">+</span>diff.lines.getOrNull(</div>
+          <div style="display: flex"><span style="width: 36px; text-align: right; padding-right: 6px; background: #313335; color: #606366">22</span><span style="width: 18px"></span>return anchor</div>
+        </div>
+      </div>
+      <div style="display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 10px">
+        <sc-for list="{{lanes}}" as="l" hint-placeholder-count="8">
+          <div style="display: flex; flex-direction: column; gap: 6px; padding: 12px; border-radius: 12px; border: 1px solid #E4E4E7">
+            <span style="display: flex; gap: 6px"><span style="width: 24px; height: 24px; border-radius: 12px; background: {{l.l}}"></span><span style="width: 24px; height: 24px; border-radius: 12px; background: {{l.d}}; box-shadow: 0 0 0 3px #1E1F22"></span></span>
+            <span style="font-size: 12px; font-weight: 600">{{l.name}}</span>
+            <span style="font-family: 'JetBrains Mono', monospace; font-size: 11px; color: #6B6B73">{{l.l}} / {{l.d}}</span>
+          </div>
+        </sc-for>
+      </div>
+      <p style="margin: 0; color: #52525B">IntelliJ editor diff: green additions, grey deletions, + / - prefix and both line-number columns always shown. Lanes: lane % 8, stable per lane. Lane 0 takes our primary; Eliot’s cyan #058B90 became blue since it clashed with teal.</p>
+    </div>
+  </section>
+
+  <!-- Type -->
+  <section style="display: grid; grid-template-columns: 1.3fr 1fr; gap: 32px">
+    <div style="display: flex; flex-direction: column; gap: 16px">
+      <h2 style="margin: 0; font-size: 22px; font-weight: 600">Type scale <span style="font-weight: 400; font-size: 14px; color: #6B6B73">Inter · JetBrains Mono for code</span></h2>
+      <div style="display: flex; flex-direction: column; border: 1px solid #E4E4E7; border-radius: 16px; overflow: hidden">
+        <sc-for list="{{type}}" as="ty" hint-placeholder-count="10">
+          <div style="display: grid; grid-template-columns: 170px 1fr 170px; align-items: center; gap: 16px; padding: 12px 18px; border-top: 1px solid {{ty.bd}}">
+            <span style="font-family: 'JetBrains Mono', monospace; font-size: 12px; color: #52525B">{{ty.role}}</span>
+            <span style="font-family: {{ty.ff}}; font-size: {{ty.size}}px; line-height: {{ty.lh}}px; font-weight: {{ty.w}}; text-transform: {{ty.tt}}; letter-spacing: {{ty.ls}}">{{ty.sample}}</span>
+            <span style="font-family: 'JetBrains Mono', monospace; font-size: 11px; color: #6B6B73; text-align: right">{{ty.spec}}</span>
+          </div>
+        </sc-for>
+      </div>
+      <p style="margin: 0; color: #52525B">Sizes: control 28 dp, list row 24, commit row 40, toolbar 40, tool window header 28, status bar 22, sidebar 240, inspector 320 (680 when Diff or Review is open). Android: 44–48 dp touch targets, same colors. No weight above 600. Labels are sized to fit French (“Appliquer tout pour ce fichier”, “Fournisseur LLM”) without truncation.</p>
+    </div>
+    <div style="display: flex; flex-direction: column; gap: 32px">
+      <div style="display: flex; flex-direction: column; gap: 16px">
+        <h2 style="margin: 0; font-size: 22px; font-weight: 600">Spacing</h2>
+        <div style="display: flex; align-items: flex-end; gap: 14px">
+          <sc-for list="{{space}}" as="sp" hint-placeholder-count="8">
+            <div style="display: flex; flex-direction: column; align-items: center; gap: 6px">
+              <span style="width: {{sp.v}}px; height: {{sp.v}}px; background: #E3F4F1; border: 1px solid #0F766E; box-sizing: border-box"></span>
+              <span style="font-family: 'JetBrains Mono', monospace; font-size: 11px; color: #52525B">{{sp.v}}</span>
+            </div>
+          </sc-for>
+        </div>
+      </div>
+      <div style="display: flex; flex-direction: column; gap: 16px">
+        <h2 style="margin: 0; font-size: 22px; font-weight: 600">Shape</h2>
+        <div style="display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 12px">
+          <sc-for list="{{shape}}" as="sh" hint-placeholder-count="6">
+            <div style="display: flex; align-items: center; gap: 12px">
+              <span style="width: 44px; height: 44px; flex: none; background: #F7F8FA; border: 1px solid #C9CCD6; border-radius: {{sh.rr}}px"></span>
+              <span style="display: flex; flex-direction: column"><span style="font-family: 'JetBrains Mono', monospace; font-size: 12px; font-weight: 600">{{sh.r}} px</span><span style="font-size: 12px; color: #6B6B73">{{sh.use}}</span></span>
+            </div>
+          </sc-for>
+        </div>
+      </div>
+      <div style="display: flex; flex-direction: column; gap: 12px">
+        <h2 style="margin: 0; font-size: 22px; font-weight: 600">Shortcuts (tooltips)</h2>
+        <div style="display: grid; grid-template-columns: 1fr auto; row-gap: 8px; column-gap: 24px">
+          <sc-for list="{{keys}}" as="k" hint-placeholder-count="7">
+            <span>{{k.a}}</span><span style="font-family: 'JetBrains Mono', monospace; font-size: 12px; color: #52525B; text-align: right">{{k.k}}</span>
+          </sc-for>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Compose mapping -->
+  <section style="display: flex; flex-direction: column; gap: 16px">
+    <h2 style="margin: 0; font-size: 22px; font-weight: 600">Kotlin · what changes in NitpickTokens.kt</h2>
+    <pre style="margin: 0; padding: 24px 28px; border-radius: 16px; background: #1E1F22; color: #DFE1E5; font-family: 'JetBrains Mono', monospace; font-size: 13px; line-height: 21px; white-space: pre; overflow: hidden">{{code}}</pre>
+  </section>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props='{"$preview":{"width":1440,"height":2000}}'>
+class Component extends DCLogic {
+  renderVals() {
+    const roles = [
+      ['primary  (teal, overrides #3574F0)', '#0F766E', '#5EEAD4', 'Nitpick branch, Apply suggestion, focus, links, active tab rail'],
+      ['onPrimary', '#FFFFFF', '#0B2E2A', 'Text on primary'],
+      ['primaryHover', '#115E59', '#7FF0DE', 'Hover on primary'],
+      ['primarySoft / selection', '#D2EFEA', '#1F403C', 'Selected row, current branch, HEAD ref'],
+      ['hover', '#EDF7F5', '#393B40', 'Row hover'],
+      ['canvas', '#F7F8FA', '#1E1F22', 'App background, empty zones'],
+      ['surface', '#FFFFFF', '#2B2D30', 'Tool windows, cards'],
+      ['surfaceRaised', '#FFFFFF', '#393B40', 'Popover, tooltip'],
+      ['surfaceSunken', '#F7F8FA', '#1E1F22', 'Fields, suggestion block, kbd'],
+      ['toolbar / onToolbar', '#27282E', '#2B2D30', 'Main toolbar, dark in both themes'],
+      ['statusBar / onStatusBar', '#F7F8FA', '#1E1F22', 'Status bar 22 dp'],
+      ['border', '#EBECF0', '#393B40', 'Separators 1 px'],
+      ['borderStrong', '#C9CCD6', '#4E5157', 'Fields, secondary buttons'],
+      ['text', '#000000', '#DFE1E5', 'Primary text'],
+      ['textSecondary', '#6C707E', '#9DA0A8', 'Metadata'],
+      ['textMuted', '#818594', '#6F737A', 'Hints, placeholders only (below 4.5:1)']
+    ].map((r) => ({ role: r[0], l: r[1], d: r[2], use: r[3] }));
+    const mk = (a) => a.map((s) => ({ label: s[0], bg: s[1], fg: s[2] }));
+    const sevL = mk([['BUG · danger', '#FFEBEC', '#DB3B4B'], ['WARNING · warning', '#FFF5DB', '#A46704'], ['NIT · primary', '#E3F4F1', '#0F766E'], ['STYLE · neutral', '#F7F8FA', '#6C707E'], ['SUGGESTED CHANGE · suggestion', '#E3F7E7', '#1F8039'], ['AI · ai', '#F5EDFF', '#7444D4']]);
+    const sevD = mk([['BUG · danger', '#402929', '#DB5C5C'], ['WARNING · warning', '#3D3223', '#BA9752'], ['NIT · primary', '#1D3533', '#5EEAD4'], ['STYLE · neutral', '#1E1F22', '#9DA0A8'], ['SUGGESTED CHANGE · suggestion', '#253627', '#5FAD65'], ['AI · ai', '#2F2936', '#8150BE']]);
+    const lanes = [['0 · primary', '#0F766E', '#5EEAD4'], ['1', '#208A3C', '#5FAD65'], ['2', '#CE6117', '#E08855'], ['3', '#7444D4', '#8150BE'], ['4', '#DB3B4B', '#DB5C5C'], ['5 · ex-primary blue', '#3574F0', '#548AF7'], ['6', '#DF9303', '#D6AE58'], ['7', '#5A5D6B', '#9DA0A8']].map((l) => ({ name: l[0], l: l[1], d: l[2] }));
+    const I = "'Inter', system-ui, sans-serif", M = "'JetBrains Mono', monospace";
+    const type = [
+      ['display', 'Nitpick', 24, 30, 600, '24/30 · SemiBold', I],
+      ['title', 'No repository open', 20, 26, 600, '20/26 · SemiBold', I],
+      ['section', '8 nits · 1 bug', 15, 20, 600, '15/20 · SemiBold', I],
+      ['body', 'Render nits inline under diff lines', 13, 18, 400, '13/18 · Regular', I],
+      ['bodyStrong', 'Apply suggestion', 13, 18, 500, '13/18 · Medium', I],
+      ['small', 'Thomas B. · 2 h ago', 12, 16, 400, '12/16 · Regular', I],
+      ['label', 'Base', 12, 16, 500, '12/16 · Medium', I],
+      ['kicker', 'SUGGESTED CHANGE', 11, 14, 600, '11/14 · SemiBold · caps', I],
+      ['code', 'val anchor = diff.lines[nit.line]', 12, 18, 400, 'JetBrains Mono 12/18', M],
+      ['codeSmall', 'a41f9c2 · @@ -18,7 +18,11 @@', 11, 16, 400, 'JetBrains Mono 11/16', M]
+    ].map((x, i) => ({ role: x[0], sample: x[1], size: x[2], lh: x[3], w: x[4], spec: x[5], ff: x[6], tt: 'none', ls: x[0] === 'kicker' ? '0.5px' : 'normal', bd: i === 0 ? 'transparent' : '#E4E4E7' }));
+    const space = [2, 4, 8, 12, 16, 20, 24, 32].map((v) => ({ v }));
+    const shape = [[4, 'kbd, micro surface'], [6, 'Field, badge, row'], [8, 'Button, card, panel'], [10, 'Popover, dialog'], [12, 'Android FAB, sheet top'], [999, 'Status badge only']].map((s) => ({ r: s[0], rr: Math.min(s[0], 22), use: s[1] }));
+    const keys = [['Fetch', '⌘⇧F'], ['Pull', '⌘⇧L'], ['Push', '⌘⇧P'], ['Nitpick branch', '⌘⇧R'], ['Settings', '⌘ ,'], ['Apply suggestion / Dismiss', 'A / D'], ['Next nit', 'J / K']].map((k) => ({ a: k[0], k: k[1] }));
+    const code = [
+      '// shared/src/commonMain/kotlin/dev/nitpick/app/ui/theme/NitpickTokens.kt',
+      '// Only primary-family tokens change; every other value stays Eliot\'s expUI value.',
+      'LightColors = NitpickColors(',
+      '    primary = Color(0xFF0F766E),        // was 0xFF3574F0',
+      '    onPrimary = Color(0xFFFFFFFF),',
+      '    primaryHover = Color(0xFF115E59),   // was 0xFF4682FA',
+      '    primarySoft = Color(0xFFD2EFEA),    // was 0xFFD4E2FF',
+      '    selection = Color(0xFFD2EFEA),      // was 0xFFD4E2FF',
+      '    hover = Color(0xFFEDF7F5),          // was 0xFFEDF3FF',
+      '    /* … */)',
+      'DarkColors = NitpickColors(',
+      '    primary = Color(0xFF5EEAD4),        // was 0xFF3574F0',
+      '    onPrimary = Color(0xFF0B2E2A),      // was 0xFFFFFFFF (white fails on light teal)',
+      '    primaryHover = Color(0xFF7FF0DE),   // was 0xFF467FF2',
+      '    primarySoft = Color(0xFF1F403C),    // was 0xFF2E436E',
+      '    selection = Color(0xFF1F403C),      // was 0xFF2E436E',
+      '    /* … */)',
+      '// Lanes: index 0 = primary, index 5 = 0xFF3574F0 / 0xFF548AF7 (was cyan 0xFF058B90 / 0xFF24A394)'
+    ].join('\n');
+    return { roles, sevL, sevD, lanes, type, space, shape, keys, code };
+  }
+}
+</script>
+</body>
+</html>

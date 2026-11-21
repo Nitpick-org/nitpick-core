@@ -7,9 +7,10 @@ import androidx.compose.ui.unit.dp
 
 /**
  * Nitpick follows the JetBrains IDE (New UI / Islands) design language: dark graphite
- * chrome, 24–28dp density, one blue action colour, and semantic colour only for diffs,
+ * chrome, 24–28dp density, one action colour, and semantic colour only for diffs,
  * severity and VCS state. The values below are sampled from IntelliJ IDEA's expUI light
- * and dark themes so the app feels like the IDE the challenge comes from.
+ * and dark themes so the app feels like the IDE the challenge comes from; only the primary
+ * family is Nitpick's teal instead of JetBrains blue, which moves to lane 5.
  */
 @Immutable
 data class NitpickColors(
@@ -144,13 +145,13 @@ val NitpickLightColors = NitpickColors(
     text = Color(0xFF000000),
     textSecondary = Color(0xFF6C707E),
     textMuted = Color(0xFF818594),
-    primary = Color(0xFF3574F0),
+    primary = Color(0xFF0F766E),
     onPrimary = Color(0xFFFFFFFF),
-    primaryHover = Color(0xFF4682FA),
-    primarySoft = Color(0xFFD4E2FF),
-    selection = Color(0xFFD4E2FF),
+    primaryHover = Color(0xFF115E59),
+    primarySoft = Color(0xFFD2EFEA),
+    selection = Color(0xFFD2EFEA),
     onSelection = Color(0xFF000000),
-    hover = Color(0xFFEDF3FF),
+    hover = Color(0xFFEDF7F5),
     success = Color(0xFF208A3C),
     successSoft = Color(0xFFE3F7E7),
     warning = Color(0xFFA46704),
@@ -171,14 +172,14 @@ val NitpickLightColors = NitpickColors(
     diffRemovedGutter = Color(0xFFC8C8C8),
     diffContextBg = Color(0xFFFFFFFF),
     lineNumber = Color(0xFF999999),
-    focusRing = Color(0xFF3574F0),
+    focusRing = Color(0xFF0F766E),
     lanePalette = listOf(
-        Color(0xFF3574F0),
+        Color(0xFF0F766E),
         Color(0xFF208A3C),
         Color(0xFFCE6117),
         Color(0xFF7444D4),
         Color(0xFFDB3B4B),
-        Color(0xFF058B90),
+        Color(0xFF3574F0),
         Color(0xFFDF9303),
         Color(0xFF5A5D6B),
     ),
@@ -202,11 +203,11 @@ val NitpickDarkColors = NitpickColors(
     text = Color(0xFFDFE1E5),
     textSecondary = Color(0xFF9DA0A8),
     textMuted = Color(0xFF6F737A),
-    primary = Color(0xFF3574F0),
-    onPrimary = Color(0xFFFFFFFF),
-    primaryHover = Color(0xFF467FF2),
-    primarySoft = Color(0xFF2E436E),
-    selection = Color(0xFF2E436E),
+    primary = Color(0xFF5EEAD4),
+    onPrimary = Color(0xFF0B2E2A),
+    primaryHover = Color(0xFF7FF0DE),
+    primarySoft = Color(0xFF1F403C),
+    selection = Color(0xFF1F403C),
     onSelection = Color(0xFFDFE1E5),
     hover = Color(0xFF393B40),
     success = Color(0xFF5FAD65),
@@ -229,14 +230,14 @@ val NitpickDarkColors = NitpickColors(
     diffRemovedGutter = Color(0xFF656E76),
     diffContextBg = Color(0xFF1E1F22),
     lineNumber = Color(0xFF606366),
-    focusRing = Color(0xFF3574F0),
+    focusRing = Color(0xFF5EEAD4),
     lanePalette = listOf(
-        Color(0xFF3574F0),
+        Color(0xFF5EEAD4),
         Color(0xFF5FAD65),
         Color(0xFFE08855),
         Color(0xFF8150BE),
         Color(0xFFDB5C5C),
-        Color(0xFF24A394),
+        Color(0xFF548AF7),
         Color(0xFFD6AE58),
         Color(0xFF9DA0A8),
     ),

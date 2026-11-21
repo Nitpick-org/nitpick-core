@@ -32,4 +32,11 @@
     <string name="status_no_branch">aucune branche</string>
     <string name="status_commits">%1$d commits</string>
     <string name="status_git">Git</string>
+    <string name="review_cta">Nitpicker la branche</string>
+    <string name="review_cta_tooltip">Relire cette branche par rapport à main</string>
+    <string name="tab_details">Détails</string>
+    <string name="tab_diff">Diff</string>
+    <string name="tab_review">Review</string>
+    <string name="refs_local">Locales</string>
+    <string name="refs_filter_placeholder">Filtrer branches et tags</string>
 </resources>

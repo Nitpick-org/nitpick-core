@@ -16,8 +16,8 @@
    calme ; le diff, les commits et les nits prennent la lumière.
 2. **Densité IDE.** Contrôles 28 dp, lignes 24 dp, toolbar 40 dp, status bar 22 dp. Pas de
    padding Material de 56 dp.
-3. **Une seule action saturée.** Le bleu `#3574F0` est réservé aux actions primaires, au
-   focus et à la sélection active. Le reste est graphite.
+3. **Une seule action saturée.** Le teal `#0F766E` (clair) / `#5EEAD4` (sombre) est réservé
+   aux actions primaires, au focus et à la sélection active. Le reste est graphite.
 4. **La couleur est sémantique.** Vert = ajout/succès, rouge = suppression/erreur, jaune =
    avertissement, violet = IA. Jamais de couleur décorative.
 5. **Deux plateformes, une langue.** Les tokens sont dans `commonMain`. Desktop garde la
@@ -55,14 +55,16 @@
 | `text` | `#000000` | `#DFE1E5` | texte principal |
 | `textSecondary` | `#6C707E` | `#9DA0A8` | métadonnées |
 | `textMuted` | `#818594` | `#6F737A` | hints, labels |
-| `primary` | `#3574F0` | `#3574F0` | action, focus, lien |
-| `primaryHover` | `#4682FA` | `#467FF2` | hover |
-| `primarySoft` | `#D4E2FF` | `#2E436E` | fond d'action secondaire |
-| `selection` | `#D4E2FF` | `#2E436E` | ligne/onglet sélectionné |
-| `hover` | `#EDF3FF` | `#393B40` | survol |
+| `primary` | `#0F766E` | `#5EEAD4` | action, focus, lien |
+| `onPrimary` | `#FFFFFF` | `#0B2E2A` | texte sur `primary` |
+| `primaryHover` | `#115E59` | `#7FF0DE` | hover |
+| `primarySoft` | `#D2EFEA` | `#1F403C` | fond d'action secondaire |
+| `selection` | `#D2EFEA` | `#1F403C` | ligne/onglet sélectionné |
+| `hover` | `#EDF7F5` | `#393B40` | survol |
 
-> Le bleu `#3574F0` est le **Blue6** de JetBrains. En light, le texte sur ce bleu est blanc ;
-> en dark aussi. Ne pas utiliser `primary` comme fond de grande surface.
+> Le teal remplace le **Blue6** `#3574F0` de JetBrains, qui passe en lane 5 du graphe. En
+> light, le texte sur le teal est blanc ; en dark, le teal clair impose un texte sombre
+> `#0B2E2A`. Ne pas utiliser `primary` comme fond de grande surface.
 
 ### 3.2 Sémantique
 
@@ -98,12 +100,12 @@ Huit couleurs, dans l'ordre :
 
 | Light | Dark |
 | --- | --- |
-| `#3574F0` | `#3574F0` |
+| `#0F766E` (= `primary`) | `#5EEAD4` |
 | `#208A3C` | `#5FAD65` |
 | `#CE6117` | `#E08855` |
 | `#7444D4` | `#8150BE` |
 | `#DB3B4B` | `#DB5C5C` |
-| `#058B90` | `#24A394` |
+| `#3574F0` (ex-primary) | `#548AF7` |
 | `#DF9303` | `#D6AE58` |
 | `#5A5D6B` | `#9DA0A8` |
 
@@ -225,7 +227,7 @@ Tous les composants sont dans `ui/components/` et utilisent uniquement les token
 | --- | --- | --- |
 | hover | `#EDF3FF` | `#393B40` |
 | sélection | `#D4E2FF` | `#2E436E` |
-| focus | `#3574F0` (bord 1 px + halo 2 px) | idem |
+| focus | `primary` (bord 1 px + halo 2 px) | idem |
 | disabled | `textMuted` + alpha 0.55 | idem |
 | erreur | `danger` + fond `dangerSoft` | idem |
 
