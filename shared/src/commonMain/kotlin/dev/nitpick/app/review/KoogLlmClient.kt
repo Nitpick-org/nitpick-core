@@ -15,7 +15,6 @@ import ai.koog.prompt.executor.clients.openai.OpenAILLMClient
 import ai.koog.prompt.executor.ollama.client.OllamaClient
 import ai.koog.prompt.llm.LLMCapability
 import ai.koog.prompt.llm.LLModel
-import ai.koog.prompt.message.Message
 import ai.koog.prompt.message.MessagePart
 import dev.nitpick.app.settings.LlmProvider
 import dev.nitpick.app.settings.Settings
@@ -41,11 +40,11 @@ class KoogLlmClient(private val settingsStore: SettingsStore) : ToolCallingLlmCl
         answer.parts.filterIsInstance<MessagePart.Text>().joinToString("") { it.text }
     }
 
-    override suspend fun completeWithTools(system: String, user: String, toolbox: ReviewToolbox): String =
+    override suspend fun completeWithTools(prompt: ReviewPrompt, toolbox: ReviewToolbox): String =
         withClient { client, model, settings ->
             var conversation = Prompt.builder("nitpick-review-tools").apply {
-                system(system)
-                user(user)
+                system(prompt.system)
+                user(prompt.user)
             }.build()
             val descriptors = toolbox.descriptors()
 
@@ -54,8 +53,20 @@ class KoogLlmClient(private val settingsStore: SettingsStore) : ToolCallingLlmCl
                 client.execute(conversation, model, descriptors)
             } catch (e: Exception) {
                 if (e is kotlinx.coroutines.CancellationException) throw e
-                val plain = client.execute(conversation, model)
-                return@withClient plain.parts.filterIsInstance<MessagePart.Text>().joinToString("") { it.text }
+                // Only a provider/tool-support failure may fall back; a programming error must surface.
+                if (e !is LLMClientException && e !is UnsupportedOperationException) throw e
+                val plainPrompt = prompt.withoutTools()
+                val plain = Prompt.builder("nitpick-review").apply {
+                    system(plainPrompt.system)
+                    user(plainPrompt.user)
+                }.build()
+                val plainAnswer = try {
+                    client.execute(plain, model)
+                } catch (plainError: Exception) {
+                    if (plainError is kotlinx.coroutines.CancellationException) throw plainError
+                    throw e
+                }
+                return@withClient plainAnswer.parts.filterIsInstance<MessagePart.Text>().joinToString("") { it.text }
             }
 
             repeat(MAX_TOOL_ROUNDS) {
@@ -74,7 +85,10 @@ class KoogLlmClient(private val settingsStore: SettingsStore) : ToolCallingLlmCl
                 conversation = next
                 answer = client.execute(conversation, model, descriptors)
             }
-            error("The ${settings.provider.name} review exceeded $MAX_TOOL_ROUNDS tool rounds")
+            throw ReviewProviderException(
+                "The ${settings.provider.name} review exceeded $MAX_TOOL_ROUNDS tool rounds",
+                IllegalStateException("tool-call loop did not converge"),
+            )
         }
 
     private suspend fun <T> withClient(block: suspend (LLMClient, LLModel, Settings) -> T): T {

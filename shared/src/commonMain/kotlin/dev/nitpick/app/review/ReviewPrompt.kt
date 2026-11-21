@@ -38,6 +38,10 @@ Rules:
 - Prefer few precise comments over many vague ones. Severity BUG only when the code is wrong.
 """.trim()
 
+/** Used only when a provider rejects the tool-enabled request: do not advertise absent tools. */
+fun ReviewPrompt.withoutTools(): ReviewPrompt =
+    copy(system = system.substringBefore("\n\nTools:").trimEnd())
+
 fun buildReviewPrompt(context: ReviewContext, toolsAvailable: Boolean = false): ReviewPrompt {
     val system = if (toolsAvailable) {
         REVIEW_SYSTEM_PROMPT + """
@@ -46,7 +50,7 @@ Tools:
 - You may call list_files() to find a related file and read_file(path) to read it.
 - Paths are relative to the repository root. Never use absolute paths or "..".
 - Read only what the diff needs (a called signature, an existing test); the diff already contains the changed files.
-- At most 6 tool calls per review.
+- At most $MAX_REVIEW_TOOL_CALLS tool calls per review.
 """
     } else {
         REVIEW_SYSTEM_PROMPT

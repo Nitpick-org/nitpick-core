@@ -5,9 +5,11 @@ import ai.koog.agents.core.tools.ToolParameterDescriptor
 import ai.koog.agents.core.tools.ToolParameterType
 import dev.nitpick.app.git.GitRepository
 import kotlinx.serialization.json.JsonObject
+import kotlinx.serialization.json.JsonPrimitive
 import kotlinx.serialization.json.contentOrNull
-import kotlinx.serialization.json.jsonPrimitive
 
+const val REVIEW_TOOL_LIST_FILES = "list_files"
+const val REVIEW_TOOL_READ_FILE = "read_file"
 const val MAX_REVIEW_TOOL_CALLS = 6
 const val MAX_REVIEW_TOOL_BYTES = 64_000
 
@@ -27,16 +29,17 @@ class ReviewToolbox(
 ) {
     private var calls = 0
     private var bytesRead = 0
+    private var trackedFiles: Set<String>? = null
 
     fun descriptors(): List<ToolDescriptor> = listOf(
         ToolDescriptor(
-            name = "list_files",
+            name = REVIEW_TOOL_LIST_FILES,
             description = "List the tracked files of the repository. Use it to find a related file, then read it with read_file.",
             requiredParameters = emptyList(),
             optionalParameters = emptyList(),
         ),
         ToolDescriptor(
-            name = "read_file",
+            name = REVIEW_TOOL_READ_FILE,
             description = "Read one tracked text file from the repository. Path is relative to the repository root.",
             requiredParameters = listOf(
                 ToolParameterDescriptor("path", "Relative path of the file", ToolParameterType.String),
@@ -48,11 +51,21 @@ class ReviewToolbox(
     suspend fun execute(tool: String, args: JsonObject): ToolOutput {
         if (calls >= maxCalls) return ToolOutput("Tool budget exhausted ($maxCalls calls).", isError = true)
         return when (tool) {
-            "list_files" -> {
+            REVIEW_TOOL_LIST_FILES -> {
                 calls++
-                ToolOutput(repository.listFiles().take(500).joinToString("\n"))
+                val listing = repository.listFiles()
+                    .filter(::isReviewablePath)
+                    .take(500)
+                    .joinToString("\n")
+                val listingBytes = listing.encodeToByteArray().size
+                if (listingBytes > maxBytes) {
+                    ToolOutput("Read budget exhausted ($maxBytes bytes).", isError = true)
+                } else {
+                    bytesRead += listingBytes
+                    ToolOutput(listing)
+                }
             }
-            "read_file" -> readFile(args["path"]?.jsonPrimitive?.contentOrNull)
+            REVIEW_TOOL_READ_FILE -> readFile((args["path"] as? JsonPrimitive)?.contentOrNull)
             else -> ToolOutput("Unknown tool: $tool", isError = true)
         }
     }
@@ -65,11 +78,17 @@ class ReviewToolbox(
             return ToolOutput("Absolute paths are not allowed.", isError = true)
         }
         val segments = path.split('/')
-        if (segments.any { it.isEmpty() || it == "." || it == ".." || it == ".git" }) {
+        if (segments.any { it.isEmpty() || it == "." || it == ".." || it.equals(".git", ignoreCase = true) }) {
             return ToolOutput("Path must stay inside the repository and outside .git.", isError = true)
         }
+        val tracked = trackedFiles ?: repository.listFiles().toSet().also { trackedFiles = it }
+        if (path !in tracked) return ToolOutput("File is not tracked: $path", isError = true)
+        if (!isReviewablePath(path)) return ToolOutput("Binary, generated or ignored file: $path", isError = true)
         val content = repository.readFile(path)
             ?: return ToolOutput("File not found or not readable: $path", isError = true)
+        if (content.any { it == '\u0000' }) {
+            return ToolOutput("Binary file: $path", isError = true)
+        }
         val contentBytes = content.encodeToByteArray().size
         if (bytesRead + contentBytes > maxBytes) {
             return ToolOutput("Read budget exhausted ($maxBytes bytes).", isError = true)

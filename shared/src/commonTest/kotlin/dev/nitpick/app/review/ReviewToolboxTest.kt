@@ -7,6 +7,7 @@ import kotlinx.serialization.json.buildJsonObject
 import kotlinx.serialization.json.put
 import kotlin.test.Test
 import kotlin.test.assertEquals
+import kotlin.test.assertFalse
 import kotlin.test.assertTrue
 
 class ReviewToolboxTest {
@@ -16,6 +17,9 @@ class ReviewToolboxTest {
             "src/Hero.kt" to "class Hero(val name: String)",
             "src/HeroTest.kt" to "class HeroTest",
             ".git/config" to "token = secret",
+            ".env" to "API_KEY=secret",
+            "assets/logo.png" to "binary",
+            "bin.dat" to "text\u0000binary",
             "big.txt" to "x".repeat(100),
         ),
     )
@@ -29,6 +33,10 @@ class ReviewToolboxTest {
         assertTrue(toolbox.execute("read_file", path("/etc/passwd")).isError)
         assertTrue(toolbox.execute("read_file", path("../secret")).isError)
         assertTrue(toolbox.execute("read_file", path(".git/config")).isError)
+        assertTrue(toolbox.execute("read_file", path(".GIT/config")).isError)
+        assertTrue(toolbox.execute("read_file", path(".env")).isError)
+        assertTrue(toolbox.execute("read_file", path("assets/logo.png")).isError)
+        assertTrue(toolbox.execute("read_file", path("bin.dat")).isError)
     }
 
     @Test
@@ -48,13 +56,15 @@ class ReviewToolboxTest {
 
         assertTrue("src/Hero.kt" in output.text)
         assertTrue("src/HeroTest.kt" in output.text)
+        assertTrue(".env" !in output.text)
+        assertTrue("logo.png" !in output.text)
     }
 
     @Test
     fun theCallBudgetIsEnforced() = runTest {
         val toolbox = ReviewToolbox(repository, maxCalls = 1)
 
-        assertTrue(!toolbox.execute("list_files", JsonObject(emptyMap())).isError)
+        assertFalse(toolbox.execute("list_files", JsonObject(emptyMap())).isError)
         assertTrue(toolbox.execute("list_files", JsonObject(emptyMap())).isError)
     }
 

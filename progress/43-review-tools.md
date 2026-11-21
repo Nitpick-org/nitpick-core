@@ -1,6 +1,6 @@
 # Ticket 43-review-tools
 
-- Statut : prêt pour PR
+- Statut : en review ; corrections après auto-review (PR #70)
 - Propriétaire humain : @zooldyyk
 - Piste : A core partagé
 - Agent : lead
@@ -19,6 +19,10 @@
 - 19:35 — `LlmReviewAgent` passe la toolbox seulement si le client supporte les outils ;
   le prompt ajoute la section Tools dans ce cas. Tests : 6 cas de garde-fous.
 - 19:38 — **118 tests JVM, 0 échec** ; desktop compile.
+- 19:55 — auto-review : `read_file` lisait encore les fichiers ignorés/binaires et
+  `.env` ; seuls les fichiers suivis et reviewable passent maintenant, `.git` est
+  case-insensitive, les listings comptent dans le budget. Tests `.env`, `.png`, NUL,
+  `.GIT` et chemin tool-capable ajoutés. **119 tests, 0 échec**.
 
 ## Décisions
 
@@ -32,7 +36,7 @@
 
 ## Vérifications
 
-- `:shared:jvmTest --rerun-tasks` : **118 tests, 0 échec**.
+- `:shared:jvmTest --rerun-tasks` : **119 tests, 0 échec**.
 - `:shared:compileKotlinJvm` + `:desktopApp:compileKotlin` verts.
 - `./scripts/check.sh` complet non lancé (pas de SDK Android ici).
 
@@ -40,4 +44,6 @@
 
 - **Appel réel non rejoué** : il faut une clé et un diff qui référence un autre fichier pour
   prouver qu’un `read_file` est déclenché. À faire avant de fermer #43.
+- Le loop Koog lui-même n’est couvert que par le chemin `ToolCallingLlmClient`/toolbox, pas
+  par un faux `LLMClient` ; l’appel réel reste la preuve attendue.
 - Le support tool-calling varie selon le fournisseur ; le repli sans outils couvre le cas.
