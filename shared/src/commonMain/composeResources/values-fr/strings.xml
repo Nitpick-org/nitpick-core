@@ -1,0 +1,14 @@
+<resources>
+    <string name="repository_open">Ouvrir un dépôt…</string>
+    <string name="repository_empty_title">Aucun dépôt ouvert</string>
+    <string name="repository_empty_hint">Choisissez un dépôt git local pour voir ses commits et ses branches.</string>
+    <string name="repository_error_title">Impossible d’ouvrir ce dépôt</string>
+    <string name="repository_on_branch">sur %1$s</string>
+    <string name="refs_local_branches">Branches</string>
+    <string name="refs_remote_branches">Branches distantes</string>
+    <string name="refs_tags">Tags</string>
+    <string name="refs_empty">Pas encore de branche ni de tag</string>
+    <string name="commits_title">Commits</string>
+    <string name="commits_empty">Aucun commit sur cette branche pour l’instant</string>
+    <string name="details_placeholder">Les détails du commit et la review s’afficheront ici</string>
+</resources>
