@@ -41,6 +41,7 @@ règlement LauzHack, puis `docs/CONTEXT.md`, puis le reste.
 | Q-011 | Le wizard génère `shared/` + `desktopApp/` + `androidApp/`, pas le `composeApp/` du §6 ; le source set s'appelle `jvmSharedMain`. | valider et corriger le §6 / revenir à `composeApp` | valider, corriger le §6, l'inscrire dans `DECISIONS.md` | H2 |
 | Q-012 | `STACK.md`, `ARCHITECTURE.md` (arborescence), `PRD.md`, la toolchain d'`ONBOARDING.md`, `DRY-RUN.md` et `PRE-EVENT-CHECKLIST.md` décrivent encore la base TypeScript. | bandeau « obsolète » en tête / déplacer dans `docs/archive/` / laisser | bandeau en tête (`AGENTS.md` les marque déjà comme historiques) | H2 |
 | Q-013 | `DEMO.md` et `GLOSSARY.md` sont encore des templates. | les remplir depuis `CONTEXT.md` §13 et §1 / attendre le feature freeze | les remplir maintenant : DEMO par H1, glossaire (nit, base, lane, ancrage, suggestion) par H2 | H1, H2 |
+| Q-014 | `CONTEXT.md` §5 prévoit un expect/actual `SettingsStore` (fichier desktop, SharedPreferences/DataStore Android) ; #18 livre un seul `FileSettingsStore` JSON en `jvmSharedMain` (`java.io.File` existe sur les deux cibles). | valider et corriger le §5 / écrire l'actual Android en SharedPreferences | valider : zéro code plateforme, un seul test ; `DECISIONS.md` | H2 |
 
 ## Règles
 
