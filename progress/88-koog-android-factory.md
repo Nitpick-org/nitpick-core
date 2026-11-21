@@ -21,3 +21,9 @@
 
 - La factory Ktor par défaut doit trouver un engine dans l’AAR Android ; c’est le même
   chemin que la correction proposée dans #88.
+
+## Preuve sur ART (H3, 21/11 23:44)
+
+- `KoogClientOnDeviceTest` (`androidApp/src/androidTest`) : `KoogLlmClient.complete` avec une clé bidon sur l'émulateur API 36 échoue côté provider, plus sur « No KoogHttpClient.Factory provider found ». `connectedDebugAndroidTest` : 4 tests, 0 échec.
+- Cause vérifiée dans le cache Gradle : `http-client-ktor-jvm-1.3.0.jar` contient `META-INF/services/ai.koog.http.client.KoogHttpClient$Factory`, `http-client-ktor-release.aar` (Android) non.
+- Review Anthropic réelle sur l'émulateur : non rejouée, l'émulateur était pris par la session #64.
