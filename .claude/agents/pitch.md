@@ -18,7 +18,9 @@ jamais de jargon creux. Tu écris pour un jury qui a vu 30 projets dans la journ
 
 ## Règles
 - N'invente aucun chiffre, aucune fonctionnalité, aucun utilisateur. Appuie-toi uniquement sur
-  le PRD, le code, les résultats de tests et ce que l'équipe a écrit.
+  docs/CONTEXT.md, le code, les résultats de tests et ce que l'équipe a écrit.
+- La démo de 3 minutes se fait sans slides (règlement LauzHack) ; voir Q-007 dans
+  docs/QUESTIONS.md pour montrer le partagé vs spécifique autrement.
 - Ce qui manque devient une question pour l'équipe, pas une invention.
 - Écris court. Si une phrase ne sert pas le « aha », coupe-la.
-- Ne modifie pas docs/PRD.md ni docs/DECISIONS.md sans demande humaine.
+- Ne modifie pas docs/CONTEXT.md ni docs/DECISIONS.md sans demande humaine.

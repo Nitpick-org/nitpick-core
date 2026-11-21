@@ -14,15 +14,20 @@ labels: ticket
 - [ ] …
 - [ ] …
 
-## Module(s) / fichiers autorisés
+## Piste
 
-- `src/modules/...`
-- `tests/...`
+A core partagé / B git + desktop / C Android + finitions (`docs/CONTEXT.md` §9)
+
+## Fichiers autorisés
+
+- `shared/src/<sourceSet>/kotlin/dev/nitpick/app/<package>/...`
+- `shared/src/<sourceSet>Test/...` ou `androidApp/src/androidTest/...`
 
 ## Ne pas toucher
 
-- `docs/PRD.md`, `docs/DECISIONS.md`, `CLAUDE.md`, `.env`
-- autres modules : …
+- Les fichiers réservés aux humains (table « Fichiers partagés » d'`AGENTS.md`), `.env`
+- Les contrats du §6, sauf accord de H2
+- Autres packages : …
 
 ## Dépendances
 
@@ -34,7 +39,8 @@ haut / moyen / bas
 
 ## Critique pour la démo
 
-oui / non — si oui, `./scripts/check.sh --demo` doit passer.
+oui / non — si oui, `./scripts/check.sh --demo` passe et le parcours est rejoué à la main
+sur desktop et Android.
 
 ## Challenge sponsor
 
@@ -47,9 +53,8 @@ aucun / <sponsor> — critère du sponsor : …
 ## Brief agent (8 lignes)
 
 ```text
-Tu es <rôle>. Lis CLAUDE.md, docs/PRD.md, docs/DECISIONS.md, docs/ARCHITECTURE.md
-et progress/<ticket>.md.
-Ticket : #<n> — <titre>.
+Tu es <rôle>. Lis AGENTS.md, docs/CONTEXT.md, docs/DECISIONS.md et progress/<ticket>.md.
+Ticket : #<n> — <titre>. Piste : <A|B|C>.
 But : <comportement visible>.
 Fichiers autorisés : <...>.
 Critères d'acceptation : <...>.
