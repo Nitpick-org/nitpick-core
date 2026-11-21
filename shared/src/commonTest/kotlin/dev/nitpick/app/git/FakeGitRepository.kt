@@ -13,8 +13,12 @@ class FakeGitRepository(
     private val commits: List<Commit> = emptyList(),
     private val refs: List<Ref> = emptyList(),
     private val diffs: Map<String, List<FileDiff>> = emptyMap(),
-    private val files: Map<String, String> = emptyMap(),
+    files: Map<String, String> = emptyMap(),
 ) : GitRepository {
+    val files: MutableMap<String, String> = files.toMutableMap()
+    val staged = mutableListOf<String>()
+    val commitMessages = mutableListOf<String>()
+
     override suspend fun log(limit: Int): List<Commit> = commits.take(limit)
     override suspend fun refs(): List<Ref> = refs
     override suspend fun currentBranch(): String = branch
@@ -23,9 +27,9 @@ class FakeGitRepository(
     override suspend fun listFiles(): List<String> = files.keys.sorted()
     override suspend fun diffAgainst(baseRef: String): List<FileDiff> =
         diffs[baseRef] ?: throw IllegalArgumentException("Unknown base: $baseRef")
-    override suspend fun writeFile(path: String, content: String) = TODO("not faked yet")
-    override suspend fun stage(paths: List<String>) = TODO("not faked yet")
-    override suspend fun commit(message: String) = TODO("not faked yet")
+    override suspend fun writeFile(path: String, content: String) { files[path] = content }
+    override suspend fun stage(paths: List<String>) { staged += paths }
+    override suspend fun commit(message: String) { commitMessages += message }
     override suspend fun fetch(credentials: Credentials?) = TODO("not faked yet")
     override suspend fun pull(credentials: Credentials?): PullResult = TODO("not faked yet")
     override suspend fun push(credentials: Credentials?) = TODO("not faked yet")

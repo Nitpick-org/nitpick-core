@@ -74,4 +74,6 @@
     <string name="clone_action">Clone</string>
     <string name="clone_in_progress">Cloning…</string>
     <string name="clone_error_title">Could not clone this repository</string>
+    <string name="review_whole_file">whole file</string>
+    <string name="review_nits_on_files">%1$d nits on %2$d changed files</string>
 </resources>

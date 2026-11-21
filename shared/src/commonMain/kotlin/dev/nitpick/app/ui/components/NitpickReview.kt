@@ -24,6 +24,10 @@ import dev.nitpick.app.domain.Ref
 import dev.nitpick.app.domain.RefType
 import dev.nitpick.app.domain.Severity
 import dev.nitpick.app.ui.theme.NitpickTheme
+import nitpick.shared.generated.resources.Res
+import nitpick.shared.generated.resources.review_dismiss
+import nitpick.shared.generated.resources.review_whole_file
+import org.jetbrains.compose.resources.stringResource
 import dev.nitpick.app.ui.theme.NitpickTone
 
 /**
@@ -48,7 +52,7 @@ fun ReviewCommentCard(
         Row(verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(8.dp)) {
             NitpickBadge(text = severityLabel(severity), tone = tone)
             Text(
-                text = "$filePath:$line",
+                text = if (line == 0) "$filePath · ${stringResource(Res.string.review_whole_file)}" else "$filePath:$line",
                 style = NitpickTheme.typography.codeSmall,
                 color = colors.textMuted,
                 maxLines = 1,
@@ -57,7 +61,7 @@ fun ReviewCommentCard(
             )
             if (onDismiss != null) {
                 NitpickButton(
-                    text = "Dismiss",
+                    text = stringResource(Res.string.review_dismiss),
                     onClick = onDismiss,
                     variant = NitpickButtonVariant.Ghost,
                     size = NitpickButtonSize.Small,

@@ -24,6 +24,8 @@ import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.sync.Mutex
+import kotlinx.coroutines.sync.withLock
 import kotlinx.coroutines.withContext
 
 data class RepositoryUiState(
@@ -70,6 +72,9 @@ class RepositoryViewModel(
     private var repository: GitRepository? = null
     private var loading: Job? = null
     private var diffLoading: Job? = null
+
+    // Two applies on the same file must not read the same original and overwrite each other.
+    private val writeLock = Mutex()
 
     fun openRepository(path: String) = load(path) { gitRepositoryFactory.open(path) }
 
@@ -159,10 +164,11 @@ class RepositoryViewModel(
         val git = repository ?: return
         viewModelScope.launch {
             try {
-                val content = git.readFile(comment.filePath)
-                    ?: error("File not found: ${comment.filePath}")
-                val updated = ReviewAnchoring.apply(content, comment)
-                git.writeFile(comment.filePath, updated)
+                writeLock.withLock {
+                    val content = git.readFile(comment.filePath)
+                        ?: error("File not found: ${comment.filePath}")
+                    git.writeFile(comment.filePath, ReviewAnchoring.apply(content, comment))
+                }
                 _state.update {
                     it.copy(
                         appliedIds = it.appliedIds + comment.id,
@@ -195,8 +201,10 @@ class RepositoryViewModel(
         if (state.appliedFiles.isEmpty()) return
         viewModelScope.launch {
             try {
-                git.stage(state.appliedFiles.toList())
-                git.commit(state.commitMessage)
+                writeLock.withLock {
+                    git.stage(state.appliedFiles.toList())
+                    git.commit(state.commitMessage)
+                }
                 val commits = git.log()
                 val graph = withContext(graphDispatcher) { buildCommitGraph(commits) }
                 _state.update {

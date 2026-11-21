@@ -6,6 +6,7 @@ import kotlin.test.Test
 import kotlin.test.assertEquals
 import kotlin.test.assertFailsWith
 import kotlin.test.assertNull
+import kotlin.test.assertTrue
 
 class ReviewAnchoringTest {
 
@@ -48,5 +49,31 @@ class ReviewAnchoringTest {
     @Test
     fun reanchorReturnsNullWhenTheSnippetIsGone() {
         assertNull(ReviewAnchoring.reanchor("one\nthree\n", comment(2, "two", "TWO")))
+    }
+
+    @Test
+    fun appliesASnippetTheModelReturnedWithoutIndentation() {
+        val content = "fun f() {\n    val x = 1\n}\n"
+        val updated = ReviewAnchoring.apply(content, comment(2, "val x = 1", "    val x = 2"))
+
+        assertEquals("fun f() {\n    val x = 2\n}\n", updated)
+    }
+
+    @Test
+    fun picksTheOccurrenceNearestToTheClaimedLine() {
+        val content = "a\n}\nb\nc\n}\n"
+        val updated = ReviewAnchoring.apply(content, comment(4, "}", "end"))
+
+        assertEquals("a\n}\nb\nc\nend\n", updated)
+    }
+
+    @Test
+    fun anchorOrFileLevelMovesAShiftedSnippetAndFallsBackToTheWholeFile() {
+        val moved = ReviewAnchoring.anchorOrFileLevel("zero\none\ntwo\n", comment(1, "two", "x"))
+        assertEquals(3 to 3, moved.startLine to moved.endLine)
+
+        assertTrue(ReviewAnchoring.anchorOrFileLevel("one\n", comment(1, "zzz", "x")).isFileLevel)
+        assertTrue(ReviewAnchoring.anchorOrFileLevel(null, comment(1, "one", "x")).isFileLevel)
+        assertTrue(ReviewAnchoring.anchorOrFileLevel("one\n", comment(9, "", "x")).isFileLevel)
     }
 }
