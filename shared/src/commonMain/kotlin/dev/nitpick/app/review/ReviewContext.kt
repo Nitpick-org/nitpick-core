@@ -14,7 +14,13 @@ private val IGNORED_FILE_NAMES = setOf(
     "package-lock.json", "yarn.lock", "pnpm-lock.yaml", "bun.lockb", "Cargo.lock", "Gemfile.lock",
     "poetry.lock", "composer.lock", "gradle.lockfile", "go.sum", "Podfile.lock",
 )
-private val IGNORED_EXTENSIONS = setOf("min.js", "min.css", "map", "pb.go", "g.dart", "generated.kt")
+private val IGNORED_EXTENSIONS = setOf(
+    "min.js", "min.css", "map", "pb.go", "g.dart", "generated.kt",
+    // Asset sidecars and media: a Godot `.import` can be larger than the code it points at.
+    "import", "png", "jpg", "jpeg", "webp", "gif", "svg", "ico",
+    "ttf", "otf", "woff", "woff2", "mp3", "wav", "ogg", "mp4", "mov",
+    "glb", "gltf", "fbx", "blend", "psd", "aseprite",
+)
 private val IGNORED_DIRECTORIES = setOf("build", "dist", "node_modules", ".gradle", "generated", "vendor")
 
 private val LANGUAGE_BY_EXTENSION = mapOf(
@@ -49,8 +55,18 @@ fun detectLanguage(paths: List<String>): String? =
     paths.mapNotNull { LANGUAGE_BY_EXTENSION[it.substringAfterLast('.', "")] }
         .groupingBy { it }.eachCount().maxByOrNull { it.value }?.key
 
+/** Largest changes first: the prompt budget should go to code, not to the first files alphabetically. */
+internal fun selectReviewDiffs(diffs: List<FileDiff>, limit: Int = MAX_FILES): List<FileDiff> =
+    diffs
+        .filter(::isReviewable)
+        .sortedWith(compareByDescending<FileDiff> { changedLineCount(it) }.thenBy { it.path })
+        .take(limit)
+
+private fun changedLineCount(diff: FileDiff): Int =
+    diff.hunks.sumOf { hunk -> hunk.lines.count { it.type != dev.nitpick.app.domain.DiffLineType.CONTEXT } }
+
 suspend fun buildReviewContext(repository: GitRepository, baseRef: String): ReviewContext {
-    val diffs = repository.diffAgainst(baseRef).filter(::isReviewable).take(MAX_FILES)
+    val diffs = selectReviewDiffs(repository.diffAgainst(baseRef))
     val files = diffs
         .filter { it.hunks.isNotEmpty() }
         .mapNotNull { diff -> repository.readFile(diff.path)?.let { diff.path to it } }
