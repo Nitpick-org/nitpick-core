@@ -22,3 +22,12 @@ dependencies {
 application {
     mainClass = "dev.nitpick.server.MainKt"
 }
+
+distributions {
+    main {
+        contents {
+            // :shared brings androidx and JetBrains lifecycle jars with the same file name; the server uses neither.
+            duplicatesStrategy = DuplicatesStrategy.EXCLUDE
+        }
+    }
+}
