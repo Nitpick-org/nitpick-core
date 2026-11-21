@@ -44,6 +44,7 @@ import dev.nitpick.app.ui.components.NitpickTab
 import dev.nitpick.app.ui.components.NitpickTextField
 import dev.nitpick.app.ui.components.NitpickToolbar
 import dev.nitpick.app.ui.components.NitpickToolbarAction
+import dev.nitpick.app.ui.components.NitpickTooltip
 import dev.nitpick.app.ui.components.NitpickToolWindowHeader
 import dev.nitpick.app.ui.components.RefBadge
 import dev.nitpick.app.ui.components.ReviewCommentCard
@@ -142,7 +143,9 @@ private fun ControlsSection() {
     NitpickCard(verticalArrangement = Arrangement.spacedBy(14.dp)) {
         NitpickSectionHeader(title = "Controls", kicker = "28dp density")
         Row(horizontalArrangement = Arrangement.spacedBy(8.dp), verticalAlignment = Alignment.CenterVertically) {
-            NitpickButton(text = "Nitpick branch", onClick = {})
+            NitpickTooltip(text = "Review this branch against main", shortcut = "⌘⇧R") {
+                NitpickButton(text = "Nitpick branch", onClick = {})
+            }
             NitpickButton(text = "Cancel", onClick = {}, variant = NitpickButtonVariant.Secondary)
             NitpickButton(text = "Dismiss", onClick = {}, variant = NitpickButtonVariant.Ghost)
             NitpickButton(text = "Delete", onClick = {}, variant = NitpickButtonVariant.Danger, size = NitpickButtonSize.Small)
@@ -162,8 +165,9 @@ private fun ControlsSection() {
             modifier = Modifier.width(360.dp),
         )
         Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
-            NitpickTab("Commits", selected = true, onClick = {})
+            NitpickTab("Details", selected = true, onClick = {})
             NitpickTab("Diff", selected = false, onClick = {})
+            NitpickTab("Review", selected = false, onClick = {})
         }
     }
 }

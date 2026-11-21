@@ -1,15 +1,9 @@
 package dev.nitpick.app.ui
 
-import androidx.compose.foundation.layout.Arrangement
-import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.safeContentPadding
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Surface
-import androidx.compose.material3.Text
-import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -24,9 +18,6 @@ import dev.nitpick.app.ui.repository.RepositoryViewModel
 import dev.nitpick.app.ui.settings.SettingsScreen
 import dev.nitpick.app.ui.settings.SettingsViewModel
 import dev.nitpick.app.ui.theme.NitpickTheme
-import nitpick.shared.generated.resources.Res
-import nitpick.shared.generated.resources.settings_title
-import org.jetbrains.compose.resources.stringResource
 
 /**
  * Shared entry point of the UI. [pickRepositoryPath] opens the platform folder picker and
@@ -48,14 +39,14 @@ fun App(container: AppContainer, pickRepositoryPath: (() -> String?)? = null) {
             if (showSettings) {
                 SettingsScreen(settings, settingsViewModel::update, onBack = { showSettings = false })
             } else {
-                Column(Modifier.safeContentPadding()) {
-                    Row(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.End) {
-                        TextButton(onClick = { showSettings = true }) {
-                            Text(stringResource(Res.string.settings_title))
-                        }
-                    }
-                    RepositoryScreen(state, openRepository, repositoryViewModel::selectCommit)
-                }
+                RepositoryScreen(
+                    state = state,
+                    settings = settings,
+                    onOpenRepository = openRepository,
+                    onSelectCommit = repositoryViewModel::selectCommit,
+                    onOpenSettings = { showSettings = true },
+                    modifier = Modifier.safeContentPadding(),
+                )
             }
         }
     }
