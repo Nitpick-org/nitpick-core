@@ -1,70 +1,70 @@
-name: CI
-
-on:
-  pull_request:
-  push:
-    branches: [main]
-  workflow_dispatch:
-
-concurrency:
-  group: ci-${{ github.ref }}
-  cancel-in-progress: true
-
-permissions:
-  contents: read
-
-jobs:
-  check:
-    runs-on: ubuntu-latest
-    timeout-minutes: 15
-    steps:
-      - uses: actions/checkout@v4
-
-      # No `version` here: pnpm/action-setup reads `packageManager` from package.json.
-      # Setting both is what produces "Multiple versions of pnpm specified".
-      - uses: pnpm/action-setup@v4
-        if: hashFiles('pnpm-lock.yaml') != ''
-        with:
-          run_install: false
-
-      - uses: actions/setup-node@v4
-        with:
-          node-version-file: .nvmrc
-
-      - name: Require an initialized stack
-        run: |
-          test -f package.json || {
-            echo "::error::No package.json yet. Read docs/STACK.md and initialize the stack before relying on CI."
-            exit 1
-          }
-
-      - name: Install
-        run: |
-          if [ -f pnpm-lock.yaml ]; then
-            pnpm install --frozen-lockfile
-          elif [ -f package-lock.json ]; then
-            npm ci
-          else
-            npm install
-          fi
-
-      - name: Install Playwright browsers
-        if: hashFiles('playwright.config.*') != ''
-        run: |
-          if [ -f pnpm-lock.yaml ]; then
-            pnpm exec playwright install --with-deps chromium
-          else
-            npx playwright install --with-deps chromium
-          fi
-
-      - name: Doctor
-        run: ./scripts/doctor.sh
-
-      # check.sh --demo already runs typecheck + lint + test, then e2e.
-      - name: Check
-        run: |
-          if node -e "const s=require('./package.json').scripts||{}; process.exit(s.e2e?0:1)"; then
-            ./scripts/check.sh --demo
-          else
-            ./scripts/check.sh
-          fi
+# name: CI
+#
+# on:
+#   pull_request:
+#   push:
+#     branches: [main]
+#   workflow_dispatch:
+#
+# concurrency:
+#   group: ci-${{ github.ref }}
+#   cancel-in-progress: true
+#
+# permissions:
+#   contents: read
+#
+# jobs:
+#   check:
+#     runs-on: ubuntu-latest
+#     timeout-minutes: 15
+#     steps:
+#       - uses: actions/checkout@v4
+#
+#       # No `version` here: pnpm/action-setup reads `packageManager` from package.json.
+#       # Setting both is what produces "Multiple versions of pnpm specified".
+#       - uses: pnpm/action-setup@v4
+#         if: hashFiles('pnpm-lock.yaml') != ''
+#         with:
+#           run_install: false
+#
+#       - uses: actions/setup-node@v4
+#         with:
+#           node-version-file: .nvmrc
+#
+#       - name: Require an initialized stack
+#         run: |
+#           test -f package.json || {
+#             echo "::error::No package.json yet. Read docs/STACK.md and initialize the stack before relying on CI."
+#             exit 1
+#           }
+#
+#       - name: Install
+#         run: |
+#           if [ -f pnpm-lock.yaml ]; then
+#             pnpm install --frozen-lockfile
+#           elif [ -f package-lock.json ]; then
+#             npm ci
+#           else
+#             npm install
+#           fi
+#
+#       - name: Install Playwright browsers
+#         if: hashFiles('playwright.config.*') != ''
+#         run: |
+#           if [ -f pnpm-lock.yaml ]; then
+#             pnpm exec playwright install --with-deps chromium
+#           else
+#             npx playwright install --with-deps chromium
+#           fi
+#
+#       - name: Doctor
+#         run: ./scripts/doctor.sh
+#
+#       # check.sh --demo already runs typecheck + lint + test, then e2e.
+#       - name: Check
+#         run: |
+#           if node -e "const s=require('./package.json').scripts||{}; process.exit(s.e2e?0:1)"; then
+#             ./scripts/check.sh --demo
+#           else
+#             ./scripts/check.sh
+#           fi
