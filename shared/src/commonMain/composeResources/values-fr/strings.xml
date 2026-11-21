@@ -47,7 +47,6 @@
     <string name="review_empty">Lancez une review pour voir les nits de cette branche</string>
     <string name="review_error">La review a échoué</string>
     <string name="review_retry">Réessayer</string>
-    <string name="review_summary">%1$d nits · %2$d bug</string>
     <string name="review_applied">Appliqué</string>
     <string name="review_apply">Appliquer</string>
     <string name="review_dismiss">Ignorer</string>
@@ -57,7 +56,10 @@
     <string name="review_local">Review IA</string>
     <string name="diff_vs">%1$s vs</string>
     <string name="diff_base">Base : %1$s</string>
-    <string name="diff_files">%1$d fichiers</string>
+    <plurals name="diff_files">
+        <item quantity="one">%1$d fichier</item>
+        <item quantity="other">%1$d fichiers</item>
+    </plurals>
     <string name="diff_empty">Aucune différence avec %1$s</string>
     <string name="diff_error_title">Impossible de comparer avec %1$s</string>
     <string name="diff_binary">Fichier binaire, non affiché</string>

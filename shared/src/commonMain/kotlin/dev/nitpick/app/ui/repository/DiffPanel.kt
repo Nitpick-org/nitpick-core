@@ -40,6 +40,7 @@ import dev.nitpick.app.ui.components.NitpickDivider
 import dev.nitpick.app.ui.components.NitpickEmptyState
 import dev.nitpick.app.ui.theme.NitpickTheme
 import nitpick.shared.generated.resources.*
+import org.jetbrains.compose.resources.pluralStringResource
 import org.jetbrains.compose.resources.stringResource
 
 private val FileListMaxHeight = 168.dp
@@ -116,7 +117,7 @@ private fun DiffHeader(state: RepositoryUiState, onSelectBase: (String) -> Unit)
         Box(Modifier.weight(1f))
         if (state.diff.isNotEmpty()) {
             Text(
-                text = stringResource(Res.string.diff_files, state.diff.size),
+                text = pluralStringResource(Res.plurals.diff_files, state.diff.size, state.diff.size),
                 style = NitpickTheme.typography.small,
                 color = NitpickTheme.colors.textSecondary,
             )
