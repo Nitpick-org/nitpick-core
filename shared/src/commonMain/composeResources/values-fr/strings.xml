@@ -134,4 +134,10 @@
     <string name="filter_graph_hidden">Graphe masqué pendant le filtrage</string>
     <string name="provider_cloud_hint">API cloud, utilise votre clé</string>
     <string name="provider_ollama_hint">Auto-hébergé sur cette machine, sans clé API</string>
+    <string name="pull_action">Pull</string>
+    <string name="pull_in_progress">Pull en cours…</string>
+    <string name="pull_updated">Nouveaux commits récupérés</string>
+    <string name="pull_up_to_date">Déjà à jour</string>
+    <string name="pull_conflict">Pull annulé, conflits dans : %1$s</string>
+    <string name="pull_error">Le pull a échoué</string>
 </resources>

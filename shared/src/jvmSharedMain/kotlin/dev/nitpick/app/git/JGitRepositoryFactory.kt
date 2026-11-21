@@ -7,7 +7,10 @@ import org.eclipse.jgit.api.Git
 import org.eclipse.jgit.storage.file.FileRepositoryBuilder
 import java.io.File
 
-class JGitRepositoryFactory : GitRepositoryFactory {
+/** Name and e-mail written to every clone's local config; Android passes one, desktop relies on the gitconfig. */
+data class GitIdentity(val name: String, val email: String)
+
+class JGitRepositoryFactory(private val commitIdentity: GitIdentity? = null) : GitRepositoryFactory {
 
     override suspend fun open(path: String): GitRepository = withContext(Dispatchers.IO) {
         // findGitDir walks up the parent folders, so picking a subfolder of a repository works.
@@ -36,6 +39,16 @@ class JGitRepositoryFactory : GitRepositoryFactory {
                 .setGitDir(File(path, ".git"))
                 .setCredentialsProvider(credentials.toJGit())
                 .call()
+            ensureIdentity(git)
             JGitRepository(git)
         }
+
+    // Without user.name JGit signs commits as <os user>@<hostname>, which on Android is u0_aNN@localhost.
+    private fun ensureIdentity(git: Git) {
+        val identity = commitIdentity ?: return
+        val config = git.repository.config
+        config.setString("user", null, "name", identity.name)
+        config.setString("user", null, "email", identity.email)
+        config.save()
+    }
 }

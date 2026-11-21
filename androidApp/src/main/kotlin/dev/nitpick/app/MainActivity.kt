@@ -4,6 +4,7 @@ import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
+import dev.nitpick.app.git.GitIdentity
 import dev.nitpick.app.git.JGitRepositoryFactory
 import dev.nitpick.app.settings.FileSettingsStore
 import dev.nitpick.app.ui.App
@@ -16,7 +17,8 @@ class MainActivity : ComponentActivity() {
 
         // No folder picker on Android: repositories are cloned into the app's private storage.
         val container = AppContainer(
-            gitRepositoryFactory = JGitRepositoryFactory(),
+            // shortcut: a fixed identity until the forge login is fetched with the token (#64).
+            gitRepositoryFactory = JGitRepositoryFactory(GitIdentity("Nitpick on Android", "nitpick-android@users.noreply.github.com")),
             settingsStore = FileSettingsStore(File(filesDir, "settings.json")),
         )
         val cloneRoot = File(filesDir, "repos")

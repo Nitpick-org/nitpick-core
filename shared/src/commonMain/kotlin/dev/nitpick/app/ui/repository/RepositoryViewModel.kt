@@ -4,6 +4,7 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import dev.nitpick.app.domain.Commit
 import dev.nitpick.app.domain.FileDiff
+import dev.nitpick.app.domain.PullResult
 import dev.nitpick.app.domain.Credentials
 import dev.nitpick.app.domain.Ref
 import dev.nitpick.app.domain.RefType
@@ -84,7 +85,13 @@ data class RepositoryUiState(
     val pushError: String? = null,
     val isCheckingOut: Boolean = false,
     val checkoutError: String? = null,
+    val isPulling: Boolean = false,
+    val pullError: String? = null,
+    val lastPull: PullResult? = null,
 ) {
+    /** One git operation at a time: pull, push and checkout share the same working tree. */
+    val isSyncing: Boolean get() = isPulling || isPushing || isCheckingOut
+
     /** Local commits the origin does not have yet: true when the current branch is ahead of, or unknown to, origin. */
     val hasUnpushedCommits: Boolean
         get() {
@@ -274,6 +281,7 @@ class RepositoryViewModel(
                         appliedIds = emptySet(),
                         appliedFiles = emptySet(),
                         commitMessage = "",
+                        lastPull = null,
                     )
                 }
                 refreshDiff()
@@ -288,13 +296,13 @@ class RepositoryViewModel(
     /** Pushes the current branch to origin with the forge connection from the settings. */
     fun pushBranch(credentials: Credentials?) {
         val git = repository ?: return
-        if (_state.value.isPushing) return
+        if (_state.value.isSyncing) return
         _state.update { it.copy(isPushing = true, pushError = null) }
         viewModelScope.launch {
             try {
                 git.push(credentials)
                 if (repository !== git) return@launch
-                _state.update { it.copy(isPushing = false, refs = git.refs()) }
+                _state.update { it.copy(isPushing = false, refs = git.refs(), lastPull = null) }
             } catch (e: CancellationException) {
                 throw e
             } catch (e: Exception) {
@@ -303,11 +311,50 @@ class RepositoryViewModel(
         }
     }
 
+    /** Fetches and fast-forwards the current branch from its upstream; a conflict is reported, never merged. */
+    fun pullBranch(credentials: Credentials?) {
+        val git = repository ?: return
+        // Applied but uncommitted suggestions would be merged over; commit them first.
+        if (_state.value.isSyncing || _state.value.isReviewing || _state.value.appliedFiles.isNotEmpty()) return
+        _state.update { it.copy(isPulling = true, pullError = null, lastPull = null) }
+        viewModelScope.launch {
+            try {
+                val result = git.pull(credentials)
+                val commits = git.log()
+                val graph = withContext(graphDispatcher) { buildCommitGraph(commits) }
+                if (repository !== git) return@launch
+                _state.update {
+                    if (result.updated) {
+                        // New commits can move the lines the nits point at: the review restarts from scratch.
+                        it.copy(
+                            isPulling = false,
+                            lastPull = result,
+                            graph = graph,
+                            refs = git.refs(),
+                            selectedCommitId = graph.firstOrNull()?.commit?.id,
+                            review = null,
+                            reviewError = null,
+                            appliedIds = emptySet(),
+                            commitMessage = "",
+                        )
+                    } else {
+                        it.copy(isPulling = false, lastPull = result, refs = git.refs())
+                    }
+                }
+                if (result.updated) refreshDiff()
+            } catch (e: CancellationException) {
+                throw e
+            } catch (e: Exception) {
+                if (repository === git) _state.update { it.copy(isPulling = false, pullError = e.message ?: e.toString()) }
+            }
+        }
+    }
+
     /** Switches to [branch] and reloads the graph, the diff and the review for it. */
     fun checkoutBranch(branch: String) {
         val git = repository ?: return
         // A review still running would land its nits on the new branch.
-        if (_state.value.isCheckingOut || _state.value.isReviewing || branch == _state.value.currentBranch) return
+        if (_state.value.isSyncing || _state.value.isReviewing || branch == _state.value.currentBranch) return
         _state.update { it.copy(isCheckingOut = true, checkoutError = null) }
         viewModelScope.launch {
             try {
@@ -328,6 +375,8 @@ class RepositoryViewModel(
                         appliedFiles = emptySet(),
                         commitMessage = "",
                         pushError = null,
+                        pullError = null,
+                        lastPull = null,
                     )
                 }
                 refreshDiff()

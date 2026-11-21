@@ -12,6 +12,8 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 import org.eclipse.jgit.api.CreateBranchCommand
 import org.eclipse.jgit.api.Git
+import org.eclipse.jgit.api.MergeResult
+import org.eclipse.jgit.api.ResetCommand
 import org.eclipse.jgit.dircache.DirCache
 import org.eclipse.jgit.diff.DiffFormatter
 import org.eclipse.jgit.lib.Constants
@@ -146,8 +148,22 @@ class JGitRepository(private val git: Git) : GitRepository {
         }
     }
 
-    override suspend fun pull(credentials: Credentials?): PullResult =
-        TODO("pull is not implemented yet")
+    override suspend fun pull(credentials: Credentials?): PullResult = withContext(Dispatchers.IO) {
+        // With pull.rebase set in the user's gitconfig JGit would rebase and leave mergeResult null.
+        val result = git.pull().setRebase(false).setCredentialsProvider(credentials.toJGit()).call()
+        val merge = result.mergeResult
+        when (merge.mergeStatus) {
+            MergeResult.MergeStatus.CONFLICTING -> {
+                // Conflict resolution is out of scope: put the tree back exactly as it was.
+                git.reset().setMode(ResetCommand.ResetType.HARD).call()
+                PullResult(updated = false, conflictedPaths = merge.conflicts.keys.sorted())
+            }
+            MergeResult.MergeStatus.ALREADY_UP_TO_DATE -> PullResult(updated = false, conflictedPaths = emptyList())
+            MergeResult.MergeStatus.FAST_FORWARD, MergeResult.MergeStatus.MERGED ->
+                PullResult(updated = true, conflictedPaths = emptyList())
+            else -> error("Pull failed: ${merge.mergeStatus}")
+        }
+    }
 
     override suspend fun push(credentials: Credentials?) {
         withContext(Dispatchers.IO) {

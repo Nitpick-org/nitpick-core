@@ -3,6 +3,7 @@ package dev.nitpick.app.ui.repository
 import dev.nitpick.app.domain.Commit
 import dev.nitpick.app.domain.FileChangeType
 import dev.nitpick.app.domain.FileDiff
+import dev.nitpick.app.domain.PullResult
 import dev.nitpick.app.domain.Credentials
 import dev.nitpick.app.domain.Ref
 import dev.nitpick.app.domain.RefType
@@ -242,11 +243,68 @@ class RepositoryViewModelTest {
         assertEquals(listOf(parserChange), viewModel.state.value.diff)
     }
 
+    @Test
+    fun pullReloadsTheGraphWhenCommitsArrived() {
+        val incoming = commit(id = "4444444dddd", message = "From origin", parents = listOf(child.id))
+        val remote = PushingRepository(
+            FakeGitRepository(branch = "main", commits = commits, refs = listOf(mainBranch), diffs = diffs),
+            pullResult = PullResult(updated = true, conflictedPaths = emptyList()),
+            afterPull = FakeGitRepository(branch = "main", commits = listOf(incoming) + commits, refs = listOf(mainBranch), diffs = diffs),
+        )
+        val viewModel = RepositoryViewModel(FakeGitRepositoryFactory(mapOf("/work/demo" to remote)), graphDispatcher = dispatcher)
+        viewModel.openRepository("/work/demo")
+
+        viewModel.pullBranch(credentials = null)
+
+        val state = viewModel.state.value
+        assertEquals(PullResult(updated = true, conflictedPaths = emptyList()), state.lastPull)
+        assertEquals(incoming.id, state.selectedCommitId)
+        assertEquals(false, state.isPulling)
+    }
+
+    @Test
+    fun aConflictingPullKeepsTheGraphAndNamesTheFiles() {
+        val remote = PushingRepository(
+            FakeGitRepository(branch = "main", commits = commits, refs = listOf(mainBranch), diffs = diffs),
+            pullResult = PullResult(updated = false, conflictedPaths = listOf("a.txt")),
+        )
+        val viewModel = RepositoryViewModel(FakeGitRepositoryFactory(mapOf("/work/demo" to remote)), graphDispatcher = dispatcher)
+        viewModel.openRepository("/work/demo")
+
+        viewModel.pullBranch(credentials = null)
+
+        val state = viewModel.state.value
+        assertEquals(listOf("a.txt"), state.lastPull?.conflictedPaths)
+        assertEquals(child.id, state.selectedCommitId)
+        assertEquals(null, state.pullError)
+    }
+
+    @Test
+    fun aCheckoutClearsThePreviousPullError() {
+        val featureTip = commit(id = "3333333cccc", message = "On feature", parents = listOf(child.id))
+        val feature = Ref("feature", "refs/heads/feature", featureTip.id, RefType.LOCAL_BRANCH)
+        val remote = PushingRepository(
+            FakeGitRepository(branch = "main", commits = commits, refs = listOf(mainBranch, feature), diffs = diffs),
+            afterCheckout = FakeGitRepository(branch = "feature", commits = listOf(featureTip) + commits, refs = listOf(mainBranch, feature), diffs = diffs),
+        )
+        val viewModel = RepositoryViewModel(FakeGitRepositoryFactory(mapOf("/work/demo" to remote)), graphDispatcher = dispatcher)
+        viewModel.openRepository("/work/demo")
+        viewModel.pullBranch(credentials = null)
+        assertEquals("no upstream", viewModel.state.value.pullError)
+
+        viewModel.checkoutBranch("feature")
+
+        assertEquals(null, viewModel.state.value.pullError)
+        assertEquals("feature", viewModel.state.value.currentBranch)
+    }
+
     /** The shared fake does not push or check out; this wrapper records both and swaps the branch view on checkout. */
     private class PushingRepository(
         private var inner: GitRepository,
         private val failure: String? = null,
         private val afterCheckout: GitRepository? = null,
+        private val pullResult: PullResult? = null,
+        private val afterPull: GitRepository? = null,
     ) : GitRepository by inner {
         val pushes = mutableListOf<Credentials?>()
         val checkouts = mutableListOf<String>()
@@ -259,6 +317,11 @@ class RepositoryViewModelTest {
         override suspend fun checkout(branch: String) {
             checkouts += branch
             inner = afterCheckout ?: inner
+        }
+
+        override suspend fun pull(credentials: Credentials?): PullResult {
+            inner = afterPull ?: inner
+            return pullResult ?: error("no upstream")
         }
 
         override suspend fun log(limit: Int) = inner.log(limit)

@@ -73,6 +73,8 @@ fun RepositoryScreen(
     onOpenRepository: (() -> Unit)?,
     onSelectCommit: (String) -> Unit,
     onShowDiff: () -> Unit,
+    onCheckoutBranch: (String) -> Unit,
+    onPull: () -> Unit,
     onSelectBase: (String) -> Unit,
     onSelectDiffFile: (String) -> Unit,
     onOpenSettings: () -> Unit,
@@ -91,6 +93,7 @@ fun RepositoryScreen(
             state = state,
             hasRepository = hasRepository,
             onOpenRepository = onOpenRepository,
+            onPull = onPull,
             onReview = {
                 tab = InspectorTab.Review
                 onRunReview()
@@ -119,6 +122,7 @@ fun RepositoryScreen(
                         refs = state.refs,
                         currentBranch = state.currentBranch,
                         modifier = Modifier.width(NitpickTheme.sizes.sidebar).fillMaxHeight(),
+                        onSelectBranch = onCheckoutBranch,
                     )
                     NitpickVerticalDivider()
                     CommitsPanel(state, onSelectCommit, Modifier.weight(1f).fillMaxHeight())
@@ -155,6 +159,7 @@ private fun RepositoryToolbar(
     state: RepositoryUiState,
     hasRepository: Boolean,
     onOpenRepository: (() -> Unit)?,
+    onPull: () -> Unit,
     onReview: () -> Unit,
     onOpenSettings: () -> Unit,
 ) {
@@ -186,6 +191,11 @@ private fun RepositoryToolbar(
             NitpickToolbarAction(text = stringResource(Res.string.repository_open), onClick = onOpenRepository)
         }
         if (hasRepository) {
+            // Fetch / Push with ahead-behind counts land here with #36; Pull is the one #42 needs today.
+            NitpickToolbarAction(
+                text = stringResource(if (state.isPulling) Res.string.pull_in_progress else Res.string.pull_action),
+                onClick = { if (!state.isPulling) onPull() },
+            )
             NitpickTooltip(text = stringResource(Res.string.review_cta_tooltip), shortcut = ReviewShortcut) {
                 NitpickButton(
                     text = stringResource(Res.string.review_cta),
@@ -519,6 +529,15 @@ private fun RepositoryStatusBar(state: RepositoryUiState, settings: Settings, ha
     NitpickStatusBar {
         StatusText(state.currentBranch.ifEmpty { stringResource(Res.string.status_no_branch) })
         if (hasRepository) StatusText(stringResource(Res.string.status_commits, state.graph.size))
+        syncStatusMessage(state)?.let { message ->
+            Text(
+                text = message,
+                style = NitpickTheme.typography.micro,
+                color = if (state.hasSyncProblem()) NitpickTheme.colors.danger else NitpickTheme.colors.onStatusBar,
+                maxLines = 1,
+                overflow = TextOverflow.Ellipsis,
+            )
+        }
         Spacer(Modifier.weight(1f))
         if (hasRepository) StatusText("${stringResource(settings.provider.label)} · ${settings.model}")
         StatusText(stringResource(Res.string.status_git))
