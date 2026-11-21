@@ -61,4 +61,10 @@ class FileSettingsStoreTest {
         assertFalse(GROUP_READ in permissions || OTHERS_READ in permissions)
         assertEquals("secret", FileSettingsStore(file).load().apiKey)
     }
+
+    @Test
+    fun emptyModelFromAnOlderFileFallsBackToTheProviderDefault() = runBlocking {
+        val file = tempFile().apply { writeText("""{"provider": "OLLAMA", "model": ""}""") }
+        assertEquals(LlmProvider.OLLAMA.knownModels.first(), FileSettingsStore(file).load().model)
+    }
 }
