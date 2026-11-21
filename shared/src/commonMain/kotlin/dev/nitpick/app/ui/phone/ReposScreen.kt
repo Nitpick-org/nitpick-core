@@ -14,6 +14,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
+import dev.nitpick.app.ui.nitpickAppIcon
 import dev.nitpick.app.ui.components.NitpickCard
 import dev.nitpick.app.ui.components.NitpickEmptyState
 import dev.nitpick.app.ui.components.NitpickToolbarAction
@@ -49,6 +50,7 @@ fun ReposScreen(
                 actionLabel = stringResource(Res.string.clone_repo),
                 onAction = onClone,
                 modifier = Modifier.weight(1f),
+                icon = nitpickAppIcon(),
             )
         } else {
             LazyColumn(

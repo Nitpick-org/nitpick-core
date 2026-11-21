@@ -39,6 +39,7 @@ import dev.nitpick.app.domain.RefType
 import dev.nitpick.app.domain.ReviewComment
 import dev.nitpick.app.domain.SharedReview
 import dev.nitpick.app.settings.Settings
+import dev.nitpick.app.ui.nitpickAppIcon
 import dev.nitpick.app.ui.components.NitpickButton
 import dev.nitpick.app.ui.components.NitpickButtonSize
 import dev.nitpick.app.ui.components.NitpickDivider
@@ -136,6 +137,7 @@ fun RepositoryScreen(
                     detail = if (onOpenRepository != null) stringResource(Res.string.repository_empty_hint) else null,
                     actionLabel = if (onOpenRepository != null) stringResource(Res.string.repository_open) else null,
                     onAction = onOpenRepository,
+                    icon = nitpickAppIcon(),
                 )
                 else -> Row(Modifier.fillMaxSize()) {
                     RefsSidebar(

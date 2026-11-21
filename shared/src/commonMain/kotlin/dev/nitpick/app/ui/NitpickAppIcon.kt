@@ -6,6 +6,6 @@ import nitpick.shared.generated.resources.Res
 import nitpick.shared.generated.resources.ic_app
 import org.jetbrains.compose.resources.painterResource
 
-/** The stylised tweezers icon shown in the desktop dock; the shared module owns the resource. */
+/** The loupe app icon (desktop window, welcome screens); the shared module owns the resource. */
 @Composable
 fun nitpickAppIcon(): Painter = painterResource(Res.drawable.ic_app)
