@@ -19,11 +19,16 @@ import kotlin.test.assertFailsWith
 class DeviceFlowClientTest {
 
     private val requests = mutableListOf<HttpRequestData>()
+    private val networkBlip = NETWORK_BLIP to HttpStatusCode.OK
     private val code = DeviceCode("dev-code", "WDJB-MJHT", "https://github.com/login/device", expiresInSeconds = 900, intervalSeconds = 5)
 
     private fun client(vararg answers: Pair<String, HttpStatusCode>): DeviceFlowClient {
         val queue = answers.toMutableList()
-        return DeviceFlowClient(HttpClient(MockEngine { request -> requests += request; json(queue.removeFirst()) }))
+        return DeviceFlowClient(HttpClient(MockEngine { request ->
+            requests += request
+            val answer = queue.removeFirst()
+            if (answer.first == NETWORK_BLIP) throw IllegalStateException("UnresolvedAddressException") else json(answer)
+        }))
     }
 
     private fun MockRequestHandleScope.json(answer: Pair<String, HttpStatusCode>): HttpResponseData =
@@ -75,6 +80,18 @@ class DeviceFlowClientTest {
     }
 
     @Test
+    fun awaitTokenSurvivesANetworkBlip() = runTest {
+        val client = client(
+            """{"error":"authorization_pending"}""" to HttpStatusCode.OK,
+            networkBlip,
+            """{"access_token":"gho_secret","token_type":"bearer","scope":"repo"}""" to HttpStatusCode.OK,
+        )
+
+        assertEquals("gho_secret", client.awaitToken(GitHost.GITHUB, "client-1", code))
+        assertEquals(3, requests.size)
+    }
+
+    @Test
     fun awaitTokenStopsWhenTheUserRefuses() = runTest {
         val client = client("""{"error":"access_denied","error_description":"The user denied"}""" to HttpStatusCode.BadRequest)
 
@@ -117,3 +134,5 @@ class DeviceFlowClientTest {
         assertEquals("the forge answered 502", failure.message)
     }
 }
+
+private const val NETWORK_BLIP = "<network blip>"

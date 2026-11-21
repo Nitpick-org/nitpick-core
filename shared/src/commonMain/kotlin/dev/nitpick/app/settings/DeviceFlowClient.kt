@@ -132,11 +132,18 @@ class DeviceFlowClient(
             delay(interval.seconds)
             waited += interval
             if (waited > code.expiresInSeconds) throw DeviceFlowException("expired_token")
-            val answer = post(tokenUrl) {
-                append("client_id", clientId)
-                append("device_code", code.deviceCode)
-                append("grant_type", DEVICE_GRANT_TYPE)
-            }.decode<TokenResponse>()
+            val answer = try {
+                post(tokenUrl) {
+                    append("client_id", clientId)
+                    append("device_code", code.deviceCode)
+                    append("grant_type", DEVICE_GRANT_TYPE)
+                }.decode<TokenResponse>()
+            } catch (e: CancellationException) {
+                throw e
+            } catch (e: Exception) {
+                // A phone's network blips; the code is still valid, so ask again at the next tick.
+                continue
+            }
             when (answer.error) {
                 null -> return answer.accessToken ?: throw DeviceFlowException("no token in the answer")
                 AUTHORIZATION_PENDING -> Unit
