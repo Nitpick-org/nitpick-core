@@ -31,6 +31,17 @@ class LlmReviewAgentTest {
         override suspend fun complete(system: String, user: String): String { this.user = user; return answer }
     }
 
+    private class ToolRecordingClient : ToolCallingLlmClient {
+        var called = false
+        var sawTools = false
+        override suspend fun complete(system: String, user: String): String = "not used"
+        override suspend fun completeWithTools(prompt: ReviewPrompt, toolbox: ReviewToolbox): String {
+            called = true
+            sawTools = "Tools:" in prompt.system
+            return """{"summary":"","comments":[]}"""
+        }
+    }
+
     @Test
     fun reviewsTheDiffAndReAnchorsAShiftedBug() = runTest {
         val client = RecordingClient(
@@ -48,6 +59,16 @@ class LlmReviewAgentTest {
         val nit = result.comments.single()
         assertEquals(Severity.BUG, nit.severity)
         assertEquals(3 to 3, nit.startLine to nit.endLine)
+    }
+
+    @Test
+    fun aToolCapableClientGetsTheToolboxAndTheToolPrompt() = runTest {
+        val client = ToolRecordingClient()
+
+        LlmReviewAgent(client).review(repository, "main")
+
+        assertTrue(client.called)
+        assertTrue(client.sawTools)
     }
 
     @Test

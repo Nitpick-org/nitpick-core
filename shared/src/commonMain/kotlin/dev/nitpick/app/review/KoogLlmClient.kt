@@ -1,5 +1,6 @@
 package dev.nitpick.app.review
 
+import ai.koog.prompt.Prompt
 import ai.koog.prompt.dsl.prompt
 import ai.koog.prompt.executor.clients.LLMClient
 import ai.koog.prompt.executor.clients.LLMClientException
@@ -22,6 +23,7 @@ import dev.nitpick.app.settings.SettingsStore
 private const val OLLAMA_BASE_URL = "http://localhost:11434"
 // A review is a JSON list: cut mid-way it is unusable, so ask for room every target model accepts.
 private const val MAX_OUTPUT_TOKENS = 8_192L
+private const val MAX_TOOL_ROUNDS = 4
 
 class MissingApiKeyException(val provider: LlmProvider) : Exception("No API key for ${provider.name}")
 
@@ -31,9 +33,65 @@ class ReviewProviderException(message: String, cause: Throwable) : Exception(mes
  * The only file that talks to Koog. Settings are read at call time so a key or model changed
  * in the UI applies to the next review without restarting the app.
  */
-class KoogLlmClient(private val settingsStore: SettingsStore) : LlmClient {
+class KoogLlmClient(private val settingsStore: SettingsStore) : ToolCallingLlmClient {
 
-    override suspend fun complete(system: String, user: String): String {
+    override suspend fun complete(system: String, user: String): String = withClient { client, model, _ ->
+        val answer = client.execute(prompt("nitpick-review") { system(system); user(user) }, model)
+        answer.parts.filterIsInstance<MessagePart.Text>().joinToString("") { it.text }
+    }
+
+    override suspend fun completeWithTools(prompt: ReviewPrompt, toolbox: ReviewToolbox): String =
+        withClient { client, model, settings ->
+            var conversation = Prompt.builder("nitpick-review-tools").apply {
+                system(prompt.system)
+                user(prompt.user)
+            }.build()
+            val descriptors = toolbox.descriptors()
+
+            // A provider without tool support must still review: fall back to the plain prompt.
+            var answer = try {
+                client.execute(conversation, model, descriptors)
+            } catch (e: Exception) {
+                if (e is kotlinx.coroutines.CancellationException) throw e
+                // Only a provider/tool-support failure may fall back; a programming error must surface.
+                if (e !is LLMClientException && e !is UnsupportedOperationException) throw e
+                val plainPrompt = prompt.withoutTools()
+                val plain = Prompt.builder("nitpick-review").apply {
+                    system(plainPrompt.system)
+                    user(plainPrompt.user)
+                }.build()
+                val plainAnswer = try {
+                    client.execute(plain, model)
+                } catch (plainError: Exception) {
+                    if (plainError is kotlinx.coroutines.CancellationException) throw plainError
+                    throw e
+                }
+                return@withClient plainAnswer.parts.filterIsInstance<MessagePart.Text>().joinToString("") { it.text }
+            }
+
+            repeat(MAX_TOOL_ROUNDS) {
+                val calls = answer.parts.filterIsInstance<MessagePart.Tool.Call>()
+                if (calls.isEmpty()) {
+                    return@withClient answer.parts.filterIsInstance<MessagePart.Text>().joinToString("") { it.text }
+                }
+                val next = Prompt.builder("nitpick-review-tools").apply {
+                    messages(conversation.messages)
+                    message(answer)
+                    calls.forEach { call ->
+                        val output = toolbox.execute(call.tool, call.argsJson)
+                        toolResult(call.id.orEmpty(), call.tool, output.text, output.isError)
+                    }
+                }.build()
+                conversation = next
+                answer = client.execute(conversation, model, descriptors)
+            }
+            throw ReviewProviderException(
+                "The ${settings.provider.name} review exceeded $MAX_TOOL_ROUNDS tool rounds",
+                IllegalStateException("tool-call loop did not converge"),
+            )
+        }
+
+    private suspend fun <T> withClient(block: suspend (LLMClient, LLModel, Settings) -> T): T {
         val settings = settingsStore.load()
         if (settings.provider != LlmProvider.OLLAMA && settings.apiKey.isBlank()) {
             throw MissingApiKeyException(settings.provider)
@@ -41,8 +99,7 @@ class KoogLlmClient(private val settingsStore: SettingsStore) : LlmClient {
         val model = koogModelFor(settings)
         val client = llmClient(settings, model)
         try {
-            val answer = client.execute(prompt("nitpick-review") { system(system); user(user) }, model)
-            return answer.parts.filterIsInstance<MessagePart.Text>().joinToString("") { it.text }
+            return block(client, model, settings)
         } catch (e: LLMClientException) {
             // Provider errors can echo request headers: never forward their text as-is.
             throw ReviewProviderException("The ${settings.provider.name} request failed (${e::class.simpleName})", e)

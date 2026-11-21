@@ -13,6 +13,8 @@ private const val RECENT_COMMITS = 10
 private val IGNORED_FILE_NAMES = setOf(
     "package-lock.json", "yarn.lock", "pnpm-lock.yaml", "bun.lockb", "Cargo.lock", "Gemfile.lock",
     "poetry.lock", "composer.lock", "gradle.lockfile", "go.sum", "Podfile.lock",
+    // Secrets: they must never leave the machine, even if a fake repo lists them as tracked.
+    ".env", ".env.local", "id_rsa", "id_ed25519",
 )
 private val IGNORED_EXTENSIONS = setOf(
     "min.js", "min.css", "map", "pb.go", "g.dart", "generated.kt",
@@ -42,11 +44,15 @@ data class ReviewContext(
 )
 
 /** Keeps the diff the model can use: lockfiles, binaries and generated files are noise. */
-fun isReviewable(diff: FileDiff): Boolean {
-    val name = diff.path.substringAfterLast('/')
-    val segments = diff.path.split('/')
-    return !diff.isBinary &&
+fun isReviewable(diff: FileDiff): Boolean = isReviewablePath(diff.path, diff.isBinary)
+
+/** Same filter for a path the review agent asks to read; binaries and hidden secrets stay out. */
+fun isReviewablePath(path: String, isBinary: Boolean = false): Boolean {
+    val name = path.substringAfterLast('/')
+    val segments = path.split('/')
+    return !isBinary &&
         name !in IGNORED_FILE_NAMES &&
+        !name.startsWith(".env.") &&
         IGNORED_EXTENSIONS.none { name.endsWith(".$it") } &&
         segments.dropLast(1).none { it in IGNORED_DIRECTORIES }
 }

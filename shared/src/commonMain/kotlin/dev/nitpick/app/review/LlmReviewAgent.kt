@@ -10,8 +10,12 @@ class LlmReviewAgent(private val client: LlmClient) : ReviewAgent {
     override suspend fun review(repository: GitRepository, baseRef: String): ReviewResult {
         val context = buildReviewContext(repository, baseRef)
         if (context.diffs.isEmpty()) return ReviewResult(summary = "", comments = emptyList())
-        val prompt = buildReviewPrompt(context)
-        val answer = client.complete(prompt.system, prompt.user)
+        val toolsAvailable = client is ToolCallingLlmClient
+        val prompt = buildReviewPrompt(context, toolsAvailable = toolsAvailable)
+        val answer = when (client) {
+            is ToolCallingLlmClient -> client.completeWithTools(prompt, ReviewToolbox(repository))
+            else -> client.complete(prompt.system, prompt.user)
+        }
         val parsed = parseReviewResponse(answer)
         val reviewedPaths = context.diffs.mapTo(HashSet()) { it.path }
         val anchored = parsed.comments
