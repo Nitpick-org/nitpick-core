@@ -74,7 +74,7 @@ server/                       Ktor server that shares reviews, reusing the domai
 | --- | --- | --- |
 | Language | Kotlin Multiplatform | 2.4.21 |
 | UI | Compose Multiplatform + Material 3 | 1.12.2 |
-| Android build | AGP, minSdk 26, targetSdk 37 | 9.1.1 |
+| Android build | AGP, minSdk 33, targetSdk 37 | 9.1.1 |
 | Git | JGit | 6.10.1 |
 | AI agents | Koog | planned |
 | Backend | Ktor server + client | planned |

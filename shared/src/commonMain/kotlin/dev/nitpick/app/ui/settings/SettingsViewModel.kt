@@ -57,8 +57,8 @@ class SettingsViewModel(private val store: SettingsStore) : ViewModel() {
         _draft.value = null
     }
 
-    // Only the dialog's fields come from the draft: recent repositories or the git account may
-    // have changed underneath while it was open.
+    // Every field the dialog edits comes from the draft. The recent repositories do not: opening
+    // a repository behind the dialog changes them underneath.
     fun saveDraft() {
         val draft = _draft.value ?: return
         _draft.value = null

@@ -550,9 +550,42 @@ class JGitRepositoryTest {
         clone.commit("local")
         clone.writeFile("b.txt", "keep me")
 
-        assertFailsWith<IllegalStateException> { clone.pull(credentials = null) }
+        val failure = assertFailsWith<IllegalStateException> { clone.pull(credentials = null) }
 
+        assertEquals("Commit or discard your changes before pulling: b.txt", failure.message)
         assertEquals("keep me", clone.readFile("b.txt"))
+    }
+
+    @Test
+    fun aFastForwardOverAnEditedFileIsRefusedAndNamesTheFile() = runBlocking<Unit> {
+        repo.write("a.txt", "1")
+        repo.commit("first", at = 1_000)
+        val bare = newBareOrigin()
+        val clone = factory.clone(bare.toURI().toString(), newCloneTarget().path, credentials = null)
+        repo.write("a.txt", "2")
+        repo.commit("second", at = 2_000)
+        repo.git("push", bare.path, "main")
+        clone.writeFile("a.txt", "work in progress")
+
+        val failure = assertFails { clone.pull(credentials = null) }
+
+        assertEquals("Commit or discard your changes before pulling: a.txt", failure.message)
+        assertEquals("work in progress", clone.readFile("a.txt"))
+    }
+
+    @Test
+    fun aPullThatCannotReachTheOriginDoesNotBlameUncommittedEdits() = runBlocking<Unit> {
+        repo.write("a.txt", "1")
+        repo.commit("first", at = 1_000)
+        val bare = newBareOrigin()
+        val clone = factory.clone(bare.toURI().toString(), newCloneTarget().path, credentials = null)
+        clone.writeFile("a.txt", "work in progress")
+        bare.deleteRecursively()
+
+        val failure = assertFails { clone.pull(credentials = null) }
+
+        assertFalse("ommit" in failure.message.orEmpty(), "the origin is gone, not the edits: ${failure.message}")
+        assertEquals("work in progress", clone.readFile("a.txt"))
     }
 
     @Test

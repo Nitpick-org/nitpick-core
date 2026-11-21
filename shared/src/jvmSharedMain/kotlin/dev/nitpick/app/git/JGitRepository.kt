@@ -15,6 +15,7 @@ import org.eclipse.jgit.api.Git
 import org.eclipse.jgit.api.MergeCommand
 import org.eclipse.jgit.api.MergeResult
 import org.eclipse.jgit.api.ResetCommand
+import org.eclipse.jgit.api.errors.CheckoutConflictException
 import org.eclipse.jgit.diff.DiffEntry
 import org.eclipse.jgit.diff.DiffFormatter
 import org.eclipse.jgit.lib.BranchTrackingStatus
@@ -176,7 +177,7 @@ class JGitRepository(private val git: Git) : GitRepository {
     ): Set<String> {
         val changed = workingTreeChanged.toMutableSet()
         val headTree = CanonicalTreeParser(null, walk.objectReader, headCommit.tree)
-        DiffFormatter(DiscardOutputStream).use { formatter ->
+        DiffFormatter(OutputStream.nullOutputStream()).use { formatter ->
             formatter.setRepository(repository)
             formatter.isDetectRenames = true
             formatter.scan(forkTree, headTree).forEach { header ->
@@ -236,30 +237,24 @@ class JGitRepository(private val git: Git) : GitRepository {
     override suspend fun pull(credentials: Credentials?): PullResult = withContext(Dispatchers.IO) {
         // A hard reset after a conflicted merge is only safe on a clean tree. With local edits,
         // allow a fast-forward only; a divergent history aborts before touching anything.
-        val dirty = git.status().call().uncommittedChanges.isNotEmpty()
+        val uncommitted = git.status().call().uncommittedChanges
+        val dirty = uncommitted.isNotEmpty()
         val command = git.pull()
             .setRebase(false)
             .setCredentialsProvider(credentials.toJGit())
         if (dirty) command.setFastForward(MergeCommand.FastForwardMode.FF_ONLY)
-        val result = try {
-            command.call()
-        } catch (e: Exception) {
-            if (dirty) {
-                throw IllegalStateException(
-                    "Uncommitted changes: commit or discard them before pulling a diverged branch.",
-                    e,
-                )
-            }
-            throw e
+        val merge = try {
+            command.call().mergeResult
+        } catch (e: CheckoutConflictException) {
+            // The incoming commits change a file with local edits, and JGit wrote nothing. Any
+            // other failure (network, credentials) keeps its own message.
+            throw IllegalStateException(commitOrDiscardFirst(e.conflictingPaths.orEmpty()), e)
         }
-        val merge = result.mergeResult
+        // Fast-forward only over a diverged history: JGit answers ABORTED without touching a file.
+        if (dirty && merge.mergeStatus == MergeResult.MergeStatus.ABORTED) error(commitOrDiscardFirst(uncommitted))
         when (merge.mergeStatus) {
-            MergeResult.MergeStatus.CONFLICTING, MergeResult.MergeStatus.CHECKOUT_CONFLICT -> {
-                if (dirty) {
-                    throw IllegalStateException(
-                        "Uncommitted changes would be overwritten: commit or discard them first.",
-                    )
-                }
+            MergeResult.MergeStatus.CONFLICTING -> {
+                check(!dirty) { commitOrDiscardFirst(uncommitted) }
                 // Conflict resolution is out of scope: put the tree back exactly as it was.
                 git.reset().setMode(ResetCommand.ResetType.HARD).call()
                 PullResult(updated = false, conflictedPaths = merge.conflicts.keys.sorted())
@@ -370,8 +365,5 @@ class JGitRepository(private val git: Git) : GitRepository {
 
 private val ACCEPTED_PUSH_STATUSES = setOf(RemoteRefUpdate.Status.OK, RemoteRefUpdate.Status.UP_TO_DATE)
 
-/** `OutputStream.nullOutputStream()` is Java 11 / Android 33: discard by hand for minSdk 26. */
-private object DiscardOutputStream : OutputStream() {
-    override fun write(b: Int) = Unit
-    override fun write(b: ByteArray, off: Int, len: Int) = Unit
-}
+private fun commitOrDiscardFirst(paths: Collection<String>): String =
+    "Commit or discard your changes before pulling: ${paths.sorted().joinToString(", ")}"

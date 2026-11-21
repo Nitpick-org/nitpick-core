@@ -56,9 +56,7 @@ fun DiffPanel(
     Column(modifier) {
         DiffHeader(state, onSelectBase)
         NitpickDivider()
-        val selected = remember(state.diff, state.selectedDiffPath) {
-            state.diff.firstOrNull { it.path == state.selectedDiffPath } ?: state.diff.firstOrNull()
-        }
+        val selected = remember(state.diff, state.selectedDiffPath) { state.selectedDiff }
         when {
             // A reload keeps the current diff on screen instead of flashing a spinner.
             state.isDiffLoading && state.diff.isEmpty() -> Box(Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {

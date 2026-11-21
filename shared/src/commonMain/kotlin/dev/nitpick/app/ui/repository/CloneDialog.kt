@@ -28,9 +28,6 @@ import dev.nitpick.app.ui.components.NitpickButton
 import dev.nitpick.app.ui.components.NitpickButtonSize
 import dev.nitpick.app.ui.components.NitpickButtonVariant
 import dev.nitpick.app.ui.components.NitpickTextField
-import dev.nitpick.app.ui.phone.defaultCloneFolderName
-import dev.nitpick.app.ui.phone.isValidCloneFolderName
-import dev.nitpick.app.ui.phone.rememberCloneProgress
 import dev.nitpick.app.ui.theme.NitpickTheme
 import nitpick.shared.generated.resources.Res
 import nitpick.shared.generated.resources.action_cancel

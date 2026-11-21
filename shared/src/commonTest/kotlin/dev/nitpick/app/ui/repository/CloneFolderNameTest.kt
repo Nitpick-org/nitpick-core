@@ -1,4 +1,4 @@
-package dev.nitpick.app.ui.phone
+package dev.nitpick.app.ui.repository
 
 import kotlin.test.Test
 import kotlin.test.assertEquals
