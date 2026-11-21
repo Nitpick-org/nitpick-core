@@ -172,7 +172,7 @@ fun RefBadge(ref: Ref, modifier: Modifier = Modifier) {
     NitpickBadge(text = "$prefix · ${ref.name}", tone = tone, modifier = modifier)
 }
 
-private fun severityTone(severity: Severity): NitpickTone = when (severity) {
+internal fun severityTone(severity: Severity): NitpickTone = when (severity) {
     Severity.INFO -> NitpickTone.Info
     Severity.SUGGESTION -> NitpickTone.Suggestion
     Severity.WARNING -> NitpickTone.Warning
@@ -180,7 +180,7 @@ private fun severityTone(severity: Severity): NitpickTone = when (severity) {
 }
 
 @Composable
-private fun severityLabel(severity: Severity): String = when (severity) {
+internal fun severityLabel(severity: Severity): String = when (severity) {
     Severity.INFO -> stringResource(Res.string.severity_info)
     Severity.SUGGESTION -> stringResource(Res.string.severity_suggestion)
     Severity.WARNING -> stringResource(Res.string.severity_warning)

@@ -26,7 +26,6 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import dev.nitpick.app.domain.ReviewComment
-import dev.nitpick.app.domain.Severity
 import dev.nitpick.app.ui.components.NitBottomSheet
 import dev.nitpick.app.ui.components.NitpickBadge
 import dev.nitpick.app.ui.components.NitpickCard
@@ -34,6 +33,8 @@ import dev.nitpick.app.ui.components.NitpickDivider
 import dev.nitpick.app.ui.components.NitpickEmptyState
 import dev.nitpick.app.ui.components.NitpickTextField
 import dev.nitpick.app.ui.components.NitpickToolbarAction
+import dev.nitpick.app.ui.components.severityLabel
+import dev.nitpick.app.ui.components.severityTone
 import dev.nitpick.app.ui.repository.RepositoryUiState
 import dev.nitpick.app.ui.repository.ReviewFailureState
 import dev.nitpick.app.ui.repository.ShareReviewAction
@@ -193,7 +194,7 @@ private fun FileHeader(path: String, onClick: () -> Unit) {
 private fun NitRow(nit: ReviewComment, applied: Boolean, onClick: () -> Unit) {
     NitpickCard(modifier = Modifier.fillMaxWidth().heightIn(min = NitRowHeight).clickable(onClick = onClick), padding = 12.dp) {
         Row(verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(8.dp)) {
-            NitpickBadge(nit.severity.name, tone = severityTone(nit.severity))
+            NitpickBadge(severityLabel(nit.severity), tone = severityTone(nit.severity))
             Column(Modifier.weight(1f), verticalArrangement = Arrangement.spacedBy(2.dp)) {
                 Text(nit.message, style = NitpickTheme.typography.body, maxLines = 2, overflow = TextOverflow.Ellipsis)
                 Text(
@@ -233,11 +234,4 @@ private fun CommitAndPushBar(
             }
         }
     }
-}
-
-private fun severityTone(severity: Severity): NitpickTone = when (severity) {
-    Severity.INFO -> NitpickTone.Info
-    Severity.SUGGESTION -> NitpickTone.Suggestion
-    Severity.WARNING -> NitpickTone.Warning
-    Severity.BUG -> NitpickTone.Danger
 }
