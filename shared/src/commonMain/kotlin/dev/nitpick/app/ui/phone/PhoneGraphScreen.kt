@@ -7,6 +7,7 @@ import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.Text
@@ -18,6 +19,10 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
+import dev.nitpick.app.ui.components.NitpickButton
+import dev.nitpick.app.ui.components.NitpickButtonSize
+import dev.nitpick.app.ui.components.NitpickButtonVariant
+import dev.nitpick.app.ui.components.NitpickCard
 import dev.nitpick.app.ui.components.NitpickDivider
 import dev.nitpick.app.ui.components.NitpickEmptyState
 import dev.nitpick.app.ui.components.NitpickTab
@@ -33,6 +38,7 @@ import dev.nitpick.app.ui.theme.NitpickTheme
 import nitpick.shared.generated.resources.Res
 import nitpick.shared.generated.resources.action_back
 import nitpick.shared.generated.resources.branch_checkout_hint
+import nitpick.shared.generated.resources.branch_no_upstream
 import nitpick.shared.generated.resources.fetch_action
 import nitpick.shared.generated.resources.fetch_in_progress
 import nitpick.shared.generated.resources.pull_action
@@ -48,7 +54,6 @@ import nitpick.shared.generated.resources.commits_empty
 import nitpick.shared.generated.resources.commits_title
 import nitpick.shared.generated.resources.refs_local_branches
 import nitpick.shared.generated.resources.repository_error_title
-import nitpick.shared.generated.resources.repository_on_branch
 import nitpick.shared.generated.resources.status_commits
 import nitpick.shared.generated.resources.sync_ahead_behind
 import nitpick.shared.generated.resources.sync_pull_count
@@ -56,6 +61,9 @@ import nitpick.shared.generated.resources.sync_push_count
 import org.jetbrains.compose.resources.stringResource
 
 private enum class GraphTab { Commits, Branches }
+
+/** Touch target of the sync actions on the phone (UI handoff §4.2: 44 dp). */
+private val SyncActionHeight = 44.dp
 
 /** Commits and branches of the open repository, one tab at a time (UI handoff §4). */
 @Composable
@@ -75,32 +83,6 @@ fun PhoneGraphScreen(
 ) {
     Column(modifier.fillMaxSize().background(NitpickTheme.colors.canvas)) {
         PhoneTopBar(title = state.path?.let(::folderName) ?: "", onBack = onBack) {
-            if (state.path != null && state.errorMessage == null && !state.isLoading) {
-                val syncing = state.isSyncing
-                NitpickToolbarAction(
-                    text = stringResource(if (state.isFetching) Res.string.fetch_in_progress else Res.string.fetch_action),
-                    onClick = { if (!syncing) onFetch() },
-                )
-                NitpickToolbarAction(
-                    text = when {
-                        state.isPulling -> stringResource(Res.string.pull_in_progress)
-                        (state.tracking?.behind ?: 0) > 0 -> stringResource(Res.string.sync_pull_count, state.tracking!!.behind)
-                        else -> stringResource(Res.string.pull_action)
-                    },
-                    onClick = { if (!syncing) onPull() },
-                )
-                if (state.tracking != null || state.hasOrigin) {
-                    NitpickToolbarAction(
-                        text = when {
-                            state.isPushing -> stringResource(Res.string.push_in_progress)
-                            state.tracking == null -> stringResource(Res.string.publish_action)
-                            state.tracking.ahead > 0 -> stringResource(Res.string.sync_push_count, state.tracking.ahead)
-                            else -> stringResource(Res.string.push_action)
-                        },
-                        onClick = { if (!syncing) if (state.tracking == null) onPublish() else onPush() },
-                    )
-                }
-            }
             NitpickToolbarAction(text = stringResource(Res.string.shared_open), onClick = onOpenShared)
             SettingsAction(onOpenSettings)
         }
@@ -115,6 +97,7 @@ fun PhoneGraphScreen(
                 onAction = onBack,
             )
             else -> {
+                BranchCard(state, onFetch, onPull, onPush, onPublish, Modifier.fillMaxWidth().padding(16.dp))
                 GraphContent(state, onSelectCommit, onCheckoutBranch, Modifier.weight(1f))
                 syncStatusMessage(state)?.let { message ->
                     Text(
@@ -134,29 +117,88 @@ fun PhoneGraphScreen(
     }
 }
 
+/** Current branch, its upstream with ↑n ↓m, and the three 44 dp sync actions (UI handoff §4.2). */
+@Composable
+private fun BranchCard(
+    state: RepositoryUiState,
+    onFetch: () -> Unit,
+    onPull: () -> Unit,
+    onPush: () -> Unit,
+    onPublish: () -> Unit,
+    modifier: Modifier,
+) {
+    NitpickCard(modifier, verticalArrangement = Arrangement.spacedBy(12.dp)) {
+        Text(
+            text = branchLabel(state.currentBranch),
+            style = NitpickTheme.typography.code,
+            color = NitpickTheme.colors.text,
+        )
+        Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
+            Text(
+                text = state.tracking?.upstream ?: stringResource(Res.string.branch_no_upstream),
+                style = NitpickTheme.typography.small,
+                color = NitpickTheme.colors.textMuted,
+            )
+            state.tracking?.let {
+                Text(
+                    text = stringResource(Res.string.sync_ahead_behind, it.ahead, it.behind),
+                    style = NitpickTheme.typography.codeSmall,
+                    color = NitpickTheme.colors.textMuted,
+                )
+            }
+            Text(
+                text = stringResource(Res.string.status_commits, state.graph.size),
+                style = NitpickTheme.typography.small,
+                color = NitpickTheme.colors.textMuted,
+            )
+        }
+        val syncing = state.isSyncing
+        Row(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.spacedBy(8.dp)) {
+            SyncButton(
+                text = stringResource(if (state.isFetching) Res.string.fetch_in_progress else Res.string.fetch_action),
+                onClick = { if (!syncing) onFetch() },
+                modifier = Modifier.weight(1f),
+            )
+            SyncButton(
+                text = when {
+                    state.isPulling -> stringResource(Res.string.pull_in_progress)
+                    (state.tracking?.behind ?: 0) > 0 -> stringResource(Res.string.sync_pull_count, state.tracking!!.behind)
+                    else -> stringResource(Res.string.pull_action)
+                },
+                onClick = { if (!syncing) onPull() },
+                modifier = Modifier.weight(1f),
+            )
+            if (state.tracking != null || state.hasOrigin) {
+                SyncButton(
+                    text = when {
+                        state.isPushing -> stringResource(Res.string.push_in_progress)
+                        state.tracking == null -> stringResource(Res.string.publish_action)
+                        state.tracking.ahead > 0 -> stringResource(Res.string.sync_push_count, state.tracking.ahead)
+                        else -> stringResource(Res.string.push_action)
+                    },
+                    onClick = { if (!syncing) if (state.tracking == null) onPublish() else onPush() },
+                    modifier = Modifier.weight(1f),
+                )
+            }
+        }
+    }
+}
+
+@Composable
+private fun SyncButton(text: String, onClick: () -> Unit, modifier: Modifier) {
+    NitpickButton(
+        text = text,
+        onClick = onClick,
+        modifier = modifier.height(SyncActionHeight),
+        variant = NitpickButtonVariant.Secondary,
+        size = NitpickButtonSize.Large,
+    )
+}
+
 @Composable
 private fun GraphContent(state: RepositoryUiState, onSelectCommit: (String) -> Unit, onCheckoutBranch: (String) -> Unit, modifier: Modifier) {
     var tab by rememberSaveable { mutableStateOf(GraphTab.Commits) }
     Column(modifier) {
-    Row(Modifier.fillMaxWidth().padding(horizontal = 16.dp, vertical = 12.dp), horizontalArrangement = Arrangement.spacedBy(8.dp)) {
-        Text(
-            text = stringResource(Res.string.repository_on_branch, branchLabel(state.currentBranch)),
-            style = NitpickTheme.typography.bodyStrong,
-            color = NitpickTheme.colors.text,
-        )
-        Text(
-            text = stringResource(Res.string.status_commits, state.graph.size),
-            style = NitpickTheme.typography.body,
-            color = NitpickTheme.colors.textMuted,
-        )
-        state.tracking?.let {
-            Text(
-                text = stringResource(Res.string.sync_ahead_behind, it.ahead, it.behind),
-                style = NitpickTheme.typography.codeSmall,
-                color = NitpickTheme.colors.textMuted,
-            )
-        }
-    }
     Row(Modifier.fillMaxWidth().background(NitpickTheme.colors.panelHeader).padding(horizontal = 4.dp), verticalAlignment = Alignment.Bottom) {
         NitpickTab(stringResource(Res.string.commits_title), selected = tab == GraphTab.Commits, onClick = { tab = GraphTab.Commits })
         NitpickTab(stringResource(Res.string.refs_local_branches), selected = tab == GraphTab.Branches, onClick = { tab = GraphTab.Branches })
