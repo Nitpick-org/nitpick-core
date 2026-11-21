@@ -36,12 +36,9 @@ import dev.nitpick.app.settings.LlmProvider
 import dev.nitpick.app.settings.Settings
 import dev.nitpick.app.settings.ThemeMode
 import dev.nitpick.app.settings.knownModels
+import dev.nitpick.app.ui.repository.label
 import nitpick.shared.generated.resources.Res
 import nitpick.shared.generated.resources.action_back
-import nitpick.shared.generated.resources.provider_anthropic
-import nitpick.shared.generated.resources.provider_google
-import nitpick.shared.generated.resources.provider_ollama
-import nitpick.shared.generated.resources.provider_openai
 import nitpick.shared.generated.resources.settings_api_key
 import nitpick.shared.generated.resources.settings_model
 import nitpick.shared.generated.resources.settings_provider
@@ -57,19 +54,11 @@ private val ScreenPadding = 24.dp
 private val SectionSpacing = 16.dp
 private val ChoiceTextSize = TextAutoSize.StepBased(minFontSize = 10.sp, maxFontSize = 14.sp)
 
-private val ThemeMode.label: StringResource
+internal val ThemeMode.label: StringResource
     get() = when (this) {
         ThemeMode.SYSTEM -> Res.string.theme_system
         ThemeMode.LIGHT -> Res.string.theme_light
         ThemeMode.DARK -> Res.string.theme_dark
-    }
-
-private val LlmProvider.label: StringResource
-    get() = when (this) {
-        LlmProvider.ANTHROPIC -> Res.string.provider_anthropic
-        LlmProvider.OPENAI -> Res.string.provider_openai
-        LlmProvider.GOOGLE -> Res.string.provider_google
-        LlmProvider.OLLAMA -> Res.string.provider_ollama
     }
 
 @Composable

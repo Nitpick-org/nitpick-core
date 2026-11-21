@@ -18,6 +18,7 @@ import dev.nitpick.app.settings.withRecentRepository
 import dev.nitpick.app.ui.phone.PhoneFlow
 import dev.nitpick.app.ui.repository.RepositoryScreen
 import dev.nitpick.app.ui.repository.RepositoryViewModel
+import dev.nitpick.app.ui.settings.SettingsDialog
 import dev.nitpick.app.ui.settings.SettingsScreen
 import dev.nitpick.app.ui.settings.SettingsViewModel
 import dev.nitpick.app.ui.theme.NitpickTheme
@@ -55,7 +56,7 @@ fun App(
     NitpickTheme(settings.themeMode) {
         Surface(Modifier.fillMaxSize(), color = MaterialTheme.colorScheme.background) {
             when {
-                showSettings -> SettingsScreen(settings, settingsViewModel::update, onBack = { showSettings = false })
+                showSettings && cloneRoot != null -> SettingsScreen(settings, settingsViewModel::update, onBack = { showSettings = false })
                 // The account gate must not flash before the settings file is read.
                 cloneRoot != null && !settingsLoaded -> Unit
                 cloneRoot != null -> PhoneFlow(
@@ -77,7 +78,8 @@ fun App(
                     onOpenSettings = { showSettings = true },
                     modifier = Modifier.safeContentPadding(),
                 )
-                else -> RepositoryScreen(
+                else -> {
+                    RepositoryScreen(
                     state = state,
                     settings = settings,
                     onOpenRepository = openRepository,
@@ -93,6 +95,19 @@ fun App(
                     onCommit = repositoryViewModel::commitAppliedSuggestions,
                     modifier = Modifier.safeContentPadding(),
                 )
+                if (showSettings) {
+                    val draft by settingsViewModel.draft.collectAsStateWithLifecycle()
+                    LaunchedEffect(Unit) { settingsViewModel.startEditing() }
+                    draft?.let {
+                        SettingsDialog(
+                            draft = it,
+                            onEdit = settingsViewModel::editDraft,
+                            onSave = { settingsViewModel.saveDraft(); showSettings = false },
+                            onCancel = { settingsViewModel.discardDraft(); showSettings = false },
+                        )
+                    }
+                }
+                }
             }
         }
     }

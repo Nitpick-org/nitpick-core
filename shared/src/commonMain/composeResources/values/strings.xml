@@ -111,4 +111,14 @@
     <string name="connect_token_hide">Hide</string>
     <string name="connect_action">Connect</string>
     <string name="connect_edit">Account</string>
+    <string name="settings_search">Search settings</string>
+    <string name="settings_section_general">General</string>
+    <string name="settings_section_review">Review</string>
+    <string name="settings_section_git">Git</string>
+    <string name="settings_section_keymap">Keymap</string>
+    <string name="settings_kicker_appearance">Appearance</string>
+    <string name="settings_kicker_ai_review">AI review</string>
+    <string name="settings_api_key_help">Stored in this app’s settings file. Sent only to %1$s.</string>
+    <string name="action_cancel">Cancel</string>
+    <string name="action_save">Save</string>
 </resources>

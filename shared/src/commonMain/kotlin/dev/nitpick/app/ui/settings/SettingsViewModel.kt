@@ -7,6 +7,7 @@ import dev.nitpick.app.settings.SettingsStore
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
+import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 
 class SettingsViewModel(private val store: SettingsStore) : ViewModel() {
@@ -31,5 +32,29 @@ class SettingsViewModel(private val store: SettingsStore) : ViewModel() {
             _settings.value = next
             store.save(next)
         }
+    }
+
+    private val _draft = MutableStateFlow<Settings?>(null)
+    /** The copy the settings dialog edits; nothing is written until [saveDraft]. */
+    val draft: StateFlow<Settings?> = _draft.asStateFlow()
+
+    fun startEditing() {
+        _draft.value = _settings.value
+    }
+
+    fun editDraft(transform: (Settings) -> Settings) {
+        _draft.update { it?.let(transform) }
+    }
+
+    fun discardDraft() {
+        _draft.value = null
+    }
+
+    // Only the dialog's fields come from the draft: recent repositories or the git account may
+    // have changed underneath while it was open.
+    fun saveDraft() {
+        val draft = _draft.value ?: return
+        _draft.value = null
+        update { it.copy(provider = draft.provider, model = draft.model, apiKey = draft.apiKey, themeMode = draft.themeMode) }
     }
 }
