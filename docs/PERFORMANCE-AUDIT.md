@@ -2,6 +2,8 @@
 
 > Périmètre : desktop JVM et Android, cœur partagé (`shared/`). Mesures faites sur la machine
 > de développement (macOS, JDK 22, JVM chaude), avant/après les corrections de cette passe.
+> Seconde passe (relecture + volet Android) : 21 novembre, soir — voir « Relecture » et
+> « Android » plus bas.
 
 ## Résumé
 
@@ -96,6 +98,29 @@ graphe, diff de 100 fichiers) : elles sont indicatives, pas des profils GPU.
     `DiffPanel` (sélection et bases mémorisées), `CommitGraphLane` (lanes passantes calculées
     une fois par ligne), `PhoneReviewScreen` (`groupBy` mémorisé).
 
+## Relecture (seconde passe)
+
+Les quatre points prioritaires du handoff (`progress/perf-audit.md`), relus sur le code :
+
+1. **`diffAgainst` + `changedPathsBetween` : conforme**, avec un cas limite hérité de la
+   suppression du `TrackedFilter`. Renommage (les deux chemins entrent dans le filtre),
+   suppression, fichier staged et arbre propre sont corrects et testés. Le cas limite :
+   un fichier **supprimé entre le fork point et HEAD** mais recréé **non suivi** dans le
+   working tree. Son chemin est dans le filtre, et `FileTreeIterator` voit le fichier du
+   disque : la suppression s'affiche comme une modification (ou disparaît si le contenu est
+   identique), et le contenu non suivi part au LLM alors que la doc promet le contraire.
+   Niche (fichier régénéré par un outil au chemin qu'une branche supprime) ; non corrigé,
+   à décider par H2 — le fix propre repasse par un filtrage sur l'index.
+2. **`log` + `childrenBeforeParents` : conforme.** Kahn est correct et déterministe, la
+   garde sur fenêtre tronquée aussi. Limite assumée : avec une horloge très inversée, la
+   fenêtre `COMMIT_TIME_DESC` de 500 peut contenir un ensemble de commits différent de
+   celui qu'un TOPO aurait donné — l'ordre, lui, reste enfants-avant-parents (testé).
+3. **`refreshDiff` single-flight : conforme.** Toutes les mutations se font sur le
+   dispatcher principal ; `load()` annule le job et vide `pendingDiffBase`, et le résultat
+   d'un dépôt fermé est jeté (`repository !== git`).
+4. **`LlmModels` : conforme au §14.** Choix produit confirmé à faire valider par H1 ; un
+   `settings.json` existant garde son modèle.
+
 ## Ce qui reste lent, et pourquoi
 
 - **La review LLM (dizaines de secondes ; timeout à 90 s).** Le prompt peut atteindre
@@ -112,22 +137,46 @@ graphe, diff de 100 fichiers) : elles sont indicatives, pas des profils GPU.
   risque de correctness.
 - **Démarrage desktop (~1,4 s jusqu'à la première composition).** Surtout du chargement
   Compose/Skiko et des ressources ; pas de levier simple sans dégrader le premier écran.
-- **Android.** `isMinifyEnabled = false` en release et aucune baseline profile : la cold
-  start et le débit Compose en debug sont nettement moins bons qu'en release. À traiter
-  après le freeze, avec des règles R8 testées (Compose, Koog, JGit).
 - **Graphe.** 500 lignes, `LazyColumn`, lanes hors thread UI : déjà conforme au fallback de
   `CONTEXT.md`. Le dessin alloue encore un `Path` par courbe et par frame ; négligeable au
   regard du reste.
 
+## Android
+
+Pas encore de mesures sur ART : aucun appareil ni émulateur branché pendant la seconde
+passe (`adb devices` vide). Ce qui est établi sans appareil :
+
+- **Les corrections partagées sont les gains Android.** Le téléphone passe par le même
+  `RepositoryViewModel` et le même `JGitRepository` : `log()` borné et le diff filtré
+  comptent **plus** sur ART que sur desktop — un clone vit dans `filesDir/repos` sur du
+  stockage flash, où hacher tous les fichiers suivis à chaque refresh coûtait le plus
+  cher. Tout JGit est sur `Dispatchers.IO`, le layout des lanes sur `Default` : rien ne
+  bloque le thread UI (vérifié dans le code, à confirmer à l'œil sur appareil).
+- **`MainActivity.onCreate` est mince** : construction du conteneur (constructeurs purs)
+  et `setContent` ; la lecture de `settings.json` part sur IO et l'UI attend
+  `settingsLoaded` sans bloquer. Pas de levier cold start côté code applicatif.
+- **La démo tourne en debug** (`installDebug`) : build debuggable, donc pas d'AOT et un
+  Compose nettement plus lent qu'en release. Levier le moins cher pour la démo :
+  installer la variante release — `isMinifyEnabled = false` fait qu'aucune règle R8 n'est
+  en jeu, il ne manque qu'une `signingConfig` (debug) sur le build type release, une
+  ligne. Non fait : décision démo H3.
+- **Après le freeze** (inchangé depuis la première passe) : R8 + baseline profile, avec
+  des règles testées sur ART (Compose, Koog, JGit).
+- **À rejouer sur appareil** (handoff) : clone d'un dépôt réel, graph, review, apply —
+  comparer le ressenti avant/après `a15abff` et noter la cold start
+  (`am start -W dev.nitpick.app/.MainActivity`).
+
 ## Vérification
 
-- `./gradlew :shared:jvmTest :server:test :desktopApp:assemble` : **vert**, avec les nouveaux
-  tests (tri topologique sous horloge inversée, diff sur arbre propre, `stage()` groupé,
-  compteurs de diff, settings sans écriture inutile).
-- `./scripts/check.sh` ne peut pas aller au bout sur cette machine : le SDK Android est
-  introuvable (`ANDROID_HOME` et `local.properties` absents), donc
-  `:shared:testAndroidHostTest` et `:androidApp:assembleDebug` ne démarrent pas. Ce n'est
-  pas une régression du code ; à relancer sur une machine avec le SDK.
+- Première passe : `./gradlew :shared:jvmTest :server:test :desktopApp:assemble` **vert**,
+  avec les nouveaux tests (tri topologique sous horloge inversée, diff sur arbre propre,
+  `stage()` groupé, compteurs de diff, settings sans écriture inutile). `check.sh` n'avait
+  pas pu finir : SDK Android absent de cette machine-là.
+- Seconde passe, machine avec SDK : `./scripts/check.sh` **vert** (tests partagés, build
+  desktop et `:androidApp:assembleDebug`). Comptes relus dans les rapports :
+  `jvmTest` **147 tests**, `testAndroidHostTest` **107 tests**, 0 échec, 0 ignoré.
+  Toujours rien sur ART (pas d'appareil) : la preuve Android reste
+  `androidApp/src/androidTest` à rejouer branché.
 
 ## Note de travail
 

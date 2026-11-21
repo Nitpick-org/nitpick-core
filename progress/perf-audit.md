@@ -1,8 +1,8 @@
 # Audit perf — chemins chauds git / diff
 
-- Statut : à relire et à rejouer sur un vrai dépôt (>10k fichiers) et sur Android
+- Statut : relu (seconde passe, Fable, 21/11 soir) ; reste à rejouer sur un appareil ART
 - Piste : performance desktop + Android, cœur partagé
-- Agent : lead (DeepSeek), 21/11 ~22:00
+- Agent : lead (DeepSeek), 21/11 ~22:00 ; relecture + volet Android : lead (Fable)
 - Fichiers : `git/JGitRepository.kt`, `ui/repository/{RepositoryViewModel,DiffPanel,
   RepositoryScreen,CommitGraph}.kt`, `domain/Diff.kt`, `review/ReviewContext.kt`,
   `settings/{Settings,LlmModels}.kt`, `ui/settings/SettingsViewModel.kt`,
@@ -28,6 +28,16 @@ Ajouts : refresh de diff single-flight, compteurs de lignes précalculés, `stag
 lecture unique par fichier au re-anchoring, settings non réécrits sans changement,
 micro-allocations UI. Le défaut Anthropic passe à Sonnet (Opus reste dans la liste).
 
+## Relecture faite (Fable, 21/11 soir)
+
+Les 4 points ci-dessous sont relus : verdicts et le cas limite trouvé (fichier supprimé
+fork→HEAD mais recréé non suivi : il entre dans le diff de review depuis la suppression du
+`TrackedFilter`) sont dans `docs/PERFORMANCE-AUDIT.md` § Relecture. `check.sh` vert sur une
+machine avec SDK ; comptes vérifiés : jvmTest 147, testAndroidHostTest 107, 0 échec. Volet
+Android ajouté au rapport (pas d'appareil branché : analyse code + leviers, pas de mesures
+ART). Hors perf, remarqué au passage : après une mort de process, `PhoneFlow` restaure
+`screen = Graph` (rememberSaveable) sur un état vide — écran Graph vide au lieu de Repos.
+
 ## À relire en priorité (Fable)
 
 1. `JGitRepository.diffAgainst` + `changedPathsBetween` : rename, suppression, fichier
@@ -45,10 +55,14 @@ micro-allocations UI. Le défaut Anthropic passe à Sonnet (Opus reste dans la l
 - `git status()` reste un plancher de ~20–30 ms par diff ; un cache indexé sur HEAD + mtime
   de l'index est possible mais risqué (édition externe).
 - Le défaut Sonnet ne migre pas un réglage existant.
-- `./scripts/check.sh` complet n'a pas tourné : SDK Android absent sur cette machine
-  (`ANDROID_HOME` / `local.properties`). JVM + serveur + desktop sont verts.
+- ~~`./scripts/check.sh` complet n'a pas tourné~~ : fait en seconde passe, vert (Android
+  compris). Rien sur ART, toujours.
+- Cas limite `diffAgainst` (fichier non suivi à un chemin supprimé par la branche) : non
+  corrigé, décision H2 — fix propre = refiltrer sur l'index.
 
 ## Suivant
 
-- Rejouer la démo sur un vrai dépôt et sur ART, comparer le ressenti avant/après.
+- Rejouer la démo sur un vrai dépôt et sur ART, comparer le ressenti avant/après ; cold
+  start via `am start -W`.
+- Décision H3 : démo Android en release (une `signingConfig` à ajouter) ou en debug.
 - Décider avec H1/H2 : budget de prompt, cache de review pour la démo, streaming.
