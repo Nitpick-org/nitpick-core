@@ -33,8 +33,12 @@ import dev.nitpick.app.ui.theme.NitpickTheme
 import nitpick.shared.generated.resources.Res
 import nitpick.shared.generated.resources.action_back
 import nitpick.shared.generated.resources.branch_checkout_hint
+import nitpick.shared.generated.resources.fetch_action
+import nitpick.shared.generated.resources.fetch_in_progress
 import nitpick.shared.generated.resources.pull_action
 import nitpick.shared.generated.resources.pull_in_progress
+import nitpick.shared.generated.resources.push_action
+import nitpick.shared.generated.resources.push_in_progress
 import nitpick.shared.generated.resources.repository_loading
 import nitpick.shared.generated.resources.review_cta
 import nitpick.shared.generated.resources.shared_open
@@ -44,6 +48,9 @@ import nitpick.shared.generated.resources.refs_local_branches
 import nitpick.shared.generated.resources.repository_error_title
 import nitpick.shared.generated.resources.repository_on_branch
 import nitpick.shared.generated.resources.status_commits
+import nitpick.shared.generated.resources.sync_ahead_behind
+import nitpick.shared.generated.resources.sync_pull_count
+import nitpick.shared.generated.resources.sync_push_count
 import org.jetbrains.compose.resources.stringResource
 
 private enum class GraphTab { Commits, Branches }
@@ -56,6 +63,8 @@ fun PhoneGraphScreen(
     onSelectCommit: (String) -> Unit,
     onCheckoutBranch: (String) -> Unit,
     onPull: () -> Unit,
+    onPush: () -> Unit,
+    onFetch: () -> Unit,
     onReview: () -> Unit,
     onOpenShared: () -> Unit,
     onOpenSettings: () -> Unit,
@@ -64,10 +73,29 @@ fun PhoneGraphScreen(
     Column(modifier.fillMaxSize().background(NitpickTheme.colors.canvas)) {
         PhoneTopBar(title = state.path?.let(::folderName) ?: "", onBack = onBack) {
             if (state.path != null && state.errorMessage == null && !state.isLoading) {
+                val syncing = state.isSyncing
                 NitpickToolbarAction(
-                    text = stringResource(if (state.isPulling) Res.string.pull_in_progress else Res.string.pull_action),
-                    onClick = { if (!state.isPulling) onPull() },
+                    text = stringResource(if (state.isFetching) Res.string.fetch_in_progress else Res.string.fetch_action),
+                    onClick = { if (!syncing) onFetch() },
                 )
+                NitpickToolbarAction(
+                    text = when {
+                        state.isPulling -> stringResource(Res.string.pull_in_progress)
+                        (state.tracking?.behind ?: 0) > 0 -> stringResource(Res.string.sync_pull_count, state.tracking!!.behind)
+                        else -> stringResource(Res.string.pull_action)
+                    },
+                    onClick = { if (!syncing) onPull() },
+                )
+                if (state.tracking != null) {
+                    NitpickToolbarAction(
+                        text = when {
+                            state.isPushing -> stringResource(Res.string.push_in_progress)
+                            state.tracking.ahead > 0 -> stringResource(Res.string.sync_push_count, state.tracking.ahead)
+                            else -> stringResource(Res.string.push_action)
+                        },
+                        onClick = { if (!syncing) onPush() },
+                    )
+                }
             }
             NitpickToolbarAction(text = stringResource(Res.string.shared_open), onClick = onOpenShared)
             SettingsAction(onOpenSettings)
@@ -117,6 +145,13 @@ private fun GraphContent(state: RepositoryUiState, onSelectCommit: (String) -> U
             style = NitpickTheme.typography.body,
             color = NitpickTheme.colors.textMuted,
         )
+        state.tracking?.let {
+            Text(
+                text = stringResource(Res.string.sync_ahead_behind, it.ahead, it.behind),
+                style = NitpickTheme.typography.codeSmall,
+                color = NitpickTheme.colors.textMuted,
+            )
+        }
     }
     Row(Modifier.fillMaxWidth().background(NitpickTheme.colors.panelHeader).padding(horizontal = 4.dp), verticalAlignment = Alignment.Bottom) {
         NitpickTab(stringResource(Res.string.commits_title), selected = tab == GraphTab.Commits, onClick = { tab = GraphTab.Commits })
@@ -131,7 +166,7 @@ private fun GraphContent(state: RepositoryUiState, onSelectCommit: (String) -> U
                 style = NitpickTheme.typography.micro,
                 color = NitpickTheme.colors.textMuted,
             )
-            RefsSidebar(state.refs, state.currentBranch, Modifier.fillMaxSize(), onSelectBranch = onCheckoutBranch)
+            RefsSidebar(state.refs, state.currentBranch, Modifier.fillMaxSize(), ahead = state.tracking?.ahead, onSelectBranch = onCheckoutBranch)
         }
         state.graph.isEmpty() -> Text(
             text = stringResource(Res.string.commits_empty),

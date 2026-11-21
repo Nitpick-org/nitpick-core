@@ -352,6 +352,31 @@ class JGitRepositoryTest {
     }
 
     @Test
+    fun trackingStatusReportsAheadAndBehind() = runBlocking<Unit> {
+        repo.write("a.txt", "1")
+        repo.commit("first", at = 1_000)
+        val bare = newBareOrigin()
+        val clone = factory.clone(bare.toURI().toString(), newCloneTarget().path, credentials = null)
+        clone.writeFile("local.txt", "local")
+        clone.stage(listOf("local.txt"))
+        clone.commit("local work")
+
+        val ahead = clone.trackingStatus()
+        assertEquals(1, ahead?.ahead)
+        assertEquals(0, ahead?.behind)
+        assertEquals("origin/main", ahead?.upstream)
+
+        repo.write("remote.txt", "remote")
+        repo.commit("remote work", at = 2_000)
+        repo.git("push", bare.path, "main")
+        clone.fetch(credentials = null)
+
+        val diverged = clone.trackingStatus()
+        assertEquals(1, diverged?.ahead)
+        assertEquals(1, diverged?.behind)
+    }
+
+    @Test
     fun checkoutSwitchesToALocalOrARemoteOnlyBranch() = runBlocking<Unit> {
         repo.write("a.txt", "1")
         repo.commit("base", at = 1_000)
