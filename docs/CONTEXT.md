@@ -300,6 +300,25 @@ avec un humain qui relit chaque diff. Air/Junie ne sont pas une dépendance du p
 code de Nitpick ne les importe pas. Le fallback est Claude Code/Codex CLI, documenté dans
 `AGENT_LOG.md`.
 
+### 9.1 Propriété des issues (à maintenir par H2)
+
+Mapping de travail (à corriger si un handle ne correspond pas) :
+
+| Rôle | GitHub | Issues ouvertes | Air |
+| --- | --- | --- | --- |
+| **H1 — Produit & Pitch** | `@zooldyyk` | #39 démo/soumission/preuves Air, #33 états de review | Une comparaison Junie + un second agent, captures, `AGENT_LOG`/`REVIEW_LOG` |
+| **H2 — Architecte & Intégration** | `@dovatgabriel` | #19 diff desktop, #20 agent Koog, #22 boucle review desktop | Une session Air sur le prompt/le diff, comparaison, review humaine |
+| **H3 — Builder & Démo** | `@pepito2t` | #21 clone Android, #23 boucle review Android, #34/#35 settings Android/desktop | Une session Air sur l'UI/Android, capture, review humaine |
+
+Règles :
+
+- Une issue = un owner = un worktree ; les P2 #36–#38 attendent la fin du chemin critique.
+- Chaque owner ajoute au moins une entrée `Agent via Air` dans `AGENT_LOG.md` et une
+  correction/rejet humain dans `REVIEW_LOG.md`.
+- Une seule comparaison multi-agent est nécessaire pour le bonus, mais elle doit être
+  **réelle** (même tâche, deux agents, résultat conservé, raison du choix).
+
+
 ## 10. Planning (les checkpoints sont des points de contrôle bloquants)
 
 | Heure | Objectif | Checkpoint |
