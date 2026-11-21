@@ -24,3 +24,15 @@ playwright/.cache/
 
 # Large recordings: keep them outside the repo
 *.m4a
+
+# Kotlin / Gradle / Android (from the KMP wizard)
+*.iml
+.kotlin
+.gradle
+**/build/
+!src/**/build/
+local.properties
+.idea
+captures
+.externalNativeBuild
+.cxx
