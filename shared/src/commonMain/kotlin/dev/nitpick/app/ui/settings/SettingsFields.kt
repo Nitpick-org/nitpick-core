@@ -27,7 +27,9 @@ import dev.nitpick.app.ui.components.NitpickTextField
 import dev.nitpick.app.ui.repository.label
 import dev.nitpick.app.ui.theme.NitpickTheme
 import nitpick.shared.generated.resources.Res
+import nitpick.shared.generated.resources.connect_token_help
 import nitpick.shared.generated.resources.connect_token_hide
+import nitpick.shared.generated.resources.connect_token_label
 import nitpick.shared.generated.resources.connect_token_show
 import nitpick.shared.generated.resources.settings_api_key
 import nitpick.shared.generated.resources.settings_api_key_help
@@ -71,6 +73,39 @@ internal fun ServerUrlField(serverUrl: String, onChange: (String) -> Unit, modif
         )
         Text(
             text = stringResource(Res.string.settings_server_url_help),
+            style = NitpickTheme.typography.micro,
+            color = NitpickTheme.colors.textMuted,
+        )
+    }
+}
+
+/** Masked forge token with Show/Hide and the read/write help line. */
+@Composable
+internal fun GitTokenField(
+    token: String,
+    onChange: (String) -> Unit,
+    modifier: Modifier = Modifier,
+    minHeight: Dp = 34.dp,
+) {
+    var showToken by remember { mutableStateOf(false) }
+    Column(modifier, verticalArrangement = Arrangement.spacedBy(4.dp)) {
+        NitpickTextField(
+            value = token,
+            onValueChange = onChange,
+            label = stringResource(Res.string.connect_token_label),
+            visualTransformation = if (showToken) VisualTransformation.None else PasswordVisualTransformation(),
+            minHeight = minHeight,
+            trailing = {
+                NitpickButton(
+                    text = stringResource(if (showToken) Res.string.connect_token_hide else Res.string.connect_token_show),
+                    onClick = { showToken = !showToken },
+                    variant = NitpickButtonVariant.Ghost,
+                    size = NitpickButtonSize.Small,
+                )
+            },
+        )
+        Text(
+            text = stringResource(Res.string.connect_token_help),
             style = NitpickTheme.typography.micro,
             color = NitpickTheme.colors.textMuted,
         )
