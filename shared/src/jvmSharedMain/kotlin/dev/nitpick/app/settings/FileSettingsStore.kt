@@ -6,6 +6,9 @@ import kotlinx.serialization.SerializationException
 import kotlinx.serialization.json.Json
 import java.io.File
 import java.io.IOException
+import java.nio.file.AtomicMoveNotSupportedException
+import java.nio.file.Files
+import java.nio.file.StandardCopyOption
 
 class FileSettingsStore(private val file: File) : SettingsStore {
 
@@ -32,6 +35,11 @@ class FileSettingsStore(private val file: File) : SettingsStore {
         tmp.writeText(json.encodeToString(Settings.serializer(), settings))
         tmp.setReadable(false, false)
         tmp.setReadable(true, true)
-        if (!tmp.renameTo(file)) throw IOException("Cannot replace ${file.name}")
+        try {
+            Files.move(tmp.toPath(), file.toPath(), StandardCopyOption.REPLACE_EXISTING, StandardCopyOption.ATOMIC_MOVE)
+        } catch (e: AtomicMoveNotSupportedException) {
+            Files.move(tmp.toPath(), file.toPath(), StandardCopyOption.REPLACE_EXISTING)
+        }
+        Unit
     }
 }

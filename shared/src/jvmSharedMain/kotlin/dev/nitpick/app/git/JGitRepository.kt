@@ -12,6 +12,7 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 import org.eclipse.jgit.api.CreateBranchCommand
 import org.eclipse.jgit.api.Git
+import org.eclipse.jgit.api.MergeCommand
 import org.eclipse.jgit.api.MergeResult
 import org.eclipse.jgit.api.ResetCommand
 import org.eclipse.jgit.diff.DiffEntry
@@ -233,11 +234,32 @@ class JGitRepository(private val git: Git) : GitRepository {
     }
 
     override suspend fun pull(credentials: Credentials?): PullResult = withContext(Dispatchers.IO) {
-        // With pull.rebase set in the user's gitconfig JGit would rebase and leave mergeResult null.
-        val result = git.pull().setRebase(false).setCredentialsProvider(credentials.toJGit()).call()
+        // A hard reset after a conflicted merge is only safe on a clean tree. With local edits,
+        // allow a fast-forward only; a divergent history aborts before touching anything.
+        val dirty = git.status().call().uncommittedChanges.isNotEmpty()
+        val command = git.pull()
+            .setRebase(false)
+            .setCredentialsProvider(credentials.toJGit())
+        if (dirty) command.setFastForward(MergeCommand.FastForwardMode.FF_ONLY)
+        val result = try {
+            command.call()
+        } catch (e: Exception) {
+            if (dirty) {
+                throw IllegalStateException(
+                    "Uncommitted changes: commit or discard them before pulling a diverged branch.",
+                    e,
+                )
+            }
+            throw e
+        }
         val merge = result.mergeResult
         when (merge.mergeStatus) {
-            MergeResult.MergeStatus.CONFLICTING -> {
+            MergeResult.MergeStatus.CONFLICTING, MergeResult.MergeStatus.CHECKOUT_CONFLICT -> {
+                if (dirty) {
+                    throw IllegalStateException(
+                        "Uncommitted changes would be overwritten: commit or discard them first.",
+                    )
+                }
                 // Conflict resolution is out of scope: put the tree back exactly as it was.
                 git.reset().setMode(ResetCommand.ResetType.HARD).call()
                 PullResult(updated = false, conflictedPaths = merge.conflicts.keys.sorted())

@@ -517,6 +517,45 @@ class JGitRepositoryTest {
     }
 
     @Test
+    fun pullFastForwardsWithAnUnrelatedDirtyFile() = runBlocking<Unit> {
+        repo.write("a.txt", "1")
+        repo.write("b.txt", "base")
+        repo.commit("first", at = 1_000)
+        val bare = newBareOrigin()
+        val clone = factory.clone(bare.toURI().toString(), newCloneTarget().path, credentials = null)
+        clone.writeFile("b.txt", "local edit")
+        repo.write("c.txt", "remote")
+        repo.commit("remote adds c", at = 2_000)
+        repo.git("push", bare.path, "main")
+
+        val result = clone.pull(credentials = null)
+
+        assertEquals(PullResult(updated = true, conflictedPaths = emptyList()), result)
+        assertEquals("local edit", clone.readFile("b.txt"))
+        assertEquals("remote", clone.readFile("c.txt"))
+    }
+
+    @Test
+    fun aDirtyTreeIsNotResetWhenThePullDiverged() = runBlocking<Unit> {
+        repo.write("a.txt", "1")
+        repo.write("b.txt", "base")
+        repo.commit("first", at = 1_000)
+        val bare = newBareOrigin()
+        val clone = factory.clone(bare.toURI().toString(), newCloneTarget().path, credentials = null)
+        repo.write("a.txt", "remote")
+        repo.commit("remote", at = 2_000)
+        repo.git("push", bare.path, "main")
+        clone.writeFile("a.txt", "local commit")
+        clone.stage(listOf("a.txt"))
+        clone.commit("local")
+        clone.writeFile("b.txt", "keep me")
+
+        assertFailsWith<IllegalStateException> { clone.pull(credentials = null) }
+
+        assertEquals("keep me", clone.readFile("b.txt"))
+    }
+
+    @Test
     fun pullWithNothingNewReportsNoUpdate() = runBlocking<Unit> {
         repo.write("a.txt", "1")
         val first = repo.commit("first", at = 1_000)
