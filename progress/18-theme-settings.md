@@ -55,3 +55,7 @@
 - 17:20 — review ponytail : écritures sérialisées sur un seul thread (`limitedParallelism(1)`),
   fichier écrit via `.tmp` + rename, lecture réservée au propriétaire, chargement initial par
   `compareAndSet` ; test permissions ajouté (5 tests store).
+- 17:50 — rebase sur `main` (#27 et #29 mergés) : `AppContainer` porte git + settings, `App`
+  garde `RepositoryScreen` sous `NitpickTheme` avec un bouton « Réglages » et un retour ;
+  29 strings EN/FR. Règle force push assouplie pour les branches de PR (règles d'équipe et
+  liste de refus Claude).
