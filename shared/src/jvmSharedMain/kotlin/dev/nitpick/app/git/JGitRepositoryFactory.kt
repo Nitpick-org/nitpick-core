@@ -26,5 +26,13 @@ class JGitRepositoryFactory : GitRepositoryFactory {
     }
 
     override suspend fun clone(url: String, path: String, credentials: Credentials?): GitRepository =
-        TODO("clone is not implemented yet")
+        withContext(Dispatchers.IO) {
+            // JGit deletes a folder it created itself when the clone fails, so a retry can reuse the path.
+            val git = Git.cloneRepository()
+                .setURI(url)
+                .setDirectory(File(path))
+                .setCredentialsProvider(credentials.toJGit())
+                .call()
+            JGitRepository(git)
+        }
 }

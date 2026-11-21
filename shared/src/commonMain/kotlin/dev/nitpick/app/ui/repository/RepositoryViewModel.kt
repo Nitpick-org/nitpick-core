@@ -4,6 +4,7 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import dev.nitpick.app.domain.Commit
 import dev.nitpick.app.domain.FileDiff
+import dev.nitpick.app.domain.Credentials
 import dev.nitpick.app.domain.Ref
 import dev.nitpick.app.domain.ReviewComment
 import dev.nitpick.app.domain.ReviewResult
@@ -70,7 +71,13 @@ class RepositoryViewModel(
     private var loading: Job? = null
     private var diffLoading: Job? = null
 
-    fun openRepository(path: String) {
+    fun openRepository(path: String) = load(path) { gitRepositoryFactory.open(path) }
+
+    /** Clones [url] into [path]; the token in [credentials] stays in memory and never reaches the state. */
+    fun cloneRepository(url: String, path: String, credentials: Credentials?) =
+        load(path) { gitRepositoryFactory.clone(url, path, credentials) }
+
+    private fun load(path: String, openRepository: suspend () -> GitRepository) {
         // Opening another folder while one is loading must not let the old result win.
         loading?.cancel()
         diffLoading?.cancel()
@@ -78,7 +85,7 @@ class RepositoryViewModel(
         _state.value = RepositoryUiState(path = path, isLoading = true)
         loading = viewModelScope.launch {
             _state.value = try {
-                val opened = gitRepositoryFactory.open(path)
+                val opened = openRepository()
                 val commits = opened.log()
                 val graph = withContext(graphDispatcher) { buildCommitGraph(commits) }
                 repository = opened

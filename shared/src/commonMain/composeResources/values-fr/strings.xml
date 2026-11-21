@@ -59,4 +59,19 @@
     <string name="diff_error_title">Impossible de comparer avec %1$s</string>
     <string name="diff_binary">Fichier binaire, non affiché</string>
     <string name="diff_no_line_changes">Aucune ligne modifiée</string>
+    <string name="repos_title">Dépôts</string>
+    <string name="repos_empty_hint">Clonez un dépôt git en HTTPS pour voir ses commits et ses branches.</string>
+    <string name="clone_repo">Cloner un dépôt</string>
+    <string name="clone_title">Cloner un dépôt</string>
+    <string name="clone_help">Nitpick clone le dépôt dans le stockage de l’app, puis affiche ses commits et ses branches.</string>
+    <string name="clone_url_label">URL HTTPS</string>
+    <string name="clone_url_placeholder">https://github.com/owner/repo.git</string>
+    <string name="clone_token_label">Jeton d’accès</string>
+    <string name="clone_token_help">Lecture requise. Le push demande l’écriture.</string>
+    <string name="clone_token_show">Afficher</string>
+    <string name="clone_token_hide">Masquer</string>
+    <string name="clone_folder_label">Nom du dossier</string>
+    <string name="clone_action">Cloner</string>
+    <string name="clone_in_progress">Clonage…</string>
+    <string name="clone_error_title">Impossible de cloner ce dépôt</string>
 </resources>

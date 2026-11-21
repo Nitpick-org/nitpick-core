@@ -14,13 +14,14 @@ class MainActivity : ComponentActivity() {
         enableEdgeToEdge()
         super.onCreate(savedInstanceState)
 
-        // No folder picker on Android: repositories arrive through the clone ticket (#21).
+        // No folder picker on Android: repositories are cloned into the app's private storage.
         val container = AppContainer(
             gitRepositoryFactory = JGitRepositoryFactory(),
             settingsStore = FileSettingsStore(File(filesDir, "settings.json")),
         )
+        val cloneRoot = File(filesDir, "repos")
         setContent {
-            App(container)
+            App(container, cloneRoot = cloneRoot.path)
         }
     }
 }

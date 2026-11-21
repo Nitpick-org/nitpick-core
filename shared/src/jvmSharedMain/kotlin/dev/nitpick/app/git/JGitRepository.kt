@@ -139,8 +139,11 @@ class JGitRepository(private val git: Git) : GitRepository {
             Unit
         }
 
-    override suspend fun fetch(credentials: Credentials?) =
-        TODO("fetch is not implemented yet")
+    override suspend fun fetch(credentials: Credentials?) {
+        withContext(Dispatchers.IO) {
+            git.fetch().setCredentialsProvider(credentials.toJGit()).call()
+        }
+    }
 
     override suspend fun pull(credentials: Credentials?): PullResult =
         TODO("pull is not implemented yet")

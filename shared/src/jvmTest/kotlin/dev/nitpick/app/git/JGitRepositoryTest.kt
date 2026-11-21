@@ -13,6 +13,7 @@ import kotlin.test.AfterTest
 import kotlin.test.Test
 import kotlin.test.assertEquals
 import kotlin.test.assertFailsWith
+import kotlin.test.assertFalse
 import kotlin.test.assertNull
 import kotlin.test.assertTrue
 
@@ -262,6 +263,55 @@ class JGitRepositoryTest {
         val commits = git.log()
         assertEquals("apply review suggestion", commits.first().shortMessage)
         assertEquals("one\ntwo\n", git.readFile("a.txt"))
+    }
+
+    @Test
+    fun cloneCopiesTheHistoryAndTracksTheOrigin() = runBlocking<Unit> {
+        repo.write("a.txt", "1")
+        val first = repo.commit("first", at = 1_000)
+        repo.write("b.txt", "2")
+        val second = repo.commit("second", at = 2_000)
+        val target = newCloneTarget()
+
+        val clone = factory.clone(repo.dir.toURI().toString(), target.path, credentials = null)
+
+        assertEquals(listOf(second, first), clone.log().map { it.id })
+        assertEquals("main", clone.currentBranch())
+        assertEquals("1", clone.readFile("a.txt"))
+        assertTrue(clone.refs().any { it.type == RefType.REMOTE_BRANCH && it.name == "origin/main" })
+    }
+
+    @Test
+    fun cloneOfAnUnreachableUrlFailsAndLeavesNoFolderBehind() = runBlocking<Unit> {
+        val target = newCloneTarget()
+
+        assertFailsWith<Exception> {
+            factory.clone(File(repo.dir, "missing").toURI().toString(), target.path, credentials = null)
+        }
+
+        assertFalse(target.exists())
+    }
+
+    @Test
+    fun fetchBringsNewRemoteCommitsWithoutMovingTheLocalBranch() = runBlocking<Unit> {
+        repo.write("a.txt", "1")
+        val first = repo.commit("first", at = 1_000)
+        val clone = factory.clone(repo.dir.toURI().toString(), newCloneTarget().path, credentials = null)
+        repo.write("a.txt", "2")
+        val second = repo.commit("second", at = 2_000)
+
+        clone.fetch(credentials = null)
+
+        val remoteMain = clone.refs().single { it.name == "origin/main" }
+        assertEquals(second, remoteMain.commitId)
+        assertEquals(listOf(first), clone.log().map { it.id })
+    }
+
+    // A path that does not exist yet, so the clone creates it and a failed clone removes it.
+    private fun newCloneTarget(): File {
+        val parent = Files.createTempDirectory("nitpick-clone").toFile().canonicalFile
+        cleanUp += parent
+        return File(parent, "repo")
     }
 
     @Test

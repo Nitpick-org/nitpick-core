@@ -3,10 +3,13 @@ package dev.nitpick.app.ui.repository
 import dev.nitpick.app.domain.Commit
 import dev.nitpick.app.domain.FileChangeType
 import dev.nitpick.app.domain.FileDiff
+import dev.nitpick.app.domain.Credentials
 import dev.nitpick.app.domain.Ref
 import dev.nitpick.app.domain.RefType
 import dev.nitpick.app.git.FakeGitRepository
 import dev.nitpick.app.git.FakeGitRepositoryFactory
+import dev.nitpick.app.git.GitRepository
+import dev.nitpick.app.git.GitRepositoryFactory
 import dev.nitpick.app.graph.buildCommitGraph
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.ExperimentalCoroutinesApi
@@ -129,6 +132,45 @@ class RepositoryViewModelTest {
             RepositoryUiState(path = "/tmp/photos", errorMessage = "Not a git repository: /tmp/photos"),
             viewModel.state.value,
         )
+    }
+
+    @Test
+    fun cloningARepositoryOpensTheCloneAndHandsTheCredentialsToGit() {
+        val factory = RecordingCloneFactory(FakeGitRepository(branch = "main", commits = commits, refs = listOf(mainBranch)))
+        val viewModel = RepositoryViewModel(factory, graphDispatcher = dispatcher)
+        val credentials = Credentials(username = "x-access-token", token = "ghp_secret")
+
+        viewModel.cloneRepository("https://github.com/acme/demo.git", "/data/repos/demo", credentials)
+
+        assertEquals(Triple("https://github.com/acme/demo.git", "/data/repos/demo", credentials), factory.lastClone)
+        val state = viewModel.state.value
+        assertEquals("/data/repos/demo", state.path)
+        assertEquals(buildCommitGraph(commits), state.graph)
+        assertEquals(null, state.errorMessage)
+    }
+
+    @Test
+    fun aFailedCloneShowsTheErrorOnTheTargetPath() {
+        val viewModel = RepositoryViewModel(RecordingCloneFactory(cloned = null), graphDispatcher = dispatcher)
+
+        viewModel.cloneRepository("https://github.com/acme/demo.git", "/data/repos/demo", credentials = null)
+
+        assertEquals(
+            RepositoryUiState(path = "/data/repos/demo", errorMessage = "not authorized"),
+            viewModel.state.value,
+        )
+    }
+
+    /** Records the last clone request; a null [cloned] repository makes the clone fail like a bad token. */
+    private class RecordingCloneFactory(private val cloned: GitRepository?) : GitRepositoryFactory {
+        var lastClone: Triple<String, String, Credentials?>? = null
+
+        override suspend fun open(path: String): GitRepository = throw IllegalArgumentException("Not a git repository: $path")
+
+        override suspend fun clone(url: String, path: String, credentials: Credentials?): GitRepository {
+            lastClone = Triple(url, path, credentials)
+            return cloned ?: throw IllegalStateException("not authorized")
+        }
     }
 
     private fun commit(id: String, message: String, parents: List<String>) = Commit(

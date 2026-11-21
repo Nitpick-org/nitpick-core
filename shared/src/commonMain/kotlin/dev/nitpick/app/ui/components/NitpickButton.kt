@@ -64,7 +64,7 @@ fun NitpickButton(
     ) {
         Row(
             modifier = Modifier.padding(horizontal = size.horizontalPadding),
-            horizontalArrangement = Arrangement.spacedBy(6.dp),
+            horizontalArrangement = Arrangement.spacedBy(6.dp, Alignment.CenterHorizontally),
             verticalAlignment = Alignment.CenterVertically,
         ) {
             leading?.invoke()
