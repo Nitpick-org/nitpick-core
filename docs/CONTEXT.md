@@ -363,13 +363,18 @@ Mapping de travail (à corriger si un handle ne correspond pas) :
 
 | Rôle | GitHub | Issues ouvertes | Air |
 | --- | --- | --- | --- |
-| **H1 — Produit & Pitch** | `@dovatgabriel` | #39 démo/soumission/preuves Air, #33 états de review, piste D backend (issue à créer, à confirmer par H2) | Une comparaison Junie + un second agent, captures, `AGENT_LOG`/`REVIEW_LOG` |
-| **H2 — Architecte & Intégration** | `@zooldyyk` | #19 diff desktop, #20 agent Koog, #22 boucle review desktop | Une session Air sur le prompt/le diff, comparaison, review humaine |
-| **H3 — Builder & Démo** | `@pepito2t` | #21 clone Android, #23 boucle review Android, #34/#35 settings Android/desktop | Une session Air sur l'UI/Android, capture, review humaine |
+| **H1 — Produit & Pitch** | `@dovatgabriel` | **#19 diff desktop (maintenant, avant 21:00)**, #39 démo/soumission/preuves Air ; après 21:00 : piste D #46 serveur, #48 partage, #44 repo de démo ; ensuite #33 états, #40 comptage des lignes, #45 clone desktop | Une comparaison Junie + un second agent, captures, `AGENT_LOG`/`REVIEW_LOG` |
+| **H2 — Architecte & Intégration** | `@zooldyyk` | **#20 agent Koog, puis #22 boucle review desktop (porte 21:00)** ; ensuite #36 toolbar sync, #37 filtres, #38 icônes, #43 outils Koog | Une session Air sur le prompt/le diff, comparaison, review humaine |
+| **H3 — Builder & Démo** | `@pepito2t` | **#21 clone Android, puis #23 boucle review Android (porte 02:00)** ; ensuite #34/#35 settings desktop/Android, #42 pull/checkout | Une session Air sur l'UI/Android, capture, review humaine |
+
+Répartition par fenêtre de temps, pas par piste : #19 passe à H1 pour que H2 n'ait que
+#20 et #22 avant 21:00 (Q-018) ; #42 va avec le push de H3 ; #40 sert la démo de H1.
 
 Règles :
 
-- Une issue = un owner = un worktree ; les P2 #36–#38 attendent la fin du chemin critique.
+- Une issue = un owner = un worktree ; les tickets marqués `blocked` (#36–#38, #42, #43,
+  #45, #46, #48) attendent la porte de leur owner : 21:00 pour H2 et la piste D, 02:00
+  pour H3.
 - Chaque owner ajoute au moins une entrée `Agent via Air` dans `AGENT_LOG.md` et une
   correction/rejet humain dans `REVIEW_LOG.md`.
 - Une seule comparaison multi-agent est nécessaire pour le bonus, mais elle doit être
