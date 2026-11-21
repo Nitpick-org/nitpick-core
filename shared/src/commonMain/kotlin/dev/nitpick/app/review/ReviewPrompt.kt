@@ -60,10 +60,11 @@ fun buildReviewPrompt(context: ReviewContext): ReviewPrompt {
         appendLine()
         appendLine("## Diff")
         context.diffs.forEach { diff -> appendDiff(diff) }
-        if (context.files.isNotEmpty()) {
+        val printable = filesWithinBudget(context.files)
+        if (printable.isNotEmpty()) {
             appendLine()
             appendLine("## Full content of the changed files (new version, numbered)")
-            context.files.forEach { (path, content) ->
+            printable.forEach { (path, content) ->
                 appendLine()
                 appendLine("### $path")
                 content.lines().forEachIndexed { index, line ->
@@ -73,6 +74,16 @@ fun buildReviewPrompt(context: ReviewContext): ReviewPrompt {
         }
     }
     return ReviewPrompt(system = REVIEW_SYSTEM_PROMPT, user = user)
+}
+
+/** Small models have small windows: print full files until the budget is spent, the diff always goes in. */
+fun filesWithinBudget(files: Map<String, String>): Map<String, String> {
+    var total = 0
+    return files.filter { (_, content) ->
+        val fits = content.length <= MAX_PROMPT_FILE_CHARS && total + content.length <= MAX_PROMPT_TOTAL_CHARS
+        if (fits) total += content.length
+        fits
+    }
 }
 
 private fun StringBuilder.appendDiff(diff: FileDiff) {

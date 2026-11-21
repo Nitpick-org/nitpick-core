@@ -57,4 +57,21 @@ class LlmReviewAgentTest {
         assertTrue(result.comments.isEmpty())
         assertEquals("", client.user)
     }
+
+    @Test
+    fun aNitOnAFileTooBigForThePromptKeepsItsLine() = runTest {
+        val bigContent = buildString { repeat(2_000) { appendLine("val filler$it = $it") }; append(content) }
+        val lineOfBug = 2_000 + 3
+        val bigDiff = diff.copy(path = "Big.kt")
+        val repository = FakeGitRepository(diffs = mapOf("main" to listOf(bigDiff)), files = mapOf("Big.kt" to bigContent))
+        val client = RecordingClient(
+            """{"summary":"1 bug","comments":[{"filePath":"Big.kt","startLine":1,"endLine":1,"severity":"BUG","category":"logic",
+               "message":"last item skipped","originalSnippet":"for (i in 0 until xs.size - 1) println(xs[i])"}]}""",
+        )
+
+        val nit = LlmReviewAgent(client).review(repository, "main").comments.single()
+
+        assertTrue(bigContent.length > MAX_PROMPT_FILE_CHARS)
+        assertEquals(lineOfBug to lineOfBug, nit.startLine to nit.endLine)
+    }
 }

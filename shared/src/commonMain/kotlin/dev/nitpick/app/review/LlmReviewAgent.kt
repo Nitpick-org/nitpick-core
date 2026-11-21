@@ -15,8 +15,9 @@ class LlmReviewAgent(private val client: LlmClient) : ReviewAgent {
         val prompt = buildReviewPrompt(context)
         val answer = client.complete(prompt.system, prompt.user)
         val parsed = parseReviewResponse(answer)
+        val reviewedPaths = context.diffs.mapTo(HashSet()) { it.path }
         val anchored = parsed.comments
-            .filter { it.filePath in context.diffs.map { diff -> diff.path } }
+            .filter { it.filePath in reviewedPaths }
             .map { anchorComment(it, context.files[it.filePath]) }
             .sortedWith(compareBy({ SEVERITY_ORDER.indexOf(it.severity) }, { it.filePath }, { it.startLine }))
         return parsed.copy(comments = anchored)

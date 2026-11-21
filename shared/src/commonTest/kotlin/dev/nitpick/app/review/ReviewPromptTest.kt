@@ -7,6 +7,7 @@ import dev.nitpick.app.domain.FileDiff
 import dev.nitpick.app.domain.Hunk
 import kotlin.test.Test
 import kotlin.test.assertContains
+import kotlin.test.assertEquals
 import kotlin.test.assertFalse
 import kotlin.test.assertTrue
 
@@ -62,5 +63,18 @@ class ReviewPromptTest {
         assertFalse(isReviewable(diffAt("logo.png", binary = true)))
         assertFalse(isReviewable(diffAt("web/app.min.js")))
         assertTrue(isReviewable(diffAt("src/Build.kt")))
+    }
+
+    @Test
+    fun fullFilesStopAtTheBudgetButTheDiffAlwaysGoesIn() {
+        val big = "x".repeat(MAX_PROMPT_FILE_CHARS + 1)
+        val chunk = "y".repeat(MAX_PROMPT_TOTAL_CHARS / 8)
+        val files = linkedMapOf("big.kt" to big) + (1..9).associate { "f$it.kt" to chunk }
+        val printable = filesWithinBudget(files)
+        assertEquals((1..8).map { "f$it.kt" }.toSet(), printable.keys)
+
+        val user = buildReviewPrompt(context.copy(files = mapOf("src/Main.kt" to big))).user
+        assertContains(user, "   41 | +    for (i in 0 until n)")
+        assertFalse(user.contains("## Full content"))
     }
 }

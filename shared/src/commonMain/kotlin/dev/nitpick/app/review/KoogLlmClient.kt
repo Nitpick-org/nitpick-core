@@ -21,6 +21,8 @@ import dev.nitpick.app.settings.Settings
 import dev.nitpick.app.settings.SettingsStore
 
 private const val OLLAMA_BASE_URL = "http://localhost:11434"
+// A review is a JSON list: cut mid-way it is unusable, so ask for room every target model accepts.
+private const val MAX_OUTPUT_TOKENS = 8_192L
 
 class MissingApiKeyException(val provider: LlmProvider) : Exception("No API key for ${provider.name}")
 
@@ -56,6 +58,7 @@ private fun llModel(settings: Settings): LLModel = LLModel(
     provider = settings.provider.koogProvider,
     id = settings.model,
     capabilities = listOf(LLMCapability.Completion),
+    maxOutputTokens = MAX_OUTPUT_TOKENS,
 )
 
 private val LlmProvider.koogProvider: LLMProvider

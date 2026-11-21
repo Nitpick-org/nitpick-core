@@ -4,7 +4,8 @@ import dev.nitpick.app.domain.FileDiff
 import dev.nitpick.app.git.GitRepository
 
 private const val MAX_FILES = 20
-private const val MAX_FILE_CHARS = 20_000
+const val MAX_PROMPT_FILE_CHARS = 20_000
+const val MAX_PROMPT_TOTAL_CHARS = 120_000
 private const val MAX_README_CHARS = 2_000
 private const val MAX_TREE_ENTRIES = 200
 private const val RECENT_COMMITS = 10
@@ -22,6 +23,7 @@ private val LANGUAGE_BY_EXTENSION = mapOf(
     "swift" to "Swift", "rb" to "Ruby", "php" to "PHP", "cs" to "C#", "c" to "C", "cpp" to "C++",
 )
 
+/** [files] holds every readable changed file: anchoring needs all of them, the prompt prints only the small ones. */
 data class ReviewContext(
     val baseRef: String,
     val branch: String,
@@ -52,7 +54,6 @@ suspend fun buildReviewContext(repository: GitRepository, baseRef: String): Revi
     val files = diffs
         .filter { it.hunks.isNotEmpty() }
         .mapNotNull { diff -> repository.readFile(diff.path)?.let { diff.path to it } }
-        .filter { (_, content) -> content.length <= MAX_FILE_CHARS }
         .toMap()
     val tree = repository.listFiles()
     val readme = tree.firstOrNull { it.equals("README.md", ignoreCase = true) }
