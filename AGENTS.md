@@ -54,13 +54,14 @@ Les packages du §6 de `CONTEXT.md`, dans la structure générée par le wizard 
 
 ```text
 shared/src/commonMain/kotlin/dev/nitpick/app/
-  domain/ git/ graph/ diff/ review/ settings/ ui/   ← tout ce qui peut l'être
+  domain/ git/ graph/ diff/ review/ share/ settings/ ui/   ← tout ce qui peut l'être
 shared/src/commonMain/composeResources/              ← strings EN (values/) + FR (values-fr/)
 shared/src/jvmSharedMain/                            ← JGit, commun desktop + Android
 shared/src/jvmMain/                                  ← desktop seul (sélecteur de dossier…)
 shared/src/androidMain/                              ← Android seul (stockage…)
 desktopApp/                                          ← main(), fenêtre « Nitpick »
 androidApp/                                          ← MainActivity ; androidTest/ = tests sur ART
+server/                                              ← Ktor de partage des reviews (§7.1), dépend de shared/domain
 ```
 
 - Le code plateforme reste mince et ennuyeux ; la logique vit dans `commonMain`.

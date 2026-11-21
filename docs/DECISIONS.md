@@ -26,6 +26,7 @@
 | 16:09 | DA JetBrains New UI (`DESIGN-SYSTEM.md`), accent unique teal `#0F766E` / `#5EEAD4`, l'ancien bleu passe en lane 5 | Outil de dev aligné sur l'IDE du challenge ; le teal distingue Nitpick (#32) | H2, H3 |
 | 16:28 | JetBrains Air + Junie/Codex/Claude comme process de développement ; Koog reste le moteur du produit, aucune intégration runtime d'Air | Bonus « process agentique » du challenge sans dépendance dans l'app (Q-008) | H2 |
 | 16:50 | Une branche de PR se rebase sur `main` et se pousse en `--force-with-lease` ; le force push reste interdit sur `main` | Plus de branches `-rebased` ni de PR dupliquées (#28) | H2 |
+| 17:55 | Backend Kotlin : serveur Ktor `server/` de **partage** des reviews (§7.1, contrat `SharedReview` / `ReviewShareClient`), local, sans compte ni LLM côté serveur ; MUST après la porte 21:00, piste D | Les 5 features bonus du jury sans toucher au pitch « review locale » ni sortir Koog de `commonMain` (Q-019 ; owner de la piste D à confirmer) | H1, H2 |
 
 ## Format d'une ligne
 
