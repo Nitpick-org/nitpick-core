@@ -36,6 +36,16 @@
 > « Pour <personne> qui <douleur>, nous avons construit <produit> qui <bénéfice>.
 > La nouveauté, c'est <W>. On l'a démontré en <temps> avec <preuve>. »
 
+## Partagé vs spécifique — le chiffre à montrer
+
+```bash
+./scripts/count-lines.sh
+```
+
+Relevé du 21/11, 19:00 : **4 466 / 4 546 lignes de production = 98,2 % partagées**
+(`commonMain` + `jvmSharedMain`) ; 80 lignes plateforme ; 1 628 lignes de tests exclues.
+Relancer le script juste avant la démo et coller le chiffre à jour.
+
 ## Ce qu'on a créé vs réutilisé
 
 - **Créé pendant l'événement** : …
