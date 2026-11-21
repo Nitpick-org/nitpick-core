@@ -12,6 +12,7 @@ import androidx.compose.foundation.layout.heightIn
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.BasicTextField
+import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
@@ -20,6 +21,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.alpha
 import androidx.compose.ui.graphics.SolidColor
+import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.text.input.VisualTransformation
 import androidx.compose.ui.unit.dp
 import dev.nitpick.app.ui.theme.NitpickTheme
@@ -42,6 +44,7 @@ fun NitpickTextField(
     leading: (@Composable () -> Unit)? = null,
     trailing: (@Composable () -> Unit)? = null,
     visualTransformation: VisualTransformation = VisualTransformation.None,
+    keyboardOptions: KeyboardOptions = KeyboardOptions.Default,
 ) {
     val colors = NitpickTheme.colors
     val interactionSource = remember { MutableInteractionSource() }
@@ -93,6 +96,7 @@ fun NitpickTextField(
                         cursorBrush = SolidColor(colors.primary),
                         interactionSource = interactionSource,
                         visualTransformation = visualTransformation,
+                        keyboardOptions = keyboardOptions,
                     )
                 }
                 trailing?.invoke()

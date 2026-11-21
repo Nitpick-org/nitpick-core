@@ -59,4 +59,19 @@
     <string name="diff_error_title">Cannot compare with %1$s</string>
     <string name="diff_binary">Binary file, not shown</string>
     <string name="diff_no_line_changes">No line changes</string>
+    <string name="repos_title">Repositories</string>
+    <string name="repos_empty_hint">Clone a git repository over HTTPS to see its commits and branches.</string>
+    <string name="clone_repo">Clone repo</string>
+    <string name="clone_title">Clone repository</string>
+    <string name="clone_help">Nitpick clones the repository into the app storage, then shows its commits and branches.</string>
+    <string name="clone_url_label">HTTPS URL</string>
+    <string name="clone_url_placeholder">https://github.com/owner/repo.git</string>
+    <string name="clone_token_label">Access token</string>
+    <string name="clone_token_help">Needs read access. Push needs write access.</string>
+    <string name="clone_token_show">Show</string>
+    <string name="clone_token_hide">Hide</string>
+    <string name="clone_folder_label">Folder name</string>
+    <string name="clone_action">Clone</string>
+    <string name="clone_in_progress">Cloning…</string>
+    <string name="clone_error_title">Could not clone this repository</string>
 </resources>

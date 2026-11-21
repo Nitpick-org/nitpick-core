@@ -20,6 +20,7 @@ dependencies {
 
     androidTestImplementation(libs.androidx.testRunner)
     androidTestImplementation(libs.kotlin.testJunit)
+    androidTestImplementation(libs.kotlinx.coroutinesCore)
 }
 
 android {

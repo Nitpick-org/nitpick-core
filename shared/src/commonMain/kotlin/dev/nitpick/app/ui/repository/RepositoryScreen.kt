@@ -191,7 +191,7 @@ private fun RepositoryToolbar(
 }
 
 @Composable
-private fun RefsSidebar(refs: List<Ref>, currentBranch: String, modifier: Modifier) {
+internal fun RefsSidebar(refs: List<Ref>, currentBranch: String, modifier: Modifier) {
     var filter by rememberSaveable { mutableStateOf("") }
     var collapsed by rememberSaveable { mutableStateOf(emptySet<RefType>()) }
     val visibleRefs = refs.filter { it.name.contains(filter, ignoreCase = true) }
@@ -381,5 +381,5 @@ internal fun branchLabel(currentBranch: String): String =
         currentBranch
     }
 
-private fun folderName(path: String): String =
+internal fun folderName(path: String): String =
     path.trimEnd('/', '\\').substringAfterLast('/').substringAfterLast('\\')

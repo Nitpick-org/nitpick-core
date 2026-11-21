@@ -14,13 +14,15 @@ class SettingsViewModel(private val store: SettingsStore) : ViewModel() {
     private val _settings = MutableStateFlow(Settings())
     val settings: StateFlow<Settings> = _settings.asStateFlow()
 
-    init {
-        viewModelScope.launch { _settings.compareAndSet(Settings(), store.load()) }
-    }
+    private val loaded = viewModelScope.launch { _settings.compareAndSet(Settings(), store.load()) }
 
+    // An update that lands before the file is read would save the defaults over the stored settings.
     fun update(transform: (Settings) -> Settings) {
-        val next = transform(_settings.value)
-        _settings.value = next
-        viewModelScope.launch { store.save(next) }
+        viewModelScope.launch {
+            loaded.join()
+            val next = transform(_settings.value)
+            _settings.value = next
+            store.save(next)
+        }
     }
 }
