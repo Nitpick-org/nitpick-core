@@ -9,6 +9,8 @@ import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.saveable.rememberSaveable
+import androidx.compose.ui.ExperimentalComposeUiApi
+import androidx.compose.ui.backhandler.BackHandler
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
@@ -30,6 +32,7 @@ import dev.nitpick.app.ui.theme.NitpickTheme
  * [cloneRoot] is where HTTPS clones are stored: a platform that has one (Android) gets the
  * phone flow, one screen at a time, whatever the window size.
  */
+@OptIn(ExperimentalComposeUiApi::class)
 @Composable
 fun App(
     container: AppContainer,
@@ -47,6 +50,7 @@ fun App(
     val settingsLoaded by settingsViewModel.isLoaded.collectAsStateWithLifecycle()
     var showSettings by rememberSaveable { mutableStateOf(false) }
     var showClone by rememberSaveable { mutableStateOf(false) }
+    BackHandler(enabled = showSettings) { showSettings = false }
     val openRepository: (() -> Unit)? = pickRepositoryPath?.let { pick ->
         { pick()?.let(repositoryViewModel::openRepository) }
     }
