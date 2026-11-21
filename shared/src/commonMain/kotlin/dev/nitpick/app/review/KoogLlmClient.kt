@@ -4,17 +4,16 @@ import ai.koog.prompt.dsl.prompt
 import ai.koog.prompt.executor.clients.LLMClient
 import ai.koog.prompt.executor.clients.LLMClientException
 import ai.koog.prompt.executor.clients.anthropic.AnthropicModels
+import ai.koog.prompt.executor.clients.google.GoogleModels
+import ai.koog.prompt.executor.clients.openai.OpenAIModels
+import ai.koog.prompt.executor.ollama.client.OllamaModels
 import ai.koog.prompt.executor.clients.anthropic.AnthropicClientSettings
 import ai.koog.prompt.executor.clients.anthropic.AnthropicLLMClient
 import ai.koog.prompt.executor.clients.google.GoogleLLMClient
 import ai.koog.prompt.executor.clients.openai.OpenAILLMClient
 import ai.koog.prompt.executor.ollama.client.OllamaClient
-import ai.koog.prompt.llm.AnthropicLLMProvider
-import ai.koog.prompt.llm.GoogleLLMProvider
 import ai.koog.prompt.llm.LLMCapability
 import ai.koog.prompt.llm.LLModel
-import ai.koog.prompt.llm.OllamaLLMProvider
-import ai.koog.prompt.llm.OpenAILLMProvider
 import ai.koog.prompt.message.MessagePart
 import dev.nitpick.app.settings.LlmProvider
 import dev.nitpick.app.settings.Settings
@@ -54,17 +53,24 @@ class KoogLlmClient(private val settingsStore: SettingsStore) : LlmClient {
 }
 
 /**
- * The id comes from the settings select; the capabilities come from Koog's own declarations,
- * because its clients refuse a model declared without `Tools`, even for a plain completion.
+ * The id comes from the settings select; the capabilities come from a model Koog ships for
+ * the same provider, because its clients refuse a model declared without `Tools` (Anthropic)
+ * or without an endpoint capability (OpenAI), even for a plain completion. `Thinking` is
+ * dropped: a review needs the answer text, not reasoning blocks to pay for.
  */
-internal fun koogModelFor(settings: Settings): LLModel = when (settings.provider) {
-    LlmProvider.ANTHROPIC -> AnthropicModels.Opus_5.copy(id = settings.model, maxOutputTokens = MAX_OUTPUT_TOKENS)
-    LlmProvider.OPENAI -> LLModel(OpenAILLMProvider, settings.model, GENERIC_CAPABILITIES, maxOutputTokens = MAX_OUTPUT_TOKENS)
-    LlmProvider.GOOGLE -> LLModel(GoogleLLMProvider, settings.model, GENERIC_CAPABILITIES, maxOutputTokens = MAX_OUTPUT_TOKENS)
-    LlmProvider.OLLAMA -> LLModel(OllamaLLMProvider, settings.model, GENERIC_CAPABILITIES, maxOutputTokens = MAX_OUTPUT_TOKENS)
+internal fun koogModelFor(settings: Settings): LLModel {
+    val reference = when (settings.provider) {
+        LlmProvider.ANTHROPIC -> AnthropicModels.Opus_5
+        LlmProvider.OPENAI -> OpenAIModels.Chat.GPT5
+        LlmProvider.GOOGLE -> GoogleModels.Gemini2_5Pro
+        LlmProvider.OLLAMA -> OllamaModels.Meta.LLAMA_4
+    }
+    return reference.copy(
+        id = settings.model,
+        capabilities = reference.capabilities.orEmpty().filterNot { it is LLMCapability.Thinking },
+        maxOutputTokens = MAX_OUTPUT_TOKENS,
+    )
 }
-
-private val GENERIC_CAPABILITIES = listOf(LLMCapability.Completion, LLMCapability.Tools, LLMCapability.Temperature)
 
 private fun llmClient(settings: Settings, model: LLModel): LLMClient = when (settings.provider) {
     // Koog 1.3.0 only sends models listed in its version map, so a newer id needs its own entry.
