@@ -120,19 +120,12 @@ private fun CommitGraphLane(row: CommitGraphRow, modifier: Modifier) {
         val selectedRing = 8.dp.toPx()
         fun x(lane: Int): Float = LaneLeftPadding.toPx() + lane * LaneSpacing.toPx()
 
-        val incoming = row.incomingLanes.toSet()
-        val parents = row.parentLanes.toSet()
-
-        // Lines that pass through the row without touching this commit.
-        for (lane in 0 until laneCountForRow(row)) {
-            if (lane == row.lane || lane in incoming || lane in parents) continue
+        for (lane in passThroughLanes(row)) {
             val before = row.lanesBefore.getOrNull(lane) != null
             val after = row.lanesAfter.getOrNull(lane) != null
             val top = if (before) 0f else laneY
             val bottom = if (after) size.height else laneY
-            if (before || after) {
-                drawLine(laneColor(lane), Offset(x(lane), top), Offset(x(lane), bottom), stroke, StrokeCap.Round)
-            }
+            drawLine(laneColor(lane), Offset(x(lane), top), Offset(x(lane), bottom), stroke, StrokeCap.Round)
         }
 
         // Children converge into this commit, which then flows into each parent lane.
@@ -203,6 +196,17 @@ private fun Metadata(label: String, value: String, monospace: Boolean = false) {
         )
     }
 }
+
+/** Lanes whose line crosses this row without touching the commit's dot. */
+internal fun passThroughLanes(row: CommitGraphRow): List<Int> =
+    (0 until laneCountForRow(row)).filter { lane ->
+        val before = row.lanesBefore.getOrNull(lane) != null
+        val after = row.lanesAfter.getOrNull(lane) != null
+        // A parent lane that opens here is drawn by the curve from the dot; one that already
+        // carried a line from above keeps that line through the whole row.
+        val opensHere = lane in row.parentLanes && !before
+        lane != row.lane && lane !in row.incomingLanes && !opensHere && (before || after)
+    }
 
 private fun laneCountForRow(row: CommitGraphRow): Int {
     val maxLane = (listOf(row.lane) + row.incomingLanes + row.parentLanes).max()
