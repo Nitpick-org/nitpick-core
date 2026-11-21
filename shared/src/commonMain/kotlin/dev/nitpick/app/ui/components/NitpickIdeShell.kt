@@ -47,6 +47,7 @@ fun NitpickToolbarAction(
     onClick: () -> Unit,
     modifier: Modifier = Modifier,
     selected: Boolean = false,
+    leading: (@Composable () -> Unit)? = null,
 ) {
     val colors = NitpickTheme.colors
     Surface(
@@ -60,7 +61,9 @@ fun NitpickToolbarAction(
         Row(
             modifier = Modifier.padding(horizontal = 10.dp),
             verticalAlignment = Alignment.CenterVertically,
+            horizontalArrangement = Arrangement.spacedBy(6.dp),
         ) {
+            leading?.invoke()
             Text(
                 text = text,
                 style = NitpickTheme.typography.label,

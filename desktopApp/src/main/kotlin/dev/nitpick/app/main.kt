@@ -5,6 +5,7 @@ import androidx.compose.ui.window.application
 import dev.nitpick.app.git.JGitRepositoryFactory
 import dev.nitpick.app.settings.FileSettingsStore
 import dev.nitpick.app.ui.App
+import dev.nitpick.app.ui.nitpickAppIcon
 import java.io.File
 
 fun main() {
@@ -17,6 +18,7 @@ fun main() {
         Window(
             onCloseRequest = ::exitApplication,
             title = "Nitpick",
+            icon = nitpickAppIcon(),
         ) {
             App(container, pickRepositoryPath = { pickDirectory(window) })
         }

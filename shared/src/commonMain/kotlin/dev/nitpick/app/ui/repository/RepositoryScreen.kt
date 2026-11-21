@@ -29,6 +29,7 @@ import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.rotate
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextOverflow
@@ -42,6 +43,7 @@ import dev.nitpick.app.ui.components.NitpickButton
 import dev.nitpick.app.ui.components.NitpickButtonSize
 import dev.nitpick.app.ui.components.NitpickDivider
 import dev.nitpick.app.ui.components.NitpickEmptyState
+import dev.nitpick.app.ui.components.NitpickIcon
 import dev.nitpick.app.ui.components.NitpickStatusBar
 import dev.nitpick.app.ui.components.NitpickTab
 import dev.nitpick.app.ui.components.NitpickTextField
@@ -244,10 +246,17 @@ private fun RepositoryToolbar(
                     onClick = onReview,
                     size = NitpickButtonSize.Small,
                     modifier = Modifier.padding(horizontal = 4.dp),
+                    leading = {
+                        NitpickIcon(Res.drawable.ic_tweezers, null, tint = NitpickTheme.colors.onPrimary)
+                    },
                 )
             }
         }
-        NitpickToolbarAction(text = stringResource(Res.string.settings_title), onClick = onOpenSettings)
+        NitpickToolbarAction(
+            text = stringResource(Res.string.settings_title),
+            onClick = onOpenSettings,
+            leading = { NitpickIcon(Res.drawable.ic_gear, null, tint = NitpickTheme.colors.onToolbar) },
+        )
     }
 }
 
@@ -289,19 +298,33 @@ internal fun RefsSidebar(refs: List<Ref>, currentBranch: String, modifier: Modif
                 items(refsInSection, key = { it.fullName }) { ref ->
                     val isCurrent = ref.type == RefType.LOCAL_BRANCH && ref.name == currentBranch
                     val select = onSelectBranch?.takeIf { ref.type != RefType.TAG && !isCurrent }
-                    Text(
-                        text = ref.name + if (isCurrent && ahead != null && ahead > 0) " " + stringResource(Res.string.sync_ahead, ahead) else "",
+                    Row(
                         modifier = Modifier
                             .fillMaxWidth()
                             .background(if (isCurrent) NitpickTheme.colors.selection else Color.Transparent)
                             .then(if (select != null) Modifier.clickable { select(ref.name.removePrefix("origin/")) } else Modifier)
-                            .padding(start = 28.dp, end = 12.dp, top = 3.dp, bottom = 3.dp),
-                        style = NitpickTheme.typography.body,
-                        fontWeight = if (isCurrent) FontWeight.Medium else FontWeight.Normal,
-                        color = if (isCurrent) NitpickTheme.colors.onSelection else NitpickTheme.colors.text,
-                        maxLines = 1,
-                        overflow = TextOverflow.Ellipsis,
-                    )
+                            .padding(start = 24.dp, end = 12.dp, top = 3.dp, bottom = 3.dp),
+                        verticalAlignment = Alignment.CenterVertically,
+                        horizontalArrangement = Arrangement.spacedBy(6.dp),
+                    ) {
+                        NitpickIcon(
+                            resource = when (ref.type) {
+                                RefType.LOCAL_BRANCH -> Res.drawable.ic_branch
+                                RefType.REMOTE_BRANCH -> Res.drawable.ic_cloud
+                                RefType.TAG -> Res.drawable.ic_tag
+                            },
+                            contentDescription = null,
+                            tint = if (isCurrent) NitpickTheme.colors.onSelection else NitpickTheme.colors.textMuted,
+                        )
+                        Text(
+                            text = ref.name + if (isCurrent && ahead != null && ahead > 0) " " + stringResource(Res.string.sync_ahead, ahead) else "",
+                            style = NitpickTheme.typography.body,
+                            fontWeight = if (isCurrent) FontWeight.Medium else FontWeight.Normal,
+                            color = if (isCurrent) NitpickTheme.colors.onSelection else NitpickTheme.colors.text,
+                            maxLines = 1,
+                            overflow = TextOverflow.Ellipsis,
+                        )
+                    }
                 }
             }
         }
@@ -310,12 +333,19 @@ internal fun RefsSidebar(refs: List<Ref>, currentBranch: String, modifier: Modif
 
 @Composable
 private fun RefSectionTitle(text: String, collapsed: Boolean, onClick: () -> Unit) {
-    Text(
-        text = (if (collapsed) "▸ " else "▾ ") + text,
+    Row(
         modifier = Modifier.fillMaxWidth().clickable(onClick = onClick).padding(horizontal = 8.dp, vertical = 4.dp),
-        style = NitpickTheme.typography.bodyStrong,
-        color = NitpickTheme.colors.text,
-    )
+        verticalAlignment = Alignment.CenterVertically,
+        horizontalArrangement = Arrangement.spacedBy(6.dp),
+    ) {
+        NitpickIcon(
+            resource = Res.drawable.ic_chevron_down,
+            contentDescription = null,
+            modifier = Modifier.rotate(if (collapsed) -90f else 0f),
+            tint = NitpickTheme.colors.textMuted,
+        )
+        Text(text = text, style = NitpickTheme.typography.bodyStrong, color = NitpickTheme.colors.text)
+    }
 }
 
 @Composable
