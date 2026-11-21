@@ -18,7 +18,8 @@
 - Le compteur de commits reste dans la carte (il était dans l'en-tête remplacé) ; le handoff ne le demande pas mais le retirer serait une perte d'information.
 - Pas de sélecteur `branche ▾` dans la carte : l'onglet Branches fait déjà le checkout (#42).
 
-- 00:20 — mesuré sur l'émulateur (420 dpi, uiautomator) : boutons 48 dp de haut (minimum tactile Material autour des 44 dp demandés), 91 dp de large chacun. Captures light/dark dans `docs/demo/captures/`.
+- 00:20 — mesuré sur l'émulateur (420 dpi, uiautomator) : boutons 48 dp de haut (minimum tactile Material autour des 44 dp demandés), 91 dp de large chacun. Captures light/dark dans `docs/demo/81-branch-card-{light,dark}.png` (un dossier `captures/` est ignoré par `.gitignore`, première tentative perdue).
+- 00:35 — review ponytail : un push raté depuis le Graph n'affichait rien (`syncStatusMessage` ignorait `pushError`, seul l'écran Review le montrait) ; la ligne d'état le montre maintenant, sur le téléphone comme dans la barre d'état desktop.
 
 ## Incertain
 
