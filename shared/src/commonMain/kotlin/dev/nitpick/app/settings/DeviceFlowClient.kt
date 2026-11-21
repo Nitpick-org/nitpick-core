@@ -125,7 +125,8 @@ class DeviceFlowClient(
 
     // Counts the waits instead of a timeout, so tests on virtual time stay deterministic.
     private suspend fun poll(tokenUrl: String, clientId: String, code: DeviceCode): String {
-        var interval = code.intervalSeconds
+        // Never 0: a forge answering interval 0 would be polled without pause, forever.
+        var interval = code.intervalSeconds.coerceAtLeast(1)
         var waited = 0
         while (true) {
             delay(interval.seconds)
@@ -139,7 +140,7 @@ class DeviceFlowClient(
             when (answer.error) {
                 null -> return answer.accessToken ?: throw DeviceFlowException("no token in the answer")
                 AUTHORIZATION_PENDING -> Unit
-                SLOW_DOWN -> interval = answer.interval ?: (interval + SLOW_DOWN_EXTRA_SECONDS)
+                SLOW_DOWN -> interval = (answer.interval ?: (interval + SLOW_DOWN_EXTRA_SECONDS)).coerceAtLeast(1)
                 else -> throw DeviceFlowException(answer.error)
             }
         }

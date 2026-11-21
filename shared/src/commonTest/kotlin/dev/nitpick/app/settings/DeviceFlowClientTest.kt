@@ -97,6 +97,18 @@ class DeviceFlowClientTest {
     }
 
     @Test
+    fun aZeroIntervalStillWaitsAndExpires() = runTest {
+        val pending = """{"error":"authorization_pending"}""" to HttpStatusCode.OK
+        val client = client(*Array(50) { pending })
+
+        assertFailsWith<DeviceFlowException> {
+            client.awaitToken(GitHost.GITHUB, "client-1", code.copy(expiresInSeconds = 3, intervalSeconds = 0))
+        }
+
+        assertEquals(3, requests.size)
+    }
+
+    @Test
     fun aServerErrorNeverLeaksTheBody() = runTest {
         val client = client("<html>Bad gateway</html>" to HttpStatusCode.BadGateway)
 

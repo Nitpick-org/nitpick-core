@@ -91,6 +91,7 @@ fun ConnectScreen(
     // No browser on the device: the code stays on screen, the user can open the page elsewhere.
     fun openBrowser(url: String) = try {
         uriHandler.openUri(url)
+        signInError = null
     } catch (e: IllegalArgumentException) {
         signInError = e.message
     }
