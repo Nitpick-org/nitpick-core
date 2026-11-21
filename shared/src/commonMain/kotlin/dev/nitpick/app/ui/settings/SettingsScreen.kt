@@ -91,7 +91,7 @@ fun SettingsScreen(settings: Settings, onChange: ((Settings) -> Settings) -> Uni
                     models = settings.provider.knownModels,
                     onSelect = { model -> onChange { it.copy(model = model) } },
                     modifier = Modifier.fillMaxWidth(),
-                    height = TouchControlHeight,
+                    touch = true,
                 )
                 if (settings.provider != LlmProvider.OLLAMA) {
                     ApiKeyField(

@@ -32,14 +32,14 @@ import org.jetbrains.compose.resources.stringResource
 
 /** Model select shared by the desktop dialog and the phone screen: a secondary button plus a menu. */
 @Composable
-internal fun ModelSelector(model: String, models: List<String>, onSelect: (String) -> Unit, modifier: Modifier = Modifier, height: Dp? = null) {
+internal fun ModelSelector(model: String, models: List<String>, onSelect: (String) -> Unit, modifier: Modifier = Modifier, touch: Boolean = false) {
     var expanded by remember { mutableStateOf(false) }
     Box(modifier) {
         NitpickButton(
             text = "$model \u25BE",
             onClick = { expanded = true },
             variant = NitpickButtonVariant.Secondary,
-            size = if (height == null) NitpickButtonSize.Small else NitpickButtonSize.Large,
+            size = if (touch) NitpickButtonSize.Large else NitpickButtonSize.Small,
             modifier = Modifier.fillMaxWidth(),
         )
         DropdownMenu(expanded = expanded, onDismissRequest = { expanded = false }) {
