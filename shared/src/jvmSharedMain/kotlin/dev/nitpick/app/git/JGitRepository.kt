@@ -7,6 +7,7 @@ import dev.nitpick.app.domain.FileDiff
 import dev.nitpick.app.domain.PullResult
 import dev.nitpick.app.domain.Ref
 import dev.nitpick.app.domain.RefType
+import dev.nitpick.app.domain.TrackingStatus
 import dev.nitpick.app.domain.WorkingTreeStatus
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
@@ -24,8 +25,10 @@ import org.eclipse.jgit.lib.Repository
 import org.eclipse.jgit.revwalk.RevCommit
 import org.eclipse.jgit.revwalk.RevSort
 import org.eclipse.jgit.revwalk.RevWalk
-import org.eclipse.jgit.transport.RemoteRefUpdate
 import org.eclipse.jgit.revwalk.filter.RevFilter
+import org.eclipse.jgit.transport.PushResult
+import org.eclipse.jgit.transport.RefSpec
+import org.eclipse.jgit.transport.RemoteRefUpdate
 import org.eclipse.jgit.treewalk.CanonicalTreeParser
 import org.eclipse.jgit.treewalk.FileTreeIterator
 import org.eclipse.jgit.treewalk.filter.PathFilterGroup
@@ -268,36 +271,37 @@ class JGitRepository(private val git: Git) : GitRepository {
 
     override suspend fun push(credentials: Credentials?) {
         withContext(Dispatchers.IO) {
-            val results = git.push().setCredentialsProvider(credentials.toJGit()).call()
-            // JGit reports a rejected ref in the result instead of throwing, unlike the git CLI.
-            val rejected = results.flatMap { it.remoteUpdates }.filterNot { it.status in ACCEPTED_PUSH_STATUSES }
-            require(rejected.isEmpty()) {
-                rejected.joinToString("; ") { "${it.remoteName}: ${it.status}${it.message?.let { m -> " ($m)" } ?: ""}" }
-            }
+            requireAccepted(git.push().setCredentialsProvider(credentials.toJGit()).call())
         }
     }
 
     override suspend fun publishBranch(credentials: Credentials?) = withContext(Dispatchers.IO) {
         val branch = repository.branch ?: throw IllegalStateException("Cannot publish a detached HEAD")
-        val results = git.push()
-            .setRemote("origin")
-            .setRefSpecs(org.eclipse.jgit.transport.RefSpec("refs/heads/$branch:refs/heads/$branch"))
-            .setCredentialsProvider(credentials.toJGit())
-            .call()
-        val rejected = results.flatMap { it.remoteUpdates }.filterNot { it.status in ACCEPTED_PUSH_STATUSES }
-        require(rejected.isEmpty()) {
-            rejected.joinToString("; ") { "${it.remoteName}: ${it.status}${it.message?.let { m -> " ($m)" } ?: ""}" }
-        }
+        requireAccepted(
+            git.push()
+                .setRemote(Constants.DEFAULT_REMOTE_NAME)
+                .setRefSpecs(RefSpec("refs/heads/$branch:refs/heads/$branch"))
+                .setCredentialsProvider(credentials.toJGit())
+                .call(),
+        )
         val config = repository.config
-        config.setString("branch", branch, "remote", "origin")
+        config.setString("branch", branch, "remote", Constants.DEFAULT_REMOTE_NAME)
         config.setString("branch", branch, "merge", "refs/heads/$branch")
         config.save()
     }
 
-    override suspend fun trackingStatus(): dev.nitpick.app.domain.TrackingStatus? = withContext(Dispatchers.IO) {
+    // JGit reports a rejected ref in the result instead of throwing, unlike the git CLI.
+    private fun requireAccepted(results: Iterable<PushResult>) {
+        val rejected = results.flatMap { it.remoteUpdates }.filterNot { it.status in ACCEPTED_PUSH_STATUSES }
+        require(rejected.isEmpty()) {
+            rejected.joinToString("; ") { "${it.remoteName}: ${it.status}${it.message?.let { m -> " ($m)" } ?: ""}" }
+        }
+    }
+
+    override suspend fun trackingStatus(): TrackingStatus? = withContext(Dispatchers.IO) {
         val branch = repository.branch ?: return@withContext null
         val tracking = BranchTrackingStatus.of(repository, branch) ?: return@withContext null
-        dev.nitpick.app.domain.TrackingStatus(
+        TrackingStatus(
             ahead = tracking.aheadCount,
             behind = tracking.behindCount,
             upstream = Repository.shortenRefName(tracking.remoteTrackingBranch),

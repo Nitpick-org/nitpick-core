@@ -155,7 +155,7 @@ fun ReviewPanel(
                                 severity = comment.severity,
                                 message = comment.message,
                                 suggestion = comment.suggestion,
-                                onApply = if (applied || comment.isFileLevel) null else { { onApply(comment) } },
+                                onApply = if (applied || comment.isFileLevel || state.isRewritingWorkingTree) null else { { onApply(comment) } },
                                 onDismiss = if (applied) null else { { onDismiss(comment.id) } },
                             )
                         }
@@ -166,6 +166,7 @@ fun ReviewPanel(
                         message = state.commitMessage,
                         onMessageChange = onCommitMessage,
                         onCommit = onCommit,
+                        enabled = !state.isRewritingWorkingTree,
                     )
                 }
             }
@@ -267,7 +268,7 @@ private fun CleanReviewState() {
 }
 
 @Composable
-private fun CommitBar(message: String, onMessageChange: (String) -> Unit, onCommit: () -> Unit) {
+private fun CommitBar(message: String, onMessageChange: (String) -> Unit, onCommit: () -> Unit, enabled: Boolean) {
     Column(
         modifier = Modifier.fillMaxWidth().padding(12.dp),
         verticalArrangement = Arrangement.spacedBy(8.dp),
@@ -283,6 +284,7 @@ private fun CommitBar(message: String, onMessageChange: (String) -> Unit, onComm
             NitpickButton(
                 text = stringResource(Res.string.commit_stage),
                 onClick = onCommit,
+                enabled = enabled,
                 size = NitpickButtonSize.Small,
             )
         }

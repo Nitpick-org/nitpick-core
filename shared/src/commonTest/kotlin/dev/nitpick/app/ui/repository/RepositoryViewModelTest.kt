@@ -554,4 +554,24 @@ class RepositoryViewModelTest {
         assertNull(viewModel.state.value.reviewError)
         assertEquals(listOf(nit), viewModel.state.value.review?.comments)
     }
+
+    @Test
+    fun aPullThatDropsTheReviewAlsoDropsItsActionError() {
+        val files = FakeGitRepository(branch = "main", commits = commits, refs = listOf(mainBranch), diffs = diffs, files = mapOf("graph/CommitGraph.kt" to "nothing here\n"))
+        val repo = PushingRepository(files, pullResult = PullResult(updated = true, conflictedPaths = emptyList()))
+        val nit = ReviewComment("n1", "graph/CommitGraph.kt", 1, 1, Severity.BUG, "logic", "m", originalSnippet = "val lane = 1", suggestion = "val lane = 0")
+        val agent = object : ReviewAgent {
+            override suspend fun review(repository: GitRepository, baseRef: String) = ReviewResult("1 bug", listOf(nit))
+        }
+        val viewModel = RepositoryViewModel(FakeGitRepositoryFactory(mapOf("/work/demo" to repo)), graphDispatcher = dispatcher, reviewAgent = agent)
+        viewModel.openRepository("/work/demo")
+        viewModel.reviewBranch()
+        viewModel.applySuggestion(nit)
+        assertNotNull(viewModel.state.value.actionError)
+
+        viewModel.pullBranch(credentials = null)
+
+        assertNull(viewModel.state.value.review)
+        assertNull(viewModel.state.value.actionError)
+    }
 }
