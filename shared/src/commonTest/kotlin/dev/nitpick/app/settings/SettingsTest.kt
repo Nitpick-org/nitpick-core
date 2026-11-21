@@ -34,6 +34,12 @@ class SettingsTest {
     }
 
     @Test
+    fun aSettingsFileWrittenBeforeTheLoginFieldStillLoads() {
+        val old = """{"gitConnection":{"host":"GITHUB","token":"ghp_1"}}"""
+        assertEquals(GitConnection(GitHost.GITHUB, "ghp_1"), Json.decodeFromString(Settings.serializer(), old).gitConnection)
+    }
+
+    @Test
     fun everyProviderSuggestsAtLeastOneModel() {
         LlmProvider.entries.forEach { provider ->
             assertTrue(provider.knownModels.isNotEmpty(), provider.name)

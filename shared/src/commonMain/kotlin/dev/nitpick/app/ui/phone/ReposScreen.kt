@@ -37,10 +37,11 @@ fun ReposScreen(
     onEditConnection: () -> Unit,
     onOpenSettings: () -> Unit,
     modifier: Modifier = Modifier,
+    accountLogin: String = "",
 ) {
     Column(modifier.fillMaxSize().background(NitpickTheme.colors.canvas)) {
         PhoneTopBar(title = stringResource(Res.string.repos_title), onBack = null) {
-            NitpickToolbarAction(text = stringResource(Res.string.connect_edit), onClick = onEditConnection)
+            NitpickToolbarAction(text = accountLogin.ifBlank { stringResource(Res.string.connect_edit) }, onClick = onEditConnection)
             SettingsAction(onOpenSettings)
         }
         if (recentRepositories.isEmpty()) {

@@ -115,6 +115,15 @@
     <string name="connect_token_hide">Masquer</string>
     <string name="connect_action">Connecter</string>
     <string name="connect_edit">Compte</string>
+    <string name="connect_current">Connecté à %1$s en tant que @%2$s.</string>
+    <string name="connect_signin">Se connecter avec %1$s</string>
+    <string name="connect_signin_code_help">Saisissez ce code dans le navigateur sur %1$s, puis revenez ici.</string>
+    <string name="connect_signin_open">Ouvrir le navigateur</string>
+    <string name="connect_signin_cancel">Annuler</string>
+    <string name="connect_signin_failed">Connexion échouée : %1$s</string>
+    <string name="connect_signin_denied">Vous avez refusé la connexion. Réessayez quand vous voulez.</string>
+    <string name="connect_signin_expired">Le code a expiré. Relancez la connexion.</string>
+    <string name="connect_token_or">Ou collez un jeton d’accès</string>
     <string name="settings_search">Rechercher un réglage</string>
     <string name="settings_section_general">Général</string>
     <string name="settings_section_review">Review</string>

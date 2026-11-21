@@ -4,6 +4,7 @@ import dev.nitpick.app.git.GitRepositoryFactory
 import dev.nitpick.app.review.KoogLlmClient
 import dev.nitpick.app.review.LlmReviewAgent
 import dev.nitpick.app.review.ReviewAgent
+import dev.nitpick.app.settings.ForgeClient
 import dev.nitpick.app.settings.SettingsStore
 import dev.nitpick.app.share.KtorReviewShareClient
 import dev.nitpick.app.share.ReviewShareClient
@@ -17,4 +18,5 @@ class AppContainer(
     val settingsStore: SettingsStore,
     val reviewAgent: ReviewAgent = LlmReviewAgent(KoogLlmClient(settingsStore)),
     val reviewShareClient: ReviewShareClient = KtorReviewShareClient({ settingsStore.load().serverUrl }),
+    val forgeClient: ForgeClient = ForgeClient(),
 )

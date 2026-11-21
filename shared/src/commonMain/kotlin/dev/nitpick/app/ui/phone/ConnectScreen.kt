@@ -17,11 +17,19 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
+import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.rememberCoroutineScope
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.platform.LocalUriHandler
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.text.input.PasswordVisualTransformation
 import androidx.compose.ui.text.input.VisualTransformation
 import androidx.compose.ui.unit.dp
+import dev.nitpick.app.settings.DeviceCode
+import dev.nitpick.app.settings.ForgeClient
+import dev.nitpick.app.settings.DeviceFlowException
+import dev.nitpick.app.settings.ForgeOAuthClientIds
 import dev.nitpick.app.settings.GitConnection
 import dev.nitpick.app.settings.GitHost
 import dev.nitpick.app.ui.components.NitpickButton
@@ -31,18 +39,31 @@ import dev.nitpick.app.ui.components.NitpickTextField
 import dev.nitpick.app.ui.theme.NitpickTheme
 import nitpick.shared.generated.resources.Res
 import nitpick.shared.generated.resources.connect_action
+import nitpick.shared.generated.resources.connect_current
 import nitpick.shared.generated.resources.connect_github
 import nitpick.shared.generated.resources.connect_gitlab
 import nitpick.shared.generated.resources.connect_help
 import nitpick.shared.generated.resources.connect_host
+import nitpick.shared.generated.resources.connect_signin
+import nitpick.shared.generated.resources.connect_signin_cancel
+import nitpick.shared.generated.resources.connect_signin_code_help
+import nitpick.shared.generated.resources.connect_signin_denied
+import nitpick.shared.generated.resources.connect_signin_expired
+import nitpick.shared.generated.resources.connect_signin_failed
+import nitpick.shared.generated.resources.connect_signin_open
 import nitpick.shared.generated.resources.connect_title
+import nitpick.shared.generated.resources.connect_token_or
 import nitpick.shared.generated.resources.connect_token_help
 import nitpick.shared.generated.resources.connect_token_hide
 import nitpick.shared.generated.resources.connect_token_label
 import nitpick.shared.generated.resources.connect_token_show
+import kotlinx.coroutines.launch
 import org.jetbrains.compose.resources.stringResource
 
 private val HostChoiceHeight = 48.dp
+
+/** A sign-in waiting for the user to approve in the browser; dropped when they cancel. */
+private class PendingSignIn(val host: GitHost, val clientId: String, val code: DeviceCode)
 
 /**
  * The forge account the phone uses for every clone and push. [onCancel] is null the first time:
@@ -51,24 +72,93 @@ private val HostChoiceHeight = 48.dp
 @Composable
 fun ConnectScreen(
     current: GitConnection?,
+    forge: ForgeClient,
     onConnect: (GitConnection) -> Unit,
     onCancel: (() -> Unit)?,
     modifier: Modifier = Modifier,
 ) {
     var host by rememberSaveable { mutableStateOf(current?.host ?: GitHost.GITHUB) }
     // Starts empty even when editing, so the saved token is never shown; blank keeps it. Not in
-    // rememberSaveable, so it never lands in a saved-state bundle.
+    // rememberSaveable, so it never lands in a saved-state bundle; same for the sign-in codes.
     var token by remember { mutableStateOf("") }
     var showToken by remember { mutableStateOf(false) }
+    var pending by remember { mutableStateOf<PendingSignIn?>(null) }
+    var startingSignIn by remember { mutableStateOf(false) }
+    var signInError by remember { mutableStateOf<String?>(null) }
+    val scope = rememberCoroutineScope()
+    val uriHandler = LocalUriHandler.current
+    val clientId = ForgeOAuthClientIds.forHost(host)
+    val hostLabel = stringResource(if (host == GitHost.GITLAB) Res.string.connect_gitlab else Res.string.connect_github)
+    // No browser on the device: the code stays on screen, the user can open the page elsewhere.
+    fun openBrowser(url: String) = try {
+        uriHandler.openUri(url)
+        signInError = null
+    } catch (e: IllegalArgumentException) {
+        signInError = e.message
+    }
+
+    LaunchedEffect(pending) {
+        val signIn = pending ?: return@LaunchedEffect
+        try {
+            val obtained = forge.awaitToken(signIn.host, signIn.clientId, signIn.code)
+            onConnect(GitConnection(signIn.host, obtained, forge.loginOrBlank(signIn.host, obtained)))
+        } catch (e: DeviceFlowException) {
+            signInError = e.message
+        }
+        pending = null
+    }
+
+    pending?.let { signIn ->
+        SignInWaiting(
+            hostLabel = hostLabel,
+            userCode = signIn.code.userCode,
+            error = signInError,
+            onOpenBrowser = { openBrowser(signIn.code.verificationUri) },
+            onCancel = { pending = null },
+            modifier = modifier,
+        )
+        return
+    }
 
     Column(modifier.fillMaxSize().background(NitpickTheme.colors.canvas)) {
         PhoneTopBar(title = stringResource(Res.string.connect_title), onBack = onCancel)
         Column(Modifier.weight(1f).padding(16.dp), verticalArrangement = Arrangement.spacedBy(16.dp)) {
             Text(stringResource(Res.string.connect_help), style = NitpickTheme.typography.small, color = NitpickTheme.colors.textSecondary)
+            current?.takeIf { it.login.isNotBlank() }?.let {
+                val currentHost = stringResource(if (it.host == GitHost.GITLAB) Res.string.connect_gitlab else Res.string.connect_github)
+                Text(stringResource(Res.string.connect_current, currentHost, it.login), style = NitpickTheme.typography.small, color = NitpickTheme.colors.text)
+            }
             Text(stringResource(Res.string.connect_host), style = NitpickTheme.typography.micro, color = NitpickTheme.colors.textSecondary)
             Row(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.spacedBy(8.dp)) {
                 HostChoice(stringResource(Res.string.connect_github), selected = host == GitHost.GITHUB, onClick = { host = GitHost.GITHUB }, Modifier.weight(1f))
                 HostChoice(stringResource(Res.string.connect_gitlab), selected = host == GitHost.GITLAB, onClick = { host = GitHost.GITLAB }, Modifier.weight(1f))
+            }
+            if (clientId.isNotBlank()) {
+                NitpickButton(
+                    text = stringResource(Res.string.connect_signin, hostLabel),
+                    enabled = !startingSignIn,
+                    size = NitpickButtonSize.Large,
+                    modifier = Modifier.fillMaxWidth().height(HostChoiceHeight),
+                    onClick = {
+                        scope.launch {
+                            startingSignIn = true
+                            signInError = null
+                            try {
+                                val code = forge.start(host, clientId)
+                                openBrowser(code.verificationUri)
+                                pending = PendingSignIn(host, clientId, code)
+                            } catch (e: DeviceFlowException) {
+                                signInError = e.message
+                            } finally {
+                                startingSignIn = false
+                            }
+                        }
+                    },
+                )
+                signInError?.let {
+                    Text(signInErrorText(it), style = NitpickTheme.typography.small, color = NitpickTheme.colors.danger)
+                }
+                Text(stringResource(Res.string.connect_token_or), style = NitpickTheme.typography.micro, color = NitpickTheme.colors.textSecondary)
             }
             NitpickTextField(
                 value = token,
@@ -89,9 +179,59 @@ fun ConnectScreen(
         }
         PhoneBottomButton(
             text = stringResource(Res.string.connect_action),
-            enabled = token.isNotBlank() || current != null,
-            onClick = { onConnect(GitConnection(host, token.trim().ifBlank { current?.token.orEmpty() })) },
+            enabled = (token.isNotBlank() || current != null) && !startingSignIn,
+            onClick = {
+                val typed = token.trim()
+                scope.launch {
+                    startingSignIn = true
+                    val kept = typed.ifBlank { current?.token.orEmpty() }
+                    val login = if (typed.isBlank() && current?.host == host) current.login else forge.loginOrBlank(host, kept)
+                    onConnect(GitConnection(host, kept, login))
+                    startingSignIn = false
+                }
+            },
         )
+    }
+}
+
+// Not knowing the name must not block the connection: the token still works.
+private suspend fun ForgeClient.loginOrBlank(host: GitHost, token: String): String =
+    try {
+        fetchLogin(host, token)
+    } catch (e: DeviceFlowException) {
+        ""
+    }
+
+@Composable
+private fun signInErrorText(code: String): String = when (code) {
+    "access_denied" -> stringResource(Res.string.connect_signin_denied)
+    "expired_token" -> stringResource(Res.string.connect_signin_expired)
+    else -> stringResource(Res.string.connect_signin_failed, code)
+}
+
+@Composable
+private fun SignInWaiting(hostLabel: String, userCode: String, error: String?, onOpenBrowser: () -> Unit, onCancel: () -> Unit, modifier: Modifier) {
+    Column(modifier.fillMaxSize().background(NitpickTheme.colors.canvas)) {
+        PhoneTopBar(title = stringResource(Res.string.connect_title), onBack = onCancel)
+        Column(
+            Modifier.weight(1f).fillMaxWidth().padding(16.dp),
+            verticalArrangement = Arrangement.spacedBy(16.dp),
+            horizontalAlignment = Alignment.CenterHorizontally,
+        ) {
+            Text(userCode, style = NitpickTheme.typography.display, color = NitpickTheme.colors.text)
+            Text(stringResource(Res.string.connect_signin_code_help, hostLabel), style = NitpickTheme.typography.small, color = NitpickTheme.colors.textSecondary)
+            error?.let {
+                Text(signInErrorText(it), style = NitpickTheme.typography.small, color = NitpickTheme.colors.danger)
+            }
+            NitpickButton(
+                text = stringResource(Res.string.connect_signin_open),
+                onClick = onOpenBrowser,
+                variant = NitpickButtonVariant.Secondary,
+                size = NitpickButtonSize.Large,
+                modifier = Modifier.fillMaxWidth().height(HostChoiceHeight),
+            )
+        }
+        PhoneBottomButton(text = stringResource(Res.string.connect_signin_cancel), onClick = onCancel)
     }
 }
 

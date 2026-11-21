@@ -9,11 +9,13 @@ enum class ThemeMode { SYSTEM, LIGHT, DARK }
 
 enum class GitHost { GITHUB, GITLAB }
 
-/** The forge account the phone clones from and pushes to: one token, typed once. */
+/** The forge account the phone clones from and pushes to: one token, typed once or signed in. */
 @Serializable
 data class GitConnection(
     val host: GitHost = GitHost.GITHUB,
     val token: String = "",
+    // Shown to the user; empty when the forge could not be asked. Never used to authenticate.
+    val login: String = "",
 ) {
     val isComplete: Boolean get() = token.isNotBlank()
 

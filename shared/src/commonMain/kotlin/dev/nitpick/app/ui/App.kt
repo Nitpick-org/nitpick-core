@@ -91,6 +91,7 @@ fun App(
                     onOpenSharedReview = repositoryViewModel::openSharedReview,
                     onFetch = repositoryViewModel::fetchBranch,
                     onConnect = { connection -> settingsViewModel.update { it.copy(gitConnection = connection) } },
+                    forge = container.forgeClient,
                     onOpenSettings = { showSettings = true },
                     modifier = Modifier.safeContentPadding(),
                 )
