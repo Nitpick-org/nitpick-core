@@ -16,6 +16,7 @@ import androidx.compose.ui.Modifier
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.lifecycle.viewmodel.compose.viewModel
 import dev.nitpick.app.AppContainer
+import dev.nitpick.app.settings.DeviceFlowException
 import dev.nitpick.app.settings.withRecentRepository
 import dev.nitpick.app.ui.phone.PhoneFlow
 import dev.nitpick.app.ui.repository.CloneDialog
@@ -53,6 +54,21 @@ fun App(
     BackHandler(enabled = showSettings) { showSettings = false }
     val openRepository: (() -> Unit)? = pickRepositoryPath?.let { pick ->
         { pick()?.let(repositoryViewModel::openRepository) }
+    }
+
+    // A connection saved before the login field existed gets its account name once, so the
+    // Repos bar shows who is signed in without a new sign-in. A failure just leaves it blank.
+    LaunchedEffect(settingsLoaded, settings.gitConnection) {
+        val connection = settings.gitConnection ?: return@LaunchedEffect
+        if (!settingsLoaded || !connection.isComplete || connection.login.isNotBlank()) return@LaunchedEffect
+        val login = try {
+            container.forgeClient.fetchLogin(connection.host, connection.token)
+        } catch (e: DeviceFlowException) {
+            return@LaunchedEffect
+        }
+        settingsViewModel.update { current ->
+            if (current.gitConnection == connection) current.copy(gitConnection = connection.copy(login = login)) else current
+        }
     }
 
     // An open repository goes to the top of the recent list, which the phone Repos screen shows.
