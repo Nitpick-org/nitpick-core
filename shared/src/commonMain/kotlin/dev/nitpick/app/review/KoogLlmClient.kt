@@ -10,19 +10,24 @@ import ai.koog.prompt.executor.clients.openai.OpenAIModels
 import ai.koog.prompt.executor.ollama.client.OllamaModels
 import ai.koog.prompt.executor.clients.anthropic.AnthropicClientSettings
 import ai.koog.prompt.executor.clients.anthropic.AnthropicLLMClient
+import ai.koog.prompt.executor.clients.anthropic.AnthropicParams
 import ai.koog.prompt.executor.clients.google.GoogleLLMClient
 import ai.koog.prompt.executor.clients.openai.OpenAILLMClient
 import ai.koog.prompt.executor.ollama.client.OllamaClient
 import ai.koog.prompt.llm.LLMCapability
 import ai.koog.prompt.llm.LLModel
+import ai.koog.prompt.message.Message
 import ai.koog.prompt.message.MessagePart
+import kotlinx.serialization.json.buildJsonObject
+import kotlinx.serialization.json.put
 import dev.nitpick.app.settings.LlmProvider
 import dev.nitpick.app.settings.Settings
 import dev.nitpick.app.settings.SettingsStore
 
 private const val OLLAMA_BASE_URL = "http://localhost:11434"
-// A review is a JSON list: cut mid-way it is unusable, so ask for room every target model accepts.
-private const val MAX_OUTPUT_TOKENS = 8_192L
+// A review is a JSON list: cut mid-way it is unusable. Newer Anthropic models spend part of
+// the budget on adaptive reasoning, so 8k was entirely consumed before any JSON was emitted.
+private const val MAX_OUTPUT_TOKENS = 32_768L
 private const val MAX_TOOL_ROUNDS = 4
 
 class MissingApiKeyException(val provider: LlmProvider) : Exception("No API key for ${provider.name}")
@@ -35,9 +40,9 @@ class ReviewProviderException(message: String, cause: Throwable) : Exception(mes
  */
 class KoogLlmClient(private val settingsStore: SettingsStore) : ToolCallingLlmClient {
 
-    override suspend fun complete(system: String, user: String): String = withClient { client, model, _ ->
-        val answer = client.execute(prompt("nitpick-review") { system(system); user(user) }, model)
-        answer.parts.filterIsInstance<MessagePart.Text>().joinToString("") { it.text }
+    override suspend fun complete(system: String, user: String): String = withClient { client, model, settings ->
+        val answer = client.execute(prompt("nitpick-review") { system(system); user(user) }.withReviewParams(settings), model)
+        textOf(answer)
     }
 
     override suspend fun completeWithTools(prompt: ReviewPrompt, toolbox: ReviewToolbox): String =
@@ -45,7 +50,7 @@ class KoogLlmClient(private val settingsStore: SettingsStore) : ToolCallingLlmCl
             var conversation = Prompt.builder("nitpick-review-tools").apply {
                 system(prompt.system)
                 user(prompt.user)
-            }.build()
+            }.build().withReviewParams(settings)
             val descriptors = toolbox.descriptors()
 
             // A provider without tool support must still review: fall back to the plain prompt.
@@ -59,28 +64,49 @@ class KoogLlmClient(private val settingsStore: SettingsStore) : ToolCallingLlmCl
                 val plain = Prompt.builder("nitpick-review").apply {
                     system(plainPrompt.system)
                     user(plainPrompt.user)
-                }.build()
+                }.build().withReviewParams(settings)
                 val plainAnswer = try {
                     client.execute(plain, model)
                 } catch (plainError: Exception) {
                     if (plainError is kotlinx.coroutines.CancellationException) throw plainError
                     throw e
                 }
-                return@withClient plainAnswer.parts.filterIsInstance<MessagePart.Text>().joinToString("") { it.text }
+                return@withClient textOf(plainAnswer)
             }
 
             repeat(MAX_TOOL_ROUNDS) {
                 val calls = answer.parts.filterIsInstance<MessagePart.Tool.Call>()
                 if (calls.isEmpty()) {
-                    return@withClient answer.parts.filterIsInstance<MessagePart.Text>().joinToString("") { it.text }
+                    return@withClient textOf(answer)
                 }
+                // Anthropic can return a reasoning block even when the model is declared without
+                // Thinking; drop it before echoing the assistant turn, or the next request fails.
+                // Tool ids are also normalized: provider ids are opaque and some contain characters
+                // Anthropic rejects in tool_result.tool_use_id.
+                var safeIndex = 0
+                val safeParts = answer.parts
+                    .filterNot { it is MessagePart.Reasoning }
+                    .map { part ->
+                        if (part is MessagePart.Tool.Call) part.copy(id = "tool_${safeIndex++}") else part
+                    }
+                val assistant = answer.copy(parts = safeParts)
                 val next = Prompt.builder("nitpick-review-tools").apply {
                     messages(conversation.messages)
-                    message(answer)
-                    calls.forEach { call ->
+                    message(assistant)
+                    calls.forEachIndexed { index, call ->
                         val output = toolbox.execute(call.tool, call.argsJson)
-                        toolResult(call.id.orEmpty(), call.tool, output.text, output.isError)
+                        toolResult(
+                            tool = call.tool,
+                            output = output.text,
+                            id = "tool_$index",
+                            isError = output.isError,
+                        )
                     }
+                    // Tool results are not a review: force the final answer back to the JSON contract.
+                    user(
+                        "The tool result is above. Now return the final review as ONE JSON object " +
+                            "exactly as specified; no prose, no more tool calls.",
+                    )
                 }.build()
                 conversation = next
                 answer = client.execute(conversation, model, descriptors)
@@ -127,6 +153,25 @@ internal fun koogModelFor(settings: Settings): LLModel {
         capabilities = reference.capabilities.orEmpty().filterNot { it is LLMCapability.Thinking },
         maxOutputTokens = MAX_OUTPUT_TOKENS,
     )
+}
+
+/** Recent Anthropic models default to adaptive thinking; ask for low effort so JSON has room. */
+private fun Prompt.withReviewParams(settings: Settings): Prompt =
+    if (settings.provider == LlmProvider.ANTHROPIC) {
+        withParams(
+            AnthropicParams(
+                additionalProperties = mapOf(
+                    "output_config" to buildJsonObject { put("effort", "low") },
+                ),
+            ),
+        )
+    } else {
+        this
+    }
+
+private fun textOf(answer: Message.Assistant): String {
+    val text = answer.parts.filterIsInstance<MessagePart.Text>().joinToString("") { it.text }
+    return text
 }
 
 private fun llmClient(settings: Settings, model: LLModel): LLMClient = when (settings.provider) {

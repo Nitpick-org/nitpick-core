@@ -15,6 +15,9 @@ const val MAX_REVIEW_TOOL_BYTES = 64_000
 
 data class ToolOutput(val text: String, val isError: Boolean = false)
 
+/** Non-sensitive trace of a tool call, for the manual #43 proof and debugging. */
+data class ReviewToolUse(val tool: String, val path: String? = null)
+
 /**
  * The two read-only tools the review agent may call. The model can inspect a neighbouring
  * file (a signature, a test) without receiving the whole repository.
@@ -26,6 +29,7 @@ class ReviewToolbox(
     private val repository: GitRepository,
     private val maxCalls: Int = MAX_REVIEW_TOOL_CALLS,
     private val maxBytes: Int = MAX_REVIEW_TOOL_BYTES,
+    private val onUse: (ReviewToolUse) -> Unit = {},
 ) {
     private var calls = 0
     private var bytesRead = 0
@@ -53,6 +57,7 @@ class ReviewToolbox(
         return when (tool) {
             REVIEW_TOOL_LIST_FILES -> {
                 calls++
+                onUse(ReviewToolUse(REVIEW_TOOL_LIST_FILES))
                 val listing = repository.listFiles()
                     .filter(::isReviewablePath)
                     .take(500)
@@ -65,7 +70,11 @@ class ReviewToolbox(
                     ToolOutput(listing)
                 }
             }
-            REVIEW_TOOL_READ_FILE -> readFile((args["path"] as? JsonPrimitive)?.contentOrNull)
+            REVIEW_TOOL_READ_FILE -> {
+                val path = (args["path"] as? JsonPrimitive)?.contentOrNull
+                onUse(ReviewToolUse(REVIEW_TOOL_READ_FILE, path))
+                readFile(path)
+            }
             else -> ToolOutput("Unknown tool: $tool", isError = true)
         }
     }
