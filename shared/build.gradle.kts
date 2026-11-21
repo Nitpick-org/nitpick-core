@@ -58,9 +58,13 @@ kotlin {
             implementation(libs.androidx.lifecycle.runtimeCompose)
             implementation(libs.kotlinx.serializationJson)
             implementation(libs.kotlinx.coroutinesCore)
+            implementation(project.dependencies.platform(libs.ktor.bom))
+            implementation(libs.koog.agents)
+            implementation(libs.koog.googleClient)
         }
         getByName("jvmSharedMain").dependencies {
             implementation(libs.jgit)
+            implementation(libs.ktor.client.cio)
         }
         commonTest.dependencies {
             implementation(libs.kotlin.test)
