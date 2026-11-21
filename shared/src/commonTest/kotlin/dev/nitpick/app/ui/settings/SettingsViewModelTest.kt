@@ -3,6 +3,8 @@ package dev.nitpick.app.ui.settings
 import dev.nitpick.app.settings.Settings
 import dev.nitpick.app.settings.SettingsStore
 import dev.nitpick.app.settings.ThemeMode
+import dev.nitpick.app.settings.withRecentRepository
+import kotlin.test.assertNull
 import kotlinx.coroutines.CompletableDeferred
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.ExperimentalCoroutinesApi
@@ -39,6 +41,48 @@ class SettingsViewModelTest {
         val expected = stored.copy(recentRepositories = listOf("/work/demo"))
         assertEquals(expected, viewModel.settings.value)
         assertEquals(listOf(expected), store.saved)
+    }
+
+    @Test
+    fun editingThenDiscardingTheDraftSavesNothing() {
+        val viewModel = SettingsViewModel(store)
+        store.finishLoading()
+
+        viewModel.startEditing()
+        viewModel.editDraft { it.copy(themeMode = ThemeMode.LIGHT) }
+        viewModel.discardDraft()
+
+        assertNull(viewModel.draft.value)
+        assertEquals(stored, viewModel.settings.value)
+        assertEquals(emptyList(), store.saved)
+    }
+
+    @Test
+    fun savingTheDraftWritesOnceAndKeepsWhatChangedUnderneath() {
+        val viewModel = SettingsViewModel(store)
+        store.finishLoading()
+
+        viewModel.startEditing()
+        viewModel.editDraft { it.copy(themeMode = ThemeMode.LIGHT, apiKey = "sk-new") }
+        viewModel.update { it.withRecentRepository("/work/demo") }
+        viewModel.saveDraft()
+
+        val expected = stored.copy(themeMode = ThemeMode.LIGHT, apiKey = "sk-new", recentRepositories = listOf("/work/demo"))
+        assertEquals(expected, viewModel.settings.value)
+        assertEquals(expected, store.saved.last())
+        assertEquals(2, store.saved.size)
+        assertNull(viewModel.draft.value)
+    }
+
+    @Test
+    fun aDraftStartedBeforeTheFileIsReadWaitsForTheStoredSettings() {
+        val viewModel = SettingsViewModel(store)
+
+        viewModel.startEditing()
+        assertNull(viewModel.draft.value)
+
+        store.finishLoading()
+        assertEquals(stored, viewModel.draft.value)
     }
 
     /** A store whose load only completes when the test says so. */
