@@ -19,6 +19,15 @@ compose.desktop {
     application {
         mainClass = "dev.nitpick.app.MainKt"
 
+        // `gradlew :desktopApp:run` is a plain `java` process: without these flags the
+        // macOS dock shows Duke and the name "java". Packaged apps get both from the bundle.
+        if (System.getProperty("os.name").startsWith("Mac")) {
+            jvmArgs(
+                "-Xdock:name=Nitpick",
+                "-Xdock:icon=${rootProject.file("shared/src/commonMain/composeResources/drawable/ic_app.png")}",
+            )
+        }
+
         nativeDistributions {
             targetFormats(TargetFormat.Dmg, TargetFormat.Msi, TargetFormat.Deb)
             packageName = "dev.nitpick.app"
