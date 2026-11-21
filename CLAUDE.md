@@ -1,4 +1,4 @@
-# LauzHack 2026 — <NOM DU PROJET>
+# LauzHack 2026 — Nitpick
 
 ## État du projet (à mettre à jour à H0, puis à chaque sync)
 
@@ -6,9 +6,11 @@
 - **Hack** : samedi 12:00 → dimanche 12:00. **Démo** : 3 min + 1 min Q&A, sans slides.
 - **Équipe** : <H1> (Produit & Pitch), <H2> (Architecte & Intégration, **Ultra**), <H3> (Builder & Démo, **Ultra**).
 - **Capacité** : 2 comptes Claude Ultra → tâches gourmandes en tokens (recherche, QA, AFK) chez H2/H3. Voir `docs/ULTRA.md`.
-- **Phase actuelle** : J-5, base en préparation. **L'idée n'est pas choisie.**
-- **Objectif** : un parcours de démo qui marche, une nouveauté explicite, un impact crédible.
-- **Prochaine porte** : H0 samedi 21/11 à 12:00.
+- **Idée** : Nitpick, client git visuel Kotlin Multiplatform (desktop + Android) avec review
+  IA locale avant le push. Challenge JetBrains. **`docs/CONTEXT.md` fait foi.**
+- **Phase actuelle** : H0, génération du projet et contrats du §6 de `docs/CONTEXT.md`.
+- **Objectif** : la boucle review → nit inline → appliquer → commit, sur desktop et Android.
+- **Prochaine porte** : 13:00, « Hello » sur les 2 cibles et JGit qui lit un log sur Android.
 
 > Les idées produit viennent des humains. Un agent peut chercher, challenger, proposer des
 > options, mais **jamais inventer une feature et l'implémenter** sans validation humaine.
@@ -31,38 +33,44 @@ humains : tu lis les mêmes fichiers, tu connais les mêmes contraintes, tu peux
 ## Lire avant toute tâche
 
 1. `CLAUDE.md` (ce fichier)
-2. `docs/LAUZHACK.md` (faits, règles, horaires)
-3. `docs/ULTRA.md` (capacité, budgets, Fable — H2/H3 surtout)
-4. `docs/MODEL-ROUTING.md` (choisir le modèle, escalader)
-5. `docs/PRD.md` et `docs/DEMO.md`
-6. `docs/DECISIONS.md`
-7. `docs/ARCHITECTURE.md` et `docs/GLOSSARY.md`
+2. `docs/CONTEXT.md` en entier (mission, stack, source sets, scope, règles agents). En cas de
+   contradiction avec un autre doc, il fait foi : signale l'écart au lieu de trancher.
+3. `docs/LAUZHACK.md` (faits, règles, horaires)
+4. `docs/ULTRA.md` (capacité, budgets, Fable — H2/H3 surtout)
+5. `docs/MODEL-ROUTING.md` (choisir le modèle, escalader)
+6. `docs/DEMO.md` et `docs/DECISIONS.md`
+7. `docs/GLOSSARY.md`
 8. `progress/<ticket>.md`
-9. `docs/RESEARCH.md` si la tâche touche une API externe
+9. `docs/RESEARCH.md` si la tâche touche une API externe (Koog, JGit, Compose)
 
 ## Commandes
 
 ```bash
 ./scripts/doctor.sh                 # readiness check (before the event)
-./scripts/check.sh                  # typecheck + lint + tests
-./scripts/check.sh --demo           # + demo path (e2e)
-pnpm dev                            # local dev server (after the stack is chosen)
-./scripts/new-worktree.sh 12-login  # one worktree per ticket
+./scripts/check.sh                  # all tests + desktop + Android builds
+./scripts/check.sh --demo           # + reminder: play docs/DEMO.md by hand
+./gradlew :composeApp:run           # launch the desktop app
+./scripts/new-worktree.sh 12-graph  # one worktree per ticket
 AFK_OK=1 ./scripts/afk-ralph.sh 4   # bounded loop, low-risk, never on main
 ```
 
-La stack sera choisie à H0 (11:40–12:00) après l'idée, avec le starter Vite comme fallback
-(voir `docs/STACK.md`). Tant qu'il n'y a pas de `package.json`,
-`check.sh` échoue : c'est normal, la base n'est pas prête.
+Stack figée : Kotlin Multiplatform + Compose Multiplatform, Koog, JGit (`docs/CONTEXT.md` §5).
+`docs/STACK.md` décrit l'ancienne base TypeScript et ne s'applique plus. Tant que le projet
+du wizard n'est pas généré (pas de `gradlew`), `check.sh` échoue : c'est normal.
 
 ## Architecture
 
-- `src/modules/<nom>/index.ts` est la **seule** interface publique d'un module.
-- N'importe jamais `src/modules/<nom>/internal/**` depuis l'extérieur.
-- 5 à 8 modules **profonds** maximum. Pas de nouveau module sans accord de H2.
+- Tout ce qui peut l'être vit dans `composeApp/src/commonMain` (domain, git, graph, diff,
+  review, settings, ui). Le code plateforme reste mince et ennuyeux.
+- **Aucun import `org.eclipse.jgit` hors de `jvmShared`.** Aucun import Android ou AWT hors
+  de `androidMain` / `desktopMain`.
+- Les pistes ne se parlent que par les contrats du §6 de `docs/CONTEXT.md` (`GitRepository`,
+  `ReviewResult`…). Changer un contrat = accord de H2.
+- Pas de nouveau package de premier niveau sous `commonMain` sans accord de H2.
 - Les tests verrouillent le comportement à l'interface, pas l'implémentation.
-- L'UI compose les modules ; la logique métier reste dans les modules.
-- Détail : `docs/ARCHITECTURE.md`.
+- L'UI compose les ViewModels ; la logique métier reste hors de `ui/`.
+- Kotlin simple et lisible : pas de DSL maison, pas de génériques gratuits. L'équipe débute
+  en Kotlin : explique chaque choix non trivial dans le message de commit.
 
 ## Façon de travailler
 
@@ -74,7 +82,7 @@ La stack sera choisie à H0 (11:40–12:00) après l'idée, avec le starter Vite
   Sinon, choisis, note ton hypothèse dans le commit et avance.
 - Sans humain disponible : écris la question dans `docs/QUESTIONS.md`
   (question, options, recommandation) et passe à autre chose.
-- Idée hors PRD : `docs/IDEAS.md`, jamais dans le code.
+- Idée hors scope (§8 de `docs/CONTEXT.md`) : `docs/IDEAS.md`, jamais dans le code.
 - Décision produit : propose 2–3 options argumentées ; l'humain tranche.
 - Priorité : le chemin de démo d'abord, les intégrations risquées ensuite, le polish en dernier.
 - Tranches verticales : un ticket livre un comportement visible de bout en bout.
@@ -90,14 +98,16 @@ La stack sera choisie à H0 (11:40–12:00) après l'idée, avec le starter Vite
 | Fichier | Qui écrit | Les agents |
 | --- | --- | --- |
 | `progress.txt` | H2, aux syncs | lisent seulement |
-| `progress/<ticket>.md` | l'agent du ticket | écrivent ici |
-| `docs/PRD.md` | H1 | proposent dans `QUESTIONS.md` |
+| `progress/<ticket>.md` | l'agent du ticket | écrivent ici (c'est le journal d'agent) |
+| `docs/AGENT_LOG.md` | un humain, aux syncs | lisent seulement |
+| `docs/REVIEW_LOG.md` | l'humain qui rejette ou corrige | lisent seulement |
+| `docs/CONTEXT.md` | H1 + H2 | proposent dans `QUESTIONS.md` |
 | `docs/DECISIONS.md` | H2 | proposent, ne modifient pas |
 | `docs/QUESTIONS.md` | tous, append-only | ajoutent une ligne |
 | `docs/RESEARCH.md` | `researcher` | une section par sujet |
 | `CLAUDE.md` | H2, aux syncs | lisent seulement |
 
-Un hook `PreToolUse` bloque l'édition de `PRD.md`, `DECISIONS.md`, `STRATEGY.md`,
+Un hook `PreToolUse` bloque l'édition de `CONTEXT.md`, `REVIEW_LOG.md`, `PRD.md`, `DECISIONS.md`, `STRATEGY.md`,
 `AGENT-OPS.md`, `ULTRA.md`, `MODEL-ROUTING.md`, `CLAUDE.md`, `progress.txt` et `.env` par
 un sous-agent **ou une session headless** (`HACKATHON_HEADLESS=1`, AFK/Ralph). Un humain peut toujours éditer. Override explicite :
 `HACKATHON_ALLOW_PROTECTED=1`.
@@ -106,8 +116,9 @@ un sous-agent **ou une session headless** (`HACKATHON_HEADLESS=1`, AFK/Ralph). U
 
 1. `./scripts/check.sh` vert (le hook `Stop` le vérifie).
 2. Un test du comportement ajouté (ou une preuve manuelle si le test est impossible).
-3. `progress/<ticket>.md` mis à jour : fait, décisions, fichiers, blocages, suivant.
-4. Commit atomique avec message clair (`feat(module): ...`).
+3. `progress/<ticket>.md` mis à jour : piste, fait, décisions, fichiers, incertain, blocages,
+   suivant.
+4. Commit atomique, conventionnel et en anglais (`feat(graph): ...`, `fix(review): ...`).
 5. Le parcours de `docs/DEMO.md` n'est pas cassé.
 6. Si le ticket est **critique démo** : `./scripts/check.sh --demo` vert.
 
@@ -116,7 +127,9 @@ un sous-agent **ou une session headless** (`HACKATHON_HEADLESS=1`, AFK/Ralph). U
 - Secrets dans le code, un prompt, un log ou un commit. `.env` n'est jamais lu.
 - Désactiver un test, un type ou une règle de lint pour faire passer `check.sh`.
 - `git push --force` ou `git reset --hard origin/main` (force push interdit ; le reste est libre).
-- Modifier `CLAUDE.md`, `docs/PRD.md` ou `docs/DECISIONS.md` sans demande humaine.
+- Modifier `CLAUDE.md`, `docs/CONTEXT.md` ou `docs/DECISIONS.md` sans demande humaine.
+- Inventer une API Koog, Compose ou JGit : vérifie dans la doc (§15 de `docs/CONTEXT.md`),
+  sinon écris le doute noir sur blanc dans le commit.
 - Inventer une fonctionnalité, un chiffre ou un utilisateur.
 - Utiliser `--dangerously-skip-permissions` sur une machine avec des secrets.
 - Exporter `ANTHROPIC_API_KEY` dans le shell ou afficher sa valeur : Claude Code facturerait l'API au lieu de l'abonnement. La clé de l'app s'appelle `APP_ANTHROPIC_API_KEY`.
