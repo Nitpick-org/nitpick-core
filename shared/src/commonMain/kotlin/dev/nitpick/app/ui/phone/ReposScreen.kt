@@ -16,10 +16,12 @@ import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import dev.nitpick.app.ui.components.NitpickCard
 import dev.nitpick.app.ui.components.NitpickEmptyState
+import dev.nitpick.app.ui.components.NitpickToolbarAction
 import dev.nitpick.app.ui.repository.folderName
 import dev.nitpick.app.ui.theme.NitpickTheme
 import nitpick.shared.generated.resources.Res
 import nitpick.shared.generated.resources.clone_repo
+import nitpick.shared.generated.resources.connect_edit
 import nitpick.shared.generated.resources.repos_empty_hint
 import nitpick.shared.generated.resources.repos_title
 import nitpick.shared.generated.resources.repository_empty_title
@@ -31,11 +33,13 @@ fun ReposScreen(
     recentRepositories: List<String>,
     onOpen: (String) -> Unit,
     onClone: () -> Unit,
+    onEditConnection: () -> Unit,
     onOpenSettings: () -> Unit,
     modifier: Modifier = Modifier,
 ) {
     Column(modifier.fillMaxSize().background(NitpickTheme.colors.canvas)) {
         PhoneTopBar(title = stringResource(Res.string.repos_title), onBack = null) {
+            NitpickToolbarAction(text = stringResource(Res.string.connect_edit), onClick = onEditConnection)
             SettingsAction(onOpenSettings)
         }
         if (recentRepositories.isEmpty()) {

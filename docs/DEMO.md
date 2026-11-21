@@ -105,5 +105,6 @@ couper.
 - [ ] Mode mock prêt.
 - [ ] Vidéo de secours accessible hors ligne.
 - [ ] Téléphone en silencieux.
+- [ ] Android rejoué à la main : Repos → Graph → Nitpick branch → nit en bottom sheet → Apply → Stage & commit → le bouton **Push** apparaît après le commit → push visible sur GitHub.
 - [ ] Les 3 savent qui parle quand.
 - [ ] La phrase de nouveauté est écrite sur un post-it.

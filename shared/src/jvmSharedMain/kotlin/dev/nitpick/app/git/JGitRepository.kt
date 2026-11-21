@@ -10,6 +10,7 @@ import dev.nitpick.app.domain.RefType
 import dev.nitpick.app.domain.WorkingTreeStatus
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
+import org.eclipse.jgit.api.CreateBranchCommand
 import org.eclipse.jgit.api.Git
 import org.eclipse.jgit.dircache.DirCache
 import org.eclipse.jgit.diff.DiffFormatter
@@ -18,6 +19,7 @@ import org.eclipse.jgit.lib.Repository
 import org.eclipse.jgit.revwalk.RevCommit
 import org.eclipse.jgit.revwalk.RevSort
 import org.eclipse.jgit.revwalk.RevWalk
+import org.eclipse.jgit.transport.RemoteRefUpdate
 import org.eclipse.jgit.revwalk.filter.RevFilter
 import org.eclipse.jgit.treewalk.CanonicalTreeParser
 import org.eclipse.jgit.treewalk.FileTreeIterator
@@ -147,11 +149,33 @@ class JGitRepository(private val git: Git) : GitRepository {
     override suspend fun pull(credentials: Credentials?): PullResult =
         TODO("pull is not implemented yet")
 
-    override suspend fun push(credentials: Credentials?) =
-        TODO("push is not implemented yet")
+    override suspend fun push(credentials: Credentials?) {
+        withContext(Dispatchers.IO) {
+            val results = git.push().setCredentialsProvider(credentials.toJGit()).call()
+            // JGit reports a rejected ref in the result instead of throwing, unlike the git CLI.
+            val rejected = results.flatMap { it.remoteUpdates }.filterNot { it.status in ACCEPTED_PUSH_STATUSES }
+            require(rejected.isEmpty()) {
+                rejected.joinToString("; ") { "${it.remoteName}: ${it.status}${it.message?.let { m -> " ($m)" } ?: ""}" }
+            }
+        }
+    }
 
-    override suspend fun checkout(branch: String) =
-        TODO("checkout is not implemented yet")
+    override suspend fun checkout(branch: String) {
+        withContext(Dispatchers.IO) {
+            val local = repository.findRef(Constants.R_HEADS + branch)
+            if (local != null) {
+                git.checkout().setName(branch).call()
+            } else {
+                // A branch that only exists on the remote gets a tracking local branch, like `git checkout`.
+                git.checkout()
+                    .setCreateBranch(true)
+                    .setName(branch)
+                    .setStartPoint(Constants.DEFAULT_REMOTE_NAME + "/" + branch)
+                    .setUpstreamMode(CreateBranchCommand.SetupUpstreamMode.TRACK)
+                    .call()
+            }
+        }
+    }
 
     /**
      * Paths can come from the LLM, so they must stay inside the working tree and out of
@@ -194,6 +218,8 @@ class JGitRepository(private val git: Git) : GitRepository {
         )
     }
 }
+
+private val ACCEPTED_PUSH_STATUSES = setOf(RemoteRefUpdate.Status.OK, RemoteRefUpdate.Status.UP_TO_DATE)
 
 /**
  * Keeps paths that git knows: in the index, or in the fork-point tree (tree 0 of the walk),

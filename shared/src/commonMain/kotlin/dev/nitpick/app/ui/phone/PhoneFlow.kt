@@ -14,6 +14,8 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import dev.nitpick.app.domain.Credentials
+import dev.nitpick.app.domain.ReviewComment
+import dev.nitpick.app.settings.GitConnection
 import dev.nitpick.app.settings.Settings
 import dev.nitpick.app.ui.components.NitpickButton
 import dev.nitpick.app.ui.components.NitpickButtonSize
@@ -28,10 +30,11 @@ import org.jetbrains.compose.resources.stringResource
 
 private val PhoneActionHeight = 56.dp
 
-private enum class PhoneScreen { Repos, Clone, Graph }
+private enum class PhoneScreen { Repos, Clone, Graph, Review, Diff }
 
 /**
- * Compact layout (CONTEXT §12): one screen at a time, Repos → Clone → Graph.
+ * Compact layout (CONTEXT §12): one screen at a time, Repos → Clone → Graph → Review → Diff.
+ * The phone needs a forge account first: every clone and push uses [Settings.gitConnection].
  * [cloneRoot] is the folder clones land in.
  */
 @Composable
@@ -42,10 +45,33 @@ fun PhoneFlow(
     onOpenRepository: (String) -> Unit,
     onCloneRepository: (url: String, path: String, credentials: Credentials?) -> Unit,
     onSelectCommit: (String) -> Unit,
+    onCheckoutBranch: (String) -> Unit,
+    onRunReview: () -> Unit,
+    onSelectDiffFile: (String) -> Unit,
+    onApplySuggestion: (ReviewComment) -> Unit,
+    onDismissSuggestion: (String) -> Unit,
+    onCommitMessage: (String) -> Unit,
+    onCommit: () -> Unit,
+    onPush: (Credentials?) -> Unit,
+    onConnect: (GitConnection) -> Unit,
     onOpenSettings: () -> Unit,
     modifier: Modifier = Modifier,
 ) {
     var screen by rememberSaveable { mutableStateOf(if (state.path != null) PhoneScreen.Graph else PhoneScreen.Repos) }
+    var editingConnection by rememberSaveable { mutableStateOf(false) }
+    val connection = settings.gitConnection?.takeIf { it.isComplete }
+    if (connection == null || editingConnection) {
+        ConnectScreen(
+            current = connection,
+            onConnect = {
+                onConnect(it)
+                editingConnection = false
+            },
+            onCancel = if (connection != null) ({ editingConnection = false }) else null,
+            modifier = modifier,
+        )
+        return
+    }
     when (screen) {
         PhoneScreen.Repos -> ReposScreen(
             recentRepositories = settings.recentRepositories,
@@ -54,13 +80,14 @@ fun PhoneFlow(
                 screen = PhoneScreen.Graph
             },
             onClone = { screen = PhoneScreen.Clone },
+            onEditConnection = { editingConnection = true },
             onOpenSettings = onOpenSettings,
             modifier = modifier,
         )
         PhoneScreen.Clone -> CloneScreen(
             state = state,
             cloneRoot = cloneRoot,
-            onClone = onCloneRepository,
+            onClone = { url, path -> onCloneRepository(url, path, connection.toCredentials()) },
             onCancel = { screen = PhoneScreen.Repos },
             onCloned = { screen = PhoneScreen.Graph },
             modifier = modifier,
@@ -69,7 +96,35 @@ fun PhoneFlow(
             state = state,
             onBack = { screen = PhoneScreen.Repos },
             onSelectCommit = onSelectCommit,
+            onCheckoutBranch = onCheckoutBranch,
+            onReview = {
+                if (state.review == null && !state.isReviewing) onRunReview()
+                screen = PhoneScreen.Review
+            },
             onOpenSettings = onOpenSettings,
+            modifier = modifier,
+        )
+        PhoneScreen.Review -> PhoneReviewScreen(
+            state = state,
+            onBack = { screen = PhoneScreen.Graph },
+            onRunReview = onRunReview,
+            onOpenFile = { path ->
+                onSelectDiffFile(path)
+                screen = PhoneScreen.Diff
+            },
+            onApply = onApplySuggestion,
+            onDismiss = onDismissSuggestion,
+            onCommitMessage = onCommitMessage,
+            onCommit = onCommit,
+            onPush = { onPush(connection.toCredentials()) },
+            onOpenSettings = onOpenSettings,
+            modifier = modifier,
+        )
+        PhoneScreen.Diff -> PhoneDiffScreen(
+            // No fallback to the first file: a nit anchored outside the diff shows the empty state instead.
+            file = state.diff.firstOrNull { it.path == state.selectedDiffPath },
+            baseRef = state.baseRef,
+            onBack = { screen = PhoneScreen.Review },
             modifier = modifier,
         )
     }

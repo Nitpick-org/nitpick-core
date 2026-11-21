@@ -28,9 +28,12 @@ class JGitRepositoryFactory : GitRepositoryFactory {
     override suspend fun clone(url: String, path: String, credentials: Credentials?): GitRepository =
         withContext(Dispatchers.IO) {
             // JGit deletes a folder it created itself when the clone fails, so a retry can reuse the path.
+            // Without an explicit gitDir, JGit takes GIT_DIR from the environment (set by git hooks)
+            // and would initialise the clone inside the caller's repository.
             val git = Git.cloneRepository()
                 .setURI(url)
                 .setDirectory(File(path))
+                .setGitDir(File(path, ".git"))
                 .setCredentialsProvider(credentials.toJGit())
                 .call()
             JGitRepository(git)

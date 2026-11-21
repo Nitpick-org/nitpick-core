@@ -171,7 +171,7 @@ private fun ReviewProgress() {
 }
 
 @Composable
-private fun ReviewFailureState(
+internal fun ReviewFailureState(
     failure: ReviewFailure,
     onRetry: () -> Unit,
     onOpenSettings: () -> Unit,

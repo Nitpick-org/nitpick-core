@@ -316,8 +316,73 @@ class JGitRepositoryTest {
     }
 
     @Test
-    fun networkOperationsAreNotImplementedYet() = runBlocking<Unit> {
-        assertFailsWith<NotImplementedError> { open().push(credentials = null) }
+    fun pushSendsTheCurrentBranchToTheOrigin() = runBlocking<Unit> {
+        repo.write("a.txt", "1")
+        repo.commit("first", at = 1_000)
+        val bare = newBareOrigin()
+        val clone = factory.clone(bare.toURI().toString(), newCloneTarget().path, credentials = null)
+        clone.writeFile("a.txt", "2")
+        clone.stage(listOf("a.txt"))
+        clone.commit("apply review suggestion")
+
+        clone.push(credentials = null)
+
+        val pushed = clone.log().first().id
+        assertEquals(pushed, TestGitRepo.inDir(bare).git("rev-parse", "refs/heads/main").trim())
+        assertEquals(pushed, clone.refs().single { it.name == "origin/main" }.commitId)
+    }
+
+    @Test
+    fun pushBehindTheOriginFailsInsteadOfPretendingItWorked() = runBlocking<Unit> {
+        repo.write("a.txt", "1")
+        repo.commit("first", at = 1_000)
+        val bare = newBareOrigin()
+        val clone = factory.clone(bare.toURI().toString(), newCloneTarget().path, credentials = null)
+        repo.write("a.txt", "from elsewhere")
+        repo.commit("second", at = 2_000)
+        repo.git("push", bare.path, "main")
+        clone.writeFile("a.txt", "from the phone")
+        clone.stage(listOf("a.txt"))
+        clone.commit("conflicting")
+
+        val error = assertFailsWith<IllegalArgumentException> { clone.push(credentials = null) }
+
+        assertTrue("REJECTED" in error.message.orEmpty(), error.message)
+    }
+
+    @Test
+    fun checkoutSwitchesToALocalOrARemoteOnlyBranch() = runBlocking<Unit> {
+        repo.write("a.txt", "1")
+        repo.commit("base", at = 1_000)
+        repo.git("checkout", "-b", "feature")
+        repo.write("b.txt", "2")
+        val onFeature = repo.commit("on feature", at = 2_000)
+        repo.git("checkout", "main")
+        val clone = factory.clone(repo.dir.toURI().toString(), newCloneTarget().path, credentials = null)
+        assertEquals("main", clone.currentBranch())
+
+        clone.checkout("feature")
+
+        assertEquals("feature", clone.currentBranch())
+        assertEquals(onFeature, clone.log().first().id)
+        assertEquals("2", clone.readFile("b.txt"))
+        clone.checkout("main")
+        assertEquals("main", clone.currentBranch())
+    }
+
+    // A bare repository seeded from `repo`, playing the GitHub side of a push.
+    private fun newBareOrigin(): File {
+        val bare = Files.createTempDirectory("nitpick-bare").toFile().canonicalFile
+        cleanUp += bare
+        // A bare HEAD points at master by default; the clone needs it on the branch we push.
+        repo.git("init", "--bare", "--initial-branch=main", bare.path)
+        repo.git("push", bare.path, "main")
+        return bare
+    }
+
+    @Test
+    fun pullIsNotImplementedYet() = runBlocking<Unit> {
+        assertFailsWith<NotImplementedError> { open().pull(credentials = null) }
     }
 
     @Test

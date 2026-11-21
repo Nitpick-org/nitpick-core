@@ -192,7 +192,7 @@ private fun RepositoryToolbar(
 }
 
 @Composable
-internal fun RefsSidebar(refs: List<Ref>, currentBranch: String, modifier: Modifier) {
+internal fun RefsSidebar(refs: List<Ref>, currentBranch: String, modifier: Modifier, onSelectBranch: ((String) -> Unit)? = null) {
     var filter by rememberSaveable { mutableStateOf("") }
     var collapsed by rememberSaveable { mutableStateOf(emptySet<RefType>()) }
     val visibleRefs = refs.filter { it.name.contains(filter, ignoreCase = true) }
@@ -228,11 +228,13 @@ internal fun RefsSidebar(refs: List<Ref>, currentBranch: String, modifier: Modif
                 if (isCollapsed) return@forEach
                 items(refsInSection, key = { it.fullName }) { ref ->
                     val isCurrent = ref.type == RefType.LOCAL_BRANCH && ref.name == currentBranch
+                    val select = onSelectBranch?.takeIf { ref.type != RefType.TAG && !isCurrent }
                     Text(
                         text = ref.name,
                         modifier = Modifier
                             .fillMaxWidth()
                             .background(if (isCurrent) NitpickTheme.colors.selection else Color.Transparent)
+                            .then(if (select != null) Modifier.clickable { select(ref.name.removePrefix("origin/")) } else Modifier)
                             .padding(start = 28.dp, end = 12.dp, top = 3.dp, bottom = 3.dp),
                         style = NitpickTheme.typography.body,
                         fontWeight = if (isCurrent) FontWeight.Medium else FontWeight.Normal,

@@ -32,7 +32,9 @@ class SettingsViewModelTest {
         val viewModel = SettingsViewModel(store)
 
         viewModel.update { it.copy(recentRepositories = listOf("/work/demo")) }
+        assertEquals(false, viewModel.isLoaded.value)
         store.finishLoading()
+        assertEquals(true, viewModel.isLoaded.value)
 
         val expected = stored.copy(recentRepositories = listOf("/work/demo"))
         assertEquals(expected, viewModel.settings.value)

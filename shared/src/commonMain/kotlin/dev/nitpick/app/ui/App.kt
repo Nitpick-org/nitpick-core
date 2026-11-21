@@ -38,6 +38,7 @@ fun App(
     val settingsViewModel = viewModel { SettingsViewModel(container.settingsStore) }
     val state by repositoryViewModel.state.collectAsStateWithLifecycle()
     val settings by settingsViewModel.settings.collectAsStateWithLifecycle()
+    val settingsLoaded by settingsViewModel.isLoaded.collectAsStateWithLifecycle()
     var showSettings by rememberSaveable { mutableStateOf(false) }
     val openRepository: (() -> Unit)? = pickRepositoryPath?.let { pick ->
         { pick()?.let(repositoryViewModel::openRepository) }
@@ -55,6 +56,8 @@ fun App(
         Surface(Modifier.fillMaxSize(), color = MaterialTheme.colorScheme.background) {
             when {
                 showSettings -> SettingsScreen(settings, settingsViewModel::update, onBack = { showSettings = false })
+                // The account gate must not flash before the settings file is read.
+                cloneRoot != null && !settingsLoaded -> Unit
                 cloneRoot != null -> PhoneFlow(
                     state = state,
                     settings = settings,
@@ -62,6 +65,15 @@ fun App(
                     onOpenRepository = repositoryViewModel::openRepository,
                     onCloneRepository = repositoryViewModel::cloneRepository,
                     onSelectCommit = repositoryViewModel::selectCommit,
+                    onCheckoutBranch = repositoryViewModel::checkoutBranch,
+                    onRunReview = repositoryViewModel::reviewBranch,
+                    onSelectDiffFile = repositoryViewModel::selectDiffFile,
+                    onApplySuggestion = repositoryViewModel::applySuggestion,
+                    onDismissSuggestion = repositoryViewModel::dismissSuggestion,
+                    onCommitMessage = repositoryViewModel::setCommitMessage,
+                    onCommit = repositoryViewModel::commitAppliedSuggestions,
+                    onPush = repositoryViewModel::pushBranch,
+                    onConnect = { connection -> settingsViewModel.update { it.copy(gitConnection = connection) } },
                     onOpenSettings = { showSettings = true },
                     modifier = Modifier.safeContentPadding(),
                 )

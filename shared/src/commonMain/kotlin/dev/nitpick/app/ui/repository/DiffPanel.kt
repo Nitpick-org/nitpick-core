@@ -176,7 +176,7 @@ private fun ChangedFiles(files: List<FileDiff>, selectedPath: String, onSelectFi
 }
 
 @Composable
-private fun FileHunks(file: FileDiff, modifier: Modifier) {
+internal fun FileHunks(file: FileDiff, modifier: Modifier) {
     LazyColumn(modifier.fillMaxWidth()) {
         item {
             Text(
