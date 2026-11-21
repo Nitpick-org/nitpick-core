@@ -115,7 +115,7 @@ un sous-agent **ou une session headless** (`HACKATHON_HEADLESS=1`, AFK/Ralph). U
 
 - Secrets dans le code, un prompt, un log ou un commit. `.env` n'est jamais lu.
 - Désactiver un test, un type ou une règle de lint pour faire passer `check.sh`.
-- `git commit --no-verify`, `git push --force`, push direct sur `main`, merge sur `main`.
+- `git push --force` ou `git reset --hard origin/main` (force push interdit ; le reste est libre).
 - Modifier `CLAUDE.md`, `docs/PRD.md` ou `docs/DECISIONS.md` sans demande humaine.
 - Inventer une fonctionnalité, un chiffre ou un utilisateur.
 - Utiliser `--dangerously-skip-permissions` sur une machine avec des secrets.

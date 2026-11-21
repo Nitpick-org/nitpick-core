@@ -127,7 +127,7 @@ suppression. À la fin, remplis `dry-run/REVIEW.md` et envoie-le.
 ## 8. Règles de travail (résumé)
 
 - Un ticket = un worktree = une zone de fichiers.
-- `main` uniquement par PR, `check.sh` vert. H2 merge.
+- `main` : merge libre pendant le hackathon. `check.sh` vert recommandé ; H2 merge si possible.
 - Ne touche pas `docs/PRD.md`, `docs/DECISIONS.md`, `CLAUDE.md` sans demande humaine.
 - Les agents écrivent `progress/<ticket>.md`, jamais `progress.txt`.
 - Pas de secret dans le code, un prompt, un log ou un commit.
@@ -138,7 +138,7 @@ suppression. À la fin, remplis `dry-run/REVIEW.md` et envoie-le.
 ### Réglages GitHub (owner)
 
 - [x] **Collaborators** : les 2 autres sont ajoutés et ont accepté (16/11).
-- [x] **Branches** : `main` protégée, PR obligatoire, `check` requis, pas de force push (16/11).
+- [x] **Branches** : `main` sans protection, merge direct autorisé (21/11).
 - [x] **Actions** : activées ; le workflow CI tourne sur les PR (16/11).
 - [x] **Labels** : `ticket`, `bug`, `demo`, `P0`, `P1`, `P2`, `blocked`, `review` (16/11).
 - [ ] **Project** : colonnes Todo / Doing / Review / Done (à créer via l'UI web ; le token `gh` n'a pas le scope `project`).

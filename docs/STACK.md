@@ -125,7 +125,7 @@ Si `pnpm create next-app` refuse un dossier non vide, gardez l'app dans un sous-
 ## Ce qu'il faut avoir avant H0
 
 - [ ] Un repo GitHub **public** (le lien de soumission doit être accessible sans login).
-- [ ] `main` protégée : PR obligatoire, CI verte.
+- [ ] `main` accessible : merge direct autorisé ; PR et CI recommandées, pas bloquantes.
 - [ ] Une app « hello world » **déployée** avec preview par branche.
 - [ ] `./scripts/check.sh` vert en < 60 s.
 - [ ] `./scripts/check.sh --demo` avec un test Playwright qui suit `docs/DEMO.md`.

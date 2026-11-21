@@ -53,7 +53,7 @@ Détail : `docs/PRE-EVENT-CHECKLIST.md`.
 ## Kickoff H0 — minute par minute
 
 1. **12:00–12:10** — Rôles, repo, board, canaux. Vérifier que la **stack choisie** est
-   installée, que `main` est protégée et que la preview répond.
+   installée, que `main` est accessible et que la preview répond.
 2. **12:10–12:40** — 3 idées par humain, 2 min chacune, scoring
    (`docs/STRATEGY.md`). Garder 2, trancher.
 3. **12:40–13:00** — Écrire `docs/DEMO.md` en 5 points. Si ce n'est pas écrivable,

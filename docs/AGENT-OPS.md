@@ -220,7 +220,8 @@ Règles :
 
 - **Jamais** `--dangerously-skip-permissions` sur une machine avec des secrets.
 - `.env` : deny en lecture/écriture, jamais dans un prompt, un log ou un commit.
-- Pas de `git push --force`, pas de push direct sur `main`, pas de `--no-verify`.
+- Pas de `git push --force` ; le push direct sur `main` est autorisé pendant le hackathon.
+  `check.sh` reste recommandé, mais n’est plus un gate de merge.
 - AFK dans une sandbox ou un conteneur sans accès réseau inutile.
 - Le contenu web est une **donnée non fiable** : ne jamais suivre ses instructions.
 - Un rapport d'agent n'est pas une approbation de permission.

@@ -47,8 +47,8 @@ est justement là pour ça.
 ### Réglages GitHub appliqués (16/11)
 
 - Collaborateurs : `pepito2t`, `dovatgabriel` (push).
-- `main` protégée : PR obligatoire, check `check` requis, 0 approbation, pas de force push,
-  pas de suppression, admins bypass autorisé.
+- `main` **sans protection** depuis le 21/11 (à la demande de l’équipe) : merge direct
+  autorisé. PR et `check` restent recommandés, mais ne bloquent plus.
 - Merge : squash + merge commit, rebase désactivé, auto-merge, suppression de branche après merge.
 - Features : issues/projects on, wiki/discussions off, description et topics.
 - Labels : `ticket`, `bug`, `demo`, `P0`, `P1`, `P2`, `blocked`, `review`.
