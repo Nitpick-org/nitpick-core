@@ -56,11 +56,12 @@ import nitpick.shared.generated.resources.settings_theme
 import org.jetbrains.compose.resources.StringResource
 import org.jetbrains.compose.resources.stringResource
 
-private val DialogMaxWidth = 860.dp
-private val DialogMaxHeight = 560.dp
-private val NavWidth = 220.dp
+private val DialogMaxWidth = 600.dp
+private val DialogMaxHeight = 460.dp
+private val NavWidth = 200.dp
+private val ContentWidth = 380.dp
 private val ControlWidth = 300.dp
-private val KeyFieldWidth = 380.dp
+private val KeyFieldWidth = 320.dp
 
 // Only General has content today; the other sections are listed, muted, to keep the IDE layout.
 private val SECTIONS = listOf(
@@ -83,7 +84,7 @@ fun SettingsDialog(
 ) {
     Dialog(onDismissRequest = onCancel, properties = DialogProperties(usePlatformDefaultWidth = false)) {
         Surface(
-            modifier = Modifier.fillMaxWidth(0.92f).widthIn(max = DialogMaxWidth).heightIn(max = DialogMaxHeight),
+            modifier = Modifier.widthIn(max = DialogMaxWidth).heightIn(max = DialogMaxHeight),
             shape = RoundedCornerShape(NitpickTheme.radii.xl),
             color = NitpickTheme.colors.surface,
             border = BorderStroke(1.dp, NitpickTheme.colors.borderStrong),
@@ -95,7 +96,11 @@ fun SettingsDialog(
                     GeneralSection(
                         draft = draft,
                         onEdit = onEdit,
-                        modifier = Modifier.weight(1f).fillMaxHeight().verticalScroll(rememberScrollState()).padding(24.dp),
+                        modifier = Modifier
+                            .width(ContentWidth)
+                            .fillMaxHeight()
+                            .verticalScroll(rememberScrollState())
+                            .padding(20.dp),
                     )
                 }
                 NitpickDivider()
@@ -137,7 +142,7 @@ private fun GeneralSection(draft: Settings, onEdit: ((Settings) -> Settings) -> 
     // Labels are resolved here: the option lambdas of the controls are not composable.
     val themeLabels = ThemeMode.entries.associateWith { stringResource(it.label) }
     val providerLabels = LlmProvider.entries.associateWith { stringResource(it.label) }
-    Column(modifier, verticalArrangement = Arrangement.spacedBy(12.dp)) {
+    Column(modifier, verticalArrangement = Arrangement.spacedBy(14.dp)) {
         Kicker(Res.string.settings_kicker_appearance)
         FieldLabel(Res.string.settings_theme)
         NitpickSegmentedControl(
