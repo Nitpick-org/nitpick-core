@@ -304,13 +304,13 @@ code de Nitpick ne les importe pas. Le fallback est Claude Code/Codex CLI, docum
 
 | Heure | Objectif | Checkpoint |
 | --- | --- | --- |
-| 12h–13h | Projet généré via le wizard, build OK sur desktop et Android, contrats du §6 écrits et validés, spike JGit sur Android, **Air installé + premier agent loggé** | ✅ « Hello » sur les 2 cibles, JGit lit un log sur Android, capture Air |
-| 13h–17h | A : lanes + diff + 1er appel Koog. B : JGitRepository + écran graph desktop. C : thème, strings, coquille Android | ✅ Graph réel affiché sur desktop |
+| 12h–13h | Projet généré via le wizard, build OK sur desktop et Android, contrats du §6 écrits et validés, spike JGit sur Android | ✅ « Hello » sur les 2 cibles, JGit lit un log sur Android |
+| 13h–17h | A : lanes + diff + 1er appel Koog. B : JGitRepository + écran graph desktop. C : thème, strings, coquille Android. **Air installé sur les 3 laptops + premier agent loggé (17:30, #39)** | ✅ Graph réel affiché sur desktop, capture Air |
 | 17h–21h | Boucle review complète sur desktop (diff → Koog → commentaires inline → apply) | ✅ Boucle review de bout en bout qui marche (checkpoint critique) |
 | 21h–02h | Android branché sur le même core, clone HTTPS, fetch/pull/push, polish UI | ✅ Boucle review sur Android |
 | 02h–07h | Dormir en rotation (au moins 3h chacun). Une personne au plus continue sur du polish non risqué. | |
 | 07h–09h30 | Bugfix, outils agentiques si stables, finitions UX | ✅ Feature freeze à 09h30 |
-| 09h30–11h | Repo de démo préparé, script de démo, slides (partagé vs spécifique, process agentique), vidéo de secours | |
+| 09h30–11h | Repo de démo préparé, script de démo, images plein écran (partagé vs spécifique, process agentique : pas de slides, règlement LauzHack), vidéo de secours | |
 | 11h–12h | Répétition et soumission | ✅ Soumis avant 12h |
 
 **Règle** : si un checkpoint est raté de plus d'une heure, on coupe du scope (SHOULD →
@@ -321,8 +321,8 @@ WON'T). On ne repousse pas le checkpoint suivant.
 - Lire ce document en entier avant toute tâche. Respecter le scope du §8.
 - Petits incréments : une tâche = un commit ou une PR ciblée, avec un message clair en
   anglais (`feat(graph): ...`, `fix(review): ...`).
-- Ça compile sur les deux cibles avant de rendre la main (`./gradlew :composeApp:run` côté
-  desktop, assemble côté Android).
+- Ça compile sur les deux cibles avant de rendre la main (`./scripts/check.sh` : tests
+  partagés, `:desktopApp:assemble`, `:androidApp:assembleDebug`).
 - Pas de nouvelle dépendance sans la justifier dans la PR.
 - Code et commentaires en anglais, strings UI dans les fichiers de ressources EN et FR.
 - Respecter les frontières de source sets (§6). Si une tâche semble exiger du code
@@ -331,9 +331,9 @@ WON'T). On ne repousse pas le checkpoint suivant.
   l'écrire noir sur blanc dans la PR.
 - Aucun secret dans le repo (clés API, tokens). Utiliser un `.env` local ignoré par git ou
   les réglages de l'app.
-- **Journal de l'agent** : à chaque tâche terminée, ajouter une entrée dans
-  `docs/AGENT_LOG.md` (agent, piste, tâche, fichiers touchés, décisions, ce qui reste
-  incertain).
+- **Journal de l'agent** : l'agent écrit dans `progress/<ticket>.md` (agent, piste, tâche,
+  fichiers touchés, décisions, ce qui reste incertain). L'humain qui a lancé la session (Air
+  ou CLI) reporte une ligne dans `docs/AGENT_LOG.md` à la fin de la session (Q-017).
 - **Les humains relisent et rejettent** : chaque rejet ou correction humaine est noté dans
   `docs/REVIEW_LOG.md` (quoi, pourquoi, ce qui a été changé). C'est la preuve du critère 5.
   Ne pas sauter cette étape.
@@ -369,11 +369,13 @@ WON'T). On ne repousse pas le checkpoint suivant.
 4. Appliquer la suggestion, puis commit.
 5. Sur Android : même repo, même review, même code. Accepter une suggestion depuis le
    téléphone, puis push.
-6. Slide partagé vs spécifique : pourcentage de lignes par source set, avec le schéma du §6.
-7. Slide process agentique : captures Air (agents côte à côte), les 3 pistes, la
-   comparaison multi-agent, quelques entrées du REVIEW_LOG (« voici ce qu'on a refusé à nos
-   agents »). Le message : on a utilisé Air/Junie pour construire, et notre propre outil
-   pour relire nos agents.
+6. Partagé vs spécifique, sans slide (règlement LauzHack, Q-007/Q-016) : la sortie du script
+   de comptage des lignes par source set (#40) en live, ou une image plein écran avec le
+   schéma du §6.
+7. Process agentique, sans slide : 2–3 captures Air en images plein écran (agents côte à
+   côte), les 3 pistes, la comparaison multi-agent, quelques entrées du REVIEW_LOG (« voici
+   ce qu'on a refusé à nos agents »). Le message : on a utilisé Air/Junie pour construire,
+   et notre propre outil pour relire nos agents.
 8. Roadmap en une phrase : résolution de conflits assistée par IA, iOS via l'API GitHub.
 
 Préparer un repo de démo dédié, avec une branche contenant des défauts volontaires mais
