@@ -11,7 +11,10 @@ class FileSettingsStore(private val file: File) : SettingsStore {
 
     private val json = Json { ignoreUnknownKeys = true; prettyPrint = true }
 
-    override suspend fun load(): Settings = withContext(Dispatchers.IO) {
+    // One thread, so saves fired by fast typing land on disk in order and never interleave.
+    private val io = Dispatchers.IO.limitedParallelism(1)
+
+    override suspend fun load(): Settings = withContext(io) {
         if (!file.isFile) return@withContext Settings()
         try {
             json.decodeFromString(Settings.serializer(), file.readText())
@@ -22,8 +25,12 @@ class FileSettingsStore(private val file: File) : SettingsStore {
         }
     }
 
-    override suspend fun save(settings: Settings) = withContext(Dispatchers.IO) {
+    override suspend fun save(settings: Settings) = withContext(io) {
         file.parentFile?.mkdirs()
-        file.writeText(json.encodeToString(Settings.serializer(), settings))
+        val tmp = File(file.path + ".tmp")
+        tmp.writeText(json.encodeToString(Settings.serializer(), settings))
+        tmp.setReadable(false, false)
+        tmp.setReadable(true, true)
+        if (!tmp.renameTo(file)) throw IOException("Cannot replace ${file.name}")
     }
 }

@@ -52,3 +52,6 @@
 - 15:45 — branche `ticket/18-theme-settings`, plan.
 - 16:40 — implémentation, `check.sh` vert (1er run : test non-void, corrigé).
 - 16:50 — desktop lancé, toggle Sombre → `~/.nitpick/settings.json` écrit, fermeture OK.
+- 17:20 — review ponytail : écritures sérialisées sur un seul thread (`limitedParallelism(1)`),
+  fichier écrit via `.tmp` + rename, lecture réservée au propriétaire, chargement initial par
+  `compareAndSet` ; test permissions ajouté (5 tests store).

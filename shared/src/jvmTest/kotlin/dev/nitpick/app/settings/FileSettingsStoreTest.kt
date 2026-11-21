@@ -2,8 +2,12 @@ package dev.nitpick.app.settings
 
 import kotlinx.coroutines.runBlocking
 import java.io.File
+import java.nio.file.Files
+import java.nio.file.attribute.PosixFilePermission.OTHERS_READ
+import java.nio.file.attribute.PosixFilePermission.GROUP_READ
 import kotlin.test.Test
 import kotlin.test.assertEquals
+import kotlin.test.assertFalse
 import kotlin.test.assertTrue
 
 class FileSettingsStoreTest {
@@ -47,5 +51,14 @@ class FileSettingsStoreTest {
         FileSettingsStore(file).save(Settings(themeMode = ThemeMode.LIGHT))
         assertEquals(ThemeMode.LIGHT, FileSettingsStore(file).load().themeMode)
         file.parentFile.deleteRecursively()
+    }
+
+    @Test
+    fun savedFileIsReadableByOwnerOnly() = runBlocking {
+        val file = tempFile()
+        FileSettingsStore(file).save(Settings(apiKey = "secret"))
+        val permissions = Files.getPosixFilePermissions(file.toPath())
+        assertFalse(GROUP_READ in permissions || OTHERS_READ in permissions)
+        assertEquals("secret", FileSettingsStore(file).load().apiKey)
     }
 }

@@ -15,7 +15,7 @@ class SettingsViewModel(private val store: SettingsStore) : ViewModel() {
     val settings: StateFlow<Settings> = _settings.asStateFlow()
 
     init {
-        viewModelScope.launch { _settings.value = store.load() }
+        viewModelScope.launch { _settings.compareAndSet(Settings(), store.load()) }
     }
 
     fun update(transform: (Settings) -> Settings) {
