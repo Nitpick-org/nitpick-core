@@ -81,8 +81,11 @@ Préparer 10 réponses de 2 phrases :
 | Démo qui crash | vidéo de 2 min, on continue à parler | [ ] |
 
 - **Vidéo de secours** : `<lien>` (2 min, enregistrée avant 23:00, testée sur un autre laptop)
-- **Captures** : `<dossier>`
-- **Données de démo** : `<où>`
+- **Captures** : `docs/demo/` (dogfooding sur nos branches d'agents)
+- **Données de démo** : repo `pocket-ledger` (CLI Kotlin + SQLite), `main` propre ; la
+  branche à relire est `feature/search-pages-import`, écrite par Junie depuis
+  `docs/demo/junie-brief.md` (off-by-one, injection SQL, reader non fermé). Clone local
+  prêt sur le laptop et sur l'émulateur avant de monter sur scène.
 - **URL de secours** : `<preview stable>`
 
 ## Répétition
