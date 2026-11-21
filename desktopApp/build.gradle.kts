@@ -24,7 +24,9 @@ compose.desktop {
         if (System.getProperty("os.name").startsWith("Mac")) {
             jvmArgs(
                 "-Xdock:name=Nitpick",
-                "-Xdock:icon=${rootProject.file("shared/src/commonMain/composeResources/drawable/ic_app.png")}",
+                // Not the shared full-bleed artwork: macOS icons carry ~18% transparent
+                // margin in the file itself, or the dock tile looks oversized.
+                "-Xdock:icon=${project.file("dock-icon.png")}",
             )
         }
 
