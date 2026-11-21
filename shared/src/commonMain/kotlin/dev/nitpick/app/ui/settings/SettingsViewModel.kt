@@ -38,8 +38,12 @@ class SettingsViewModel(private val store: SettingsStore) : ViewModel() {
     /** The copy the settings dialog edits; nothing is written until [saveDraft]. */
     val draft: StateFlow<Settings?> = _draft.asStateFlow()
 
+    // Opened right after launch, the dialog must copy the stored settings, not the defaults.
     fun startEditing() {
-        _draft.value = _settings.value
+        viewModelScope.launch {
+            loaded.join()
+            _draft.value = _settings.value
+        }
     }
 
     fun editDraft(transform: (Settings) -> Settings) {

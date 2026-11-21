@@ -74,6 +74,17 @@ class SettingsViewModelTest {
         assertNull(viewModel.draft.value)
     }
 
+    @Test
+    fun aDraftStartedBeforeTheFileIsReadWaitsForTheStoredSettings() {
+        val viewModel = SettingsViewModel(store)
+
+        viewModel.startEditing()
+        assertNull(viewModel.draft.value)
+
+        store.finishLoading()
+        assertEquals(stored, viewModel.draft.value)
+    }
+
     /** A store whose load only completes when the test says so. */
     private class SlowStore(private val stored: Settings) : SettingsStore {
         private val loading = CompletableDeferred<Settings>()
