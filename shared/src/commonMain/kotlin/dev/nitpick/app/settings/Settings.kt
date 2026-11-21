@@ -1,9 +1,12 @@
 package dev.nitpick.app.settings
 
+import kotlinx.serialization.Serializable
+
 enum class LlmProvider { ANTHROPIC, OPENAI, GOOGLE, OLLAMA }
 
 enum class ThemeMode { SYSTEM, LIGHT, DARK }
 
+@Serializable
 data class Settings(
     val provider: LlmProvider = LlmProvider.ANTHROPIC,
     val model: String = "",

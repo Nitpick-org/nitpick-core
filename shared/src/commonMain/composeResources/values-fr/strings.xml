@@ -1,4 +1,16 @@
 <resources>
+    <string name="settings_title">Réglages</string>
+    <string name="settings_theme">Thème</string>
+    <string name="theme_system">Système</string>
+    <string name="theme_light">Clair</string>
+    <string name="theme_dark">Sombre</string>
+    <string name="settings_provider">Fournisseur LLM</string>
+    <string name="provider_anthropic">Anthropic</string>
+    <string name="provider_openai">OpenAI</string>
+    <string name="provider_google">Google</string>
+    <string name="provider_ollama">Ollama</string>
+    <string name="settings_model">Modèle</string>
+    <string name="settings_api_key">Clé API</string>
     <string name="repository_open">Ouvrir un dépôt…</string>
     <string name="repository_empty_title">Aucun dépôt ouvert</string>
     <string name="repository_empty_hint">Choisissez un dépôt git local pour voir ses commits et ses branches.</string>
@@ -15,4 +27,5 @@
     <string name="details_date">Date</string>
     <string name="details_commit">Commit</string>
     <string name="details_parents">Parents</string>
+    <string name="action_back">Retour</string>
 </resources>
