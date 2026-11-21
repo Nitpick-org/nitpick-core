@@ -11,7 +11,6 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -31,6 +30,7 @@ import dev.nitpick.app.ui.components.NitpickButtonVariant
 import dev.nitpick.app.ui.components.NitpickTextField
 import dev.nitpick.app.ui.phone.defaultCloneFolderName
 import dev.nitpick.app.ui.phone.isValidCloneFolderName
+import dev.nitpick.app.ui.phone.rememberCloneProgress
 import dev.nitpick.app.ui.theme.NitpickTheme
 import nitpick.shared.generated.resources.Res
 import nitpick.shared.generated.resources.action_cancel
@@ -70,17 +70,10 @@ fun CloneDialog(
     var showToken by remember { mutableStateOf(false) }
     var parent by remember { mutableStateOf("") }
     var folder by remember { mutableStateOf("") }
-    var targetPath by remember { mutableStateOf<String?>(null) }
     val folderName = folder.trim().ifBlank { defaultCloneFolderName(url) }
-    val clone = state.clone?.takeIf { it.path == targetPath }
-    // The clone is done and its repository replaced the state; loading the log may still fail.
-    val isLoaded = targetPath != null && state.clone == null && state.path == targetPath
-    val isCloning = (clone != null && clone.errorMessage == null) || (isLoaded && state.isLoading)
-    val errorMessage = clone?.errorMessage ?: state.errorMessage.takeIf { isLoaded }
-
-    LaunchedEffect(isLoaded, state.isLoading, state.errorMessage) {
-        if (isLoaded && !state.isLoading && state.errorMessage == null) onCloned()
-    }
+    val progress = rememberCloneProgress(state, onCloned)
+    val isCloning = progress.isCloning
+    val errorMessage = progress.errorMessage
 
     Dialog(onDismissRequest = { if (!isCloning) onCancel() }) {
         Surface(
@@ -148,7 +141,7 @@ fun CloneDialog(
                         enabled = !isCloning && url.isNotBlank() && parent.isNotBlank() && isValidCloneFolderName(folderName),
                         onClick = {
                             val path = "${parent.trim().trimEnd('/', '\\')}/$folderName"
-                            targetPath = path
+                            progress.start(path)
                             onClone(url.trim(), path, cloneCredentials(url, token))
                         },
                     )
