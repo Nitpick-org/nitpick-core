@@ -2,7 +2,7 @@
 # One command for every feedback loop. Must pass before commit / PR.
 #
 # Usage:
-#   ./scripts/check.sh            # shared tests + desktop + Android builds
+#   ./scripts/check.sh            # shared + server tests, desktop + Android builds
 #   ./scripts/check.sh --demo     # same, then a reminder to play docs/DEMO.md
 #
 # :shared:allTests runs the JVM and Android host tests; the two app modules
@@ -23,8 +23,8 @@ fi
 
 START=$SECONDS
 
-echo "▶ gradle: shared tests, desktop and Android builds"
-./gradlew --quiet :shared:allTests :desktopApp:assemble :androidApp:assembleDebug
+echo "▶ gradle: shared + server tests, desktop and Android builds"
+./gradlew --quiet :shared:allTests :server:test :desktopApp:assemble :androidApp:assembleDebug
 
 if [ "${1:-}" = "--demo" ]; then
   # shortcut: no automated UI test on Compose yet, add one if time allows after the freeze.
