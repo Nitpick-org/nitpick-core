@@ -18,7 +18,7 @@ fi
 [ "${HACKATHON_ALLOW_PROTECTED:-0}" = "1" ] && exit 0
 
 case "$FILE" in
-  */docs/PRD.md|docs/PRD.md|*/docs/CONTEXT.md|docs/CONTEXT.md|*/docs/REVIEW_LOG.md|docs/REVIEW_LOG.md|*/docs/DECISIONS.md|docs/DECISIONS.md|*/docs/STRATEGY.md|docs/STRATEGY.md|*/docs/AGENT-OPS.md|docs/AGENT-OPS.md|*/docs/ULTRA.md|docs/ULTRA.md|*/docs/MODEL-ROUTING.md|docs/MODEL-ROUTING.md|*/CLAUDE.md|CLAUDE.md|*/progress.txt|progress.txt|*/.env|.env|*/.env.*|.env.*)
+  */docs/PRD.md|docs/PRD.md|*/docs/CONTEXT.md|docs/CONTEXT.md|*/docs/REVIEW_LOG.md|docs/REVIEW_LOG.md|*/docs/DECISIONS.md|docs/DECISIONS.md|*/docs/STRATEGY.md|docs/STRATEGY.md|*/docs/AGENT-OPS.md|docs/AGENT-OPS.md|*/docs/ULTRA.md|docs/ULTRA.md|*/docs/MODEL-ROUTING.md|docs/MODEL-ROUTING.md|*/CLAUDE.md|CLAUDE.md|*/AGENTS.md|AGENTS.md|*/progress.txt|progress.txt|*/.env|.env|*/.env.*|.env.*)
     echo "⛔ Un agent ne peut pas éditer $FILE." >&2
     echo "   Écris une proposition dans progress/<ticket>.md ou docs/QUESTIONS.md ;" >&2
     echo "   un humain tranche. Override explicite : HACKATHON_ALLOW_PROTECTED=1." >&2

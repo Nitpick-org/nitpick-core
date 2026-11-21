@@ -19,7 +19,8 @@ fi
 case "$CMD" in
   *">"*|*"sed -i"*|*"tee "*|*"rm "*|*"mv "*|*"cp "*|*"git apply"*|*"python"*|*"node -e"*|*"perl -i"*)
     for file in docs/PRD.md docs/DECISIONS.md docs/STRATEGY.md docs/AGENT-OPS.md \
-      docs/ULTRA.md docs/MODEL-ROUTING.md CLAUDE.md progress.txt; do
+      docs/ULTRA.md docs/MODEL-ROUTING.md docs/CONTEXT.md docs/REVIEW_LOG.md \
+      AGENTS.md CLAUDE.md progress.txt; do
       case "$CMD" in
         *"$file"*)
           echo "⛔ Commande bloquée : $file est protégé." >&2
