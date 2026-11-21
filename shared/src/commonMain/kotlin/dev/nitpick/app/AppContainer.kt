@@ -15,10 +15,6 @@ import dev.nitpick.app.share.ReviewShareClient
 class AppContainer(
     val gitRepositoryFactory: GitRepositoryFactory,
     val settingsStore: SettingsStore,
-    val reviewAgent: ReviewAgent = LlmReviewAgent(
-        KoogLlmClient(settingsStore),
-        // Non-sensitive console trace: proves a real read_file without logging the key or file body.
-        onToolUse = { println("nitpick tool: ${it.tool}${it.path?.let { path -> " $path" } ?: ""}") },
-    ),
+    val reviewAgent: ReviewAgent = LlmReviewAgent(KoogLlmClient(settingsStore)),
     val reviewShareClient: ReviewShareClient = KtorReviewShareClient({ settingsStore.load().serverUrl }),
 )
