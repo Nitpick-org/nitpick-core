@@ -1,6 +1,6 @@
 # Ticket 103 — GitLab sign-in on Android and signed-in account backfill
 
-- Statut : en cours (id GitLab à renseigner)
+- Statut : prêt à merger (GitLab reporté)
 - Propriétaire humain : @pepito2t (H3)
 - Piste : C android + finitions
 - Agent : Claude Code (Fable 5.1), session humaine
@@ -15,10 +15,11 @@
   forge une fois (`ForgeClient.fetchLogin`) et le sauve ; un échec laisse le nom vide sans
   réessayer tant que la connexion ne change pas.
 
-## À faire
+## Reporté
 
-- `ForgeOAuthClientIds.GITLAB` : application GitLab « Nitpick », non confidentielle, scopes
-  `read_repository` + `write_repository`, à créer par H3.
+- GitLab : décision H3 du 22/11, GitHub seul pour l'instant. Le jour venu : application GitLab
+  « Nitpick », non confidentielle, scopes `read_repository` + `write_repository`, coller
+  l'Application ID dans `ForgeOAuthClientIds.GITLAB`.
 
 ## Preuves
 
@@ -28,3 +29,4 @@
 ## Journal
 
 - 00:10 — worktree créé, rattrapage du login au démarrage.
+- 00:20 — PR #108 ; GitLab reporté.
