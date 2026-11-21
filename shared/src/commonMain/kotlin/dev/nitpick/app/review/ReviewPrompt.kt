@@ -7,7 +7,7 @@ data class ReviewPrompt(val system: String, val user: String)
 
 private const val LINE_NUMBER_WIDTH = 5
 
-val REVIEW_SYSTEM_PROMPT = """
+private val REVIEW_SYSTEM_PROMPT = """
 You are Nitpick, a meticulous code reviewer. You review the diff of a branch before it is pushed.
 Report real problems only: bugs, security issues, data loss, broken edge cases, misleading names, dead code.
 Do not praise, do not restate the diff, do not comment on formatting a linter would catch.
