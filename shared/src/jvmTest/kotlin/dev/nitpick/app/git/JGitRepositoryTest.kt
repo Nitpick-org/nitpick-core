@@ -3,6 +3,7 @@ package dev.nitpick.app.git
 import dev.nitpick.app.domain.DiffLine
 import dev.nitpick.app.domain.DiffLineType
 import dev.nitpick.app.domain.FileChangeType
+import dev.nitpick.app.domain.PullResult
 import dev.nitpick.app.domain.Ref
 import dev.nitpick.app.domain.RefType
 import dev.nitpick.app.domain.WorkingTreeStatus
@@ -381,8 +382,77 @@ class JGitRepositoryTest {
     }
 
     @Test
-    fun pullIsNotImplementedYet() = runBlocking<Unit> {
-        assertFailsWith<NotImplementedError> { open().pull(credentials = null) }
+    fun cloneWritesTheCommitIdentityIntoTheCloneConfig() = runBlocking<Unit> {
+        repo.write("a.txt", "1")
+        repo.commit("first", at = 1_000)
+        val cloneDir = newCloneTarget()
+        val factory = JGitRepositoryFactory(GitIdentity("Nitpick on Android", "nitpick-android@example.com"))
+
+        val clone = factory.clone(repo.dir.toURI().toString(), cloneDir.path, credentials = null)
+
+        // The clone-local config wins over the developer's gitconfig for commits made in this clone.
+        assertEquals("Nitpick on Android", TestGitRepo.inDir(cloneDir).git("config", "--local", "user.name").trim())
+        clone.writeFile("a.txt", "2")
+        clone.stage(listOf("a.txt"))
+        clone.commit("from the phone")
+        assertEquals("nitpick-android@example.com", clone.log().first().authorEmail)
+    }
+
+    @Test
+    fun pullFastForwardsToTheOrigin() = runBlocking<Unit> {
+        repo.write("a.txt", "1")
+        repo.commit("first", at = 1_000)
+        val bare = newBareOrigin()
+        val cloneDir = newCloneTarget()
+        val clone = factory.clone(bare.toURI().toString(), cloneDir.path, credentials = null)
+        // A developer's gitconfig may ask for rebase pulls; Nitpick always merges.
+        TestGitRepo.inDir(cloneDir).git("config", "pull.rebase", "true")
+        repo.write("a.txt", "2")
+        val second = repo.commit("second", at = 2_000)
+        repo.git("push", bare.path, "main")
+
+        val result = clone.pull(credentials = null)
+
+        assertEquals(PullResult(updated = true, conflictedPaths = emptyList()), result)
+        assertEquals(second, clone.log().first().id)
+        assertEquals("2", clone.readFile("a.txt"))
+    }
+
+    @Test
+    fun pullWithNothingNewReportsNoUpdate() = runBlocking<Unit> {
+        repo.write("a.txt", "1")
+        val first = repo.commit("first", at = 1_000)
+        val clone = factory.clone(newBareOrigin().toURI().toString(), newCloneTarget().path, credentials = null)
+
+        val result = clone.pull(credentials = null)
+
+        assertEquals(PullResult(updated = false, conflictedPaths = emptyList()), result)
+        assertEquals(first, clone.log().first().id)
+    }
+
+    @Test
+    fun pullInConflictIsCancelledAndLeavesTheTreeUntouched() = runBlocking<Unit> {
+        repo.write("a.txt", "1")
+        repo.commit("first", at = 1_000)
+        val bare = newBareOrigin()
+        val cloneDir = newCloneTarget()
+        val clone = factory.clone(bare.toURI().toString(), cloneDir.path, credentials = null)
+        repo.write("a.txt", "from elsewhere")
+        repo.commit("second", at = 2_000)
+        repo.git("push", bare.path, "main")
+        clone.writeFile("a.txt", "from the phone")
+        clone.stage(listOf("a.txt"))
+        clone.commit("local change")
+        val localHead = clone.log().first().id
+
+        val result = clone.pull(credentials = null)
+
+        assertEquals(PullResult(updated = false, conflictedPaths = listOf("a.txt")), result)
+        assertEquals(localHead, clone.log().first().id)
+        assertEquals("from the phone", clone.readFile("a.txt"))
+        assertEquals(WorkingTreeStatus(emptyList(), emptyList(), emptyList(), emptyList()), clone.status())
+        // No merge in progress either: the next commit must not silently become a merge commit.
+        assertFalse(File(cloneDir, ".git/MERGE_HEAD").exists())
     }
 
     @Test

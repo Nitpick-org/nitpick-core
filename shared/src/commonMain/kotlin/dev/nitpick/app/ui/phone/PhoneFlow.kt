@@ -53,6 +53,7 @@ fun PhoneFlow(
     onCommitMessage: (String) -> Unit,
     onCommit: () -> Unit,
     onPush: (Credentials?) -> Unit,
+    onPull: (Credentials?) -> Unit,
     onConnect: (GitConnection) -> Unit,
     onOpenSettings: () -> Unit,
     modifier: Modifier = Modifier,
@@ -97,6 +98,7 @@ fun PhoneFlow(
             onBack = { screen = PhoneScreen.Repos },
             onSelectCommit = onSelectCommit,
             onCheckoutBranch = onCheckoutBranch,
+            onPull = { onPull(connection.toCredentials()) },
             onReview = {
                 if (state.review == null && !state.isReviewing) onRunReview()
                 screen = PhoneScreen.Review

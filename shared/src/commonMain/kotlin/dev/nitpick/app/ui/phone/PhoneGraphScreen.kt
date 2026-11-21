@@ -21,15 +21,20 @@ import androidx.compose.ui.unit.dp
 import dev.nitpick.app.ui.components.NitpickDivider
 import dev.nitpick.app.ui.components.NitpickEmptyState
 import dev.nitpick.app.ui.components.NitpickTab
+import dev.nitpick.app.ui.components.NitpickToolbarAction
 import dev.nitpick.app.ui.repository.CommitGraphList
 import dev.nitpick.app.ui.repository.RefsSidebar
 import dev.nitpick.app.ui.repository.RepositoryUiState
 import dev.nitpick.app.ui.repository.branchLabel
 import dev.nitpick.app.ui.repository.folderName
+import dev.nitpick.app.ui.repository.hasSyncProblem
+import dev.nitpick.app.ui.repository.syncStatusMessage
 import dev.nitpick.app.ui.theme.NitpickTheme
 import nitpick.shared.generated.resources.Res
 import nitpick.shared.generated.resources.action_back
 import nitpick.shared.generated.resources.branch_checkout_hint
+import nitpick.shared.generated.resources.pull_action
+import nitpick.shared.generated.resources.pull_in_progress
 import nitpick.shared.generated.resources.repository_loading
 import nitpick.shared.generated.resources.review_cta
 import nitpick.shared.generated.resources.commits_empty
@@ -49,12 +54,19 @@ fun PhoneGraphScreen(
     onBack: () -> Unit,
     onSelectCommit: (String) -> Unit,
     onCheckoutBranch: (String) -> Unit,
+    onPull: () -> Unit,
     onReview: () -> Unit,
     onOpenSettings: () -> Unit,
     modifier: Modifier = Modifier,
 ) {
     Column(modifier.fillMaxSize().background(NitpickTheme.colors.canvas)) {
         PhoneTopBar(title = state.path?.let(::folderName) ?: "", onBack = onBack) {
+            if (state.path != null && state.errorMessage == null && !state.isLoading) {
+                NitpickToolbarAction(
+                    text = stringResource(if (state.isPulling) Res.string.pull_in_progress else Res.string.pull_action),
+                    onClick = { if (!state.isPulling) onPull() },
+                )
+            }
             SettingsAction(onOpenSettings)
         }
         when {
@@ -69,12 +81,12 @@ fun PhoneGraphScreen(
             )
             else -> {
                 GraphContent(state, onSelectCommit, onCheckoutBranch, Modifier.weight(1f))
-                if (state.checkoutError != null) {
+                syncStatusMessage(state)?.let { message ->
                     Text(
-                        text = state.checkoutError,
+                        text = message,
                         modifier = Modifier.fillMaxWidth().padding(horizontal = 16.dp),
                         style = NitpickTheme.typography.small,
-                        color = NitpickTheme.colors.danger,
+                        color = if (state.hasSyncProblem()) NitpickTheme.colors.danger else NitpickTheme.colors.success,
                     )
                 }
                 PhoneBottomButton(
