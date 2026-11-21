@@ -1,4 +1,4 @@
-package dev.nitpick.app
+package dev.nitpick.app.ui
 
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.foundation.Image
@@ -15,6 +15,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.tooling.preview.Preview
 import org.jetbrains.compose.resources.painterResource
+import dev.nitpick.app.Greeting
 
 import nitpick.shared.generated.resources.Res
 import nitpick.shared.generated.resources.compose_multiplatform
