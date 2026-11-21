@@ -56,7 +56,8 @@ Multiplatform, backend Kotlin, IA partagée via Koog. Les quatre que nous visons
 (dark/light, localisation, Compose MP, Koog) sont obligatoires pour nous.
 
 > Le challenge recommande Air pour **construire** le projet. Le moteur IA **du produit**
-> reste Koog : Air/Junie ne sont pas appelés par l'app.
+> reste Koog : Air/Junie ne sont pas appelés par l'app. Le brief officiel est dans
+> [`docs/JETBRAINS-CHALLENGE.md`](JETBRAINS-CHALLENGE.md).
 
 ## 3. Équipe et contraintes humaines
 
@@ -414,6 +415,8 @@ au cas où le Wi-Fi ou le LLM lâcherait.
 
 ## 15. Références
 
+- Brief challenge JetBrains : [`docs/JETBRAINS-CHALLENGE.md`](JETBRAINS-CHALLENGE.md)
+- Handoff de review : [`docs/HANDOFF.md`](HANDOFF.md)
 - KMP templates / wizard : https://kmp.jetbrains.com
 - Doc KMP : https://kotlinlang.org/docs/multiplatform/multiplatform-create-first-app.html
 - Compose Multiplatform : https://www.jetbrains.com/compose-multiplatform/
