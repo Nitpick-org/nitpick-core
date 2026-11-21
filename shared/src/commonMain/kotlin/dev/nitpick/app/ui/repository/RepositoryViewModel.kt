@@ -143,6 +143,7 @@ class RepositoryViewModel(
     private var repository: GitRepository? = null
     private var loading: Job? = null
     private var diffLoading: Job? = null
+    private var sharedLoading: Job? = null
 
     // Two applies on the same file must not read the same original and overwrite each other.
     private val writeLock = Mutex()
@@ -290,12 +291,15 @@ class RepositoryViewModel(
                 if (repository !== git) return@launch
                 val commits = git.log()
                 val graph = withContext(graphDispatcher) { buildCommitGraph(commits) }
+                // The nits not applied yet stay, moved to their new lines: they can still be shared or applied elsewhere.
+                val committed = _state.value
+                val remaining = reanchor(git, committed.review?.comments.orEmpty().filterNot { it.id in committed.appliedIds })
                 _state.update {
                     it.copy(
                         graph = graph,
                         refs = git.refs(),
                         selectedCommitId = graph.firstOrNull()?.commit?.id,
-                        review = null,
+                        review = it.review?.takeIf { remaining.isNotEmpty() }?.copy(comments = remaining),
                         reviewError = null,
                         sharedReviewId = null,
                         shareFailure = null,
@@ -350,8 +354,9 @@ class RepositoryViewModel(
     fun loadSharedReviews() {
         val git = repository ?: return
         val client = shareClient ?: return
+        sharedLoading?.cancel()
         _state.update { it.copy(isLoadingSharedReviews = true, sharedReviewsFailure = null) }
-        viewModelScope.launch {
+        sharedLoading = viewModelScope.launch {
             val outcome = shareCall(git) { repoUrl -> client.list(repoUrl) } ?: return@launch
             _state.update {
                 outcome.fold(
@@ -362,16 +367,36 @@ class RepositoryViewModel(
         }
     }
 
-    /** Shows a shared review like a local one, without calling the LLM: anchoring re-places its nits. */
+    /**
+     * Shows a shared review like a local one, without calling the LLM. It first switches to the
+     * review's branch, whose files the nits point at, then re-anchors every nit on the files here:
+     * a commit made since moves them, or sends them to the whole file.
+     */
     fun openSharedReview(shared: SharedReview) {
-        _state.update {
-            it.copy(
-                review = shared.result,
-                reviewError = null,
-                sharedReviewId = shared.id,
-                shareFailure = null,
-                openedSharedReview = shared,
-            )
+        val git = repository ?: return
+        if (_state.value.isSyncing || _state.value.isReviewing) return
+        viewModelScope.launch {
+            // A failed checkout shows its error and the nits land on the current files instead.
+            if (shared.branch != _state.value.currentBranch) switchTo(git, shared.branch)
+            if (repository !== git) return@launch
+            val comments = try {
+                reanchor(git, shared.result.comments)
+            } catch (e: CancellationException) {
+                throw e
+            } catch (e: Exception) {
+                _state.update { it.copy(actionError = e.message ?: e.toString()) }
+                return@launch
+            }
+            if (repository !== git) return@launch
+            _state.update {
+                it.copy(
+                    review = shared.result.copy(comments = comments),
+                    reviewError = null,
+                    sharedReviewId = shared.id,
+                    shareFailure = null,
+                    openedSharedReview = shared,
+                )
+            }
         }
     }
 
@@ -456,41 +481,50 @@ class RepositoryViewModel(
         val git = repository ?: return
         // A review still running would land its nits on the new branch.
         if (_state.value.isSyncing || _state.value.isReviewing || branch == _state.value.currentBranch) return
+        viewModelScope.launch { switchTo(git, branch) }
+    }
+
+    /** Checks out [branch] and reloads graph and diff; false when the checkout failed or another repository was opened. */
+    private suspend fun switchTo(git: GitRepository, branch: String): Boolean {
         _state.update { it.copy(isCheckingOut = true, checkoutError = null) }
-        viewModelScope.launch {
-            try {
-                git.checkout(branch)
-                val commits = git.log()
-                val graph = withContext(graphDispatcher) { buildCommitGraph(commits) }
-                if (repository !== git) return@launch
-                _state.update {
-                    it.copy(
-                        isCheckingOut = false,
-                        currentBranch = git.currentBranch(),
-                        graph = graph,
-                        refs = git.refs(),
-                        selectedCommitId = graph.firstOrNull()?.commit?.id,
-                        review = null,
-                        reviewError = null,
-                        sharedReviewId = null,
-                        shareFailure = null,
-                        openedSharedReview = null,
-                        appliedIds = emptySet(),
-                        appliedFiles = emptySet(),
-                        commitMessage = "",
-                        pushError = null,
-                        pullError = null,
-                        lastPull = null,
-                    )
-                }
-                refreshDiff()
-            } catch (e: CancellationException) {
-                throw e
-            } catch (e: Exception) {
-                if (repository === git) _state.update { it.copy(isCheckingOut = false, checkoutError = e.message ?: e.toString()) }
+        try {
+            git.checkout(branch)
+            val commits = git.log()
+            val graph = withContext(graphDispatcher) { buildCommitGraph(commits) }
+            if (repository !== git) return false
+            _state.update {
+                it.copy(
+                    isCheckingOut = false,
+                    currentBranch = git.currentBranch(),
+                    graph = graph,
+                    refs = git.refs(),
+                    selectedCommitId = graph.firstOrNull()?.commit?.id,
+                    review = null,
+                    reviewError = null,
+                    sharedReviewId = null,
+                    shareFailure = null,
+                    openedSharedReview = null,
+                    appliedIds = emptySet(),
+                    appliedFiles = emptySet(),
+                    commitMessage = "",
+                    pushError = null,
+                    pullError = null,
+                    lastPull = null,
+                )
             }
+            refreshDiff()
+            return true
+        } catch (e: CancellationException) {
+            throw e
+        } catch (e: Exception) {
+            if (repository === git) _state.update { it.copy(isCheckingOut = false, checkoutError = e.message ?: e.toString()) }
+            return false
         }
     }
+
+    /** Moves each nit to where its snippet is in the files on disk now, or to the whole file. */
+    private suspend fun reanchor(git: GitRepository, comments: List<ReviewComment>): List<ReviewComment> =
+        comments.map { ReviewAnchoring.anchorOrFileLevel(git.readFile(it.filePath), it) }
 }
 
 private sealed interface ShareOutcome<out T> {

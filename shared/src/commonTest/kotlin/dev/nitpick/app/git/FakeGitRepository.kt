@@ -9,7 +9,7 @@ import dev.nitpick.app.domain.WorkingTreeStatus
 
 /** In-memory [GitRepository] for tests of anything built on top of the git contract. */
 class FakeGitRepository(
-    private val branch: String = "main",
+    private var branch: String = "main",
     private val commits: List<Commit> = emptyList(),
     private val refs: List<Ref> = emptyList(),
     private val diffs: Map<String, List<FileDiff>> = emptyMap(),
@@ -35,7 +35,7 @@ class FakeGitRepository(
     override suspend fun fetch(credentials: Credentials?) = TODO("not faked yet")
     override suspend fun pull(credentials: Credentials?): PullResult = TODO("not faked yet")
     override suspend fun push(credentials: Credentials?) = TODO("not faked yet")
-    override suspend fun checkout(branch: String) = TODO("not faked yet")
+    override suspend fun checkout(branch: String) { this.branch = branch }
 }
 
 /** Opens [repositories] by path; any other path fails like a folder that is not a repository. */

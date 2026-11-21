@@ -37,6 +37,22 @@
 - `usesCleartextTraffic` sur Android : le serveur de démo parle HTTP sur le LAN.
 - `ReviewShareClient` dans `AppContainer`, l'URL lue dans les réglages à chaque appel.
 
+## Review ponytail (corrigée)
+
+- Ouvrir une review partagée **recale** chaque nit sur les fichiers de l'appareil
+  (`ReviewAnchoring.anchorOrFileLevel`) : un snippet déplacé change de ligne, un snippet disparu
+  passe au fichier entier. Avant, les lignes du desktop étaient recopiées telles quelles.
+- Elle **checkout d'abord la branche** de la review si l'appareil est sur une autre (le clone du
+  téléphone est sur `main`) ; un checkout raté affiche son erreur et recale sur les fichiers
+  courants. Le téléphone montre le spinner pendant ce checkout.
+- **Le commit garde les nits non appliqués**, recalés, au lieu d'effacer la review : le script
+  §13 (« apply, commit, puis Share review », puis « accepter une suggestion depuis le
+  téléphone ») se joue tel quel. Changement de comportement du #22, voulu.
+- `loadSharedReviews` annule la requête précédente : une réponse lente n'écrase plus une liste
+  plus récente.
+- Tests : recalage (ligne déplacée + snippet disparu), checkout de la branche partagée, nits
+  restants après commit puis re-partage. `ShareReviewViewModelTest` 7/7.
+
 ## Écarts au ticket
 
 - **Pas de date** dans la liste : `SharedReview` n'a pas de champ date ; l'ordre (le plus récent

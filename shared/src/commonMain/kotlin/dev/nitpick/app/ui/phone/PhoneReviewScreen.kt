@@ -93,7 +93,8 @@ fun PhoneReviewScreen(
         }
         Box(Modifier.weight(1f)) {
             when {
-                state.isReviewing -> Box(Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
+                // Opening a shared review may check its branch out first.
+                state.isReviewing || state.isCheckingOut -> Box(Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
                     Column(horizontalAlignment = Alignment.CenterHorizontally, verticalArrangement = Arrangement.spacedBy(8.dp)) {
                         CircularProgressIndicator(color = NitpickTheme.colors.primary)
                         Text(stringResource(Res.string.review_running), style = NitpickTheme.typography.small)
