@@ -52,3 +52,12 @@
 - Pas de test sur ART de l'appel Koog : `assembleDebug` vert ne prouve pas le runtime Android
   (leçon de l'équipe) ; issue Koog #2185 (`removeLast` < API 35) à surveiller sur l'émulateur.
 - #19 (`diffAgainst`) est encore `TODO` chez H1 : la boucle #22 attend ce diff.
+- 17:45 — **Appel réel réussi** depuis l'app desktop (clé dans les réglages, modèle
+  `claude-opus-5-5`, PR #52) : « 2 nits on 2658 changed files », deux WARNING ancrés au
+  fichier entier (`foot.png.import:0`, `team2.png.import:0`), résumé cohérent. Premier essai
+  refusé par Koog (« Model claude-opus-5-5 does not support tools ») : corrigé en déclarant le
+  modèle avec les capacités de `AnthropicModels.Opus_5`.
+- Constats pour la suite : le diff compte 2658 fichiers parce que `diffAgainst` (#50) compare
+  l'arbre de la base et non le merge-base (#19) ; avec `MAX_FILES = 20` pris dans l'ordre du
+  diff, la review a lu deux sidecars Godot au lieu du code. L'UI affiche `:0` pour un nit de
+  fichier entier (#22/#33 : afficher « whole file »).
