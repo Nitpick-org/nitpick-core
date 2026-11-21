@@ -11,6 +11,8 @@ interface GitRepository {
     suspend fun log(limit: Int = 500): List<Commit>
     suspend fun refs(): List<Ref>
     suspend fun currentBranch(): String
+    /** URL of the `origin` remote, or null when the repository has none. */
+    suspend fun remoteUrl(): String?
     suspend fun status(): WorkingTreeStatus
     suspend fun diffAgainst(baseRef: String): List<FileDiff>
     suspend fun readFile(path: String): String?

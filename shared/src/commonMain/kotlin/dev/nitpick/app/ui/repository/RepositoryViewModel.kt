@@ -10,6 +10,7 @@ import dev.nitpick.app.domain.Ref
 import dev.nitpick.app.domain.RefType
 import dev.nitpick.app.domain.ReviewComment
 import dev.nitpick.app.domain.ReviewResult
+import dev.nitpick.app.domain.SharedReview
 import dev.nitpick.app.git.GitRepository
 import dev.nitpick.app.git.GitRepositoryFactory
 import dev.nitpick.app.review.LocalReviewAgent
@@ -17,6 +18,9 @@ import dev.nitpick.app.review.MissingApiKeyException
 import dev.nitpick.app.review.ReviewAgent
 import dev.nitpick.app.review.ReviewAnchoring
 import dev.nitpick.app.review.ReviewProviderException
+import dev.nitpick.app.share.ReviewShareClient
+import dev.nitpick.app.share.ReviewShareException
+import dev.nitpick.app.share.withoutCredentials
 import dev.nitpick.app.graph.CommitGraphRow
 import dev.nitpick.app.graph.buildCommitGraph
 import kotlinx.coroutines.CancellationException
@@ -44,6 +48,12 @@ sealed interface ReviewFailure {
     data object Network : ReviewFailure
     data object Timeout : ReviewFailure
     data class Other(val message: String) : ReviewFailure
+}
+
+sealed interface ShareFailure {
+    /** No `origin` remote: nothing identifies the repository on another device. */
+    data object NoRemote : ShareFailure
+    data object Unreachable : ShareFailure
 }
 
 private fun Throwable.toReviewFailure(): ReviewFailure = when {
@@ -88,6 +98,14 @@ data class RepositoryUiState(
     val isPulling: Boolean = false,
     val pullError: String? = null,
     val lastPull: PullResult? = null,
+    val isSharing: Boolean = false,
+    // Set once the review on screen is on the server: shared from here, or opened from the list.
+    val sharedReviewId: String? = null,
+    val shareFailure: ShareFailure? = null,
+    val sharedReviews: List<SharedReview> = emptyList(),
+    val isLoadingSharedReviews: Boolean = false,
+    val sharedReviewsFailure: ShareFailure? = null,
+    val openedSharedReview: SharedReview? = null,
 ) {
     /** One git operation at a time: pull, push and checkout share the same working tree. */
     val isSyncing: Boolean get() = isPulling || isPushing || isCheckingOut
@@ -116,6 +134,7 @@ class RepositoryViewModel(
     private val gitRepositoryFactory: GitRepositoryFactory,
     private val graphDispatcher: CoroutineDispatcher = Dispatchers.Default,
     private val reviewAgent: ReviewAgent = LocalReviewAgent(),
+    private val shareClient: ReviewShareClient? = null,
 ) : ViewModel() {
 
     private val _state = MutableStateFlow(RepositoryUiState())
@@ -206,7 +225,7 @@ class RepositoryViewModel(
             try {
                 val result = withTimeout(REVIEW_TIMEOUT) { reviewAgent.review(git, _state.value.baseRef) }
                 if (repository !== git) return@launch
-                _state.update { it.copy(review = result, isReviewing = false) }
+                _state.update { it.copy(review = result, isReviewing = false, sharedReviewId = null, shareFailure = null, openedSharedReview = null) }
             } catch (e: TimeoutCancellationException) {
                 // A CancellationException subclass: it must be caught before the generic one.
                 if (repository === git) _state.update { it.copy(isReviewing = false, reviewError = ReviewFailure.Timeout) }
@@ -278,6 +297,9 @@ class RepositoryViewModel(
                         selectedCommitId = graph.firstOrNull()?.commit?.id,
                         review = null,
                         reviewError = null,
+                        sharedReviewId = null,
+                        shareFailure = null,
+                        openedSharedReview = null,
                         appliedIds = emptySet(),
                         appliedFiles = emptySet(),
                         commitMessage = "",
@@ -291,6 +313,82 @@ class RepositoryViewModel(
                 if (repository === git) _state.update { it.copy(actionError = e.message ?: e.toString()) }
             }
         }
+    }
+
+    /** Sends the review on screen to the sharing server, under the repository's origin URL. */
+    fun shareReview() {
+        val git = repository ?: return
+        val client = shareClient ?: return
+        val state = _state.value
+        val review = state.review ?: return
+        if (state.isSharing) return
+        _state.update { it.copy(isSharing = true, shareFailure = null) }
+        viewModelScope.launch {
+            val outcome = shareCall(git) { repoUrl ->
+                val head = state.refs.firstOrNull { it.type == RefType.LOCAL_BRANCH && it.name == state.currentBranch }?.commitId
+                client.share(
+                    SharedReview(
+                        repoUrl = repoUrl,
+                        branch = state.currentBranch,
+                        baseRef = state.baseRef,
+                        // A detached HEAD reports the commit id as its branch name.
+                        headCommit = head ?: state.currentBranch,
+                        result = review,
+                    ),
+                )
+            } ?: return@launch
+            _state.update {
+                outcome.fold(
+                    { id -> it.copy(isSharing = false, sharedReviewId = id) },
+                    { failure -> it.copy(isSharing = false, shareFailure = failure) },
+                )
+            }
+        }
+    }
+
+    /** Lists the reviews shared for this repository, newest first. */
+    fun loadSharedReviews() {
+        val git = repository ?: return
+        val client = shareClient ?: return
+        _state.update { it.copy(isLoadingSharedReviews = true, sharedReviewsFailure = null) }
+        viewModelScope.launch {
+            val outcome = shareCall(git) { repoUrl -> client.list(repoUrl) } ?: return@launch
+            _state.update {
+                outcome.fold(
+                    { reviews -> it.copy(isLoadingSharedReviews = false, sharedReviews = reviews) },
+                    { failure -> it.copy(isLoadingSharedReviews = false, sharedReviewsFailure = failure) },
+                )
+            }
+        }
+    }
+
+    /** Shows a shared review like a local one, without calling the LLM: anchoring re-places its nits. */
+    fun openSharedReview(shared: SharedReview) {
+        _state.update {
+            it.copy(
+                review = shared.result,
+                reviewError = null,
+                sharedReviewId = shared.id,
+                shareFailure = null,
+                openedSharedReview = shared,
+            )
+        }
+    }
+
+    /**
+     * Runs [block] with the origin URL, token stripped. Returns null when another repository was
+     * opened meanwhile, so a late answer never lands on it.
+     */
+    private suspend fun <T> shareCall(git: GitRepository, block: suspend (repoUrl: String) -> T): ShareOutcome<T>? {
+        val outcome = try {
+            val repoUrl = git.remoteUrl()?.let(::withoutCredentials)
+            if (repoUrl == null) ShareOutcome.Failed(ShareFailure.NoRemote) else ShareOutcome.Done(block(repoUrl))
+        } catch (e: CancellationException) {
+            throw e
+        } catch (e: ReviewShareException) {
+            ShareOutcome.Failed(ShareFailure.Unreachable)
+        }
+        return outcome.takeIf { repository === git }
     }
 
     /** Pushes the current branch to origin with the forge connection from the settings. */
@@ -334,6 +432,9 @@ class RepositoryViewModel(
                             selectedCommitId = graph.firstOrNull()?.commit?.id,
                             review = null,
                             reviewError = null,
+                            sharedReviewId = null,
+                            shareFailure = null,
+                            openedSharedReview = null,
                             appliedIds = emptySet(),
                             commitMessage = "",
                         )
@@ -371,6 +472,9 @@ class RepositoryViewModel(
                         selectedCommitId = graph.firstOrNull()?.commit?.id,
                         review = null,
                         reviewError = null,
+                        sharedReviewId = null,
+                        shareFailure = null,
+                        openedSharedReview = null,
                         appliedIds = emptySet(),
                         appliedFiles = emptySet(),
                         commitMessage = "",
@@ -386,6 +490,16 @@ class RepositoryViewModel(
                 if (repository === git) _state.update { it.copy(isCheckingOut = false, checkoutError = e.message ?: e.toString()) }
             }
         }
+    }
+}
+
+private sealed interface ShareOutcome<out T> {
+    data class Done<T>(val value: T) : ShareOutcome<T>
+    data class Failed(val failure: ShareFailure) : ShareOutcome<Nothing>
+
+    fun <R> fold(onDone: (T) -> R, onFailed: (ShareFailure) -> R): R = when (this) {
+        is Done -> onDone(value)
+        is Failed -> onFailed(failure)
     }
 }
 

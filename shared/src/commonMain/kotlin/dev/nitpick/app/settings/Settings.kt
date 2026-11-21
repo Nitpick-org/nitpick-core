@@ -30,9 +30,13 @@ data class Settings(
     val themeMode: ThemeMode = ThemeMode.SYSTEM,
     val recentRepositories: List<String> = emptyList(),
     val gitConnection: GitConnection? = null,
+    val serverUrl: String = DEFAULT_SERVER_URL,
 )
 
 const val MAX_RECENT_REPOSITORIES = 10
+
+// The review-sharing server of the laptop; a phone reaches it through adb reverse or the LAN IP.
+const val DEFAULT_SERVER_URL = "http://localhost:8080"
 
 /** Puts [path] first in the recent list, without duplicates, keeping the newest [MAX_RECENT_REPOSITORIES]. */
 fun Settings.withRecentRepository(path: String): Settings =

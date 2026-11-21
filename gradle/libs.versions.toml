@@ -48,6 +48,8 @@ koog-agents = { module = "ai.koog:koog-agents", version.ref = "koog" }
 # The Google client is only published as 1.3.0-beta (docs/RESEARCH.md #20).
 koog-googleClient = { module = "ai.koog:prompt-executor-google-client", version = "1.3.0-beta" }
 ktor-bom = { module = "io.ktor:ktor-bom", version.ref = "ktor" }
+ktor-client-core = { module = "io.ktor:ktor-client-core" }
+ktor-client-mock = { module = "io.ktor:ktor-client-mock" }
 ktor-client-cio = { module = "io.ktor:ktor-client-cio" }
 ktor-server-cio = { module = "io.ktor:ktor-server-cio" }
 ktor-server-contentNegotiation = { module = "io.ktor:ktor-server-content-negotiation" }

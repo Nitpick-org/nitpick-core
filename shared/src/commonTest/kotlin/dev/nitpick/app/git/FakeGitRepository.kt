@@ -14,6 +14,7 @@ class FakeGitRepository(
     private val refs: List<Ref> = emptyList(),
     private val diffs: Map<String, List<FileDiff>> = emptyMap(),
     files: Map<String, String> = emptyMap(),
+    private val remoteUrl: String? = null,
 ) : GitRepository {
     val files: MutableMap<String, String> = files.toMutableMap()
     val staged = mutableListOf<String>()
@@ -22,6 +23,7 @@ class FakeGitRepository(
     override suspend fun log(limit: Int): List<Commit> = commits.take(limit)
     override suspend fun refs(): List<Ref> = refs
     override suspend fun currentBranch(): String = branch
+    override suspend fun remoteUrl(): String? = remoteUrl
     override suspend fun status() = WorkingTreeStatus(emptyList(), emptyList(), emptyList(), emptyList())
     override suspend fun readFile(path: String): String? = files[path]
     override suspend fun listFiles(): List<String> = files.keys.sorted()
