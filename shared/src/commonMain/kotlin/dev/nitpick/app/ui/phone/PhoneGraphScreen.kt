@@ -33,8 +33,12 @@ import dev.nitpick.app.ui.theme.NitpickTheme
 import nitpick.shared.generated.resources.Res
 import nitpick.shared.generated.resources.action_back
 import nitpick.shared.generated.resources.branch_checkout_hint
+import nitpick.shared.generated.resources.fetch_action
+import nitpick.shared.generated.resources.fetch_in_progress
 import nitpick.shared.generated.resources.pull_action
 import nitpick.shared.generated.resources.pull_in_progress
+import nitpick.shared.generated.resources.push_action
+import nitpick.shared.generated.resources.push_in_progress
 import nitpick.shared.generated.resources.repository_loading
 import nitpick.shared.generated.resources.review_cta
 import nitpick.shared.generated.resources.shared_open
@@ -56,6 +60,8 @@ fun PhoneGraphScreen(
     onSelectCommit: (String) -> Unit,
     onCheckoutBranch: (String) -> Unit,
     onPull: () -> Unit,
+    onPush: () -> Unit,
+    onFetch: () -> Unit,
     onReview: () -> Unit,
     onOpenShared: () -> Unit,
     onOpenSettings: () -> Unit,
@@ -64,9 +70,20 @@ fun PhoneGraphScreen(
     Column(modifier.fillMaxSize().background(NitpickTheme.colors.canvas)) {
         PhoneTopBar(title = state.path?.let(::folderName) ?: "", onBack = onBack) {
             if (state.path != null && state.errorMessage == null && !state.isLoading) {
+                val syncing = state.isSyncing
                 NitpickToolbarAction(
-                    text = stringResource(if (state.isPulling) Res.string.pull_in_progress else Res.string.pull_action),
-                    onClick = { if (!state.isPulling) onPull() },
+                    text = stringResource(if (state.isFetching) Res.string.fetch_in_progress else Res.string.fetch_action),
+                    onClick = { if (!syncing) onFetch() },
+                )
+                NitpickToolbarAction(
+                    text = stringResource(if (state.isPulling) Res.string.pull_in_progress else Res.string.pull_action) +
+                        (state.tracking?.behind?.takeIf { it > 0 }?.let { " $it" } ?: ""),
+                    onClick = { if (!syncing) onPull() },
+                )
+                NitpickToolbarAction(
+                    text = stringResource(if (state.isPushing) Res.string.push_in_progress else Res.string.push_action) +
+                        (state.tracking?.ahead?.takeIf { it > 0 }?.let { " $it" } ?: ""),
+                    onClick = { if (!syncing) onPush() },
                 )
             }
             NitpickToolbarAction(text = stringResource(Res.string.shared_open), onClick = onOpenShared)

@@ -11,6 +11,7 @@ import dev.nitpick.app.domain.RefType
 import dev.nitpick.app.domain.ReviewComment
 import dev.nitpick.app.domain.ReviewResult
 import dev.nitpick.app.domain.SharedReview
+import dev.nitpick.app.domain.TrackingStatus
 import dev.nitpick.app.git.GitRepository
 import dev.nitpick.app.git.GitRepositoryFactory
 import dev.nitpick.app.review.LocalReviewAgent
@@ -106,13 +107,17 @@ data class RepositoryUiState(
     val isLoadingSharedReviews: Boolean = false,
     val sharedReviewsFailure: ShareFailure? = null,
     val openedSharedReview: SharedReview? = null,
+    val isFetching: Boolean = false,
+    val fetchError: String? = null,
+    val tracking: TrackingStatus? = null,
 ) {
     /** One git operation at a time: pull, push and checkout share the same working tree. */
-    val isSyncing: Boolean get() = isPulling || isPushing || isCheckingOut
+    val isSyncing: Boolean get() = isPulling || isPushing || isCheckingOut || isFetching
 
     /** Local commits the origin does not have yet: true when the current branch is ahead of, or unknown to, origin. */
     val hasUnpushedCommits: Boolean
         get() {
+            tracking?.let { return it.ahead > 0 }
             val local = refs.firstOrNull { it.type == RefType.LOCAL_BRANCH && it.name == currentBranch } ?: return false
             val remote = refs.firstOrNull { it.type == RefType.REMOTE_BRANCH && it.name == "origin/$currentBranch" }
             return remote?.commitId != local.commitId
@@ -174,6 +179,7 @@ class RepositoryViewModel(
                     refs = refs,
                     selectedCommitId = graph.firstOrNull()?.commit?.id,
                     baseRef = defaultBaseRef(refs),
+                    tracking = opened.trackingStatus(),
                 )
             } catch (e: CancellationException) {
                 throw e
@@ -298,6 +304,7 @@ class RepositoryViewModel(
                     it.copy(
                         graph = graph,
                         refs = git.refs(),
+                        tracking = git.trackingStatus(),
                         selectedCommitId = graph.firstOrNull()?.commit?.id,
                         review = it.review?.takeIf { remaining.isNotEmpty() }?.copy(comments = remaining),
                         reviewError = null,
@@ -416,6 +423,31 @@ class RepositoryViewModel(
         return outcome.takeIf { repository === git }
     }
 
+    /** Updates the remote refs and the ahead/behind counters; the working tree stays untouched. */
+    fun fetchBranch(credentials: Credentials?) {
+        val git = repository ?: return
+        if (_state.value.isSyncing) return
+        _state.update { it.copy(isFetching = true, fetchError = null) }
+        viewModelScope.launch {
+            try {
+                git.fetch(credentials)
+                if (repository !== git) return@launch
+                _state.update {
+                    it.copy(
+                        isFetching = false,
+                        refs = git.refs(),
+                        tracking = git.trackingStatus(),
+                        lastPull = null,
+                    )
+                }
+            } catch (e: CancellationException) {
+                throw e
+            } catch (e: Exception) {
+                if (repository === git) _state.update { it.copy(isFetching = false, fetchError = e.message ?: e.toString()) }
+            }
+        }
+    }
+
     /** Pushes the current branch to origin with the forge connection from the settings. */
     fun pushBranch(credentials: Credentials?) {
         val git = repository ?: return
@@ -425,7 +457,7 @@ class RepositoryViewModel(
             try {
                 git.push(credentials)
                 if (repository !== git) return@launch
-                _state.update { it.copy(isPushing = false, refs = git.refs(), lastPull = null) }
+                _state.update { it.copy(isPushing = false, refs = git.refs(), tracking = git.trackingStatus(), lastPull = null) }
             } catch (e: CancellationException) {
                 throw e
             } catch (e: Exception) {
@@ -439,7 +471,7 @@ class RepositoryViewModel(
         val git = repository ?: return
         // Applied but uncommitted suggestions would be merged over; commit them first.
         if (_state.value.isSyncing || _state.value.isReviewing || _state.value.appliedFiles.isNotEmpty()) return
-        _state.update { it.copy(isPulling = true, pullError = null, lastPull = null) }
+        _state.update { it.copy(isPulling = true, pullError = null, fetchError = null, lastPull = null) }
         viewModelScope.launch {
             try {
                 val result = git.pull(credentials)
@@ -454,6 +486,7 @@ class RepositoryViewModel(
                             lastPull = result,
                             graph = graph,
                             refs = git.refs(),
+                            tracking = git.trackingStatus(),
                             selectedCommitId = graph.firstOrNull()?.commit?.id,
                             review = null,
                             reviewError = null,
@@ -464,7 +497,7 @@ class RepositoryViewModel(
                             commitMessage = "",
                         )
                     } else {
-                        it.copy(isPulling = false, lastPull = result, refs = git.refs())
+                        it.copy(isPulling = false, lastPull = result, refs = git.refs(), tracking = git.trackingStatus())
                     }
                 }
                 if (result.updated) refreshDiff()
@@ -498,6 +531,7 @@ class RepositoryViewModel(
                     currentBranch = git.currentBranch(),
                     graph = graph,
                     refs = git.refs(),
+                    tracking = git.trackingStatus(),
                     selectedCommitId = graph.firstOrNull()?.commit?.id,
                     review = null,
                     reviewError = null,

@@ -5,6 +5,7 @@ import dev.nitpick.app.domain.Credentials
 import dev.nitpick.app.domain.FileDiff
 import dev.nitpick.app.domain.PullResult
 import dev.nitpick.app.domain.Ref
+import dev.nitpick.app.domain.TrackingStatus
 import dev.nitpick.app.domain.WorkingTreeStatus
 
 interface GitRepository {
@@ -24,4 +25,7 @@ interface GitRepository {
     suspend fun pull(credentials: Credentials?): PullResult
     suspend fun push(credentials: Credentials?)
     suspend fun checkout(branch: String)
+
+    /** Ahead/behind of the current branch vs its upstream; null when there is no upstream. */
+    suspend fun trackingStatus(): TrackingStatus? = null
 }

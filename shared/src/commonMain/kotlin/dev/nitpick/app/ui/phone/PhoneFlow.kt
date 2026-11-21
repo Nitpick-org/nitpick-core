@@ -59,6 +59,7 @@ fun PhoneFlow(
     onShareReview: () -> Unit,
     onLoadSharedReviews: () -> Unit,
     onOpenSharedReview: (SharedReview) -> Unit,
+    onFetch: (Credentials?) -> Unit,
     onConnect: (GitConnection) -> Unit,
     onOpenSettings: () -> Unit,
     modifier: Modifier = Modifier,
@@ -104,6 +105,8 @@ fun PhoneFlow(
             onSelectCommit = onSelectCommit,
             onCheckoutBranch = onCheckoutBranch,
             onPull = { onPull(connection.toCredentials()) },
+            onPush = { onPush(connection.toCredentials()) },
+            onFetch = { onFetch(connection.toCredentials()) },
             onReview = {
                 if (state.review == null && !state.isReviewing) onRunReview()
                 screen = PhoneScreen.Review

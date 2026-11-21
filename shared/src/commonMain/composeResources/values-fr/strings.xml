@@ -154,4 +154,7 @@
     <string name="settings_kicker_sharing">Partage</string>
     <string name="settings_server_url">URL du serveur de reviews</string>
     <string name="settings_server_url_help">Sur le téléphone : adb reverse tcp:8080 tcp:8080, 10.0.2.2:8080 sur l’émulateur, ou l’IP LAN du laptop.</string>
+    <string name="fetch_action">Récupérer</string>
+    <string name="fetch_in_progress">Récupération…</string>
+    <string name="fetch_error">La récupération a échoué</string>
 </resources>

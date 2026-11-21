@@ -16,6 +16,7 @@ import org.eclipse.jgit.api.MergeResult
 import org.eclipse.jgit.api.ResetCommand
 import org.eclipse.jgit.dircache.DirCache
 import org.eclipse.jgit.diff.DiffFormatter
+import org.eclipse.jgit.lib.BranchTrackingStatus
 import org.eclipse.jgit.lib.Constants
 import org.eclipse.jgit.lib.Repository
 import org.eclipse.jgit.revwalk.RevCommit
@@ -178,6 +179,16 @@ class JGitRepository(private val git: Git) : GitRepository {
                 rejected.joinToString("; ") { "${it.remoteName}: ${it.status}${it.message?.let { m -> " ($m)" } ?: ""}" }
             }
         }
+    }
+
+    override suspend fun trackingStatus(): dev.nitpick.app.domain.TrackingStatus? = withContext(Dispatchers.IO) {
+        val branch = repository.branch ?: return@withContext null
+        val tracking = BranchTrackingStatus.of(repository, branch) ?: return@withContext null
+        dev.nitpick.app.domain.TrackingStatus(
+            ahead = tracking.aheadCount,
+            behind = tracking.behindCount,
+            upstream = Repository.shortenRefName(tracking.remoteTrackingBranch),
+        )
     }
 
     override suspend fun checkout(branch: String) {

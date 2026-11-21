@@ -154,4 +154,7 @@
     <string name="settings_kicker_sharing">Sharing</string>
     <string name="settings_server_url">Review server URL</string>
     <string name="settings_server_url_help">On the phone: adb reverse tcp:8080 tcp:8080, 10.0.2.2:8080 on the emulator, or the laptop LAN IP.</string>
+    <string name="fetch_action">Fetch</string>
+    <string name="fetch_in_progress">Fetching…</string>
+    <string name="fetch_error">Fetch failed</string>
 </resources>

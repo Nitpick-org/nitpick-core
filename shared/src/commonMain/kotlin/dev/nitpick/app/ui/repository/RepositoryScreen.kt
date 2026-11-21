@@ -76,6 +76,8 @@ fun RepositoryScreen(
     onShowDiff: () -> Unit,
     onCheckoutBranch: (String) -> Unit,
     onPull: () -> Unit,
+    onPush: () -> Unit,
+    onFetch: () -> Unit,
     onSelectBase: (String) -> Unit,
     onSelectDiffFile: (String) -> Unit,
     onOpenSettings: () -> Unit,
@@ -98,6 +100,8 @@ fun RepositoryScreen(
             hasRepository = hasRepository,
             onOpenRepository = onOpenRepository,
             onPull = onPull,
+            onPush = onPush,
+            onFetch = onFetch,
             onReview = {
                 tab = InspectorTab.Review
                 onRunReview()
@@ -125,6 +129,7 @@ fun RepositoryScreen(
                     RefsSidebar(
                         refs = state.refs,
                         currentBranch = state.currentBranch,
+                        ahead = state.tracking?.ahead,
                         modifier = Modifier.width(NitpickTheme.sizes.sidebar).fillMaxHeight(),
                         onSelectBranch = onCheckoutBranch,
                     )
@@ -167,6 +172,8 @@ private fun RepositoryToolbar(
     hasRepository: Boolean,
     onOpenRepository: (() -> Unit)?,
     onPull: () -> Unit,
+    onPush: () -> Unit,
+    onFetch: () -> Unit,
     onReview: () -> Unit,
     onOpenSettings: () -> Unit,
 ) {
@@ -198,10 +205,20 @@ private fun RepositoryToolbar(
             NitpickToolbarAction(text = stringResource(Res.string.repository_open), onClick = onOpenRepository)
         }
         if (hasRepository) {
-            // Fetch / Push with ahead-behind counts land here with #36; Pull is the one #42 needs today.
+            val syncing = state.isSyncing
             NitpickToolbarAction(
-                text = stringResource(if (state.isPulling) Res.string.pull_in_progress else Res.string.pull_action),
-                onClick = { if (!state.isPulling) onPull() },
+                text = stringResource(if (state.isFetching) Res.string.fetch_in_progress else Res.string.fetch_action),
+                onClick = { if (!syncing) onFetch() },
+            )
+            NitpickToolbarAction(
+                text = stringResource(if (state.isPulling) Res.string.pull_in_progress else Res.string.pull_action) +
+                    (state.tracking?.behind?.takeIf { it > 0 }?.let { " $it" } ?: ""),
+                onClick = { if (!syncing) onPull() },
+            )
+            NitpickToolbarAction(
+                text = stringResource(if (state.isPushing) Res.string.push_in_progress else Res.string.push_action) +
+                    (state.tracking?.ahead?.takeIf { it > 0 }?.let { " $it" } ?: ""),
+                onClick = { if (!syncing) onPush() },
             )
             NitpickTooltip(text = stringResource(Res.string.review_cta_tooltip), shortcut = ReviewShortcut) {
                 NitpickButton(
@@ -217,7 +234,7 @@ private fun RepositoryToolbar(
 }
 
 @Composable
-internal fun RefsSidebar(refs: List<Ref>, currentBranch: String, modifier: Modifier, onSelectBranch: ((String) -> Unit)? = null) {
+internal fun RefsSidebar(refs: List<Ref>, currentBranch: String, modifier: Modifier, ahead: Int? = null, onSelectBranch: ((String) -> Unit)? = null) {
     var filter by rememberSaveable { mutableStateOf("") }
     var collapsed by rememberSaveable { mutableStateOf(emptySet<RefType>()) }
     val visibleRefs = refs.filter { it.name.contains(filter, ignoreCase = true) }
@@ -542,6 +559,7 @@ private fun RepositoryStatusBar(state: RepositoryUiState, settings: Settings, ha
     NitpickStatusBar {
         StatusText(state.currentBranch.ifEmpty { stringResource(Res.string.status_no_branch) })
         if (hasRepository) StatusText(stringResource(Res.string.status_commits, state.graph.size))
+        state.tracking?.let { tracking -> StatusText("↑${tracking.ahead} ↓${tracking.behind}") }
         syncStatusMessage(state)?.let { message ->
             Text(
                 text = message,
