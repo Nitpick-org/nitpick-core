@@ -1,7 +1,9 @@
 package dev.nitpick.app.ui.settings
 
+import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.material3.DropdownMenu
 import androidx.compose.material3.DropdownMenuItem
@@ -40,7 +42,7 @@ internal fun ModelSelector(model: String, models: List<String>, onSelect: (Strin
             onClick = { expanded = true },
             variant = NitpickButtonVariant.Secondary,
             size = if (touch) NitpickButtonSize.Large else NitpickButtonSize.Small,
-            modifier = Modifier.fillMaxWidth(),
+            modifier = Modifier.fillMaxSize(),
         )
         DropdownMenu(expanded = expanded, onDismissRequest = { expanded = false }) {
             models.forEach { candidate ->
@@ -63,7 +65,7 @@ internal fun ApiKeyField(
     minHeight: Dp = 34.dp,
 ) {
     var showKey by remember { mutableStateOf(false) }
-    Column(modifier) {
+    Column(modifier, verticalArrangement = Arrangement.spacedBy(4.dp)) {
         NitpickTextField(
             value = apiKey,
             onValueChange = onChange,
