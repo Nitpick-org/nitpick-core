@@ -1,5 +1,6 @@
 package dev.nitpick.app.ui.settings
 
+import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxSize
@@ -8,38 +9,23 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.safeContentPadding
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
-import androidx.compose.foundation.text.KeyboardOptions
-import androidx.compose.material3.DropdownMenuItem
-import androidx.compose.material3.ExposedDropdownMenuAnchorType
-import androidx.compose.material3.ExposedDropdownMenuBox
-import androidx.compose.material3.ExposedDropdownMenuDefaults
-import androidx.compose.material3.ExperimentalMaterial3Api
-import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.OutlinedTextField
-import androidx.compose.material3.SegmentedButton
-import androidx.compose.material3.SegmentedButtonDefaults
-import androidx.compose.material3.SingleChoiceSegmentedButtonRow
 import androidx.compose.material3.Text
-import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.remember
-import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.text.input.KeyboardType
-import androidx.compose.ui.text.input.PasswordVisualTransformation
-import androidx.compose.foundation.text.TextAutoSize
 import androidx.compose.ui.unit.dp
-import androidx.compose.ui.unit.sp
 import dev.nitpick.app.settings.LlmProvider
 import dev.nitpick.app.settings.Settings
 import dev.nitpick.app.settings.ThemeMode
 import dev.nitpick.app.settings.knownModels
+import dev.nitpick.app.ui.components.NitpickCard
+import dev.nitpick.app.ui.components.NitpickRadioGroup
+import dev.nitpick.app.ui.components.NitpickSegmentedControl
+import dev.nitpick.app.ui.phone.PhoneTopBar
 import dev.nitpick.app.ui.repository.label
+import dev.nitpick.app.ui.theme.NitpickTheme
 import nitpick.shared.generated.resources.Res
-import nitpick.shared.generated.resources.action_back
-import nitpick.shared.generated.resources.settings_api_key
+import nitpick.shared.generated.resources.provider_cloud_hint
+import nitpick.shared.generated.resources.provider_ollama_hint
 import nitpick.shared.generated.resources.settings_model
 import nitpick.shared.generated.resources.settings_provider
 import nitpick.shared.generated.resources.settings_theme
@@ -50,9 +36,9 @@ import nitpick.shared.generated.resources.theme_system
 import org.jetbrains.compose.resources.StringResource
 import org.jetbrains.compose.resources.stringResource
 
-private val ScreenPadding = 24.dp
-private val SectionSpacing = 16.dp
-private val ChoiceTextSize = TextAutoSize.StepBased(minFontSize = 10.sp, maxFontSize = 14.sp)
+// Touch targets of the UI handoff §4.4: 48 dp controls, 52 dp radio rows.
+private val TouchControlHeight = 48.dp
+private val RadioRowHeight = 52.dp
 
 internal val ThemeMode.label: StringResource
     get() = when (this) {
@@ -61,93 +47,67 @@ internal val ThemeMode.label: StringResource
         ThemeMode.DARK -> Res.string.theme_dark
     }
 
+private val LlmProvider.hint: StringResource
+    get() = if (this == LlmProvider.OLLAMA) Res.string.provider_ollama_hint else Res.string.provider_cloud_hint
+
+/** Phone settings (UI handoff §4.4): every change is saved at once, there is no Save button on a phone. */
 @Composable
 fun SettingsScreen(settings: Settings, onChange: ((Settings) -> Settings) -> Unit, onBack: () -> Unit) {
-    Column(
-        modifier = Modifier.fillMaxSize().verticalScroll(rememberScrollState()).safeContentPadding().padding(ScreenPadding),
-        verticalArrangement = Arrangement.spacedBy(SectionSpacing),
-    ) {
-        TextButton(onClick = onBack) { Text(stringResource(Res.string.action_back)) }
-        Text(stringResource(Res.string.settings_title), style = MaterialTheme.typography.headlineMedium)
-
-        Text(stringResource(Res.string.settings_theme), style = MaterialTheme.typography.titleMedium)
-        ChoiceRow(
-            options = ThemeMode.entries,
-            selected = settings.themeMode,
-            label = { it.label },
-            onSelect = { mode -> onChange { it.copy(themeMode = mode) } },
-        )
-
-        Text(stringResource(Res.string.settings_provider), style = MaterialTheme.typography.titleMedium)
-        ChoiceRow(
-            options = LlmProvider.entries,
-            selected = settings.provider,
-            label = { it.label },
-            onSelect = { provider ->
-                onChange { it.copy(provider = provider, model = provider.knownModels.first()) }
-            },
-        )
-
-        ModelField(
-            model = settings.model,
-            suggestions = settings.provider.knownModels,
-            onChange = { model -> onChange { it.copy(model = model) } },
-        )
-
-        OutlinedTextField(
-            value = settings.apiKey,
-            onValueChange = { key -> onChange { it.copy(apiKey = key) } },
-            label = { Text(stringResource(Res.string.settings_api_key)) },
-            singleLine = true,
-            visualTransformation = PasswordVisualTransformation(),
-            keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Password),
-            modifier = Modifier.fillMaxWidth(),
-        )
-    }
-}
-
-@OptIn(ExperimentalMaterial3Api::class)
-@Composable
-private fun ModelField(model: String, suggestions: List<String>, onChange: (String) -> Unit) {
-    var expanded by remember { mutableStateOf(false) }
-    ExposedDropdownMenuBox(expanded = expanded, onExpandedChange = { expanded = it }) {
-        OutlinedTextField(
-            value = model,
-            onValueChange = {},
-            readOnly = true,
-            label = { Text(stringResource(Res.string.settings_model)) },
-            singleLine = true,
-            trailingIcon = { ExposedDropdownMenuDefaults.TrailingIcon(expanded) },
-            modifier = Modifier.fillMaxWidth().menuAnchor(ExposedDropdownMenuAnchorType.PrimaryNotEditable),
-        )
-        ExposedDropdownMenu(expanded = expanded, onDismissRequest = { expanded = false }) {
-            suggestions.forEach { suggestion ->
-                DropdownMenuItem(
-                    text = { Text(suggestion) },
-                    onClick = { onChange(suggestion); expanded = false },
+    val themeLabels = ThemeMode.entries.associateWith { stringResource(it.label) }
+    val providerLabels = LlmProvider.entries.associateWith { stringResource(it.label) }
+    val providerHints = LlmProvider.entries.associateWith { stringResource(it.hint) }
+    // Background first so the canvas colour also fills the status-bar inset.
+    Column(Modifier.fillMaxSize().background(NitpickTheme.colors.canvas).safeContentPadding()) {
+        PhoneTopBar(title = stringResource(Res.string.settings_title), onBack = onBack)
+        Column(
+            modifier = Modifier.fillMaxSize().verticalScroll(rememberScrollState()).padding(16.dp),
+            verticalArrangement = Arrangement.spacedBy(16.dp),
+        ) {
+            NitpickCard(verticalArrangement = Arrangement.spacedBy(8.dp)) {
+                SectionTitle(Res.string.settings_theme)
+                NitpickSegmentedControl(
+                    options = ThemeMode.entries,
+                    selected = settings.themeMode,
+                    label = { themeLabels.getValue(it) },
+                    onSelect = { mode -> onChange { it.copy(themeMode = mode) } },
+                    modifier = Modifier.fillMaxWidth(),
+                    height = TouchControlHeight,
                 )
             }
+            NitpickCard(verticalArrangement = Arrangement.spacedBy(8.dp)) {
+                SectionTitle(Res.string.settings_provider)
+                NitpickRadioGroup(
+                    options = LlmProvider.entries,
+                    selected = settings.provider,
+                    label = { providerLabels.getValue(it) },
+                    onSelect = { provider -> onChange { it.copy(provider = provider, model = provider.knownModels.first()) } },
+                    subtitle = { providerHints.getValue(it) },
+                    vertical = true,
+                    rowHeight = RadioRowHeight,
+                )
+                SectionTitle(Res.string.settings_model)
+                ModelSelector(
+                    model = settings.model,
+                    models = settings.provider.knownModels,
+                    onSelect = { model -> onChange { it.copy(model = model) } },
+                    modifier = Modifier.fillMaxWidth(),
+                    height = TouchControlHeight,
+                )
+                if (settings.provider != LlmProvider.OLLAMA) {
+                    ApiKeyField(
+                        apiKey = settings.apiKey,
+                        provider = settings.provider,
+                        onChange = { key -> onChange { it.copy(apiKey = key) } },
+                        modifier = Modifier.fillMaxWidth(),
+                        minHeight = TouchControlHeight,
+                    )
+                }
+            }
         }
     }
 }
 
 @Composable
-private fun <T> ChoiceRow(
-    options: List<T>,
-    selected: T,
-    label: (T) -> StringResource,
-    onSelect: (T) -> Unit,
-) {
-    SingleChoiceSegmentedButtonRow(modifier = Modifier.fillMaxWidth()) {
-        options.forEachIndexed { index, option ->
-            SegmentedButton(
-                selected = option == selected,
-                onClick = { onSelect(option) },
-                shape = SegmentedButtonDefaults.itemShape(index = index, count = options.size),
-                icon = {},
-            ) {
-                Text(stringResource(label(option)), maxLines = 1, autoSize = ChoiceTextSize)
-            }
-        }
-    }
+private fun SectionTitle(resource: StringResource) {
+    Text(stringResource(resource), style = NitpickTheme.typography.label, color = NitpickTheme.colors.textSecondary)
 }

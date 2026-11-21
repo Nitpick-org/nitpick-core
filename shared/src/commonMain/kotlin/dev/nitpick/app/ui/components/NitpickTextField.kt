@@ -23,8 +23,11 @@ import androidx.compose.ui.draw.alpha
 import androidx.compose.ui.graphics.SolidColor
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.text.input.VisualTransformation
+import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import dev.nitpick.app.ui.theme.NitpickTheme
+
+private val FieldMinHeight = 34.dp
 
 /**
  * Dense text field used in toolbars, settings and inline review forms. It is deliberately
@@ -45,6 +48,7 @@ fun NitpickTextField(
     trailing: (@Composable () -> Unit)? = null,
     visualTransformation: VisualTransformation = VisualTransformation.None,
     keyboardOptions: KeyboardOptions = KeyboardOptions.Default,
+    minHeight: Dp = FieldMinHeight,
 ) {
     val colors = NitpickTheme.colors
     val interactionSource = remember { MutableInteractionSource() }
@@ -72,7 +76,7 @@ fun NitpickTextField(
             tonalElevation = 0.dp,
         ) {
             Row(
-                modifier = Modifier.fillMaxWidth().heightIn(min = 34.dp).padding(horizontal = 10.dp),
+                modifier = Modifier.fillMaxWidth().heightIn(min = minHeight).padding(horizontal = 10.dp),
                 verticalAlignment = Alignment.CenterVertically,
                 horizontalArrangement = Arrangement.spacedBy(8.dp),
             ) {

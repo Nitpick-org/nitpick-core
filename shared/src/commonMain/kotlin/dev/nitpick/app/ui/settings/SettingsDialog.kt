@@ -3,7 +3,6 @@ package dev.nitpick.app.ui.settings
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
-import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxHeight
@@ -15,8 +14,6 @@ import androidx.compose.foundation.layout.widthIn
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
-import androidx.compose.material3.DropdownMenu
-import androidx.compose.material3.DropdownMenuItem
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
@@ -26,8 +23,6 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.text.input.PasswordVisualTransformation
-import androidx.compose.ui.text.input.VisualTransformation
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.window.Dialog
 import androidx.compose.ui.window.DialogProperties
@@ -36,7 +31,6 @@ import dev.nitpick.app.settings.Settings
 import dev.nitpick.app.settings.ThemeMode
 import dev.nitpick.app.settings.knownModels
 import dev.nitpick.app.ui.components.NitpickButton
-import dev.nitpick.app.ui.components.NitpickButtonSize
 import dev.nitpick.app.ui.components.NitpickButtonVariant
 import dev.nitpick.app.ui.components.NitpickDivider
 import dev.nitpick.app.ui.components.NitpickRadioGroup
@@ -48,10 +42,6 @@ import dev.nitpick.app.ui.theme.NitpickTheme
 import nitpick.shared.generated.resources.Res
 import nitpick.shared.generated.resources.action_cancel
 import nitpick.shared.generated.resources.action_save
-import nitpick.shared.generated.resources.connect_token_hide
-import nitpick.shared.generated.resources.connect_token_show
-import nitpick.shared.generated.resources.settings_api_key
-import nitpick.shared.generated.resources.settings_api_key_help
 import nitpick.shared.generated.resources.settings_kicker_ai_review
 import nitpick.shared.generated.resources.settings_kicker_appearance
 import nitpick.shared.generated.resources.settings_model
@@ -167,57 +157,10 @@ private fun GeneralSection(draft: Settings, onEdit: ((Settings) -> Settings) -> 
         )
 
         FieldLabel(Res.string.settings_model)
-        ModelSelector(draft.model, draft.provider.knownModels) { model -> onEdit { it.copy(model = model) } }
+        ModelSelector(draft.model, draft.provider.knownModels, { model -> onEdit { it.copy(model = model) } }, Modifier.width(ControlWidth))
 
-        ApiKeyField(draft, onEdit)
+        ApiKeyField(draft.apiKey, draft.provider, { key -> onEdit { it.copy(apiKey = key) } }, Modifier.width(KeyFieldWidth))
     }
-}
-
-@Composable
-private fun ModelSelector(model: String, models: List<String>, onSelect: (String) -> Unit) {
-    var expanded by remember { mutableStateOf(false) }
-    Box(Modifier.width(ControlWidth)) {
-        NitpickButton(
-            text = "$model ▾",
-            onClick = { expanded = true },
-            variant = NitpickButtonVariant.Secondary,
-            size = NitpickButtonSize.Small,
-            modifier = Modifier.fillMaxWidth(),
-        )
-        DropdownMenu(expanded = expanded, onDismissRequest = { expanded = false }) {
-            models.forEach { candidate ->
-                DropdownMenuItem(
-                    text = { Text(candidate, style = NitpickTheme.typography.codeSmall) },
-                    onClick = { expanded = false; onSelect(candidate) },
-                )
-            }
-        }
-    }
-}
-
-@Composable
-private fun ApiKeyField(draft: Settings, onEdit: ((Settings) -> Settings) -> Unit) {
-    var showKey by remember { mutableStateOf(false) }
-    NitpickTextField(
-        value = draft.apiKey,
-        onValueChange = { key -> onEdit { it.copy(apiKey = key) } },
-        label = stringResource(Res.string.settings_api_key),
-        visualTransformation = if (showKey) VisualTransformation.None else PasswordVisualTransformation(),
-        trailing = {
-            NitpickButton(
-                text = stringResource(if (showKey) Res.string.connect_token_hide else Res.string.connect_token_show),
-                onClick = { showKey = !showKey },
-                variant = NitpickButtonVariant.Ghost,
-                size = NitpickButtonSize.Small,
-            )
-        },
-        modifier = Modifier.width(KeyFieldWidth),
-    )
-    Text(
-        text = stringResource(Res.string.settings_api_key_help, stringResource(draft.provider.label)),
-        style = NitpickTheme.typography.micro,
-        color = NitpickTheme.colors.textMuted,
-    )
 }
 
 @Composable

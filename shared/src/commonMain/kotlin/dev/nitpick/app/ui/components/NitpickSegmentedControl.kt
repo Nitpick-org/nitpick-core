@@ -16,6 +16,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import dev.nitpick.app.ui.theme.NitpickTheme
 
@@ -27,13 +28,14 @@ fun <T> NitpickSegmentedControl(
     label: (T) -> String,
     onSelect: (T) -> Unit,
     modifier: Modifier = Modifier,
+    height: Dp = NitpickTheme.sizes.control,
 ) {
     val colors = NitpickTheme.colors
     val container = RoundedCornerShape(NitpickTheme.radii.md)
     val segment = RoundedCornerShape(NitpickTheme.radii.sm)
     Row(
         modifier = modifier
-            .height(NitpickTheme.sizes.control)
+            .height(height)
             .background(colors.surfaceSunken, container)
             .border(1.dp, colors.border, container)
             .padding(2.dp),
