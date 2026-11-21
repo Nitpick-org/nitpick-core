@@ -18,6 +18,8 @@
 - Le compteur de commits reste dans la carte (il était dans l'en-tête remplacé) ; le handoff ne le demande pas mais le retirer serait une perte d'information.
 - Pas de sélecteur `branche ▾` dans la carte : l'onglet Branches fait déjà le checkout (#42).
 
+- 00:20 — mesuré sur l'émulateur (420 dpi, uiautomator) : boutons 48 dp de haut (minimum tactile Material autour des 44 dp demandés), 91 dp de large chacun. Captures light/dark dans `docs/demo/captures/`.
+
 ## Incertain
 
-- Hauteur mesurée des boutons à vérifier sur l'émulateur (uiautomator), captures light/dark à joindre à la PR.
+- Rien.
