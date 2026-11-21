@@ -57,6 +57,7 @@ import dev.nitpick.app.ui.theme.NitpickTheme
 import kotlin.time.Clock
 import nitpick.shared.generated.resources.*
 import org.jetbrains.compose.resources.StringResource
+import org.jetbrains.compose.resources.pluralStringResource
 import org.jetbrains.compose.resources.stringResource
 
 private val InspectorWideWidth = 680.dp
@@ -379,7 +380,7 @@ private fun CommitsPanel(state: RepositoryUiState, onSelectCommit: (String) -> U
     Column(modifier) {
         NitpickToolWindowHeader(stringResource(Res.string.commits_title)) {
             Text(
-                text = if (filters.isActive) "${filtered.size}/${state.graph.size}" else stringResource(Res.string.status_commits, state.graph.size),
+                text = if (filters.isActive) "${filtered.size}/${state.graph.size}" else pluralStringResource(Res.plurals.status_commits, state.graph.size, state.graph.size),
                 style = NitpickTheme.typography.micro,
                 color = NitpickTheme.colors.onPanelHeader,
             )
@@ -617,7 +618,7 @@ private val InspectorTab.label: StringResource
 private fun RepositoryStatusBar(state: RepositoryUiState, settings: Settings, hasRepository: Boolean) {
     NitpickStatusBar {
         StatusText(state.currentBranch.ifEmpty { stringResource(Res.string.status_no_branch) })
-        if (hasRepository) StatusText(stringResource(Res.string.status_commits, state.graph.size))
+        if (hasRepository) StatusText(pluralStringResource(Res.plurals.status_commits, state.graph.size, state.graph.size))
         state.tracking?.let { tracking -> StatusText(stringResource(Res.string.sync_ahead_behind, tracking.ahead, tracking.behind)) }
         syncStatusMessage(state)?.let { message ->
             Text(

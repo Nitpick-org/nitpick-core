@@ -47,7 +47,8 @@ import nitpick.shared.generated.resources.review_clean_title
 import nitpick.shared.generated.resources.review_empty
 import nitpick.shared.generated.resources.review_error
 import nitpick.shared.generated.resources.review_local
-import nitpick.shared.generated.resources.review_nits_on_files
+import nitpick.shared.generated.resources.review_changed_files
+import nitpick.shared.generated.resources.review_nits
 import nitpick.shared.generated.resources.review_tools_used
 import nitpick.shared.generated.resources.review_retry
 import nitpick.shared.generated.resources.review_run
@@ -57,6 +58,7 @@ import nitpick.shared.generated.resources.review_step_diff
 import nitpick.shared.generated.resources.review_step_model
 import nitpick.shared.generated.resources.review_step_place
 import nitpick.shared.generated.resources.review_step_read
+import org.jetbrains.compose.resources.pluralStringResource
 import org.jetbrains.compose.resources.stringResource
 
 /**
@@ -125,7 +127,7 @@ fun ReviewPanel(
                                 Text(review.summary, style = NitpickTheme.typography.section)
                             }
                             Text(
-                                stringResource(Res.string.review_nits_on_files, review.comments.size, state.diff.size),
+                                pluralStringResource(Res.plurals.review_nits, review.comments.size, review.comments.size) + " " + pluralStringResource(Res.plurals.review_changed_files, state.diff.size, state.diff.size),
                                 style = NitpickTheme.typography.small,
                                 color = NitpickTheme.colors.textSecondary,
                             )
