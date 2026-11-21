@@ -40,8 +40,9 @@
 
 ## Incertain / blocages
 
-- Android : build vert, mais la persistance n'a pas été rejouée sur un appareil (`adb` et
-  `emulator` absents du PATH de cette session). Même code que desktop (`java.io.File`).
+- Aucun. Android rejoué sur l'émulateur `nitpick` (API 36, arm64) : tap Dark →
+  `files/settings.json` = `{"themeMode": "DARK"}` en `-rw-------`, force-stop + relance → Dark
+  toujours sélectionné et thème sombre appliqué (captures dans le scratchpad de session).
 
 ## Suivant
 
@@ -59,3 +60,6 @@
   garde `RepositoryScreen` sous `NitpickTheme` avec un bouton « Réglages » et un retour ;
   29 strings EN/FR. Règle force push assouplie pour les branches de PR (règles d'équipe et
   liste de refus Claude).
+- 18:15 — émulateur installé (`sdkmanager emulator` + image android-36 arm64, AVD `nitpick`),
+  persistance Android vérifiée ; libellés des boutons segmentés sur une ligne (auto-size, sans
+  coche) pour que « Anthropic » tienne sur téléphone.

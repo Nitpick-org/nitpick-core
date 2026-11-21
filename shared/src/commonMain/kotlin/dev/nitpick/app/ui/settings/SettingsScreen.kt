@@ -16,7 +16,9 @@ import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.input.PasswordVisualTransformation
+import androidx.compose.foundation.text.TextAutoSize
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.sp
 import dev.nitpick.app.settings.LlmProvider
 import dev.nitpick.app.settings.Settings
 import dev.nitpick.app.settings.ThemeMode
@@ -39,6 +41,7 @@ import org.jetbrains.compose.resources.stringResource
 
 private val ScreenPadding = 24.dp
 private val SectionSpacing = 16.dp
+private val ChoiceTextSize = TextAutoSize.StepBased(minFontSize = 10.sp, maxFontSize = 14.sp)
 
 private val ThemeMode.label: StringResource
     get() = when (this) {
@@ -112,8 +115,9 @@ private fun <T> ChoiceRow(
                 selected = option == selected,
                 onClick = { onSelect(option) },
                 shape = SegmentedButtonDefaults.itemShape(index = index, count = options.size),
+                icon = {},
             ) {
-                Text(stringResource(label(option)))
+                Text(stringResource(label(option)), maxLines = 1, autoSize = ChoiceTextSize)
             }
         }
     }
