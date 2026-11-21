@@ -19,6 +19,8 @@ class ReviewToolboxTest {
             ".git/config" to "token = secret",
             ".env" to "API_KEY=secret",
             "assets/logo.png" to "binary",
+            "secret.pem" to "PRIVATE KEY",
+            "local.properties" to "sdk.dir=/secret",
             "bin.dat" to "text\u0000binary",
             "big.txt" to "x".repeat(100),
         ),
@@ -36,6 +38,8 @@ class ReviewToolboxTest {
         assertTrue(toolbox.execute("read_file", path(".GIT/config")).isError)
         assertTrue(toolbox.execute("read_file", path(".env")).isError)
         assertTrue(toolbox.execute("read_file", path("assets/logo.png")).isError)
+        assertTrue(toolbox.execute("read_file", path("secret.pem")).isError)
+        assertTrue(toolbox.execute("read_file", path("local.properties")).isError)
         assertTrue(toolbox.execute("read_file", path("bin.dat")).isError)
     }
 

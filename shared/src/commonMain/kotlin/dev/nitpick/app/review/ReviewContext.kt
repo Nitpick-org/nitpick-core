@@ -14,7 +14,7 @@ private val IGNORED_FILE_NAMES = setOf(
     "package-lock.json", "yarn.lock", "pnpm-lock.yaml", "bun.lockb", "Cargo.lock", "Gemfile.lock",
     "poetry.lock", "composer.lock", "gradle.lockfile", "go.sum", "Podfile.lock",
     // Secrets: they must never leave the machine, even if a fake repo lists them as tracked.
-    ".env", ".env.local", "id_rsa", "id_ed25519",
+    ".env", ".env.local", "id_rsa", "id_ed25519", "local.properties",
 )
 private val IGNORED_EXTENSIONS = setOf(
     "min.js", "min.css", "map", "pb.go", "g.dart", "generated.kt",
@@ -22,6 +22,7 @@ private val IGNORED_EXTENSIONS = setOf(
     "import", "png", "jpg", "jpeg", "webp", "gif", "svg", "ico",
     "ttf", "otf", "woff", "woff2", "mp3", "wav", "ogg", "mp4", "mov",
     "glb", "gltf", "fbx", "blend", "psd", "aseprite",
+    "pem", "key", "p12", "jks",
 )
 private val IGNORED_DIRECTORIES = setOf("build", "dist", "node_modules", ".gradle", "generated", "vendor")
 

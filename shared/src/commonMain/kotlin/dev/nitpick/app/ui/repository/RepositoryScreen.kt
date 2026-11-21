@@ -65,10 +65,6 @@ private val RefSections = listOf(
     RefType.REMOTE_BRANCH to Res.string.refs_remote_branches,
     RefType.TAG to Res.string.refs_tags,
 )
-private const val ReviewShortcut = "⌘⇧R"
-private const val FetchShortcut = "⌘⇧F"
-private const val PullShortcut = "⌘⇧L"
-private const val PushShortcut = "⌘⇧P"
 
 enum class InspectorTab { Details, Diff, Review }
 
@@ -227,13 +223,13 @@ private fun RepositoryToolbar(
         }
         if (hasRepository) {
             val syncing = state.isSyncing
-            NitpickTooltip(text = stringResource(Res.string.fetch_action), shortcut = FetchShortcut) {
+            NitpickTooltip(text = stringResource(Res.string.fetch_action)) {
                 NitpickToolbarAction(
                     text = stringResource(if (state.isFetching) Res.string.fetch_in_progress else Res.string.fetch_action),
                     onClick = { if (!syncing) onFetch() },
                 )
             }
-            NitpickTooltip(text = stringResource(Res.string.pull_action), shortcut = PullShortcut) {
+            NitpickTooltip(text = stringResource(Res.string.pull_action)) {
                 NitpickToolbarAction(
                     text = when {
                         state.isPulling -> stringResource(Res.string.pull_in_progress)
@@ -246,7 +242,6 @@ private fun RepositoryToolbar(
             if (state.tracking != null || state.hasOrigin) {
                 NitpickTooltip(
                     text = stringResource(if (state.tracking == null) Res.string.publish_action else Res.string.push_action),
-                    shortcut = PushShortcut,
                 ) {
                 NitpickToolbarAction(
                     text = when {
@@ -260,7 +255,7 @@ private fun RepositoryToolbar(
                 }
             }
             NitpickVerticalDivider(Modifier.padding(horizontal = 4.dp))
-            NitpickTooltip(text = stringResource(Res.string.review_cta_tooltip), shortcut = ReviewShortcut) {
+            NitpickTooltip(text = stringResource(Res.string.review_cta_tooltip)) {
                 NitpickButton(
                     text = stringResource(Res.string.review_cta),
                     onClick = onReview,
