@@ -1,4 +1,5 @@
 import org.jetbrains.kotlin.gradle.dsl.JvmTarget
+import org.jetbrains.kotlin.gradle.plugin.KotlinPlatformType
 
 plugins {
     alias(libs.plugins.kotlinMultiplatform)
@@ -8,6 +9,18 @@ plugins {
 }
 
 kotlin {
+    // jvmShared sits between commonMain and the two JVM-based targets, so the JGit
+    // implementation is written once for desktop and Android (docs/CONTEXT.md §6).
+    applyDefaultHierarchyTemplate {
+        common {
+            group("jvmShared") {
+                withJvm()
+                // withAndroidTarget() does not match the AGP 9 KMP android target.
+                withCompilations { it.target.platformType == KotlinPlatformType.androidJvm }
+            }
+        }
+    }
+
     jvm()
     android {
        namespace = "dev.nitpick.app.shared"
@@ -42,6 +55,9 @@ kotlin {
             implementation(libs.compose.uiToolingPreview)
             implementation(libs.androidx.lifecycle.viewmodelCompose)
             implementation(libs.androidx.lifecycle.runtimeCompose)
+        }
+        getByName("jvmSharedMain").dependencies {
+            implementation(libs.jgit)
         }
         commonTest.dependencies {
             implementation(libs.kotlin.test)
