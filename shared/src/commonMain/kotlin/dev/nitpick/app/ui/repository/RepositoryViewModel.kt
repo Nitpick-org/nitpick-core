@@ -156,7 +156,7 @@ class RepositoryViewModel(
             } catch (e: CancellationException) {
                 throw e
             } catch (e: Exception) {
-                _state.update { it.copy(isReviewing = false, reviewError = e.message ?: e.toString()) }
+                if (repository === git) _state.update { it.copy(isReviewing = false, reviewError = e.message ?: e.toString()) }
             }
         }
     }
@@ -183,7 +183,7 @@ class RepositoryViewModel(
             } catch (e: CancellationException) {
                 throw e
             } catch (e: Exception) {
-                _state.update { it.copy(reviewError = e.message ?: e.toString()) }
+                if (repository === git) _state.update { it.copy(reviewError = e.message ?: e.toString()) }
             }
         }
     }
@@ -228,7 +228,7 @@ class RepositoryViewModel(
             } catch (e: CancellationException) {
                 throw e
             } catch (e: Exception) {
-                _state.update { it.copy(reviewError = e.message ?: e.toString()) }
+                if (repository === git) _state.update { it.copy(reviewError = e.message ?: e.toString()) }
             }
         }
     }
