@@ -6,8 +6,12 @@ import dev.nitpick.app.domain.FileChangeType
 import dev.nitpick.app.domain.FileDiff
 import dev.nitpick.app.domain.Hunk
 import dev.nitpick.app.domain.Severity
+import dev.nitpick.app.domain.ReviewToolUse
 import dev.nitpick.app.git.FakeGitRepository
 import kotlinx.coroutines.test.runTest
+import kotlinx.serialization.json.JsonObject
+import kotlinx.serialization.json.buildJsonObject
+import kotlinx.serialization.json.put
 import kotlin.test.Test
 import kotlin.test.assertContains
 import kotlin.test.assertEquals
@@ -37,6 +41,14 @@ class LlmReviewAgentTest {
     private class RecordingClient(private val answer: String) : LlmClient {
         var user = ""
         override suspend fun complete(system: String, user: String): String { this.user = user; return answer }
+    }
+
+    private class ToolUsingClient : ToolCallingLlmClient {
+        override suspend fun complete(system: String, user: String): String = "not used"
+        override suspend fun completeWithTools(prompt: ReviewPrompt, toolbox: ReviewToolbox): String {
+            toolbox.execute("read_file", buildJsonObject { put("path", "Main.kt") })
+            return """{"summary":"clean","comments":[]}"""
+        }
     }
 
     private class ToolRecordingClient : ToolCallingLlmClient {
@@ -77,6 +89,13 @@ class LlmReviewAgentTest {
 
         assertEquals(2, client.calls)
         assertEquals("clean", result.summary)
+    }
+
+    @Test
+    fun toolUsesAreCarriedIntoTheResult() = runTest {
+        val result = LlmReviewAgent(ToolUsingClient()).review(repository, "main")
+
+        assertEquals(listOf(ReviewToolUse("read_file", "Main.kt")), result.toolUses)
     }
 
     @Test
