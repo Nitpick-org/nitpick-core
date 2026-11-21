@@ -503,27 +503,23 @@ private fun StringFilterDropdown(label: String, options: List<String>, selected:
 @Composable
 private fun DateFilterDropdown(selected: CommitDateFilter, onSelect: (CommitDateFilter) -> Unit) {
     var expanded by remember { mutableStateOf(false) }
-    val label = when (selected) {
-        CommitDateFilter.ALL -> stringResource(Res.string.filter_all)
-        CommitDateFilter.TODAY -> stringResource(Res.string.filter_today)
-        CommitDateFilter.WEEK -> stringResource(Res.string.filter_week)
-        CommitDateFilter.MONTH -> stringResource(Res.string.filter_month)
-    }
     Box {
-        FilterChip(text = "${stringResource(Res.string.filter_date)}: $label", onClick = { expanded = true })
+        FilterChip(text = "${stringResource(Res.string.filter_date)}: ${stringResource(selected.label)}", onClick = { expanded = true })
         DropdownMenu(expanded = expanded, onDismissRequest = { expanded = false }) {
             CommitDateFilter.entries.forEach { option ->
-                val optionLabel = when (option) {
-                    CommitDateFilter.ALL -> stringResource(Res.string.filter_all)
-                    CommitDateFilter.TODAY -> stringResource(Res.string.filter_today)
-                    CommitDateFilter.WEEK -> stringResource(Res.string.filter_week)
-                    CommitDateFilter.MONTH -> stringResource(Res.string.filter_month)
-                }
-                DropdownMenuItem(text = { Text(optionLabel) }, onClick = { onSelect(option); expanded = false })
+                DropdownMenuItem(text = { Text(stringResource(option.label)) }, onClick = { onSelect(option); expanded = false })
             }
         }
     }
 }
+
+private val CommitDateFilter.label: StringResource
+    get() = when (this) {
+        CommitDateFilter.ALL -> Res.string.filter_all
+        CommitDateFilter.TODAY -> Res.string.filter_today
+        CommitDateFilter.WEEK -> Res.string.filter_week
+        CommitDateFilter.MONTH -> Res.string.filter_month
+    }
 
 @Composable
 private fun FilterChip(text: String, onClick: () -> Unit) {
