@@ -167,4 +167,6 @@
     <string name="sync_push_count">Push %1$d</string>
     <string name="settings_kicker_git">Compte git</string>
     <string name="review_tools_used">Outils utilisés</string>
+    <string name="publish_action">Publier la branche</string>
+    <string name="publish_in_progress">Publication…</string>
 </resources>

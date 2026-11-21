@@ -89,6 +89,7 @@ fun RepositoryScreen(
     onCheckoutBranch: (String) -> Unit,
     onPull: () -> Unit,
     onPush: () -> Unit,
+    onPublish: () -> Unit,
     onFetch: () -> Unit,
     onSelectBase: (String) -> Unit,
     onSelectDiffFile: (String) -> Unit,
@@ -114,6 +115,7 @@ fun RepositoryScreen(
             onCloneRepository = onCloneRepository,
             onPull = onPull,
             onPush = onPush,
+            onPublish = onPublish,
             onFetch = onFetch,
             onReview = {
                 tab = InspectorTab.Review
@@ -188,6 +190,7 @@ private fun RepositoryToolbar(
     onCloneRepository: (() -> Unit)?,
     onPull: () -> Unit,
     onPush: () -> Unit,
+    onPublish: () -> Unit,
     onFetch: () -> Unit,
     onReview: () -> Unit,
     onOpenSettings: () -> Unit,
@@ -240,16 +243,20 @@ private fun RepositoryToolbar(
                     onClick = { if (!syncing) onPull() },
                 )
             }
-            if (state.tracking != null) {
-                NitpickTooltip(text = stringResource(Res.string.push_action), shortcut = PushShortcut) {
-                    NitpickToolbarAction(
-                        text = when {
-                            state.isPushing -> stringResource(Res.string.push_in_progress)
-                            state.tracking.ahead > 0 -> stringResource(Res.string.sync_push_count, state.tracking.ahead)
-                            else -> stringResource(Res.string.push_action)
-                        },
-                        onClick = { if (!syncing) onPush() },
-                    )
+            if (state.tracking != null || state.hasOrigin) {
+                NitpickTooltip(
+                    text = stringResource(if (state.tracking == null) Res.string.publish_action else Res.string.push_action),
+                    shortcut = PushShortcut,
+                ) {
+                NitpickToolbarAction(
+                    text = when {
+                        state.isPushing -> stringResource(Res.string.push_in_progress)
+                        state.tracking == null -> stringResource(Res.string.publish_action)
+                        state.tracking.ahead > 0 -> stringResource(Res.string.sync_push_count, state.tracking.ahead)
+                        else -> stringResource(Res.string.push_action)
+                    },
+                    onClick = { if (!syncing) if (state.tracking == null) onPublish() else onPush() },
+                )
                 }
             }
             NitpickVerticalDivider(Modifier.padding(horizontal = 4.dp))

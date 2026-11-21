@@ -403,6 +403,28 @@ class JGitRepositoryTest {
     }
 
     @Test
+    fun publishBranchPushesANewLocalBranchAndSetsItsUpstream() = runBlocking<Unit> {
+        repo.write("a.txt", "1")
+        repo.commit("first", at = 1_000)
+        val bare = newBareOrigin()
+        val cloneDir = newCloneTarget()
+        val clone = factory.clone(bare.toURI().toString(), cloneDir.path, credentials = null)
+        TestGitRepo.inDir(cloneDir).git("checkout", "-b", "feature")
+        clone.writeFile("b.txt", "feature")
+        clone.stage(listOf("b.txt"))
+        clone.commit("feature work")
+        assertEquals(null, clone.trackingStatus())
+
+        clone.publishBranch(credentials = null)
+
+        val tracking = clone.trackingStatus()
+        assertEquals(0, tracking?.ahead)
+        assertEquals(0, tracking?.behind)
+        assertEquals("origin/feature", tracking?.upstream)
+        assertEquals(clone.log().first().id, TestGitRepo.inDir(bare).git("rev-parse", "refs/heads/feature").trim())
+    }
+
+    @Test
     fun trackingStatusReportsAheadAndBehind() = runBlocking<Unit> {
         repo.write("a.txt", "1")
         repo.commit("first", at = 1_000)

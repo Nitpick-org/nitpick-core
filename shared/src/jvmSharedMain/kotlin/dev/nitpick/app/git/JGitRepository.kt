@@ -260,6 +260,23 @@ class JGitRepository(private val git: Git) : GitRepository {
         }
     }
 
+    override suspend fun publishBranch(credentials: Credentials?) = withContext(Dispatchers.IO) {
+        val branch = repository.branch ?: throw IllegalStateException("Cannot publish a detached HEAD")
+        val results = git.push()
+            .setRemote("origin")
+            .setRefSpecs(org.eclipse.jgit.transport.RefSpec("refs/heads/$branch:refs/heads/$branch"))
+            .setCredentialsProvider(credentials.toJGit())
+            .call()
+        val rejected = results.flatMap { it.remoteUpdates }.filterNot { it.status in ACCEPTED_PUSH_STATUSES }
+        require(rejected.isEmpty()) {
+            rejected.joinToString("; ") { "${it.remoteName}: ${it.status}${it.message?.let { m -> " ($m)" } ?: ""}" }
+        }
+        val config = repository.config
+        config.setString("branch", branch, "remote", "origin")
+        config.setString("branch", branch, "merge", "refs/heads/$branch")
+        config.save()
+    }
+
     override suspend fun trackingStatus(): dev.nitpick.app.domain.TrackingStatus? = withContext(Dispatchers.IO) {
         val branch = repository.branch ?: return@withContext null
         val tracking = BranchTrackingStatus.of(repository, branch) ?: return@withContext null
