@@ -213,8 +213,11 @@ class JGitRepositoryTest {
         repo.write("main-only.txt", "x\n")
         repo.commit("main moves on", at = 3_000)
         repo.git("checkout", "feature")
-        // Not committed yet, like a suggestion that was just applied.
+        // Staged but not committed yet: part of the branch's work.
         repo.write("draft.txt", "wip\n")
+        repo.git("add", "draft.txt")
+        // Untracked: may hold secrets, so it must never reach the review.
+        repo.write("secrets.txt", "KEY=secret\n")
         repo.write("build/out.txt", "ignored\n")
 
         val diff = open().diffAgainst("main").associateBy { it.path }

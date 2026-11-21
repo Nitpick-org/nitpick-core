@@ -11,6 +11,7 @@ import dev.nitpick.app.domain.WorkingTreeStatus
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 import org.eclipse.jgit.api.Git
+import org.eclipse.jgit.dircache.DirCache
 import org.eclipse.jgit.diff.DiffFormatter
 import org.eclipse.jgit.lib.Constants
 import org.eclipse.jgit.lib.Repository
@@ -20,6 +21,8 @@ import org.eclipse.jgit.revwalk.RevWalk
 import org.eclipse.jgit.revwalk.filter.RevFilter
 import org.eclipse.jgit.treewalk.CanonicalTreeParser
 import org.eclipse.jgit.treewalk.FileTreeIterator
+import org.eclipse.jgit.treewalk.TreeWalk
+import org.eclipse.jgit.treewalk.filter.TreeFilter
 import java.io.ByteArrayOutputStream
 import java.io.File
 import org.eclipse.jgit.lib.Ref as JGitRef
@@ -81,6 +84,7 @@ class JGitRepository(private val git: Git) : GitRepository {
     /**
      * Compares the fork point with [baseRef] to the working tree, like a pull request would
      * show the branch plus the edits not committed yet (an applied suggestion shows up at once).
+     * Untracked files stay out: the review sends every file of this diff to the LLM provider.
      */
     override suspend fun diffAgainst(baseRef: String): List<FileDiff> = withContext(Dispatchers.IO) {
         val base = runCatching { repository.resolve("$baseRef^{commit}") }.getOrNull()
@@ -97,8 +101,10 @@ class JGitRepository(private val git: Git) : GitRepository {
             DiffFormatter(output).use { formatter ->
                 formatter.setRepository(repository)
                 formatter.isDetectRenames = true
+                formatter.pathFilter = TrackedFilter(repository.readDirCache())
                 val oldTree = CanonicalTreeParser(null, walk.objectReader, forkPoint.tree)
                 // A working tree iterator also makes the formatter skip ignored files.
+                // shortcut: hashes every working-tree file per call, add a DirCacheIterator if big repos get slow.
                 formatter.format(formatter.scan(oldTree, FileTreeIterator(repository)))
             }
         }
@@ -185,4 +191,17 @@ class JGitRepository(private val git: Git) : GitRepository {
             type = type,
         )
     }
+}
+
+/**
+ * Keeps paths that git knows: in the index, or in the fork-point tree (tree 0 of the walk),
+ * so a file removed with `git rm` still shows as deleted.
+ */
+private class TrackedFilter(private val index: DirCache) : TreeFilter() {
+    override fun include(walker: TreeWalk): Boolean =
+        walker.isSubtree || walker.getRawMode(0) != 0 || index.findEntry(walker.rawPath, walker.pathLength) >= 0
+
+    override fun shouldBeRecursive() = false
+
+    override fun clone(): TreeFilter = this
 }
