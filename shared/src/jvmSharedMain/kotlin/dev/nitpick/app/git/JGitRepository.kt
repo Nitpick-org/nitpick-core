@@ -1,5 +1,6 @@
 package dev.nitpick.app.git
 
+import dev.nitpick.app.diff.parseUnifiedDiff
 import dev.nitpick.app.domain.Commit
 import dev.nitpick.app.domain.Credentials
 import dev.nitpick.app.domain.FileDiff
@@ -7,17 +8,18 @@ import dev.nitpick.app.domain.PullResult
 import dev.nitpick.app.domain.Ref
 import dev.nitpick.app.domain.RefType
 import dev.nitpick.app.domain.WorkingTreeStatus
-import dev.nitpick.app.diff.parseUnifiedDiff
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 import org.eclipse.jgit.api.Git
+import org.eclipse.jgit.diff.DiffFormatter
 import org.eclipse.jgit.lib.Constants
 import org.eclipse.jgit.lib.Repository
 import org.eclipse.jgit.revwalk.RevCommit
 import org.eclipse.jgit.revwalk.RevSort
 import org.eclipse.jgit.revwalk.RevWalk
+import org.eclipse.jgit.revwalk.filter.RevFilter
 import org.eclipse.jgit.treewalk.CanonicalTreeParser
-import org.eclipse.jgit.treewalk.AbstractTreeIterator
+import org.eclipse.jgit.treewalk.FileTreeIterator
 import java.io.ByteArrayOutputStream
 import java.io.File
 import org.eclipse.jgit.lib.Ref as JGitRef
@@ -76,21 +78,32 @@ class JGitRepository(private val git: Git) : GitRepository {
         (0 until index.entryCount).map { index.getEntry(it).pathString }.distinct()
     }
 
-    override suspend fun diffAgainst(baseRef: String): List<FileDiff> =
-        withContext(Dispatchers.IO) {
-            val base = repository.resolve(baseRef)
-                ?: throw IllegalArgumentException("Unknown base ref: $baseRef")
-            val head = repository.resolve(Constants.HEAD) ?: return@withContext emptyList()
-            val output = ByteArrayOutputStream()
-            git.diff()
-                .setOldTree(treeParser(base))
-                // null newTree compares the base against the working tree, so applying a
-                // suggestion refreshes the diff before the commit.
-                .setNewTree(null)
-                .setOutputStream(output)
-                .call()
-            parseUnifiedDiff(output.toString(Charsets.UTF_8.name()))
+    /**
+     * Compares the fork point with [baseRef] to the working tree, like a pull request would
+     * show the branch plus the edits not committed yet (an applied suggestion shows up at once).
+     */
+    override suspend fun diffAgainst(baseRef: String): List<FileDiff> = withContext(Dispatchers.IO) {
+        val base = runCatching { repository.resolve("$baseRef^{commit}") }.getOrNull()
+            ?: throw IllegalArgumentException("Unknown base: $baseRef")
+        val head = repository.resolve(Constants.HEAD) ?: return@withContext emptyList()
+        val output = ByteArrayOutputStream()
+        RevWalk(repository).use { walk ->
+            val baseCommit = walk.parseCommit(base)
+            walk.markStart(walk.parseCommit(head))
+            walk.markStart(baseCommit)
+            walk.revFilter = RevFilter.MERGE_BASE
+            // Unrelated histories have no fork point: compare against the base itself.
+            val forkPoint = walk.next() ?: baseCommit
+            DiffFormatter(output).use { formatter ->
+                formatter.setRepository(repository)
+                formatter.isDetectRenames = true
+                val oldTree = CanonicalTreeParser(null, walk.objectReader, forkPoint.tree)
+                // A working tree iterator also makes the formatter skip ignored files.
+                formatter.format(formatter.scan(oldTree, FileTreeIterator(repository)))
+            }
         }
+        parseUnifiedDiff(output.toString(Charsets.UTF_8))
+    }
 
     override suspend fun writeFile(path: String, content: String) =
         withContext(Dispatchers.IO) {
@@ -143,13 +156,6 @@ class JGitRepository(private val git: Git) : GitRepository {
         val firstSegment = workTree.toPath().relativize(file.toPath()).firstOrNull()?.toString()
         require(firstSegment != Constants.DOT_GIT) { "Path points inside .git: $path" }
         return file
-    }
-
-    private fun treeParser(rev: org.eclipse.jgit.lib.ObjectId): AbstractTreeIterator {
-        val walk = RevWalk(repository)
-        val commit = walk.parseCommit(rev)
-        val tree = walk.parseTree(commit.tree.id)
-        return CanonicalTreeParser(null, repository.newObjectReader(), tree)
     }
 
     private fun RevCommit.toCommit() = Commit(
