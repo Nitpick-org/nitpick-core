@@ -9,6 +9,8 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.saveable.rememberSaveable
+import androidx.compose.ui.ExperimentalComposeUiApi
+import androidx.compose.ui.backhandler.BackHandler
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.style.TextOverflow
@@ -33,12 +35,21 @@ private val PhoneActionHeight = 56.dp
 
 private enum class PhoneScreen { Repos, Clone, Graph, Review, Diff, Shared }
 
+private val PhoneScreen.parent: PhoneScreen
+    get() = when (this) {
+        PhoneScreen.Repos -> PhoneScreen.Repos
+        PhoneScreen.Clone, PhoneScreen.Graph -> PhoneScreen.Repos
+        PhoneScreen.Review, PhoneScreen.Shared -> PhoneScreen.Graph
+        PhoneScreen.Diff -> PhoneScreen.Review
+    }
+
 /**
  * Compact layout (CONTEXT §12): one screen at a time, Repos → Clone → Graph → Review → Diff.
  * Graph also opens Shared, the reviews another device shared for this repository.
  * The phone needs a forge account first: every clone and push uses [Settings.gitConnection].
  * [cloneRoot] is the folder clones land in.
  */
+@OptIn(ExperimentalComposeUiApi::class)
 @Composable
 fun PhoneFlow(
     state: RepositoryUiState,
@@ -67,6 +78,8 @@ fun PhoneFlow(
 ) {
     var screen by rememberSaveable { mutableStateOf(if (state.path != null) PhoneScreen.Graph else PhoneScreen.Repos) }
     var editingConnection by rememberSaveable { mutableStateOf(false) }
+    // System Back follows the same parent as each screen's in-app back button.
+    BackHandler(enabled = screen != PhoneScreen.Repos) { screen = screen.parent }
     val connection = settings.gitConnection?.takeIf { it.isComplete }
     if (connection == null || editingConnection) {
         ConnectScreen(
