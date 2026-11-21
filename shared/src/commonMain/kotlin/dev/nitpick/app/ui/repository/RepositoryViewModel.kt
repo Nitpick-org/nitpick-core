@@ -443,6 +443,7 @@ class RepositoryViewModel(
                 it.copy(
                     review = shared.result.copy(comments = comments),
                     reviewError = null,
+                    actionError = null,
                     sharedReviewId = shared.id,
                     shareFailure = null,
                     openedSharedReview = shared,
@@ -559,6 +560,7 @@ class RepositoryViewModel(
                             selectedCommitId = graph.firstOrNull()?.commit?.id,
                             review = null,
                             reviewError = null,
+                            actionError = null,
                             sharedReviewId = null,
                             shareFailure = null,
                             openedSharedReview = null,
