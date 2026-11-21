@@ -66,10 +66,11 @@ if [ ! -f "$DIR/progress/$NAME.md" ]; then
 
 - Statut : en cours
 - Propriétaire humain : @
+- Piste : <A core | B git+desktop | C android+finitions>
 - Agent : @implementer
 - Model : <haiku|sonnet|opus>
 - Escalations :
-- Fichiers autorisés : src/modules/<...>
+- Fichiers autorisés : composeApp/src/<sourceSet>/<...>
 
 ## Journal
 

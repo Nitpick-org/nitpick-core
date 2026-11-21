@@ -19,16 +19,21 @@ le problème : deux agents ne touchent jamais le même fichier.
 ## Format d'une entrée
 
 ```md
-## 14:32 — ticket 12-login
+## 14:32 — ticket 12-graph-lanes (piste A)
 
-- Fait : formulaire + validation + redirection.
-- Décisions : session cookie plutôt que JWT (plus simple pour la démo).
+- Fait : algorithme de lanes + 6 tests (merge, branche orpheline, octopus).
+- Décisions : une lane par parent non encore placé, réutilisée dès qu'elle se libère.
 - Modèle : sonnet.
 - Escalades : sonnet → opus (2 échecs sur la validation).
-- Fichiers : src/modules/auth/*, tests/auth.test.ts.
-- Blocage : clé API sponsor absente → mock utilisé, question dans QUESTIONS.md.
-- Suivant : brancher le vrai provider si la clé arrive.
+- Fichiers : composeApp/src/commonMain/kotlin/dev/nitpick/app/graph/*, composeApp/src/commonTest/.../graph/*.
+- Incertain : couleurs des lanes non testées en thème sombre.
+- Blocage : aucun.
+- Suivant : brancher sur `GitRepository.log()` réel (piste B).
 ```
+
+Ce journal par ticket **est** le journal d'agent du §11 de `docs/CONTEXT.md` : les champs
+agent, piste, tâche, fichiers, décisions et incertain y figurent. `docs/AGENT_LOG.md` n'en est
+que la compilation, faite par un humain aux syncs.
 
 ## À la fin
 
