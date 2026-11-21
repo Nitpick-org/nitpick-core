@@ -116,8 +116,8 @@ fun DiffLineRow(line: DiffLine, modifier: Modifier = Modifier) {
             .padding(end = 8.dp),
         verticalAlignment = Alignment.CenterVertically,
     ) {
-        DiffLineNumber(line.oldLineNumber.toString(), colors.lineNumber)
-        DiffLineNumber(line.newLineNumber.toString(), colors.lineNumber)
+        DiffLineNumber(line.oldLineNumber?.toString().orEmpty(), colors.lineNumber)
+        DiffLineNumber(line.newLineNumber?.toString().orEmpty(), colors.lineNumber)
         Text(
             text = gutter,
             modifier = Modifier.width(16.dp),

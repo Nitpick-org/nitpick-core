@@ -39,8 +39,6 @@
     <string name="tab_review">Review</string>
     <string name="refs_local">Locales</string>
     <string name="refs_filter_placeholder">Filtrer branches et tags</string>
-    <string name="diff_base">Base</string>
-    <string name="diff_empty">Aucun changement par rapport à la base</string>
     <string name="review_run">Nitpicker la branche</string>
     <string name="review_running">Analyse…</string>
     <string name="review_empty">Lancez une review pour voir les nits de cette branche</string>
@@ -54,4 +52,11 @@
     <string name="commit_later">Plus tard</string>
     <string name="commit_stage">Indexer et committer</string>
     <string name="review_local">Review IA</string>
+    <string name="diff_vs">%1$s vs</string>
+    <string name="diff_base">Base : %1$s</string>
+    <string name="diff_files">%1$d fichiers</string>
+    <string name="diff_empty">Aucune différence avec %1$s</string>
+    <string name="diff_error_title">Impossible de comparer avec %1$s</string>
+    <string name="diff_binary">Fichier binaire, non affiché</string>
+    <string name="diff_no_line_changes">Aucune ligne modifiée</string>
 </resources>

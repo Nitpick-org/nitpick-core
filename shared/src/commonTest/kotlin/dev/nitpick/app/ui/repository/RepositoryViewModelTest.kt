@@ -1,6 +1,8 @@
 package dev.nitpick.app.ui.repository
 
 import dev.nitpick.app.domain.Commit
+import dev.nitpick.app.domain.FileChangeType
+import dev.nitpick.app.domain.FileDiff
 import dev.nitpick.app.domain.Ref
 import dev.nitpick.app.domain.RefType
 import dev.nitpick.app.git.FakeGitRepository
@@ -26,8 +28,15 @@ class RepositoryViewModelTest {
     private val commits = listOf(child, parent)
     private val mainBranch = Ref("main", "refs/heads/main", child.id, RefType.LOCAL_BRANCH)
 
+    private val parserChange = fileDiff("diff/UnifiedDiffParser.kt")
+    private val graphChange = fileDiff("graph/CommitGraph.kt")
+    private val releaseChange = fileDiff("README.md")
+    private val diffs = mapOf("main" to listOf(parserChange, graphChange), "release" to listOf(releaseChange))
+
     private val repositories = FakeGitRepositoryFactory(
-        mapOf("/work/demo" to FakeGitRepository(branch = "main", commits = commits, refs = listOf(mainBranch))),
+        mapOf(
+            "/work/demo" to FakeGitRepository(branch = "main", commits = commits, refs = listOf(mainBranch), diffs = diffs),
+        ),
     )
 
     // viewModelScope runs on Dispatchers.Main, which tests have to provide.
@@ -57,10 +66,47 @@ class RepositoryViewModelTest {
                 graph = buildCommitGraph(commits),
                 refs = listOf(mainBranch),
                 selectedCommitId = child.id,
+                diff = listOf(parserChange, graphChange),
             ),
             viewModel.state.value,
         )
         assertEquals(child, viewModel.state.value.selectedCommit)
+        assertEquals(parserChange, viewModel.state.value.selectedDiff)
+    }
+
+    @Test
+    fun selectingAChangedFileShowsItsHunks() {
+        val viewModel = viewModel()
+        viewModel.openRepository("/work/demo")
+
+        viewModel.selectDiffFile(graphChange.path)
+
+        assertEquals(graphChange, viewModel.state.value.selectedDiff)
+    }
+
+    @Test
+    fun choosingAnotherBaseReloadsTheDiff() {
+        val viewModel = viewModel()
+        viewModel.openRepository("/work/demo")
+
+        viewModel.selectBase("release")
+
+        assertEquals("release", viewModel.state.value.baseRef)
+        assertEquals(listOf(releaseChange), viewModel.state.value.diff)
+        assertEquals(releaseChange, viewModel.state.value.selectedDiff)
+    }
+
+    @Test
+    fun anUnknownBaseShowsTheErrorAndKeepsTheGraph() {
+        val viewModel = viewModel()
+        viewModel.openRepository("/work/demo")
+
+        viewModel.selectBase("develop")
+
+        val state = viewModel.state.value
+        assertEquals("Unknown base: develop", state.diffError)
+        assertEquals(emptyList(), state.diff)
+        assertEquals(buildCommitGraph(commits), state.graph)
     }
 
     @Test
@@ -94,4 +140,6 @@ class RepositoryViewModelTest {
         timestampEpochSeconds = 1_700_000_000,
         parentIds = parents,
     )
+
+    private fun fileDiff(path: String) = FileDiff(path, oldPath = null, FileChangeType.MODIFIED, isBinary = false, hunks = emptyList())
 }

@@ -54,8 +54,7 @@ enum class InspectorTab { Details, Diff, Review }
 
 /**
  * Desktop shell from docs/design/UI-HANDOFF.md §3.1: branches tool window | commit graph |
- * tabbed inspector, framed by the IDE toolbar and status bar. The diff and review tabs are
- * filled by the next steps of the handoff.
+ * tabbed inspector, framed by the IDE toolbar and status bar.
  *
  * [onOpenRepository] is null on platforms without a folder picker.
  */
@@ -65,6 +64,9 @@ fun RepositoryScreen(
     settings: Settings,
     onOpenRepository: (() -> Unit)?,
     onSelectCommit: (String) -> Unit,
+    onShowDiff: () -> Unit,
+    onSelectBase: (String) -> Unit,
+    onSelectDiffFile: (String) -> Unit,
     onOpenSettings: () -> Unit,
     onRunReview: () -> Unit,
     onApplySuggestion: (ReviewComment) -> Unit,
@@ -116,7 +118,13 @@ fun RepositoryScreen(
                     Inspector(
                         state = state,
                         tab = tab,
-                        onSelectTab = { tab = it },
+                        onSelectTab = {
+                            tab = it
+                            // The working tree may have changed since the last load.
+                            if (it == InspectorTab.Diff) onShowDiff()
+                        },
+                        onSelectBase = onSelectBase,
+                        onSelectDiffFile = onSelectDiffFile,
                         onRunReview = onRunReview,
                         onApplySuggestion = onApplySuggestion,
                         onDismissSuggestion = onDismissSuggestion,
@@ -280,6 +288,8 @@ private fun Inspector(
     onDismissSuggestion: (String) -> Unit,
     onCommitMessage: (String) -> Unit,
     onCommit: () -> Unit,
+    onSelectBase: (String) -> Unit,
+    onSelectDiffFile: (String) -> Unit,
     modifier: Modifier,
 ) {
     Column(modifier.background(NitpickTheme.colors.surface)) {
@@ -308,7 +318,7 @@ private fun Inspector(
                     )
                 }
             }
-            InspectorTab.Diff -> DiffPanel(state.diff, state.baseRef, Modifier.weight(1f))
+            InspectorTab.Diff -> DiffPanel(state, onSelectBase, onSelectDiffFile, Modifier.weight(1f))
             InspectorTab.Review -> ReviewPanel(
                 state = state,
                 onReview = onRunReview,
@@ -364,7 +374,7 @@ private fun PanelHint(text: String) {
 }
 
 // On a detached HEAD, currentBranch is a full commit id: shorten it like the commit list does.
-private fun branchLabel(currentBranch: String): String =
+internal fun branchLabel(currentBranch: String): String =
     if (currentBranch.length == 40 && currentBranch.all { it in "0123456789abcdef" }) {
         currentBranch.take(7)
     } else {
