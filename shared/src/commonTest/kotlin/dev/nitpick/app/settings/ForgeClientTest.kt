@@ -16,15 +16,15 @@ import kotlin.test.Test
 import kotlin.test.assertEquals
 import kotlin.test.assertFailsWith
 
-class DeviceFlowClientTest {
+class ForgeClientTest {
 
     private val requests = mutableListOf<HttpRequestData>()
     private val networkBlip = NETWORK_BLIP to HttpStatusCode.OK
     private val code = DeviceCode("dev-code", "WDJB-MJHT", "https://github.com/login/device", expiresInSeconds = 900, intervalSeconds = 5)
 
-    private fun client(vararg answers: Pair<String, HttpStatusCode>): DeviceFlowClient {
+    private fun client(vararg answers: Pair<String, HttpStatusCode>): ForgeClient {
         val queue = answers.toMutableList()
-        return DeviceFlowClient(HttpClient(MockEngine { request ->
+        return ForgeClient(HttpClient(MockEngine { request ->
             requests += request
             val answer = queue.removeFirst()
             if (answer.first == NETWORK_BLIP) throw IllegalStateException("UnresolvedAddressException") else json(answer)
@@ -123,6 +123,18 @@ class DeviceFlowClientTest {
         }
 
         assertEquals(3, requests.size)
+    }
+
+    @Test
+    fun fetchLoginReadsTheAccountNameOfEachForge() = runTest {
+        val github = client("""{"login":"pepito2t","id":1}""" to HttpStatusCode.OK)
+        assertEquals("pepito2t", github.fetchLogin(GitHost.GITHUB, "gho_secret"))
+        assertEquals("https://api.github.com/user", requests.single().url.toString())
+        assertEquals("Bearer gho_secret", requests.single().headers[HttpHeaders.Authorization])
+
+        val gitlab = client("""{"username":"thomas","id":2}""" to HttpStatusCode.OK)
+        assertEquals("thomas", gitlab.fetchLogin(GitHost.GITLAB, "glpat_1"))
+        assertEquals("https://gitlab.com/api/v4/user", requests.last().url.toString())
     }
 
     @Test

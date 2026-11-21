@@ -115,6 +115,7 @@
     <string name="connect_token_hide">Hide</string>
     <string name="connect_action">Connect</string>
     <string name="connect_edit">Account</string>
+    <string name="connect_current">Signed in to %1$s as @%2$s.</string>
     <string name="connect_signin">Sign in with %1$s</string>
     <string name="connect_signin_code_help">Enter this code in the browser on %1$s, then come back here.</string>
     <string name="connect_signin_open">Open the browser</string>

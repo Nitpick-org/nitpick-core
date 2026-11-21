@@ -3,6 +3,7 @@ package dev.nitpick.app.settings
 import io.ktor.client.HttpClient
 import io.ktor.client.plugins.HttpTimeout
 import io.ktor.client.request.forms.submitForm
+import io.ktor.client.request.get
 import io.ktor.client.request.header
 import io.ktor.client.statement.HttpResponse
 import io.ktor.client.statement.bodyAsText
@@ -43,7 +44,7 @@ data class DeviceCode(
 
 class DeviceFlowException(message: String, cause: Throwable? = null) : Exception(message, cause)
 
-private class ForgeEndpoints(val deviceUrl: String, val tokenUrl: String, val scope: String)
+private class ForgeEndpoints(val deviceUrl: String, val tokenUrl: String, val scope: String, val userUrl: String)
 
 // Scopes: GitHub needs `repo` for private repositories; GitLab lets git over HTTPS through with
 // read_repository (clone) and write_repository (push).
@@ -52,6 +53,7 @@ private fun GitHost.endpoints() = when (this) {
         deviceUrl = "https://github.com/login/device/code",
         tokenUrl = "https://github.com/login/oauth/access_token",
         scope = "repo",
+        userUrl = "https://api.github.com/user",
     )
     // shortcut: a GitLab device-flow token lives 2 h and comes without a refresh token, so the user
     // signs in again afterwards; add the refresh grant when that becomes a complaint.
@@ -59,6 +61,7 @@ private fun GitHost.endpoints() = when (this) {
         deviceUrl = "https://gitlab.com/oauth/authorize_device",
         tokenUrl = "https://gitlab.com/oauth/token",
         scope = "read_repository write_repository",
+        userUrl = "https://gitlab.com/api/v4/user",
     )
 }
 
@@ -79,6 +82,9 @@ private data class DeviceCodeResponse(
 )
 
 @Serializable
+private data class UserResponse(val login: String? = null, val username: String? = null)
+
+@Serializable
 private data class TokenResponse(
     @SerialName("access_token") val accessToken: String? = null,
     val error: String? = null,
@@ -88,11 +94,12 @@ private data class TokenResponse(
 private val json = Json { ignoreUnknownKeys = true }
 
 /**
- * OAuth 2.0 device flow (RFC 8628) against github.com and gitlab.com. GitHub answers a pending poll
- * with HTTP 200 and an `error` field, GitLab with HTTP 400: the body is read whatever the status.
- * `HttpClient()` picks the CIO engine from jvmSharedMain; tests pass a MockEngine client.
+ * Sign-in against github.com and gitlab.com: the OAuth 2.0 device flow (RFC 8628) and the login
+ * behind a token. GitHub answers a pending poll with HTTP 200 and an `error` field, GitLab with
+ * HTTP 400: the body is read whatever the status. `HttpClient()` picks the CIO engine from
+ * jvmSharedMain; tests pass a MockEngine client.
  */
-class DeviceFlowClient(
+class ForgeClient(
     private val http: HttpClient = HttpClient {
         // A forge that hangs must fail within seconds, not leave the code screen waiting forever.
         install(HttpTimeout) {
@@ -121,6 +128,16 @@ class DeviceFlowClient(
     /** Polls until the user approves in the browser; the token is returned once and never logged. */
     suspend fun awaitToken(host: GitHost, clientId: String, code: DeviceCode): String = call {
         poll(host.endpoints().tokenUrl, clientId, code)
+    }
+
+    /** The account name a token belongs to (GitHub `login`, GitLab `username`), to show who is signed in. */
+    suspend fun fetchLogin(host: GitHost, token: String): String = call {
+        val response = http.get(host.endpoints().userUrl) {
+            header(HttpHeaders.Authorization, "Bearer $token")
+            header(HttpHeaders.Accept, "application/json")
+        }
+        val user = response.decode<UserResponse>()
+        user.login ?: user.username ?: throw DeviceFlowException("no login in the answer")
     }
 
     // Counts the waits instead of a timeout, so tests on virtual time stay deterministic.

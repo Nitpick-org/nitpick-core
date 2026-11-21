@@ -6,13 +6,13 @@
 - Agent : Claude Code (Fable 5.1), session humaine
 - Model : fable
 - Escalations : aucune
-- Fichiers autorisés : `shared/src/commonMain/kotlin/dev/nitpick/app/settings/DeviceFlowClient.kt`,
-  `shared/src/commonTest/.../settings/DeviceFlowClientTest.kt`, `AppContainer.kt`, `ui/App.kt`,
+- Fichiers autorisés : `shared/src/commonMain/kotlin/dev/nitpick/app/settings/ForgeClient.kt`,
+  `shared/src/commonTest/.../settings/ForgeClientTest.kt`, `AppContainer.kt`, `ui/App.kt`,
   `ui/phone/PhoneFlow.kt`, `ui/phone/ConnectScreen.kt`, `composeResources/values*/strings.xml`
 
 ## Fait
 
-- `DeviceFlowClient` (RFC 8628) : `start(host, clientId)` demande le code, `awaitToken` interroge
+- `ForgeClient` (RFC 8628) : `start(host, clientId)` demande le code, `awaitToken` interroge
   le endpoint token à l'intervalle donné, +5 s sur `slow_down` (ou l'`interval` renvoyé), abandon
   à `expires_in`. Le corps est lu quel que soit le statut HTTP : GitHub répond 200 avec `error`,
   GitLab 400. Le corps n'entre jamais dans une exception (il porte le token).
@@ -26,7 +26,12 @@
   code utilisateur en grand, « Ouvrir le navigateur » et « Annuler » (annule le polling). Le token
   obtenu passe par le même `onConnect(GitConnection)` que le jeton saisi.
 - Le jeton saisi à la main reste disponible tel quel.
-- `ForgeOAuthClientIds` : ids publics en constantes ; vide = bouton masqué.
+- `ForgeOAuthClientIds` : ids publics en constantes ; vide = bouton masqué. GitHub renseigné
+  (OAuth App « Nitpick », device flow activé, tokens sans expiration).
+- Compte affiché : `GitConnection.login` (GitHub `login`, GitLab `username`, via
+  `ForgeClient.fetchLogin`) rempli après la connexion ou un jeton saisi ; `@login` remplace
+  « Account » dans la barre Repositories, et l'écran Connect dit « Connecté à GitHub en tant
+  que @login ». Un échec de la lecture du nom ne bloque pas la connexion.
 
 ## Décisions
 
@@ -47,9 +52,10 @@
 
 ## Preuves
 
-- `check.sh` vert ; `DeviceFlowClientTest` : 6 tests, 0 échec (jvm + androidHostTest).
+- `check.sh` vert ; `ForgeClientTest` : 6 tests, 0 échec (jvm + androidHostTest).
 
 ## Journal
 
 - 23:20 — worktree créé, docs GitHub/GitLab vérifiées.
 - 23:35 — client + tests + écran ; check vert.
+- 23:45 — client id GitHub, polling tolérant aux coupures, compte connecté affiché.

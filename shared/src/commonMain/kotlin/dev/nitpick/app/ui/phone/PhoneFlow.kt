@@ -16,7 +16,7 @@ import androidx.compose.ui.unit.dp
 import dev.nitpick.app.domain.Credentials
 import dev.nitpick.app.domain.ReviewComment
 import dev.nitpick.app.domain.SharedReview
-import dev.nitpick.app.settings.DeviceFlowClient
+import dev.nitpick.app.settings.ForgeClient
 import dev.nitpick.app.settings.GitConnection
 import dev.nitpick.app.settings.Settings
 import dev.nitpick.app.ui.components.NitpickButton
@@ -62,7 +62,7 @@ fun PhoneFlow(
     onOpenSharedReview: (SharedReview) -> Unit,
     onFetch: (Credentials?) -> Unit,
     onConnect: (GitConnection) -> Unit,
-    deviceFlow: DeviceFlowClient,
+    forge: ForgeClient,
     onOpenSettings: () -> Unit,
     modifier: Modifier = Modifier,
 ) {
@@ -72,7 +72,7 @@ fun PhoneFlow(
     if (connection == null || editingConnection) {
         ConnectScreen(
             current = connection,
-            deviceFlow = deviceFlow,
+            forge = forge,
             onConnect = {
                 onConnect(it)
                 editingConnection = false
@@ -93,6 +93,7 @@ fun PhoneFlow(
             onEditConnection = { editingConnection = true },
             onOpenSettings = onOpenSettings,
             modifier = modifier,
+            accountLogin = connection.login.takeIf { it.isNotBlank() }?.let { "@$it" }.orEmpty(),
         )
         PhoneScreen.Clone -> CloneScreen(
             state = state,
