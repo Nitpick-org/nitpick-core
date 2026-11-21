@@ -91,4 +91,19 @@
     <string name="review_step_place">Placement des nits</string>
     <string name="review_ai_badge">IA</string>
     <string name="review_clean_badge">PROPRE</string>
+    <string name="review_title">Review</string>
+    <string name="review_vs">%1$s vs %2$s</string>
+    <string name="review_rerun">Relancer</string>
+    <string name="review_files_with_nits">Fichiers avec nits · %1$d</string>
+    <string name="review_nit_position">%1$d sur %2$d</string>
+    <string name="review_line">ligne %1$d</string>
+    <string name="review_whole_file_short">fichier entier</string>
+    <string name="commit_bar_applied">%1$d suggestion appliquée</string>
+    <string name="push_action">Push</string>
+    <string name="push_in_progress">Push en cours…</string>
+    <string name="push_error">Le push a échoué</string>
+    <string name="push_token_title">Jeton requis pour le push</string>
+    <string name="push_token_help">Saisissez à nouveau le jeton d’accès : il n’est jamais stocké.</string>
+    <string name="branch_checkout_hint">Touchez une branche pour la récupérer</string>
+    <string name="repository_loading">Chargement…</string>
 </resources>

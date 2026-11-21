@@ -6,6 +6,7 @@ import dev.nitpick.app.domain.Commit
 import dev.nitpick.app.domain.FileDiff
 import dev.nitpick.app.domain.Credentials
 import dev.nitpick.app.domain.Ref
+import dev.nitpick.app.domain.RefType
 import dev.nitpick.app.domain.ReviewComment
 import dev.nitpick.app.domain.ReviewResult
 import dev.nitpick.app.git.GitRepository
@@ -79,7 +80,20 @@ data class RepositoryUiState(
     val appliedIds: Set<String> = emptySet(),
     val appliedFiles: Set<String> = emptySet(),
     val commitMessage: String = "",
+    val hasCredentials: Boolean = false,
+    val isPushing: Boolean = false,
+    val pushError: String? = null,
+    val isCheckingOut: Boolean = false,
+    val checkoutError: String? = null,
 ) {
+    /** Local commits the origin does not have yet: true when the current branch is ahead of, or unknown to, origin. */
+    val hasUnpushedCommits: Boolean
+        get() {
+            val local = refs.firstOrNull { it.type == RefType.LOCAL_BRANCH && it.name == currentBranch } ?: return false
+            val remote = refs.firstOrNull { it.type == RefType.REMOTE_BRANCH && it.name == "origin/$currentBranch" }
+            return remote?.commitId != local.commitId
+        }
+
     val selectedCommit: Commit?
         get() = graph.firstOrNull { it.commit.id == selectedCommitId }?.commit
 
@@ -108,17 +122,21 @@ class RepositoryViewModel(
     // Two applies on the same file must not read the same original and overwrite each other.
     private val writeLock = Mutex()
 
-    fun openRepository(path: String) = load(path) { gitRepositoryFactory.open(path) }
+    // The token typed for the clone, kept for this session's pushes only: never in the state, never saved.
+    private var sessionCredentials: Credentials? = null
+
+    fun openRepository(path: String) = load(path, credentials = null) { gitRepositoryFactory.open(path) }
 
     /** Clones [url] into [path]; the token in [credentials] stays in memory and never reaches the state. */
     fun cloneRepository(url: String, path: String, credentials: Credentials?) =
-        load(path) { gitRepositoryFactory.clone(url, path, credentials) }
+        load(path, credentials) { gitRepositoryFactory.clone(url, path, credentials) }
 
-    private fun load(path: String, openRepository: suspend () -> GitRepository) {
+    private fun load(path: String, credentials: Credentials?, openRepository: suspend () -> GitRepository) {
         // Opening another folder while one is loading must not let the old result win.
         loading?.cancel()
         diffLoading?.cancel()
         repository = null
+        sessionCredentials = credentials
         _state.value = RepositoryUiState(path = path, isLoading = true)
         loading = viewModelScope.launch {
             _state.value = try {
@@ -126,12 +144,15 @@ class RepositoryViewModel(
                 val commits = opened.log()
                 val graph = withContext(graphDispatcher) { buildCommitGraph(commits) }
                 repository = opened
+                val refs = opened.refs()
                 RepositoryUiState(
                     path = path,
                     currentBranch = opened.currentBranch(),
                     graph = graph,
-                    refs = opened.refs(),
+                    refs = refs,
                     selectedCommitId = graph.firstOrNull()?.commit?.id,
+                    baseRef = defaultBaseRef(refs),
+                    hasCredentials = credentials != null,
                 )
             } catch (e: CancellationException) {
                 throw e
@@ -269,4 +290,70 @@ class RepositoryViewModel(
             }
         }
     }
+
+    /**
+     * Pushes the current branch to origin. [credentials] replaces the token typed at clone time
+     * when the user has to enter one again (a repository reopened after a restart has none).
+     */
+    fun pushBranch(credentials: Credentials? = null) {
+        val git = repository ?: return
+        if (_state.value.isPushing) return
+        if (credentials != null) sessionCredentials = credentials
+        _state.update { it.copy(isPushing = true, pushError = null, hasCredentials = sessionCredentials != null) }
+        viewModelScope.launch {
+            try {
+                git.push(sessionCredentials)
+                if (repository !== git) return@launch
+                _state.update { it.copy(isPushing = false, refs = git.refs()) }
+            } catch (e: CancellationException) {
+                throw e
+            } catch (e: Exception) {
+                if (repository === git) _state.update { it.copy(isPushing = false, pushError = e.message ?: e.toString()) }
+            }
+        }
+    }
+
+    /** Switches to [branch] and reloads the graph, the diff and the review for it. */
+    fun checkoutBranch(branch: String) {
+        val git = repository ?: return
+        // A review still running would land its nits on the new branch.
+        if (_state.value.isCheckingOut || _state.value.isReviewing || branch == _state.value.currentBranch) return
+        _state.update { it.copy(isCheckingOut = true, checkoutError = null) }
+        viewModelScope.launch {
+            try {
+                git.checkout(branch)
+                val commits = git.log()
+                val graph = withContext(graphDispatcher) { buildCommitGraph(commits) }
+                if (repository !== git) return@launch
+                _state.update {
+                    it.copy(
+                        isCheckingOut = false,
+                        currentBranch = git.currentBranch(),
+                        graph = graph,
+                        refs = git.refs(),
+                        selectedCommitId = graph.firstOrNull()?.commit?.id,
+                        review = null,
+                        reviewError = null,
+                        appliedIds = emptySet(),
+                        appliedFiles = emptySet(),
+                        commitMessage = "",
+                        pushError = null,
+                    )
+                }
+                refreshDiff()
+            } catch (e: CancellationException) {
+                throw e
+            } catch (e: Exception) {
+                if (repository === git) _state.update { it.copy(isCheckingOut = false, checkoutError = e.message ?: e.toString()) }
+            }
+        }
+    }
+}
+
+private val DEFAULT_BASE_CANDIDATES = listOf("main", "origin/main", "master", "origin/master")
+
+/** The branch a review compares against: a repository cloned from GitHub often has no local `main`. */
+internal fun defaultBaseRef(refs: List<Ref>): String {
+    val names = refs.filter { it.type != RefType.TAG }.map { it.name }.toSet()
+    return DEFAULT_BASE_CANDIDATES.firstOrNull { it in names } ?: DEFAULT_BASE_CANDIDATES.first()
 }

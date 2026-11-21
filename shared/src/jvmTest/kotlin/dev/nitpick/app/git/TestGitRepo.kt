@@ -61,6 +61,9 @@ class TestGitRepo private constructor(val dir: File) {
             return repo
         }
 
+        /** Runs git commands in an existing folder, such as a bare repository. */
+        fun inDir(dir: File): TestGitRepo = TestGitRepo(dir)
+
         fun cloneOf(origin: TestGitRepo): TestGitRepo {
             val parent = Files.createTempDirectory("nitpick-clone").toFile().canonicalFile
             TestGitRepo(parent).git("clone", origin.dir.path, "clone")

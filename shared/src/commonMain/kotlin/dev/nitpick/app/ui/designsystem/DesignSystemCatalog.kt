@@ -30,6 +30,7 @@ import dev.nitpick.app.domain.DiffLine
 import dev.nitpick.app.domain.DiffLineType
 import dev.nitpick.app.domain.Ref
 import dev.nitpick.app.domain.RefType
+import dev.nitpick.app.domain.ReviewComment
 import dev.nitpick.app.domain.Severity
 import dev.nitpick.app.ui.components.DiffLineRow
 import dev.nitpick.app.ui.components.NitpickBadge
@@ -47,6 +48,7 @@ import dev.nitpick.app.ui.components.NitpickToolbarAction
 import dev.nitpick.app.ui.components.NitpickTooltip
 import dev.nitpick.app.ui.components.NitpickToolWindowHeader
 import dev.nitpick.app.ui.components.RefBadge
+import dev.nitpick.app.ui.components.NitSheetContent
 import dev.nitpick.app.ui.components.ReviewCommentCard
 import dev.nitpick.app.ui.theme.NitpickTheme
 import dev.nitpick.app.ui.theme.NitpickTone
@@ -209,6 +211,23 @@ private fun ReviewSection() {
                 ),
             )
         }
+        NitSheetContent(
+            comment = ReviewComment(
+                id = "nit-1",
+                filePath = "review/NitAnchor.kt",
+                startLine = 23,
+                endLine = 23,
+                severity = Severity.WARNING,
+                category = "logic",
+                message = "The snippet is compared before it is trimmed, so trailing spaces break the anchor.",
+                originalSnippet = "if (snippet == lines[i])",
+                suggestion = "if (snippet.trim() == lines[i].trim())",
+            ),
+            position = 1,
+            total = 8,
+            onApply = {},
+            onDismiss = {},
+        )
         Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
             RefBadge(Ref("main", "refs/heads/main", "abc123", RefType.LOCAL_BRANCH))
             RefBadge(Ref("origin/main", "refs/remotes/origin/main", "abc123", RefType.REMOTE_BRANCH))

@@ -29,6 +29,9 @@ import dev.nitpick.app.ui.repository.folderName
 import dev.nitpick.app.ui.theme.NitpickTheme
 import nitpick.shared.generated.resources.Res
 import nitpick.shared.generated.resources.action_back
+import nitpick.shared.generated.resources.branch_checkout_hint
+import nitpick.shared.generated.resources.repository_loading
+import nitpick.shared.generated.resources.review_cta
 import nitpick.shared.generated.resources.commits_empty
 import nitpick.shared.generated.resources.commits_title
 import nitpick.shared.generated.resources.refs_local_branches
@@ -45,6 +48,8 @@ fun PhoneGraphScreen(
     state: RepositoryUiState,
     onBack: () -> Unit,
     onSelectCommit: (String) -> Unit,
+    onCheckoutBranch: (String) -> Unit,
+    onReview: () -> Unit,
     onOpenSettings: () -> Unit,
     modifier: Modifier = Modifier,
 ) {
@@ -62,14 +67,30 @@ fun PhoneGraphScreen(
                 actionLabel = stringResource(Res.string.action_back),
                 onAction = onBack,
             )
-            else -> GraphContent(state, onSelectCommit)
+            else -> {
+                GraphContent(state, onSelectCommit, onCheckoutBranch, Modifier.weight(1f))
+                if (state.checkoutError != null) {
+                    Text(
+                        text = state.checkoutError,
+                        modifier = Modifier.fillMaxWidth().padding(horizontal = 16.dp),
+                        style = NitpickTheme.typography.small,
+                        color = NitpickTheme.colors.danger,
+                    )
+                }
+                PhoneBottomButton(
+                    text = stringResource(if (state.isCheckingOut) Res.string.repository_loading else Res.string.review_cta),
+                    onClick = onReview,
+                    enabled = !state.isCheckingOut,
+                )
+            }
         }
     }
 }
 
 @Composable
-private fun GraphContent(state: RepositoryUiState, onSelectCommit: (String) -> Unit) {
+private fun GraphContent(state: RepositoryUiState, onSelectCommit: (String) -> Unit, onCheckoutBranch: (String) -> Unit, modifier: Modifier) {
     var tab by rememberSaveable { mutableStateOf(GraphTab.Commits) }
+    Column(modifier) {
     Row(Modifier.fillMaxWidth().padding(horizontal = 16.dp, vertical = 12.dp), horizontalArrangement = Arrangement.spacedBy(8.dp)) {
         Text(
             text = stringResource(Res.string.repository_on_branch, branchLabel(state.currentBranch)),
@@ -88,7 +109,15 @@ private fun GraphContent(state: RepositoryUiState, onSelectCommit: (String) -> U
     }
     NitpickDivider()
     when {
-        tab == GraphTab.Branches -> RefsSidebar(state.refs, state.currentBranch, Modifier.fillMaxSize())
+        tab == GraphTab.Branches -> Column(Modifier.fillMaxSize()) {
+            Text(
+                text = stringResource(Res.string.branch_checkout_hint),
+                modifier = Modifier.fillMaxWidth().padding(horizontal = 16.dp, vertical = 6.dp),
+                style = NitpickTheme.typography.micro,
+                color = NitpickTheme.colors.textMuted,
+            )
+            RefsSidebar(state.refs, state.currentBranch, Modifier.fillMaxSize(), onSelectBranch = onCheckoutBranch)
+        }
         state.graph.isEmpty() -> Text(
             text = stringResource(Res.string.commits_empty),
             modifier = Modifier.fillMaxWidth().padding(16.dp),
@@ -96,5 +125,6 @@ private fun GraphContent(state: RepositoryUiState, onSelectCommit: (String) -> U
             color = NitpickTheme.colors.textMuted,
         )
         else -> CommitGraphList(state.graph, state.selectedCommitId, onSelectCommit, Modifier.fillMaxSize())
+    }
     }
 }

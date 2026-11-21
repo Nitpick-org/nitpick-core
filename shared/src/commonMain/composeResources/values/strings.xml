@@ -91,4 +91,19 @@
     <string name="review_step_place">Placing nits on lines</string>
     <string name="review_ai_badge">AI</string>
     <string name="review_clean_badge">CLEAN</string>
+    <string name="review_title">Review</string>
+    <string name="review_vs">%1$s vs %2$s</string>
+    <string name="review_rerun">Re-run</string>
+    <string name="review_files_with_nits">Files with nits · %1$d</string>
+    <string name="review_nit_position">%1$d of %2$d</string>
+    <string name="review_line">line %1$d</string>
+    <string name="review_whole_file_short">whole file</string>
+    <string name="commit_bar_applied">%1$d suggestion applied</string>
+    <string name="push_action">Push</string>
+    <string name="push_in_progress">Pushing…</string>
+    <string name="push_error">Push failed</string>
+    <string name="push_token_title">Token needed to push</string>
+    <string name="push_token_help">Enter the access token again: it is never stored.</string>
+    <string name="branch_checkout_hint">Tap a branch to check it out</string>
+    <string name="repository_loading">Loading…</string>
 </resources>

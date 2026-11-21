@@ -31,6 +31,7 @@ import kotlin.test.AfterTest
 import kotlin.test.BeforeTest
 import kotlin.test.Test
 import kotlin.test.assertEquals
+import kotlin.test.assertTrue
 
 @OptIn(ExperimentalCoroutinesApi::class)
 class RepositoryViewModelTest {
@@ -170,6 +171,120 @@ class RepositoryViewModelTest {
             RepositoryUiState(path = "/data/repos/demo", errorMessage = "not authorized"),
             viewModel.state.value,
         )
+    }
+
+    @Test
+    fun pushReusesTheTokenTypedForTheCloneAndRefreshesTheRemoteBranch() {
+        val remoteBehind = Ref("origin/main", "refs/remotes/origin/main", parent.id, RefType.REMOTE_BRANCH)
+        val remote = PushingRepository(FakeGitRepository(branch = "main", commits = commits, refs = listOf(mainBranch, remoteBehind)))
+        val viewModel = RepositoryViewModel(RecordingCloneFactory(remote), graphDispatcher = dispatcher)
+        val credentials = Credentials("x-access-token", "ghp_secret")
+        viewModel.cloneRepository("https://github.com/acme/demo.git", "/data/repos/demo", credentials)
+        assertTrue(viewModel.state.value.hasUnpushedCommits)
+
+        viewModel.pushBranch()
+
+        assertEquals(listOf<Credentials?>(credentials), remote.pushes)
+        val state = viewModel.state.value
+        assertEquals(false, state.isPushing)
+        assertEquals(null, state.pushError)
+        assertEquals(false, state.hasUnpushedCommits)
+    }
+
+    @Test
+    fun aReopenedRepositoryHasNoTokenUntilTheUserTypesOneForThePush() {
+        val remote = PushingRepository(FakeGitRepository(branch = "main", commits = commits, refs = listOf(mainBranch)))
+        val viewModel = RepositoryViewModel(FakeGitRepositoryFactory(mapOf("/work/demo" to remote)), graphDispatcher = dispatcher)
+        viewModel.openRepository("/work/demo")
+        assertEquals(false, viewModel.state.value.hasCredentials)
+
+        viewModel.pushBranch(Credentials("x-access-token", "ghp_typed"))
+
+        assertEquals(listOf<Credentials?>(Credentials("x-access-token", "ghp_typed")), remote.pushes)
+        assertEquals(true, viewModel.state.value.hasCredentials)
+    }
+
+    @Test
+    fun aRejectedPushShowsTheErrorAndKeepsTheReview() {
+        val remote = PushingRepository(FakeGitRepository(branch = "main", commits = commits, refs = listOf(mainBranch)), failure = "main: REJECTED_NONFASTFORWARD")
+        val viewModel = RepositoryViewModel(FakeGitRepositoryFactory(mapOf("/work/demo" to remote)), graphDispatcher = dispatcher)
+        viewModel.openRepository("/work/demo")
+
+        viewModel.pushBranch()
+
+        assertEquals("main: REJECTED_NONFASTFORWARD", viewModel.state.value.pushError)
+        assertEquals(false, viewModel.state.value.isPushing)
+    }
+
+    @Test
+    fun checkingOutABranchReloadsTheGraphAndDropsTheReview() {
+        val featureTip = commit(id = "3333333cccc", message = "On feature", parents = listOf(child.id))
+        val feature = Ref("feature", "refs/heads/feature", featureTip.id, RefType.LOCAL_BRANCH)
+        val remote = PushingRepository(
+            FakeGitRepository(branch = "main", commits = commits, refs = listOf(mainBranch, feature), diffs = diffs),
+            afterCheckout = FakeGitRepository(branch = "feature", commits = listOf(featureTip) + commits, refs = listOf(mainBranch, feature), diffs = diffs),
+        )
+        val viewModel = RepositoryViewModel(FakeGitRepositoryFactory(mapOf("/work/demo" to remote)), graphDispatcher = dispatcher)
+        viewModel.openRepository("/work/demo")
+
+        viewModel.checkoutBranch("feature")
+
+        assertEquals(listOf("feature"), remote.checkouts)
+        val state = viewModel.state.value
+        assertEquals("feature", state.currentBranch)
+        assertEquals(featureTip.id, state.selectedCommitId)
+        assertEquals(null, state.review)
+        assertEquals(false, state.isCheckingOut)
+    }
+
+    @Test
+    fun theBaseFallsBackToTheOriginBranchWhenThereIsNoLocalMain() {
+        val remoteMaster = Ref("origin/master", "refs/remotes/origin/master", parent.id, RefType.REMOTE_BRANCH)
+        val feature = Ref("feature", "refs/heads/feature", child.id, RefType.LOCAL_BRANCH)
+        val tag = Ref("main", "refs/tags/main", child.id, RefType.TAG)
+        assertEquals("origin/master", defaultBaseRef(listOf(remoteMaster, feature, tag)))
+        assertEquals("main", defaultBaseRef(listOf(mainBranch, remoteMaster)))
+        assertEquals("main", defaultBaseRef(emptyList()))
+
+        val repository = FakeGitRepository(branch = "feature", commits = commits, refs = listOf(feature, remoteMaster), diffs = mapOf("origin/master" to listOf(parserChange)))
+        val viewModel = RepositoryViewModel(FakeGitRepositoryFactory(mapOf("/work/clone" to repository)), graphDispatcher = dispatcher)
+
+        viewModel.openRepository("/work/clone")
+
+        assertEquals("origin/master", viewModel.state.value.baseRef)
+        assertEquals(listOf(parserChange), viewModel.state.value.diff)
+    }
+
+    /** The shared fake does not push or check out; this wrapper records both and swaps the branch view on checkout. */
+    private class PushingRepository(
+        private var inner: GitRepository,
+        private val failure: String? = null,
+        private val afterCheckout: GitRepository? = null,
+    ) : GitRepository by inner {
+        val pushes = mutableListOf<Credentials?>()
+        val checkouts = mutableListOf<String>()
+
+        override suspend fun push(credentials: Credentials?) {
+            pushes += credentials
+            if (failure != null) throw IllegalArgumentException(failure)
+        }
+
+        override suspend fun checkout(branch: String) {
+            checkouts += branch
+            inner = afterCheckout ?: inner
+        }
+
+        override suspend fun log(limit: Int) = inner.log(limit)
+        override suspend fun refs() = if (pushes.isNotEmpty() && failure == null) pushedRefs() else inner.refs()
+        override suspend fun currentBranch() = inner.currentBranch()
+        override suspend fun diffAgainst(baseRef: String) = inner.diffAgainst(baseRef)
+
+        // After a push, origin/<branch> points where the local branch points.
+        private suspend fun pushedRefs(): List<Ref> {
+            val local = inner.refs().first { it.type == RefType.LOCAL_BRANCH && it.name == inner.currentBranch() }
+            return inner.refs().filterNot { it.name == "origin/${local.name}" } +
+                Ref("origin/${local.name}", "refs/remotes/origin/${local.name}", local.commitId, RefType.REMOTE_BRANCH)
+        }
     }
 
     /** Records the last clone request; a null [cloned] repository makes the clone fail like a bad token. */
