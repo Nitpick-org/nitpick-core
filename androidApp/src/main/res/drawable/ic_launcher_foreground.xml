@@ -1,0 +1,24 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- The tweezers glyph of docs/design/icon/nitpick-icon.svg, scaled so it fills the
+     adaptive icon's 72 dp visible area the way it fills the 512 px tile. -->
+<vector xmlns:android="http://schemas.android.com/apk/res/android"
+    android:width="108dp"
+    android:height="108dp"
+    android:viewportWidth="108"
+    android:viewportHeight="108">
+    <group
+        android:translateX="27"
+        android:translateY="27"
+        android:scaleX="2.25"
+        android:scaleY="2.25">
+        <path
+            android:pathData="M10.4 2.5h3.2 M10.4 2.5L6.8 14.2l3.6 5 M13.6 2.5l3.6 11.7-3.6 5"
+            android:strokeWidth="1.8"
+            android:strokeColor="#F0FDFA"
+            android:strokeLineCap="round"
+            android:strokeLineJoin="round" />
+        <path
+            android:pathData="M10.5,21a1.5,1.5 0 1,0 3,0a1.5,1.5 0 1,0 -3,0z"
+            android:fillColor="#5EEAD4" />
+    </group>
+</vector>
