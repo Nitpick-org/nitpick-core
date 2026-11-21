@@ -9,7 +9,7 @@ enum class ThemeMode { SYSTEM, LIGHT, DARK }
 @Serializable
 data class Settings(
     val provider: LlmProvider = LlmProvider.ANTHROPIC,
-    val model: String = "",
+    val model: String = LlmProvider.ANTHROPIC.knownModels.first(),
     val apiKey: String = "",
     val themeMode: ThemeMode = ThemeMode.SYSTEM,
     val recentRepositories: List<String> = emptyList(),

@@ -11,7 +11,7 @@ class SettingsTest {
         val settings = Settings()
         assertEquals(ThemeMode.SYSTEM, settings.themeMode)
         assertEquals(LlmProvider.ANTHROPIC, settings.provider)
-        assertEquals("", settings.model)
+        assertEquals(LlmProvider.ANTHROPIC.knownModels.first(), settings.model)
         assertEquals("", settings.apiKey)
         assertEquals(emptyList(), settings.recentRepositories)
     }

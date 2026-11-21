@@ -119,11 +119,12 @@ private fun ModelField(model: String, suggestions: List<String>, onChange: (Stri
     ExposedDropdownMenuBox(expanded = expanded, onExpandedChange = { expanded = it }) {
         OutlinedTextField(
             value = model,
-            onValueChange = onChange,
+            onValueChange = {},
+            readOnly = true,
             label = { Text(stringResource(Res.string.settings_model)) },
             singleLine = true,
             trailingIcon = { ExposedDropdownMenuDefaults.TrailingIcon(expanded) },
-            modifier = Modifier.fillMaxWidth().menuAnchor(ExposedDropdownMenuAnchorType.PrimaryEditable),
+            modifier = Modifier.fillMaxWidth().menuAnchor(ExposedDropdownMenuAnchorType.PrimaryNotEditable),
         )
         ExposedDropdownMenu(expanded = expanded, onDismissRequest = { expanded = false }) {
             suggestions.forEach { suggestion ->

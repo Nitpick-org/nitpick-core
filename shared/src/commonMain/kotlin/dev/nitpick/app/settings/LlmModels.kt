@@ -1,8 +1,7 @@
 package dev.nitpick.app.settings
 
-// shortcut: static list, the field stays editable for newer models; upgrade to a live
-// provider lookup if a model is retired before the demo. OpenAI, Google and Ollama ids are
-// not verified against their current catalogs.
+// shortcut: static list, upgrade to a live provider lookup if a model is retired before the
+// demo. OpenAI, Google and Ollama ids are not verified against their current catalogs.
 val LlmProvider.knownModels: List<String>
     get() = when (this) {
         LlmProvider.ANTHROPIC -> listOf("claude-opus-5-5", "claude-sonnet-5-5", "claude-haiku-5-5")
