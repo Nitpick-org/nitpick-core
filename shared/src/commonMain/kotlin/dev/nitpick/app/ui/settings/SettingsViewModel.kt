@@ -62,15 +62,6 @@ class SettingsViewModel(private val store: SettingsStore) : ViewModel() {
     fun saveDraft() {
         val draft = _draft.value ?: return
         _draft.value = null
-        update {
-            it.copy(
-                provider = draft.provider,
-                model = draft.model,
-                apiKey = draft.apiKey,
-                themeMode = draft.themeMode,
-                gitConnection = draft.gitConnection,
-                serverUrl = draft.serverUrl,
-            )
-        }
+        update { draft.copy(recentRepositories = it.recentRepositories) }
     }
 }
