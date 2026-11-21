@@ -1,5 +1,8 @@
 package dev.nitpick.app.git
 
+import dev.nitpick.app.domain.DiffLine
+import dev.nitpick.app.domain.DiffLineType
+import dev.nitpick.app.domain.FileChangeType
 import dev.nitpick.app.domain.Ref
 import dev.nitpick.app.domain.RefType
 import dev.nitpick.app.domain.WorkingTreeStatus
@@ -196,23 +199,54 @@ class JGitRepositoryTest {
     }
 
     @Test
-    fun diffAgainstListsTheChangesBetweenTheBaseAndTheBranch() = runBlocking<Unit> {
-        repo.write("a.txt", "one\n")
+    fun diffAgainstShowsTheBranchWorkSinceItLeftTheBase() = runBlocking<Unit> {
+        repo.write("a.txt", "1\n2\n3\n4\n5\n")
+        repo.write("old.txt", "kept as is\n")
+        repo.write(".gitignore", "build/\n")
         repo.commit("base", at = 1_000)
         repo.git("checkout", "-b", "feature")
-        repo.write("a.txt", "one\ntwo\n")
-        repo.commit("feature", at = 2_000)
+        repo.write("a.txt", "1\n2\n3\nfour\n5\n")
+        repo.git("mv", "old.txt", "new.txt")
+        repo.commit("feature work", at = 2_000)
+        // main moves on after the fork: its new file is not part of the branch's work.
+        repo.git("checkout", "main")
+        repo.write("main-only.txt", "x\n")
+        repo.commit("main moves on", at = 3_000)
+        repo.git("checkout", "feature")
+        // Staged but not committed yet: part of the branch's work.
+        repo.write("draft.txt", "wip\n")
+        repo.git("add", "draft.txt")
+        // Untracked: may hold secrets, so it must never reach the review.
+        repo.write("secrets.txt", "KEY=secret\n")
+        repo.write("build/out.txt", "ignored\n")
 
-        val diff = open().diffAgainst("main")
+        val diff = open().diffAgainst("main").associateBy { it.path }
 
-        assertEquals(1, diff.size)
-        assertEquals("a.txt", diff.single().path)
-        assertTrue(diff.single().hunks.flatMap { it.lines }.any { it.content == "two" })
+        assertEquals(setOf("a.txt", "new.txt", "draft.txt"), diff.keys)
+        assertEquals(FileChangeType.RENAMED, diff.getValue("new.txt").changeType)
+        assertEquals("old.txt", diff.getValue("new.txt").oldPath)
+        assertEquals(FileChangeType.ADDED, diff.getValue("draft.txt").changeType)
+        val lines = diff.getValue("a.txt").hunks.single().lines
+        assertEquals(DiffLine(DiffLineType.REMOVED, "4", oldLineNumber = 4, newLineNumber = null), lines.single { it.type == DiffLineType.REMOVED })
+        assertEquals(DiffLine(DiffLineType.ADDED, "four", oldLineNumber = null, newLineNumber = 4), lines.single { it.type == DiffLineType.ADDED })
+    }
 
-        // An uncommitted edit is visible too, so applying a suggestion refreshes the diff.
-        open().writeFile("a.txt", "one\nthree\n")
-        val workingDiff = open().diffAgainst("main")
-        assertTrue(workingDiff.single().hunks.flatMap { it.lines }.any { it.content == "three" })
+    @Test
+    fun diffAgainstTheBaseItselfIsEmpty() = runBlocking<Unit> {
+        repo.write("a.txt", "1\n")
+        repo.commit("base")
+
+        assertEquals(emptyList(), open().diffAgainst("main"))
+    }
+
+    @Test
+    fun diffAgainstAnUnknownBaseFails() = runBlocking<Unit> {
+        repo.write("a.txt", "1\n")
+        repo.commit("base")
+
+        val error = assertFailsWith<IllegalArgumentException> { open().diffAgainst("develop") }
+
+        assertTrue(error.message.orEmpty().contains("develop"), error.message)
     }
 
     @Test

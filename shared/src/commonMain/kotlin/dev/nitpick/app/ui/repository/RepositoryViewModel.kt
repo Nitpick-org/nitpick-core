@@ -35,6 +35,9 @@ data class RepositoryUiState(
     val selectedCommitId: String? = null,
     val baseRef: String = "main",
     val diff: List<FileDiff> = emptyList(),
+    val isDiffLoading: Boolean = false,
+    val diffError: String? = null,
+    val selectedDiffPath: String? = null,
     val review: ReviewResult? = null,
     val isReviewing: Boolean = false,
     val reviewError: String? = null,
@@ -44,6 +47,10 @@ data class RepositoryUiState(
 ) {
     val selectedCommit: Commit?
         get() = graph.firstOrNull { it.commit.id == selectedCommitId }?.commit
+
+    // Falls back to the first file, so a reload that drops the selected file still shows one.
+    val selectedDiff: FileDiff?
+        get() = diff.firstOrNull { it.path == selectedDiffPath } ?: diff.firstOrNull()
 }
 
 /**
@@ -59,38 +66,69 @@ class RepositoryViewModel(
     private val _state = MutableStateFlow(RepositoryUiState())
     val state: StateFlow<RepositoryUiState> = _state.asStateFlow()
 
-    private var loading: Job? = null
     private var repository: GitRepository? = null
+    private var loading: Job? = null
+    private var diffLoading: Job? = null
 
     fun openRepository(path: String) {
         // Opening another folder while one is loading must not let the old result win.
         loading?.cancel()
+        diffLoading?.cancel()
+        repository = null
         _state.value = RepositoryUiState(path = path, isLoading = true)
         loading = viewModelScope.launch {
             _state.value = try {
                 val opened = gitRepositoryFactory.open(path)
-                repository = opened
                 val commits = opened.log()
                 val graph = withContext(graphDispatcher) { buildCommitGraph(commits) }
-                val diff = runCatching { opened.diffAgainst("main") }.getOrDefault(emptyList())
+                repository = opened
                 RepositoryUiState(
                     path = path,
                     currentBranch = opened.currentBranch(),
                     graph = graph,
                     refs = opened.refs(),
                     selectedCommitId = graph.firstOrNull()?.commit?.id,
-                    diff = diff,
                 )
             } catch (e: CancellationException) {
                 throw e
             } catch (e: Exception) {
                 RepositoryUiState(path = path, errorMessage = e.message ?: e.toString())
             }
+            refreshDiff()
         }
     }
 
     fun selectCommit(commitId: String) {
         _state.update { it.copy(selectedCommitId = commitId) }
+    }
+
+    fun selectBase(baseRef: String) {
+        _state.update { it.copy(baseRef = baseRef) }
+        refreshDiff()
+    }
+
+    fun selectDiffFile(path: String) {
+        _state.update { it.copy(selectedDiffPath = path) }
+    }
+
+    /** Reloads the diff, which also picks up edits made in the working tree since the last load. */
+    fun refreshDiff() {
+        val git = repository ?: return
+        val baseRef = _state.value.baseRef
+        diffLoading?.cancel()
+        _state.update { it.copy(isDiffLoading = true, diffError = null) }
+        diffLoading = viewModelScope.launch {
+            try {
+                val diff = git.diffAgainst(baseRef)
+                _state.update { it.copy(diff = diff, isDiffLoading = false) }
+            } catch (e: CancellationException) {
+                throw e
+            } catch (e: Exception) {
+                _state.update {
+                    it.copy(diff = emptyList(), isDiffLoading = false, diffError = e.message ?: e.toString())
+                }
+            }
+        }
     }
 
     /** Runs the review agent against the current branch and base ref. */
@@ -118,16 +156,14 @@ class RepositoryViewModel(
                     ?: error("File not found: ${comment.filePath}")
                 val updated = ReviewAnchoring.apply(content, comment)
                 git.writeFile(comment.filePath, updated)
-                val diff = runCatching { git.diffAgainst(_state.value.baseRef) }
-                    .getOrDefault(_state.value.diff)
                 _state.update {
                     it.copy(
-                        diff = diff,
                         appliedIds = it.appliedIds + comment.id,
                         appliedFiles = it.appliedFiles + comment.filePath,
                         commitMessage = it.commitMessage.ifBlank { "Apply review suggestions" },
                     )
                 }
+                refreshDiff()
             } catch (e: CancellationException) {
                 throw e
             } catch (e: Exception) {
@@ -156,13 +192,11 @@ class RepositoryViewModel(
                 git.commit(state.commitMessage)
                 val commits = git.log()
                 val graph = withContext(graphDispatcher) { buildCommitGraph(commits) }
-                val diff = runCatching { git.diffAgainst(state.baseRef) }.getOrDefault(emptyList())
                 _state.update {
                     it.copy(
                         graph = graph,
                         refs = git.refs(),
                         selectedCommitId = graph.firstOrNull()?.commit?.id,
-                        diff = diff,
                         review = null,
                         reviewError = null,
                         appliedIds = emptySet(),
@@ -170,6 +204,7 @@ class RepositoryViewModel(
                         commitMessage = "",
                     )
                 }
+                refreshDiff()
             } catch (e: CancellationException) {
                 throw e
             } catch (e: Exception) {
