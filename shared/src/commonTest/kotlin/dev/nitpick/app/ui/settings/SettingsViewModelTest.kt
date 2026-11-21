@@ -1,5 +1,7 @@
 package dev.nitpick.app.ui.settings
 
+import dev.nitpick.app.settings.GitConnection
+import dev.nitpick.app.settings.GitHost
 import dev.nitpick.app.settings.Settings
 import dev.nitpick.app.settings.SettingsStore
 import dev.nitpick.app.settings.ThemeMode
@@ -83,6 +85,20 @@ class SettingsViewModelTest {
         assertEquals(expected, store.saved.last())
         assertEquals(2, store.saved.size)
         assertNull(viewModel.draft.value)
+    }
+
+    @Test
+    fun savingTheDraftKeepsTheGitAccountAndServerUrl() {
+        val viewModel = SettingsViewModel(store)
+        store.finishLoading()
+        val connection = GitConnection(GitHost.GITLAB, "glpat")
+
+        viewModel.startEditing()
+        viewModel.editDraft { it.copy(gitConnection = connection, serverUrl = "http://10.0.2.2:8080") }
+        viewModel.saveDraft()
+
+        assertEquals(connection, viewModel.settings.value.gitConnection)
+        assertEquals("http://10.0.2.2:8080", viewModel.settings.value.serverUrl)
     }
 
     @Test
