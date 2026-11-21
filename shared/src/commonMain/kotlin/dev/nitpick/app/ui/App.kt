@@ -45,6 +45,11 @@ fun App(container: AppContainer, pickRepositoryPath: (() -> String?)? = null) {
                     onOpenRepository = openRepository,
                     onSelectCommit = repositoryViewModel::selectCommit,
                     onOpenSettings = { showSettings = true },
+                    onRunReview = repositoryViewModel::reviewBranch,
+                    onApplySuggestion = repositoryViewModel::applySuggestion,
+                    onDismissSuggestion = repositoryViewModel::dismissSuggestion,
+                    onCommitMessage = repositoryViewModel::setCommitMessage,
+                    onCommit = repositoryViewModel::commitAppliedSuggestions,
                     modifier = Modifier.safeContentPadding(),
                 )
             }

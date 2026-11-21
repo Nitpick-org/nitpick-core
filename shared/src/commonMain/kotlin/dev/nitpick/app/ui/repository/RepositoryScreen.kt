@@ -28,6 +28,7 @@ import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import dev.nitpick.app.domain.Ref
 import dev.nitpick.app.domain.RefType
+import dev.nitpick.app.domain.ReviewComment
 import dev.nitpick.app.settings.Settings
 import dev.nitpick.app.ui.components.NitpickButton
 import dev.nitpick.app.ui.components.NitpickButtonSize
@@ -65,6 +66,11 @@ fun RepositoryScreen(
     onOpenRepository: (() -> Unit)?,
     onSelectCommit: (String) -> Unit,
     onOpenSettings: () -> Unit,
+    onRunReview: () -> Unit,
+    onApplySuggestion: (ReviewComment) -> Unit,
+    onDismissSuggestion: (String) -> Unit,
+    onCommitMessage: (String) -> Unit,
+    onCommit: () -> Unit,
     modifier: Modifier = Modifier,
 ) {
     var tab by rememberSaveable { mutableStateOf(InspectorTab.Details) }
@@ -75,7 +81,10 @@ fun RepositoryScreen(
             state = state,
             hasRepository = hasRepository,
             onOpenRepository = onOpenRepository,
-            onReview = { tab = InspectorTab.Review },
+            onReview = {
+                tab = InspectorTab.Review
+                onRunReview()
+            },
             onOpenSettings = onOpenSettings,
         )
         Box(Modifier.weight(1f)) {
@@ -108,6 +117,11 @@ fun RepositoryScreen(
                         state = state,
                         tab = tab,
                         onSelectTab = { tab = it },
+                        onRunReview = onRunReview,
+                        onApplySuggestion = onApplySuggestion,
+                        onDismissSuggestion = onDismissSuggestion,
+                        onCommitMessage = onCommitMessage,
+                        onCommit = onCommit,
                         modifier = Modifier
                             .width(if (tab == InspectorTab.Details) NitpickTheme.sizes.inspector else InspectorWideWidth)
                             .fillMaxHeight(),
@@ -261,6 +275,11 @@ private fun Inspector(
     state: RepositoryUiState,
     tab: InspectorTab,
     onSelectTab: (InspectorTab) -> Unit,
+    onRunReview: () -> Unit,
+    onApplySuggestion: (ReviewComment) -> Unit,
+    onDismissSuggestion: (String) -> Unit,
+    onCommitMessage: (String) -> Unit,
+    onCommit: () -> Unit,
     modifier: Modifier,
 ) {
     Column(modifier.background(NitpickTheme.colors.surface)) {
@@ -277,11 +296,28 @@ private fun Inspector(
             }
         }
         NitpickDivider()
-        val selected = state.selectedCommit
-        when {
-            tab != InspectorTab.Details -> Box(Modifier.weight(1f))
-            selected != null -> CommitDetails(selected, Modifier.weight(1f))
-            else -> NitpickEmptyState(title = stringResource(Res.string.details_placeholder), modifier = Modifier.weight(1f))
+        when (tab) {
+            InspectorTab.Details -> {
+                val selected = state.selectedCommit
+                if (selected != null) {
+                    CommitDetails(selected, Modifier.weight(1f))
+                } else {
+                    NitpickEmptyState(
+                        title = stringResource(Res.string.details_placeholder),
+                        modifier = Modifier.weight(1f),
+                    )
+                }
+            }
+            InspectorTab.Diff -> DiffPanel(state.diff, state.baseRef, Modifier.weight(1f))
+            InspectorTab.Review -> ReviewPanel(
+                state = state,
+                onReview = onRunReview,
+                onApply = onApplySuggestion,
+                onDismiss = onDismissSuggestion,
+                onCommitMessage = onCommitMessage,
+                onCommit = onCommit,
+                modifier = Modifier.weight(1f),
+            )
         }
     }
 }

@@ -39,4 +39,19 @@
     <string name="tab_review">Review</string>
     <string name="refs_local">Locales</string>
     <string name="refs_filter_placeholder">Filtrer branches et tags</string>
+    <string name="diff_base">Base</string>
+    <string name="diff_empty">Aucun changement par rapport à la base</string>
+    <string name="review_run">Nitpicker la branche</string>
+    <string name="review_running">Analyse…</string>
+    <string name="review_empty">Lancez une review pour voir les nits de cette branche</string>
+    <string name="review_error">La review a échoué</string>
+    <string name="review_retry">Réessayer</string>
+    <string name="review_summary">%1$d nits · %2$d bug</string>
+    <string name="review_applied">Appliqué</string>
+    <string name="review_apply">Appliquer</string>
+    <string name="review_dismiss">Ignorer</string>
+    <string name="commit_message">Message de commit</string>
+    <string name="commit_later">Plus tard</string>
+    <string name="commit_stage">Indexer et committer</string>
+    <string name="review_local">Review locale</string>
 </resources>

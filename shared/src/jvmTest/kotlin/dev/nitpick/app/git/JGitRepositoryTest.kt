@@ -196,10 +196,42 @@ class JGitRepositoryTest {
     }
 
     @Test
-    fun writeAndNetworkOperationsAreNotImplementedYet() = runBlocking<Unit> {
+    fun diffAgainstListsTheChangesBetweenTheBaseAndTheBranch() = runBlocking<Unit> {
+        repo.write("a.txt", "one\n")
+        repo.commit("base", at = 1_000)
+        repo.git("checkout", "-b", "feature")
+        repo.write("a.txt", "one\ntwo\n")
+        repo.commit("feature", at = 2_000)
+
+        val diff = open().diffAgainst("main")
+
+        assertEquals(1, diff.size)
+        assertEquals("a.txt", diff.single().path)
+        assertTrue(diff.single().hunks.flatMap { it.lines }.any { it.content == "two" })
+
+        // An uncommitted edit is visible too, so applying a suggestion refreshes the diff.
+        open().writeFile("a.txt", "one\nthree\n")
+        val workingDiff = open().diffAgainst("main")
+        assertTrue(workingDiff.single().hunks.flatMap { it.lines }.any { it.content == "three" })
+    }
+
+    @Test
+    fun writeStageAndCommitUpdateTheGraph() = runBlocking<Unit> {
+        repo.write("a.txt", "one\n")
+        repo.commit("base", at = 1_000)
         val git = open()
 
-        assertFailsWith<NotImplementedError> { git.writeFile("a.txt", "x") }
-        assertFailsWith<NotImplementedError> { git.push(credentials = null) }
+        git.writeFile("a.txt", "one\ntwo\n")
+        git.stage(listOf("a.txt"))
+        git.commit("apply review suggestion")
+
+        val commits = git.log()
+        assertEquals("apply review suggestion", commits.first().shortMessage)
+        assertEquals("one\ntwo\n", git.readFile("a.txt"))
+    }
+
+    @Test
+    fun networkOperationsAreNotImplementedYet() = runBlocking<Unit> {
+        assertFailsWith<NotImplementedError> { open().push(credentials = null) }
     }
 }
