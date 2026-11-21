@@ -3,6 +3,7 @@ package dev.nitpick.app.review
 import ai.koog.agents.core.tools.ToolDescriptor
 import ai.koog.agents.core.tools.ToolParameterDescriptor
 import ai.koog.agents.core.tools.ToolParameterType
+import dev.nitpick.app.domain.ReviewToolUse
 import dev.nitpick.app.git.GitRepository
 import kotlinx.serialization.json.JsonObject
 import kotlinx.serialization.json.JsonPrimitive
@@ -14,9 +15,6 @@ const val MAX_REVIEW_TOOL_CALLS = 6
 const val MAX_REVIEW_TOOL_BYTES = 64_000
 
 data class ToolOutput(val text: String, val isError: Boolean = false)
-
-/** Non-sensitive trace of a tool call, for the manual #43 proof and debugging. */
-data class ReviewToolUse(val tool: String, val path: String? = null)
 
 /**
  * The two read-only tools the review agent may call. The model can inspect a neighbouring

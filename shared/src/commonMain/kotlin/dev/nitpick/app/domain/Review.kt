@@ -8,6 +8,7 @@ enum class Severity { INFO, SUGGESTION, WARNING, BUG }
 data class ReviewResult(
     val summary: String,
     val comments: List<ReviewComment>,
+    val toolUses: List<ReviewToolUse> = emptyList(),
 )
 
 @Serializable
