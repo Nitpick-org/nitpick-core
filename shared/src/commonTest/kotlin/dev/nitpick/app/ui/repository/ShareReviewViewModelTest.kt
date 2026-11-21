@@ -13,6 +13,7 @@ import dev.nitpick.app.git.FakeGitRepository
 import dev.nitpick.app.git.FakeGitRepositoryFactory
 import dev.nitpick.app.git.GitRepository
 import dev.nitpick.app.review.ReviewAgent
+import dev.nitpick.app.review.ReviewToolUse
 import dev.nitpick.app.share.ReviewShareClient
 import dev.nitpick.app.share.ReviewShareException
 import kotlinx.coroutines.Dispatchers
@@ -44,7 +45,7 @@ class ShareReviewViewModelTest {
 
     private var llmCalls = 0
     private val agent = object : ReviewAgent {
-        override suspend fun review(repository: GitRepository, baseRef: String): ReviewResult = result.also { llmCalls++ }
+        override suspend fun review(repository: GitRepository, baseRef: String, onToolUse: (ReviewToolUse) -> Unit): ReviewResult = result.also { llmCalls++ }
     }
 
     private class FakeShareClient(private val failing: Boolean = false) : ReviewShareClient {
@@ -153,7 +154,7 @@ class ShareReviewViewModelTest {
     fun committingKeepsTheNitsNotAppliedSoTheyCanStillBeShared() {
         val other = nit.copy(id = "c2", startLine = 1, endLine = 1, originalSnippet = "class ExpenseStore {", suggestion = "class ExpenseStore(private val db: Db) {")
         val twoNits = object : ReviewAgent {
-            override suspend fun review(repository: GitRepository, baseRef: String) = ReviewResult("2 nits", listOf(nit, other))
+            override suspend fun review(repository: GitRepository, baseRef: String, onToolUse: (ReviewToolUse) -> Unit) = ReviewResult("2 nits", listOf(nit, other))
         }
         val viewModel = RepositoryViewModel(
             FakeGitRepositoryFactory(

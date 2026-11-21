@@ -37,6 +37,7 @@ import dev.nitpick.app.ui.components.NitpickToolbarAction
 import dev.nitpick.app.ui.repository.RepositoryUiState
 import dev.nitpick.app.ui.repository.ReviewFailureState
 import dev.nitpick.app.ui.repository.ShareReviewAction
+import dev.nitpick.app.ui.repository.ToolActivityLine
 import dev.nitpick.app.ui.repository.branchLabel
 import dev.nitpick.app.ui.theme.NitpickTheme
 import dev.nitpick.app.ui.theme.NitpickTone
@@ -157,6 +158,7 @@ private fun NitList(
                     style = NitpickTheme.typography.small,
                     color = NitpickTheme.colors.textSecondary,
                 )
+                ToolActivityLine(state.reviewToolUses)
                 ShareReviewAction(state, onShare, touch = true)
             }
         }

@@ -16,8 +16,10 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
+import androidx.compose.runtime.remember
 import dev.nitpick.app.domain.ReviewComment
 import dev.nitpick.app.domain.SharedReview
+import dev.nitpick.app.review.ReviewToolUse
 import dev.nitpick.app.ui.components.NitpickBadge
 import dev.nitpick.app.ui.components.NitpickButton
 import dev.nitpick.app.ui.components.NitpickButtonSize
@@ -25,6 +27,7 @@ import dev.nitpick.app.ui.components.NitpickButtonVariant
 import dev.nitpick.app.ui.components.NitpickCard
 import dev.nitpick.app.ui.components.NitpickEmptyState
 import dev.nitpick.app.ui.components.NitpickTextField
+import dev.nitpick.app.ui.components.NitpickTooltip
 import dev.nitpick.app.ui.components.ReviewCommentCard
 import dev.nitpick.app.ui.theme.NitpickTheme
 import dev.nitpick.app.ui.theme.NitpickTone
@@ -50,6 +53,8 @@ import nitpick.shared.generated.resources.review_local
 import nitpick.shared.generated.resources.review_nits_on_files
 import nitpick.shared.generated.resources.review_retry
 import nitpick.shared.generated.resources.review_run
+import nitpick.shared.generated.resources.review_tool_activity
+import nitpick.shared.generated.resources.review_tool_calls
 import nitpick.shared.generated.resources.review_running
 import nitpick.shared.generated.resources.shared_badge
 import nitpick.shared.generated.resources.review_step_diff
@@ -128,6 +133,7 @@ fun ReviewPanel(
                                 style = NitpickTheme.typography.small,
                                 color = NitpickTheme.colors.textSecondary,
                             )
+                            ToolActivityLine(state.reviewToolUses)
                             ShareReviewAction(state, onShare)
                         }
                     }
@@ -275,4 +281,26 @@ private fun CommitBar(message: String, onMessageChange: (String) -> Unit, onComm
             )
         }
     }
+}
+
+/**
+ * Proof that the review was agentic (#80): how many guarded tool calls the model made, with
+ * the read paths on hover. Nothing shows for a tool-less review.
+ */
+@Composable
+internal fun ToolActivityLine(uses: List<ReviewToolUse>) {
+    if (uses.isEmpty()) return
+    val paths = remember(uses) { uses.mapNotNull { it.path }.distinct() }
+    val line = @Composable {
+        Text(
+            text = if (paths.isEmpty()) {
+                stringResource(Res.string.review_tool_calls, uses.size)
+            } else {
+                stringResource(Res.string.review_tool_activity, paths.size, uses.size)
+            },
+            style = NitpickTheme.typography.small,
+            color = NitpickTheme.colors.textMuted,
+        )
+    }
+    if (paths.isEmpty()) line() else NitpickTooltip(text = paths.joinToString("\n")) { line() }
 }

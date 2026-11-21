@@ -18,7 +18,7 @@ import kotlinx.coroutines.withContext
  * [ReviewAgent] contract.
  */
 class LocalReviewAgent : ReviewAgent {
-    override suspend fun review(repository: GitRepository, baseRef: String): ReviewResult =
+    override suspend fun review(repository: GitRepository, baseRef: String, onToolUse: (ReviewToolUse) -> Unit): ReviewResult =
         withContext(Dispatchers.Default) {
             val diff = repository.diffAgainst(baseRef)
             val comments = buildList {

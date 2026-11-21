@@ -76,6 +76,8 @@
     <string name="clone_choose">Choisir…</string>
     <string name="review_whole_file">fichier entier</string>
     <string name="review_nits_on_files">%1$d nits sur %2$d fichiers modifiés</string>
+    <string name="review_tool_activity">%1$d fichiers lus · %2$d appels d\'outil</string>
+    <string name="review_tool_calls">%1$d appels d\'outil</string>
     <string name="review_clean_title">Branche propre. Rien à redire.</string>
     <string name="review_clean_body">La branche a été relue par rapport à la base. Aucun bug, aucun avertissement, aucun nit.</string>
     <string name="error_key_title">Ajoutez une clé API pour commencer</string>

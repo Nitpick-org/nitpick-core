@@ -13,6 +13,7 @@ import dev.nitpick.app.git.GitRepository
 import dev.nitpick.app.git.GitRepositoryFactory
 import dev.nitpick.app.review.MissingApiKeyException
 import dev.nitpick.app.review.ReviewAgent
+import dev.nitpick.app.review.ReviewToolUse
 import dev.nitpick.app.review.ReviewProviderException
 import dev.nitpick.app.settings.LlmProvider
 import dev.nitpick.app.domain.ReviewComment
@@ -381,7 +382,7 @@ class RepositoryViewModelTest {
 
     private fun runReviewFailure(error: Exception, expected: ReviewFailure) {
         val agent = object : ReviewAgent {
-            override suspend fun review(repository: GitRepository, baseRef: String): ReviewResult = throw error
+            override suspend fun review(repository: GitRepository, baseRef: String, onToolUse: (ReviewToolUse) -> Unit): ReviewResult = throw error
         }
         val viewModel = RepositoryViewModel(repositories, graphDispatcher = dispatcher, reviewAgent = agent)
         viewModel.openRepository("/work/demo")
@@ -400,7 +401,7 @@ class RepositoryViewModelTest {
             category = "logic", message = "wrong lane", originalSnippet = "val lane = 1", suggestion = "    val lane = 0",
         )
         val agent = object : ReviewAgent {
-            override suspend fun review(repository: GitRepository, baseRef: String) = ReviewResult("1 bug", listOf(nit))
+            override suspend fun review(repository: GitRepository, baseRef: String, onToolUse: (ReviewToolUse) -> Unit) = ReviewResult("1 bug", listOf(nit))
         }
         val viewModel = RepositoryViewModel(FakeGitRepositoryFactory(mapOf("/work/demo" to repo)), graphDispatcher = dispatcher, reviewAgent = agent)
         viewModel.openRepository("/work/demo")
@@ -422,7 +423,7 @@ class RepositoryViewModelTest {
     @Test
     fun aReviewThatNeverAnswersEndsAsATimeout() {
         val agent = object : ReviewAgent {
-            override suspend fun review(repository: GitRepository, baseRef: String): ReviewResult { delay(10.minutes); error("unreachable") }
+            override suspend fun review(repository: GitRepository, baseRef: String, onToolUse: (ReviewToolUse) -> Unit): ReviewResult { delay(10.minutes); error("unreachable") }
         }
         val viewModel = RepositoryViewModel(repositories, graphDispatcher = dispatcher, reviewAgent = agent)
         viewModel.openRepository("/work/demo")
@@ -440,7 +441,7 @@ class RepositoryViewModelTest {
         val repo = FakeGitRepository(branch = "main", commits = commits, refs = listOf(mainBranch), diffs = diffs, files = mapOf("graph/CommitGraph.kt" to "nothing here\n"))
         val nit = ReviewComment("n1", "graph/CommitGraph.kt", 1, 1, Severity.BUG, "logic", "m", originalSnippet = "val lane = 1", suggestion = "val lane = 0")
         val agent = object : ReviewAgent {
-            override suspend fun review(repository: GitRepository, baseRef: String) = ReviewResult("1 bug", listOf(nit))
+            override suspend fun review(repository: GitRepository, baseRef: String, onToolUse: (ReviewToolUse) -> Unit) = ReviewResult("1 bug", listOf(nit))
         }
         val viewModel = RepositoryViewModel(FakeGitRepositoryFactory(mapOf("/work/demo" to repo)), graphDispatcher = dispatcher, reviewAgent = agent)
         viewModel.openRepository("/work/demo")
@@ -451,5 +452,55 @@ class RepositoryViewModelTest {
         assertNotNull(viewModel.state.value.actionError)
         assertNull(viewModel.state.value.reviewError)
         assertEquals(listOf(nit), viewModel.state.value.review?.comments)
+    }
+
+    @Test
+    fun reviewToolUsesLandInTheStateAndAToolLessReviewShowsNone() {
+        var reviews = 0
+        val agent = object : ReviewAgent {
+            override suspend fun review(repository: GitRepository, baseRef: String, onToolUse: (ReviewToolUse) -> Unit): ReviewResult {
+                // Only the first review uses tools; the second must leave no trace behind.
+                if (reviews++ == 0) {
+                    onToolUse(ReviewToolUse("list_files"))
+                    onToolUse(ReviewToolUse("read_file", "graph/CommitGraph.kt"))
+                }
+                return ReviewResult("ok", emptyList())
+            }
+        }
+        val viewModel = RepositoryViewModel(repositories, graphDispatcher = dispatcher, reviewAgent = agent)
+        viewModel.openRepository("/work/demo")
+
+        viewModel.reviewBranch()
+        assertEquals(
+            listOf(ReviewToolUse("list_files"), ReviewToolUse("read_file", "graph/CommitGraph.kt")),
+            viewModel.state.value.reviewToolUses,
+        )
+
+        viewModel.reviewBranch()
+        assertTrue(viewModel.state.value.reviewToolUses.isEmpty())
+    }
+
+    @Test
+    fun checkingOutABranchClearsTheReviewToolUses() {
+        val featureTip = commit(id = "3333333cccc", message = "On feature", parents = listOf(child.id))
+        val feature = Ref("feature", "refs/heads/feature", featureTip.id, RefType.LOCAL_BRANCH)
+        val remote = PushingRepository(
+            FakeGitRepository(branch = "main", commits = commits, refs = listOf(mainBranch, feature), diffs = diffs),
+            afterCheckout = FakeGitRepository(branch = "feature", commits = listOf(featureTip) + commits, refs = listOf(mainBranch, feature), diffs = diffs),
+        )
+        val agent = object : ReviewAgent {
+            override suspend fun review(repository: GitRepository, baseRef: String, onToolUse: (ReviewToolUse) -> Unit): ReviewResult {
+                onToolUse(ReviewToolUse("read_file", "graph/CommitGraph.kt"))
+                return ReviewResult("ok", emptyList())
+            }
+        }
+        val viewModel = RepositoryViewModel(FakeGitRepositoryFactory(mapOf("/work/demo" to remote)), graphDispatcher = dispatcher, reviewAgent = agent)
+        viewModel.openRepository("/work/demo")
+        viewModel.reviewBranch()
+        assertEquals(1, viewModel.state.value.reviewToolUses.size)
+
+        viewModel.checkoutBranch("feature")
+
+        assertTrue(viewModel.state.value.reviewToolUses.isEmpty())
     }
 }

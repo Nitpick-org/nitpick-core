@@ -5,12 +5,13 @@ import dev.nitpick.app.domain.ReviewResult
 import dev.nitpick.app.git.GitRepository
 
 /** One prompt, one answer: builds the context, asks [client], parses and re-anchors every nit. */
-class LlmReviewAgent(
-    private val client: LlmClient,
-    private val onToolUse: (ReviewToolUse) -> Unit = {},
-) : ReviewAgent {
+class LlmReviewAgent(private val client: LlmClient) : ReviewAgent {
 
-    override suspend fun review(repository: GitRepository, baseRef: String): ReviewResult {
+    override suspend fun review(
+        repository: GitRepository,
+        baseRef: String,
+        onToolUse: (ReviewToolUse) -> Unit,
+    ): ReviewResult {
         val context = buildReviewContext(repository, baseRef)
         if (context.diffs.isEmpty()) return ReviewResult(summary = "", comments = emptyList())
         val toolsAvailable = client is ToolCallingLlmClient

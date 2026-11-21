@@ -19,6 +19,7 @@ import dev.nitpick.app.review.MissingApiKeyException
 import dev.nitpick.app.review.ReviewAgent
 import dev.nitpick.app.review.ReviewAnchoring
 import dev.nitpick.app.review.ReviewProviderException
+import dev.nitpick.app.review.ReviewToolUse
 import dev.nitpick.app.share.ReviewShareClient
 import dev.nitpick.app.share.ReviewShareException
 import dev.nitpick.app.share.withoutCredentials
@@ -91,6 +92,8 @@ data class RepositoryUiState(
     val review: ReviewResult? = null,
     val isReviewing: Boolean = false,
     val reviewError: ReviewFailure? = null,
+    // The guarded tool calls behind [review] (names and paths only), shown in the Review tab (#80).
+    val reviewToolUses: List<ReviewToolUse> = emptyList(),
     val actionError: String? = null,
     val appliedIds: Set<String> = emptySet(),
     val appliedFiles: Set<String> = emptySet(),
@@ -256,12 +259,14 @@ class RepositoryViewModel(
     fun reviewBranch() {
         val git = repository ?: return
         if (_state.value.isReviewing) return
-        _state.update { it.copy(isReviewing = true, reviewError = null) }
+        _state.update { it.copy(isReviewing = true, reviewError = null, reviewToolUses = emptyList()) }
         viewModelScope.launch {
             try {
-                val result = withTimeout(REVIEW_TIMEOUT) { reviewAgent.review(git, _state.value.baseRef) }
+                // The agent's tool loop is sequential, so a plain list needs no locking.
+                val toolUses = mutableListOf<ReviewToolUse>()
+                val result = withTimeout(REVIEW_TIMEOUT) { reviewAgent.review(git, _state.value.baseRef, toolUses::add) }
                 if (repository !== git) return@launch
-                _state.update { it.copy(review = result, isReviewing = false, sharedReviewId = null, shareFailure = null, openedSharedReview = null) }
+                _state.update { it.copy(review = result, reviewToolUses = toolUses.toList(), isReviewing = false, sharedReviewId = null, shareFailure = null, openedSharedReview = null) }
             } catch (e: TimeoutCancellationException) {
                 // A CancellationException subclass: it must be caught before the generic one.
                 if (repository === git) _state.update { it.copy(isReviewing = false, reviewError = ReviewFailure.Timeout) }
@@ -428,6 +433,8 @@ class RepositoryViewModel(
                 it.copy(
                     review = shared.result.copy(comments = comments),
                     reviewError = null,
+                    // A shared review ran its tools on another device: there is nothing to show here.
+                    reviewToolUses = emptyList(),
                     sharedReviewId = shared.id,
                     shareFailure = null,
                     openedSharedReview = shared,
@@ -519,6 +526,7 @@ class RepositoryViewModel(
                             selectedCommitId = graph.firstOrNull()?.commit?.id,
                             review = null,
                             reviewError = null,
+                            reviewToolUses = emptyList(),
                             sharedReviewId = null,
                             shareFailure = null,
                             openedSharedReview = null,
@@ -564,6 +572,7 @@ class RepositoryViewModel(
                     selectedCommitId = graph.firstOrNull()?.commit?.id,
                     review = null,
                     reviewError = null,
+                    reviewToolUses = emptyList(),
                     sharedReviewId = null,
                     shareFailure = null,
                     openedSharedReview = null,

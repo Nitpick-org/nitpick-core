@@ -76,6 +76,8 @@
     <string name="clone_choose">Choose…</string>
     <string name="review_whole_file">whole file</string>
     <string name="review_nits_on_files">%1$d nits on %2$d changed files</string>
+    <string name="review_tool_activity">Read %1$d files · %2$d tool calls</string>
+    <string name="review_tool_calls">%1$d tool calls</string>
     <string name="review_clean_title">Clean branch. Nothing to nitpick.</string>
     <string name="review_clean_body">Reviewed the branch against the base. No bugs, no warnings, no nits.</string>
     <string name="error_key_title">Add an API key to start</string>
