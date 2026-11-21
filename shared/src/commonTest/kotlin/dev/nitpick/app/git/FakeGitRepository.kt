@@ -9,17 +9,16 @@ import dev.nitpick.app.domain.WorkingTreeStatus
 
 /** In-memory [GitRepository] for tests of anything built on top of the git contract. */
 class FakeGitRepository(
-    var branch: String = "main",
-    var commits: List<Commit> = emptyList(),
-    var refs: List<Ref> = emptyList(),
-    var files: Map<String, String> = emptyMap(),
+    private val branch: String = "main",
+    private val commits: List<Commit> = emptyList(),
+    private val refs: List<Ref> = emptyList(),
 ) : GitRepository {
     override suspend fun log(limit: Int): List<Commit> = commits.take(limit)
     override suspend fun refs(): List<Ref> = refs
     override suspend fun currentBranch(): String = branch
     override suspend fun status() = WorkingTreeStatus(emptyList(), emptyList(), emptyList(), emptyList())
-    override suspend fun readFile(path: String): String? = files[path]
-    override suspend fun listFiles(): List<String> = files.keys.sorted()
+    override suspend fun readFile(path: String): String? = TODO("not faked yet")
+    override suspend fun listFiles(): List<String> = TODO("not faked yet")
     override suspend fun diffAgainst(baseRef: String): List<FileDiff> = TODO("not faked yet")
     override suspend fun writeFile(path: String, content: String) = TODO("not faked yet")
     override suspend fun stage(paths: List<String>) = TODO("not faked yet")
