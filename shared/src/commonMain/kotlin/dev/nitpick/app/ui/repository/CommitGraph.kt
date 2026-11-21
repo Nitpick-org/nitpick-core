@@ -15,7 +15,6 @@ import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
-import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.remember
@@ -27,30 +26,19 @@ import androidx.compose.ui.graphics.Path
 import androidx.compose.ui.graphics.StrokeCap
 import androidx.compose.ui.graphics.drawscope.DrawScope
 import androidx.compose.ui.graphics.drawscope.Stroke
-import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import dev.nitpick.app.domain.Commit
 import dev.nitpick.app.graph.CommitGraphRow
+import dev.nitpick.app.ui.theme.NitpickTheme
 import nitpick.shared.generated.resources.*
 import org.jetbrains.compose.resources.stringResource
 
-private val LaneColors = listOf(
-    Color(0xFF3B82F6),
-    Color(0xFFEF4444),
-    Color(0xFF10B981),
-    Color(0xFFF59E0B),
-    Color(0xFF8B5CF6),
-    Color(0xFF06B6D4),
-    Color(0xFFEC4899),
-    Color(0xFF84CC16),
-)
-
-private val LaneSpacing = 18.dp
-private val LaneLeftPadding = 12.dp
-private val RowHeight = 52.dp
+private val LaneSpacing = 16.dp
+private val LaneLeftPadding = 10.dp
+private val RowHeight = 40.dp
 
 /** The commit list drawn as a graph: one lane and one color per line of history. */
 @Composable
@@ -81,7 +69,7 @@ private fun CommitGraphRowItem(row: CommitGraphRow, graphWidth: Dp, selected: Bo
     Row(
         modifier = Modifier
             .fillMaxWidth()
-            .background(if (selected) MaterialTheme.colorScheme.primaryContainer else Color.Transparent)
+            .background(if (selected) NitpickTheme.colors.selection else Color.Transparent)
             .clickable(onClick = onClick)
             .padding(end = 12.dp),
         verticalAlignment = Alignment.CenterVertically,
@@ -90,34 +78,36 @@ private fun CommitGraphRowItem(row: CommitGraphRow, graphWidth: Dp, selected: Bo
         Column(Modifier.weight(1f).padding(vertical = 6.dp)) {
             Text(
                 text = row.commit.shortMessage,
-                style = MaterialTheme.typography.bodyMedium,
-                fontWeight = if (selected) FontWeight.SemiBold else FontWeight.Normal,
+                style = NitpickTheme.typography.body,
+                fontWeight = if (selected) FontWeight.Medium else FontWeight.Normal,
+                color = if (selected) NitpickTheme.colors.onSelection else NitpickTheme.colors.text,
                 maxLines = 1,
                 overflow = TextOverflow.Ellipsis,
             )
             Text(
                 text = "${row.commit.authorName} · ${row.commit.id.take(7)}",
-                style = MaterialTheme.typography.bodySmall,
-                color = MaterialTheme.colorScheme.onSurfaceVariant,
+                style = NitpickTheme.typography.codeSmall,
+                color = if (selected) NitpickTheme.colors.onSelection.copy(alpha = 0.72f) else NitpickTheme.colors.textMuted,
                 maxLines = 1,
                 overflow = TextOverflow.Ellipsis,
             )
         }
         Text(
             text = time,
-            style = MaterialTheme.typography.labelSmall,
-            color = MaterialTheme.colorScheme.onSurfaceVariant,
+            style = NitpickTheme.typography.codeSmall,
+            color = NitpickTheme.colors.textMuted,
         )
     }
 }
 
 @Composable
 private fun CommitGraphLane(row: CommitGraphRow, modifier: Modifier) {
+    val palette = NitpickTheme.colors.lanePalette
     Canvas(modifier) {
         val laneY = size.height / 2f
         val stroke = 2.dp.toPx()
-        val dotRadius = 5.dp.toPx()
-        val selectedRing = 8.dp.toPx()
+        val dotRadius = 4.dp.toPx()
+        val selectedRing = 7.dp.toPx()
         fun x(lane: Int): Float = LaneLeftPadding.toPx() + lane * LaneSpacing.toPx()
 
         for (lane in passThroughLanes(row)) {
@@ -125,19 +115,19 @@ private fun CommitGraphLane(row: CommitGraphRow, modifier: Modifier) {
             val after = row.lanesAfter.getOrNull(lane) != null
             val top = if (before) 0f else laneY
             val bottom = if (after) size.height else laneY
-            drawLine(laneColor(lane), Offset(x(lane), top), Offset(x(lane), bottom), stroke, StrokeCap.Round)
+            drawLine(laneColor(lane, palette), Offset(x(lane), top), Offset(x(lane), bottom), stroke, StrokeCap.Round)
         }
 
         // Children converge into this commit, which then flows into each parent lane.
-        row.incomingLanes.forEach { lane -> drawLanePath(x(lane), 0f, x(row.lane), laneY, laneColor(lane), stroke) }
-        row.parentLanes.forEach { lane -> drawLanePath(x(row.lane), laneY, x(lane), size.height, laneColor(lane), stroke) }
+        row.incomingLanes.forEach { lane -> drawLanePath(x(lane), 0f, x(row.lane), laneY, laneColor(lane, palette), stroke) }
+        row.parentLanes.forEach { lane -> drawLanePath(x(row.lane), laneY, x(lane), size.height, laneColor(lane, palette), stroke) }
 
         val center = Offset(x(row.lane), laneY)
         if (row.incomingLanes.isNotEmpty() || row.parentLanes.isNotEmpty()) {
-            drawCircle(laneColor(row.lane).copy(alpha = 0.25f), selectedRing, center)
+            drawCircle(laneColor(row.lane, palette).copy(alpha = 0.22f), selectedRing, center)
         }
-        drawCircle(laneColor(row.lane), dotRadius, center)
-        drawCircle(Color.White.copy(alpha = 0.85f), dotRadius / 2.4f, center)
+        drawCircle(laneColor(row.lane, palette), dotRadius, center)
+        drawCircle(Color.White.copy(alpha = 0.75f), dotRadius / 2.4f, center)
     }
 }
 
@@ -161,12 +151,16 @@ fun CommitDetails(commit: Commit, modifier: Modifier = Modifier) {
     val body = remember(commit.fullMessage) { commit.fullMessage.substringAfter("\n\n", "").trim() }
     val time = remember(commit.timestampEpochSeconds) { formatCommitTime(commit.timestampEpochSeconds) }
     Column(
-        modifier = modifier.verticalScroll(rememberScrollState()).padding(20.dp),
+        modifier = modifier.verticalScroll(rememberScrollState()).padding(12.dp),
         verticalArrangement = Arrangement.spacedBy(10.dp),
     ) {
-        Text(commit.shortMessage, style = MaterialTheme.typography.titleMedium, fontWeight = FontWeight.SemiBold)
+        Text(
+            text = commit.shortMessage,
+            style = NitpickTheme.typography.section,
+            color = NitpickTheme.colors.text,
+        )
         if (body.isNotEmpty()) {
-            Text(body, style = MaterialTheme.typography.bodyMedium)
+            Text(text = body, style = NitpickTheme.typography.body, color = NitpickTheme.colors.text)
         }
         Metadata(stringResource(Res.string.details_author), "${commit.authorName} <${commit.authorEmail}>")
         Metadata(stringResource(Res.string.details_date), time)
@@ -186,13 +180,13 @@ private fun Metadata(label: String, value: String, monospace: Boolean = false) {
     Column(verticalArrangement = Arrangement.spacedBy(2.dp)) {
         Text(
             text = label.uppercase(),
-            style = MaterialTheme.typography.labelSmall,
-            color = MaterialTheme.colorScheme.onSurfaceVariant,
+            style = NitpickTheme.typography.kicker,
+            color = NitpickTheme.colors.textMuted,
         )
         Text(
             text = value,
-            style = MaterialTheme.typography.bodySmall,
-            fontFamily = if (monospace) FontFamily.Monospace else FontFamily.Default,
+            style = if (monospace) NitpickTheme.typography.codeSmall else NitpickTheme.typography.small,
+            color = NitpickTheme.colors.text,
         )
     }
 }
@@ -213,4 +207,4 @@ private fun laneCountForRow(row: CommitGraphRow): Int {
     return maxOf(maxLane, row.lanesBefore.size - 1, row.lanesAfter.size - 1) + 1
 }
 
-private fun laneColor(lane: Int): Color = LaneColors[lane % LaneColors.size]
+private fun laneColor(lane: Int, palette: List<Color>): Color = palette[lane % palette.size]

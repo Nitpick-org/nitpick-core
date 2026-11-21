@@ -1,6 +1,6 @@
 package dev.nitpick.app.ui.repository
 
-import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
@@ -8,34 +8,35 @@ import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
-import androidx.compose.material3.Button
 import androidx.compose.material3.CircularProgressIndicator
-import androidx.compose.material3.HorizontalDivider
-import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.OutlinedButton
 import androidx.compose.material3.Text
-import androidx.compose.material3.VerticalDivider
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.font.FontWeight
-import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import dev.nitpick.app.domain.Ref
 import dev.nitpick.app.domain.RefType
+import dev.nitpick.app.ui.components.NitpickEmptyState
+import dev.nitpick.app.ui.components.NitpickStatusBar
+import dev.nitpick.app.ui.components.NitpickToolbar
+import dev.nitpick.app.ui.components.NitpickToolbarAction
+import dev.nitpick.app.ui.components.NitpickToolWindowHeader
+import dev.nitpick.app.ui.components.NitpickVerticalDivider
+import dev.nitpick.app.ui.theme.NitpickTheme
 import nitpick.shared.generated.resources.*
 import org.jetbrains.compose.resources.StringResource
 import org.jetbrains.compose.resources.stringResource
 
 /**
- * Desktop layout from docs/CONTEXT.md §12: refs sidebar | commit graph | details of the
- * selected commit. The diff and review land in the details panel in later tickets.
+ * Desktop shell from docs/CONTEXT.md §12: refs tool window | commit graph | details tool
+ * window, framed by the IDE toolbar and status bar. The diff and review land in the details
+ * panel in later tickets.
  *
  * [onOpenRepository] is null on platforms without a folder picker.
  */
@@ -46,95 +47,110 @@ fun RepositoryScreen(
     onSelectCommit: (String) -> Unit,
     modifier: Modifier = Modifier,
 ) {
-    Column(modifier.fillMaxSize()) {
-        if (state.path != null) {
-            RepositoryHeader(state.path, state.currentBranch, onOpenRepository)
-            HorizontalDivider()
-        }
-        when {
-            state.isLoading -> Box(Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
-                CircularProgressIndicator()
-            }
-            state.errorMessage != null -> MessageState(
-                title = stringResource(Res.string.repository_error_title),
-                detail = state.errorMessage,
-                onOpenRepository = null, // the header already offers to open another folder
-            )
-            state.path == null -> MessageState(
-                title = stringResource(Res.string.repository_empty_title),
-                // The hint asks to pick a folder, so it only makes sense with a picker.
-                detail = if (onOpenRepository != null) stringResource(Res.string.repository_empty_hint) else null,
-                onOpenRepository = onOpenRepository,
-            )
-            else -> Row(Modifier.fillMaxSize()) {
-                RefsSidebar(state.refs, state.currentBranch, Modifier.width(240.dp).fillMaxHeight())
-                VerticalDivider()
-                Column(Modifier.weight(1f).fillMaxHeight()) {
-                    SectionTitle(stringResource(Res.string.commits_title))
-                    if (state.graph.isEmpty()) {
-                        PanelHint(stringResource(Res.string.commits_empty))
-                    } else {
-                        CommitGraphList(state.graph, state.selectedCommitId, onSelectCommit, Modifier.fillMaxSize())
+    Column(modifier.fillMaxSize().background(NitpickTheme.colors.canvas)) {
+        RepositoryToolbar(state.path, state.currentBranch, onOpenRepository)
+        Box(Modifier.weight(1f)) {
+            when {
+                state.isLoading -> Box(Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
+                    CircularProgressIndicator(color = NitpickTheme.colors.primary)
+                }
+                state.errorMessage != null -> NitpickEmptyState(
+                    title = stringResource(Res.string.repository_error_title),
+                    detail = state.errorMessage,
+                    actionLabel = if (onOpenRepository != null) stringResource(Res.string.repository_open) else null,
+                    onAction = onOpenRepository,
+                )
+                state.path == null -> NitpickEmptyState(
+                    title = stringResource(Res.string.repository_empty_title),
+                    detail = if (onOpenRepository != null) stringResource(Res.string.repository_empty_hint) else null,
+                    actionLabel = if (onOpenRepository != null) stringResource(Res.string.repository_open) else null,
+                    onAction = onOpenRepository,
+                )
+                else -> Row(Modifier.fillMaxSize()) {
+                    RefsSidebar(
+                        refs = state.refs,
+                        currentBranch = state.currentBranch,
+                        modifier = Modifier.width(NitpickTheme.sizes.sidebar).fillMaxHeight(),
+                    )
+                    NitpickVerticalDivider()
+                    Column(Modifier.weight(1f).fillMaxHeight()) {
+                        NitpickToolWindowHeader(stringResource(Res.string.commits_title))
+                        if (state.graph.isEmpty()) {
+                            PanelHint(stringResource(Res.string.commits_empty))
+                        } else {
+                            CommitGraphList(
+                                graph = state.graph,
+                                selectedCommitId = state.selectedCommitId,
+                                onSelectCommit = onSelectCommit,
+                                modifier = Modifier.weight(1f).fillMaxWidth(),
+                            )
+                        }
+                    }
+                    NitpickVerticalDivider()
+                    val selected = state.selectedCommit
+                    Column(Modifier.width(NitpickTheme.sizes.inspector).fillMaxHeight()) {
+                        NitpickToolWindowHeader(stringResource(Res.string.details_title))
+                        if (selected != null) {
+                            CommitDetails(selected, Modifier.weight(1f))
+                        } else {
+                            DetailsPlaceholder(Modifier.weight(1f))
+                        }
                     }
                 }
-                VerticalDivider()
-                val selected = state.selectedCommit
-                if (selected != null) {
-                    CommitDetails(selected, Modifier.width(320.dp).fillMaxHeight())
-                } else {
-                    DetailsPlaceholder(Modifier.width(320.dp).fillMaxHeight())
-                }
             }
+        }
+        NitpickStatusBar {
+            Text(
+                text = state.currentBranch.ifEmpty { stringResource(Res.string.status_no_branch) },
+                style = NitpickTheme.typography.micro,
+                color = NitpickTheme.colors.onStatusBar,
+            )
+            Text(
+                text = stringResource(Res.string.status_commits, state.graph.size),
+                style = NitpickTheme.typography.micro,
+                color = NitpickTheme.colors.onStatusBar,
+            )
+            Spacer(Modifier.weight(1f))
+            Text(
+                text = stringResource(Res.string.status_git),
+                style = NitpickTheme.typography.micro,
+                color = NitpickTheme.colors.onStatusBar,
+            )
         }
     }
 }
 
 @Composable
-private fun RepositoryHeader(path: String, currentBranch: String, onOpenRepository: (() -> Unit)?) {
-    Row(
-        modifier = Modifier.fillMaxWidth().padding(horizontal = 16.dp, vertical = 8.dp),
-        verticalAlignment = Alignment.CenterVertically,
-        horizontalArrangement = Arrangement.spacedBy(8.dp),
-    ) {
-        Text(folderName(path), style = MaterialTheme.typography.titleMedium)
-        if (currentBranch.isNotEmpty()) {
+private fun RepositoryToolbar(path: String?, currentBranch: String, onOpenRepository: (() -> Unit)?) {
+    NitpickToolbar {
+        Text(
+            text = "Nitpick",
+            style = NitpickTheme.typography.bodyStrong,
+            color = NitpickTheme.colors.onToolbar,
+        )
+        if (path != null) {
             Text(
-                stringResource(Res.string.repository_on_branch, branchLabel(currentBranch)),
-                style = MaterialTheme.typography.bodyMedium,
-                color = MaterialTheme.colorScheme.onSurfaceVariant,
+                text = "/ ${folderName(path)}",
+                style = NitpickTheme.typography.body,
+                color = NitpickTheme.colors.onToolbar.copy(alpha = 0.72f),
+                maxLines = 1,
+                overflow = TextOverflow.Ellipsis,
             )
+            if (currentBranch.isNotEmpty()) {
+                Text(
+                    text = stringResource(Res.string.repository_on_branch, branchLabel(currentBranch)),
+                    style = NitpickTheme.typography.small,
+                    color = NitpickTheme.colors.onToolbar.copy(alpha = 0.55f),
+                    maxLines = 1,
+                )
+            }
         }
         Spacer(Modifier.weight(1f))
         if (onOpenRepository != null) {
-            OutlinedButton(onClick = onOpenRepository) {
-                Text(stringResource(Res.string.repository_open))
-            }
-        }
-    }
-}
-
-@Composable
-private fun MessageState(title: String, detail: String?, onOpenRepository: (() -> Unit)?) {
-    Column(
-        modifier = Modifier.fillMaxSize().padding(32.dp),
-        horizontalAlignment = Alignment.CenterHorizontally,
-        verticalArrangement = Arrangement.Center,
-    ) {
-        Text(title, style = MaterialTheme.typography.titleLarge, textAlign = TextAlign.Center)
-        if (detail != null) {
-            Spacer(Modifier.height(8.dp))
-            Text(
-                detail,
-                style = MaterialTheme.typography.bodyMedium,
-                color = MaterialTheme.colorScheme.onSurfaceVariant,
-                textAlign = TextAlign.Center,
+            NitpickToolbarAction(
+                text = stringResource(Res.string.repository_open),
+                onClick = onOpenRepository,
             )
-        }
-        if (onOpenRepository != null) {
-            Spacer(Modifier.height(24.dp))
-            Button(onClick = onOpenRepository) {
-                Text(stringResource(Res.string.repository_open))
-            }
         }
     }
 }
@@ -147,53 +163,59 @@ private fun RefsSidebar(refs: List<Ref>, currentBranch: String, modifier: Modifi
         Res.string.refs_tags to refs.filter { it.type == RefType.TAG },
     ).filter { (_, refsInSection) -> refsInSection.isNotEmpty() }
 
-    LazyColumn(modifier.padding(vertical = 8.dp)) {
-        if (sections.isEmpty()) {
-            item { PanelHint(stringResource(Res.string.refs_empty)) }
-        }
-        sections.forEach { (title, refsInSection) ->
-            item { SectionTitle(stringResource(title)) }
-            items(refsInSection, key = { it.fullName }) { ref ->
-                val isCurrent = ref.type == RefType.LOCAL_BRANCH && ref.name == currentBranch
-                Text(
-                    ref.name,
-                    modifier = Modifier.fillMaxWidth().padding(horizontal = 16.dp, vertical = 4.dp),
-                    style = MaterialTheme.typography.bodyMedium,
-                    fontWeight = if (isCurrent) FontWeight.Bold else FontWeight.Normal,
-                    color = if (isCurrent) MaterialTheme.colorScheme.primary else MaterialTheme.colorScheme.onSurface,
-                    maxLines = 1,
-                    overflow = TextOverflow.Ellipsis,
-                )
+    Column(modifier.background(NitpickTheme.colors.surface)) {
+        NitpickToolWindowHeader(stringResource(Res.string.refs_local_branches))
+        LazyColumn(Modifier.weight(1f).padding(vertical = 4.dp)) {
+            if (sections.isEmpty()) {
+                item { PanelHint(stringResource(Res.string.refs_empty)) }
+            }
+            sections.forEach { (title, refsInSection) ->
+                item { RefSectionTitle(stringResource(title)) }
+                items(refsInSection, key = { it.fullName }) { ref ->
+                    val isCurrent = ref.type == RefType.LOCAL_BRANCH && ref.name == currentBranch
+                    Text(
+                        text = ref.name,
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .background(if (isCurrent) NitpickTheme.colors.selection else androidx.compose.ui.graphics.Color.Transparent)
+                            .padding(horizontal = 12.dp, vertical = 3.dp),
+                        style = NitpickTheme.typography.body,
+                        fontWeight = if (isCurrent) FontWeight.Medium else FontWeight.Normal,
+                        color = if (isCurrent) NitpickTheme.colors.onSelection else NitpickTheme.colors.text,
+                        maxLines = 1,
+                        overflow = TextOverflow.Ellipsis,
+                    )
+                }
             }
         }
     }
 }
 
 @Composable
-private fun DetailsPlaceholder(modifier: Modifier) {
-    Box(modifier.padding(24.dp), contentAlignment = Alignment.Center) {
-        PanelHint(stringResource(Res.string.details_placeholder))
-    }
+private fun RefSectionTitle(text: String) {
+    Text(
+        text = text.uppercase(),
+        modifier = Modifier.fillMaxWidth().padding(horizontal = 12.dp, vertical = 6.dp),
+        style = NitpickTheme.typography.kicker,
+        color = NitpickTheme.colors.textMuted,
+    )
 }
 
 @Composable
-private fun SectionTitle(text: String) {
-    Text(
-        text,
-        modifier = Modifier.padding(horizontal = 16.dp, vertical = 8.dp),
-        style = MaterialTheme.typography.titleSmall,
-        color = MaterialTheme.colorScheme.onSurfaceVariant,
+private fun DetailsPlaceholder(modifier: Modifier) {
+    NitpickEmptyState(
+        title = stringResource(Res.string.details_placeholder),
+        modifier = modifier,
     )
 }
 
 @Composable
 private fun PanelHint(text: String) {
     Text(
-        text,
-        modifier = Modifier.padding(16.dp),
-        style = MaterialTheme.typography.bodyMedium,
-        color = MaterialTheme.colorScheme.onSurfaceVariant,
-        textAlign = TextAlign.Center,
+        text = text,
+        modifier = Modifier.fillMaxWidth().padding(16.dp),
+        style = NitpickTheme.typography.small,
+        color = NitpickTheme.colors.textMuted,
     )
 }
 
