@@ -24,6 +24,18 @@
 - 15:00 — `check.sh` vert (21 tests exécutés). App desktop lancée : un vrai dépôt ouvert via
   le sélecteur affiche ses commits, branches, remote et tag (capture prise).
 
+- 15:40 — revue demandée par l'humain (ponytail-review), 4 points corrigés :
+  worktree lié refusé avec un message clair (JGit 6.10 ne sait pas l'ouvrir), indication
+  « choisissez un dépôt » masquée sans sélecteur, HEAD détachée affichée en id court, faux
+  dépôt réduit à ce que les tests utilisent.
+- 15:45 — **incident** : le hook `pre-commit` exporte `GIT_DIR` et `GIT_INDEX_FILE` ; les
+  commandes git de `TestGitRepo` en ont hérité et ont écrit dans le vrai dépôt (8 commits de
+  test sur la branche du ticket, une branche `feature` et son worktree, index écrasé,
+  `core.bare=true`). Rien de poussé, `main` intact. Restauré (`core.bare=false`, branche
+  ramenée à `d263555` avec `reset --mixed`, branche et worktree parasites supprimés).
+  Cause corrigée : `TestGitRepo` retire tout `GIT_*` hérité ; prouvé en lançant les tests avec
+  un `GIT_DIR` inexistant (13 échecs avant, 13 succès après).
+
 ## Décisions
 
 - `log` trie en ordre topologique puis par date : chaque enfant passe avant ses parents,
@@ -55,6 +67,11 @@
 
 - Aucun. Attention au merge avec #18 (piste C) : les deux tickets créent
   `composeResources/values*/strings.xml`.
+
+## Leçon à ajouter à AGENTS.md (H2)
+
+- Un test qui lance `git` doit retirer les variables `GIT_*` héritées : le hook
+  `pre-commit` les exporte, et le test écrit alors dans le vrai dépôt.
 
 ## Suivant
 
