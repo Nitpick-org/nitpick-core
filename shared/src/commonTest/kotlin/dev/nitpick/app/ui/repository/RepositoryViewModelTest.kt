@@ -407,6 +407,56 @@ class RepositoryViewModelTest {
     }
 
     @Test
+    fun applyingTheSameNitTwiceDoesNotPatchTwice() {
+        val repo = FakeGitRepository(
+            branch = "main", commits = commits, refs = listOf(mainBranch), diffs = diffs,
+            files = mapOf("graph/CommitGraph.kt" to "fun a() {\n    val lane = 1\n}\n"),
+        )
+        val nit = ReviewComment(
+            id = "n1", filePath = "graph/CommitGraph.kt", startLine = 2, endLine = 2, severity = Severity.BUG,
+            category = "logic", message = "wrong lane", originalSnippet = "val lane = 1", suggestion = "    val lane = 0",
+        )
+        val agent = object : ReviewAgent {
+            override suspend fun review(repository: GitRepository, baseRef: String) = ReviewResult("1 bug", listOf(nit))
+        }
+        val viewModel = RepositoryViewModel(FakeGitRepositoryFactory(mapOf("/work/demo" to repo)), graphDispatcher = dispatcher, reviewAgent = agent)
+        viewModel.openRepository("/work/demo")
+        viewModel.reviewBranch()
+
+        viewModel.applySuggestion(nit)
+        viewModel.applySuggestion(nit)
+
+        assertEquals("fun a() {\n    val lane = 0\n}\n", repo.files["graph/CommitGraph.kt"])
+        assertEquals(null, viewModel.state.value.actionError)
+        assertEquals(setOf("n1"), viewModel.state.value.appliedIds)
+    }
+
+    @Test
+    fun committingTwiceCreatesOneCommit() {
+        val repo = FakeGitRepository(
+            branch = "main", commits = commits, refs = listOf(mainBranch), diffs = diffs,
+            files = mapOf("graph/CommitGraph.kt" to "fun a() {\n    val lane = 1\n}\n"),
+        )
+        val nit = ReviewComment(
+            id = "n1", filePath = "graph/CommitGraph.kt", startLine = 2, endLine = 2, severity = Severity.BUG,
+            category = "logic", message = "wrong lane", originalSnippet = "val lane = 1", suggestion = "    val lane = 0",
+        )
+        val agent = object : ReviewAgent {
+            override suspend fun review(repository: GitRepository, baseRef: String) = ReviewResult("1 bug", listOf(nit))
+        }
+        val viewModel = RepositoryViewModel(FakeGitRepositoryFactory(mapOf("/work/demo" to repo)), graphDispatcher = dispatcher, reviewAgent = agent)
+        viewModel.openRepository("/work/demo")
+        viewModel.reviewBranch()
+        viewModel.applySuggestion(nit)
+
+        viewModel.commitAppliedSuggestions()
+        viewModel.commitAppliedSuggestions()
+
+        assertEquals(listOf("Apply review suggestions"), repo.commitMessages)
+        assertEquals(null, viewModel.state.value.actionError)
+    }
+
+    @Test
     fun reviewApplyAndCommitWriteTheFileStageItAndResetTheReview() {
         val repo = FakeGitRepository(
             branch = "main", commits = commits, refs = listOf(mainBranch), diffs = diffs,
