@@ -15,6 +15,7 @@ class FakeGitRepository(
     private val diffs: Map<String, List<FileDiff>> = emptyMap(),
     files: Map<String, String> = emptyMap(),
     private val remoteUrl: String? = null,
+    var checkoutError: Exception? = null,
 ) : GitRepository {
     val files: MutableMap<String, String> = files.toMutableMap()
     val staged = mutableListOf<String>()
@@ -35,7 +36,10 @@ class FakeGitRepository(
     override suspend fun fetch(credentials: Credentials?) = TODO("not faked yet")
     override suspend fun pull(credentials: Credentials?): PullResult = TODO("not faked yet")
     override suspend fun push(credentials: Credentials?) = TODO("not faked yet")
-    override suspend fun checkout(branch: String) { this.branch = branch }
+    override suspend fun checkout(branch: String) {
+        checkoutError?.let { throw it }
+        this.branch = branch
+    }
 }
 
 /** Opens [repositories] by path; any other path fails like a folder that is not a repository. */

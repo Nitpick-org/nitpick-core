@@ -390,6 +390,23 @@ class RepositoryViewModelTest {
     }
 
     @Test
+    fun aCheckoutConflictShowsTheBlockingFileOnOneLine() {
+        val repo = FakeGitRepository(
+            branch = "main",
+            commits = commits,
+            refs = listOf(mainBranch, Ref("feature", "refs/heads/feature", parent.id, RefType.LOCAL_BRANCH)),
+            diffs = diffs,
+            checkoutError = IllegalStateException("Checkout conflict with files:\nsrc/Graph.kt"),
+        )
+        val viewModel = RepositoryViewModel(FakeGitRepositoryFactory(mapOf("/work/demo" to repo)), graphDispatcher = dispatcher)
+        viewModel.openRepository("/work/demo")
+
+        viewModel.checkoutBranch("feature")
+
+        assertEquals("Checkout conflict with files: src/Graph.kt", viewModel.state.value.checkoutError)
+    }
+
+    @Test
     fun reviewApplyAndCommitWriteTheFileStageItAndResetTheReview() {
         val repo = FakeGitRepository(
             branch = "main", commits = commits, refs = listOf(mainBranch), diffs = diffs,

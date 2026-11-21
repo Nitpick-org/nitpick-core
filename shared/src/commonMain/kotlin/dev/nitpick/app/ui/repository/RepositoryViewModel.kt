@@ -609,7 +609,11 @@ class RepositoryViewModel(
         } catch (e: CancellationException) {
             throw e
         } catch (e: Exception) {
-            if (repository === git) _state.update { it.copy(isCheckingOut = false, checkoutError = e.message ?: e.toString()) }
+            // JGit puts the conflicting paths after a newline; the status bar is one line.
+            val message = (e.message ?: e.toString()).lineSequence()
+                .joinToString(" ") { it.trim() }
+                .trim()
+            if (repository === git) _state.update { it.copy(isCheckingOut = false, checkoutError = message) }
             return false
         }
     }
