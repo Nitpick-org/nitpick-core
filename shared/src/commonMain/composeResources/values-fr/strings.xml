@@ -120,6 +120,8 @@
     <string name="connect_signin_open">Ouvrir le navigateur</string>
     <string name="connect_signin_cancel">Annuler</string>
     <string name="connect_signin_failed">Connexion échouée : %1$s</string>
+    <string name="connect_signin_denied">Vous avez refusé la connexion. Réessayez quand vous voulez.</string>
+    <string name="connect_signin_expired">Le code a expiré. Relancez la connexion.</string>
     <string name="connect_token_or">Ou collez un jeton d’accès</string>
     <string name="settings_search">Rechercher un réglage</string>
     <string name="settings_section_general">Général</string>

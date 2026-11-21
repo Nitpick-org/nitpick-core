@@ -46,6 +46,8 @@ import nitpick.shared.generated.resources.connect_host
 import nitpick.shared.generated.resources.connect_signin
 import nitpick.shared.generated.resources.connect_signin_cancel
 import nitpick.shared.generated.resources.connect_signin_code_help
+import nitpick.shared.generated.resources.connect_signin_denied
+import nitpick.shared.generated.resources.connect_signin_expired
 import nitpick.shared.generated.resources.connect_signin_failed
 import nitpick.shared.generated.resources.connect_signin_open
 import nitpick.shared.generated.resources.connect_title
@@ -148,7 +150,7 @@ fun ConnectScreen(
                     },
                 )
                 signInError?.let {
-                    Text(stringResource(Res.string.connect_signin_failed, it), style = NitpickTheme.typography.small, color = NitpickTheme.colors.danger)
+                    Text(signInErrorText(it), style = NitpickTheme.typography.small, color = NitpickTheme.colors.danger)
                 }
                 Text(stringResource(Res.string.connect_token_or), style = NitpickTheme.typography.micro, color = NitpickTheme.colors.textSecondary)
             }
@@ -178,6 +180,13 @@ fun ConnectScreen(
 }
 
 @Composable
+private fun signInErrorText(code: String): String = when (code) {
+    "access_denied" -> stringResource(Res.string.connect_signin_denied)
+    "expired_token" -> stringResource(Res.string.connect_signin_expired)
+    else -> stringResource(Res.string.connect_signin_failed, code)
+}
+
+@Composable
 private fun SignInWaiting(hostLabel: String, userCode: String, error: String?, onOpenBrowser: () -> Unit, onCancel: () -> Unit, modifier: Modifier) {
     Column(modifier.fillMaxSize().background(NitpickTheme.colors.canvas)) {
         PhoneTopBar(title = stringResource(Res.string.connect_title), onBack = onCancel)
@@ -189,7 +198,7 @@ private fun SignInWaiting(hostLabel: String, userCode: String, error: String?, o
             Text(userCode, style = NitpickTheme.typography.display, color = NitpickTheme.colors.text)
             Text(stringResource(Res.string.connect_signin_code_help, hostLabel), style = NitpickTheme.typography.small, color = NitpickTheme.colors.textSecondary)
             error?.let {
-                Text(stringResource(Res.string.connect_signin_failed, it), style = NitpickTheme.typography.small, color = NitpickTheme.colors.danger)
+                Text(signInErrorText(it), style = NitpickTheme.typography.small, color = NitpickTheme.colors.danger)
             }
             NitpickButton(
                 text = stringResource(Res.string.connect_signin_open),

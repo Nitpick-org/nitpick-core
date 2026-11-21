@@ -120,6 +120,8 @@
     <string name="connect_signin_open">Open the browser</string>
     <string name="connect_signin_cancel">Cancel</string>
     <string name="connect_signin_failed">Sign-in failed: %1$s</string>
+    <string name="connect_signin_denied">You declined the sign-in. Try again when you are ready.</string>
+    <string name="connect_signin_expired">The code expired. Start the sign-in again.</string>
     <string name="connect_token_or">Or paste an access token</string>
     <string name="settings_search">Search settings</string>
     <string name="settings_section_general">General</string>
