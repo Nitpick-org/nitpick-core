@@ -14,6 +14,7 @@
 | Heure | Prio | Agent / ticket | Question | Options | Recommandation | Réponse humaine |
 | --- | --- | --- | --- | --- | --- | --- |
 | | | | | | | |
+| 13:05 | P1 | 13-structure | `GitRepositoryFactory` et `SettingsStore` en interface plutôt qu en `expect` (§6) ? | expect/actual avec actual vide / interface injectée via AppContainer | interface : un expect sans actual ne compile pas, et la DI manuelle du §5 suffit | |
 
 ## À répondre avant H0
 
