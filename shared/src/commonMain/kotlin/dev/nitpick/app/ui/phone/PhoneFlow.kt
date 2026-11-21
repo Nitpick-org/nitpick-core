@@ -15,6 +15,7 @@ import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import dev.nitpick.app.domain.Credentials
 import dev.nitpick.app.domain.ReviewComment
+import dev.nitpick.app.domain.SharedReview
 import dev.nitpick.app.settings.GitConnection
 import dev.nitpick.app.settings.Settings
 import dev.nitpick.app.ui.components.NitpickButton
@@ -30,10 +31,11 @@ import org.jetbrains.compose.resources.stringResource
 
 private val PhoneActionHeight = 56.dp
 
-private enum class PhoneScreen { Repos, Clone, Graph, Review, Diff }
+private enum class PhoneScreen { Repos, Clone, Graph, Review, Diff, Shared }
 
 /**
  * Compact layout (CONTEXT §12): one screen at a time, Repos → Clone → Graph → Review → Diff.
+ * Graph also opens Shared, the reviews another device shared for this repository.
  * The phone needs a forge account first: every clone and push uses [Settings.gitConnection].
  * [cloneRoot] is the folder clones land in.
  */
@@ -54,6 +56,9 @@ fun PhoneFlow(
     onCommit: () -> Unit,
     onPush: (Credentials?) -> Unit,
     onPull: (Credentials?) -> Unit,
+    onShareReview: () -> Unit,
+    onLoadSharedReviews: () -> Unit,
+    onOpenSharedReview: (SharedReview) -> Unit,
     onConnect: (GitConnection) -> Unit,
     onOpenSettings: () -> Unit,
     modifier: Modifier = Modifier,
@@ -103,6 +108,7 @@ fun PhoneFlow(
                 if (state.review == null && !state.isReviewing) onRunReview()
                 screen = PhoneScreen.Review
             },
+            onOpenShared = { screen = PhoneScreen.Shared },
             onOpenSettings = onOpenSettings,
             modifier = modifier,
         )
@@ -119,6 +125,7 @@ fun PhoneFlow(
             onCommitMessage = onCommitMessage,
             onCommit = onCommit,
             onPush = { onPush(connection.toCredentials()) },
+            onShare = onShareReview,
             onOpenSettings = onOpenSettings,
             modifier = modifier,
         )
@@ -127,6 +134,16 @@ fun PhoneFlow(
             file = state.diff.firstOrNull { it.path == state.selectedDiffPath },
             baseRef = state.baseRef,
             onBack = { screen = PhoneScreen.Review },
+            modifier = modifier,
+        )
+        PhoneScreen.Shared -> PhoneSharedReviewsScreen(
+            state = state,
+            onBack = { screen = PhoneScreen.Graph },
+            onRefresh = onLoadSharedReviews,
+            onOpen = { shared ->
+                onOpenSharedReview(shared)
+                screen = PhoneScreen.Review
+            },
             modifier = modifier,
         )
     }

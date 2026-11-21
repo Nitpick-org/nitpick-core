@@ -5,6 +5,8 @@ import dev.nitpick.app.review.KoogLlmClient
 import dev.nitpick.app.review.LlmReviewAgent
 import dev.nitpick.app.review.ReviewAgent
 import dev.nitpick.app.settings.SettingsStore
+import dev.nitpick.app.share.KtorReviewShareClient
+import dev.nitpick.app.share.ReviewShareClient
 
 /**
  * Manual dependency injection (CONTEXT §5): each platform entry point builds one container
@@ -14,4 +16,5 @@ class AppContainer(
     val gitRepositoryFactory: GitRepositoryFactory,
     val settingsStore: SettingsStore,
     val reviewAgent: ReviewAgent = LlmReviewAgent(KoogLlmClient(settingsStore)),
+    val reviewShareClient: ReviewShareClient = KtorReviewShareClient({ settingsStore.load().serverUrl }),
 )

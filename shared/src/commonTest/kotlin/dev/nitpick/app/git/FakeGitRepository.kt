@@ -9,11 +9,12 @@ import dev.nitpick.app.domain.WorkingTreeStatus
 
 /** In-memory [GitRepository] for tests of anything built on top of the git contract. */
 class FakeGitRepository(
-    private val branch: String = "main",
+    private var branch: String = "main",
     private val commits: List<Commit> = emptyList(),
     private val refs: List<Ref> = emptyList(),
     private val diffs: Map<String, List<FileDiff>> = emptyMap(),
     files: Map<String, String> = emptyMap(),
+    private val remoteUrl: String? = null,
 ) : GitRepository {
     val files: MutableMap<String, String> = files.toMutableMap()
     val staged = mutableListOf<String>()
@@ -22,6 +23,7 @@ class FakeGitRepository(
     override suspend fun log(limit: Int): List<Commit> = commits.take(limit)
     override suspend fun refs(): List<Ref> = refs
     override suspend fun currentBranch(): String = branch
+    override suspend fun remoteUrl(): String? = remoteUrl
     override suspend fun status() = WorkingTreeStatus(emptyList(), emptyList(), emptyList(), emptyList())
     override suspend fun readFile(path: String): String? = files[path]
     override suspend fun listFiles(): List<String> = files.keys.sorted()
@@ -33,7 +35,7 @@ class FakeGitRepository(
     override suspend fun fetch(credentials: Credentials?) = TODO("not faked yet")
     override suspend fun pull(credentials: Credentials?): PullResult = TODO("not faked yet")
     override suspend fun push(credentials: Credentials?) = TODO("not faked yet")
-    override suspend fun checkout(branch: String) = TODO("not faked yet")
+    override suspend fun checkout(branch: String) { this.branch = branch }
 }
 
 /** Opens [repositories] by path; any other path fails like a folder that is not a repository. */

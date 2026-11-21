@@ -64,6 +64,10 @@ class JGitRepository(private val git: Git) : GitRepository {
         checkNotNull(repository.branch) { "HEAD is missing in ${workTree.path}" }
     }
 
+    override suspend fun remoteUrl(): String? = withContext(Dispatchers.IO) {
+        repository.config.getString("remote", Constants.DEFAULT_REMOTE_NAME, "url")
+    }
+
     override suspend fun status(): WorkingTreeStatus = withContext(Dispatchers.IO) {
         val status = git.status().call()
         WorkingTreeStatus(

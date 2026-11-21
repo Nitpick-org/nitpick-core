@@ -36,6 +36,7 @@ import androidx.compose.ui.unit.dp
 import dev.nitpick.app.domain.Ref
 import dev.nitpick.app.domain.RefType
 import dev.nitpick.app.domain.ReviewComment
+import dev.nitpick.app.domain.SharedReview
 import dev.nitpick.app.settings.Settings
 import dev.nitpick.app.ui.components.NitpickButton
 import dev.nitpick.app.ui.components.NitpickButtonSize
@@ -83,6 +84,9 @@ fun RepositoryScreen(
     onDismissSuggestion: (String) -> Unit,
     onCommitMessage: (String) -> Unit,
     onCommit: () -> Unit,
+    onShareReview: () -> Unit,
+    onLoadSharedReviews: () -> Unit,
+    onOpenSharedReview: (SharedReview) -> Unit,
     modifier: Modifier = Modifier,
 ) {
     var tab by rememberSaveable { mutableStateOf(InspectorTab.Details) }
@@ -143,6 +147,9 @@ fun RepositoryScreen(
                         onCommitMessage = onCommitMessage,
                         onCommit = onCommit,
                         onOpenSettings = onOpenSettings,
+                        onShareReview = onShareReview,
+                        onLoadSharedReviews = onLoadSharedReviews,
+                        onOpenSharedReview = onOpenSharedReview,
                         modifier = Modifier
                             .width(if (tab == InspectorTab.Details) NitpickTheme.sizes.inspector else InspectorWideWidth)
                             .fillMaxHeight(),
@@ -474,6 +481,9 @@ private fun Inspector(
     onOpenSettings: () -> Unit,
     onSelectBase: (String) -> Unit,
     onSelectDiffFile: (String) -> Unit,
+    onShareReview: () -> Unit,
+    onLoadSharedReviews: () -> Unit,
+    onOpenSharedReview: (SharedReview) -> Unit,
     modifier: Modifier,
 ) {
     Column(modifier.background(NitpickTheme.colors.surface)) {
@@ -511,6 +521,9 @@ private fun Inspector(
                 onCommitMessage = onCommitMessage,
                 onCommit = onCommit,
                 onOpenSettings = onOpenSettings,
+                onShare = onShareReview,
+                onLoadSharedReviews = onLoadSharedReviews,
+                onOpenSharedReview = onOpenSharedReview,
                 modifier = Modifier.weight(1f),
             )
         }

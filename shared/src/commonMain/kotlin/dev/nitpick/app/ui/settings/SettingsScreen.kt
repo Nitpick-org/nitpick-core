@@ -31,6 +31,7 @@ import nitpick.shared.generated.resources.settings_model
 import nitpick.shared.generated.resources.settings_provider
 import nitpick.shared.generated.resources.settings_theme
 import nitpick.shared.generated.resources.settings_title
+import nitpick.shared.generated.resources.settings_kicker_sharing
 import nitpick.shared.generated.resources.theme_dark
 import nitpick.shared.generated.resources.theme_light
 import nitpick.shared.generated.resources.theme_system
@@ -103,6 +104,15 @@ fun SettingsScreen(settings: Settings, onChange: ((Settings) -> Settings) -> Uni
                         minHeight = TouchControlHeight,
                     )
                 }
+            }
+            NitpickCard(verticalArrangement = Arrangement.spacedBy(8.dp)) {
+                SectionTitle(Res.string.settings_kicker_sharing)
+                ServerUrlField(
+                    serverUrl = settings.serverUrl,
+                    onChange = { url -> onChange { it.copy(serverUrl = url) } },
+                    modifier = Modifier.fillMaxWidth(),
+                    minHeight = TouchControlHeight,
+                )
             }
         }
     }

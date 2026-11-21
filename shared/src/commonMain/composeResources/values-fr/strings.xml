@@ -140,4 +140,18 @@
     <string name="pull_up_to_date">Déjà à jour</string>
     <string name="pull_conflict">Pull annulé, conflits dans : %1$s</string>
     <string name="pull_error">Le pull a échoué</string>
+    <string name="share_action">Partager la review</string>
+    <string name="share_in_progress">Partage…</string>
+    <string name="share_done">Partagée</string>
+    <string name="share_no_remote">Ce repo n’a pas de remote origin : les autres appareils ne peuvent pas retrouver la review.</string>
+    <string name="share_unreachable">Serveur de reviews injoignable. Lance-le avec ./gradlew :server:run et vérifie son URL dans les réglages.</string>
+    <string name="shared_title">Reviews partagées</string>
+    <string name="shared_open">Partagées</string>
+    <string name="shared_refresh">Actualiser</string>
+    <string name="shared_empty">Aucune review partagée pour ce repo.</string>
+    <string name="shared_row">%1$s · %2$s · %3$d nits</string>
+    <string name="shared_badge">Review partagée</string>
+    <string name="settings_kicker_sharing">Partage</string>
+    <string name="settings_server_url">URL du serveur de reviews</string>
+    <string name="settings_server_url_help">Sur le téléphone : adb reverse tcp:8080 tcp:8080, 10.0.2.2:8080 sur l’émulateur, ou l’IP LAN du laptop.</string>
 </resources>

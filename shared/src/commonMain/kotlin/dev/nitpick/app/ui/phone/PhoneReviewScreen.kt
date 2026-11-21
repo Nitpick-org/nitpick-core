@@ -35,6 +35,7 @@ import dev.nitpick.app.ui.components.NitpickTextField
 import dev.nitpick.app.ui.components.NitpickToolbarAction
 import dev.nitpick.app.ui.repository.RepositoryUiState
 import dev.nitpick.app.ui.repository.ReviewFailureState
+import dev.nitpick.app.ui.repository.ShareReviewAction
 import dev.nitpick.app.ui.repository.branchLabel
 import dev.nitpick.app.ui.theme.NitpickTheme
 import dev.nitpick.app.ui.theme.NitpickTone
@@ -57,6 +58,7 @@ import nitpick.shared.generated.resources.review_running
 import nitpick.shared.generated.resources.review_title
 import nitpick.shared.generated.resources.review_vs
 import nitpick.shared.generated.resources.review_whole_file_short
+import nitpick.shared.generated.resources.shared_badge
 import org.jetbrains.compose.resources.stringResource
 
 private val NitRowHeight = 56.dp
@@ -73,6 +75,7 @@ fun PhoneReviewScreen(
     onCommitMessage: (String) -> Unit,
     onCommit: () -> Unit,
     onPush: () -> Unit,
+    onShare: () -> Unit,
     onOpenSettings: () -> Unit,
     modifier: Modifier = Modifier,
 ) {
@@ -90,7 +93,8 @@ fun PhoneReviewScreen(
         }
         Box(Modifier.weight(1f)) {
             when {
-                state.isReviewing -> Box(Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
+                // Opening a shared review may check its branch out first.
+                state.isReviewing || state.isCheckingOut -> Box(Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
                     Column(horizontalAlignment = Alignment.CenterHorizontally, verticalArrangement = Arrangement.spacedBy(8.dp)) {
                         CircularProgressIndicator(color = NitpickTheme.colors.primary)
                         Text(stringResource(Res.string.review_running), style = NitpickTheme.typography.small)
@@ -106,7 +110,7 @@ fun PhoneReviewScreen(
                     actionLabel = stringResource(Res.string.review_run),
                     onAction = onRunReview,
                 )
-                else -> NitList(state, review.summary, review.comments, onOpenFile, onOpenNit = { openNitId = it }, Modifier.fillMaxSize())
+                else -> NitList(state, review.summary, review.comments, onOpenFile, onOpenNit = { openNitId = it }, onShare, Modifier.fillMaxSize())
             }
         }
         CommitAndPushBar(state, onCommitMessage, onCommit, onPush)
@@ -133,6 +137,7 @@ private fun NitList(
     comments: List<ReviewComment>,
     onOpenFile: (String) -> Unit,
     onOpenNit: (String) -> Unit,
+    onShare: () -> Unit,
     modifier: Modifier,
 ) {
     val byFile = comments.groupBy { it.filePath }
@@ -140,7 +145,10 @@ private fun NitList(
         item {
             NitpickCard(verticalArrangement = Arrangement.spacedBy(8.dp)) {
                 Row(verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(8.dp)) {
-                    NitpickBadge(stringResource(Res.string.review_local), tone = NitpickTone.Info)
+                    NitpickBadge(
+                        stringResource(if (state.openedSharedReview != null) Res.string.shared_badge else Res.string.review_local),
+                        tone = NitpickTone.Info,
+                    )
                     Text(summary, style = NitpickTheme.typography.section, modifier = Modifier.weight(1f))
                 }
                 Text(
@@ -148,6 +156,7 @@ private fun NitList(
                     style = NitpickTheme.typography.small,
                     color = NitpickTheme.colors.textSecondary,
                 )
+                ShareReviewAction(state, onShare, touch = true)
             }
         }
         byFile.forEach { (path, nits) ->

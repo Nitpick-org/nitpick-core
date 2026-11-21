@@ -17,6 +17,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import dev.nitpick.app.domain.ReviewComment
+import dev.nitpick.app.domain.SharedReview
 import dev.nitpick.app.ui.components.NitpickBadge
 import dev.nitpick.app.ui.components.NitpickButton
 import dev.nitpick.app.ui.components.NitpickButtonSize
@@ -50,6 +51,7 @@ import nitpick.shared.generated.resources.review_nits_on_files
 import nitpick.shared.generated.resources.review_retry
 import nitpick.shared.generated.resources.review_run
 import nitpick.shared.generated.resources.review_running
+import nitpick.shared.generated.resources.shared_badge
 import nitpick.shared.generated.resources.review_step_diff
 import nitpick.shared.generated.resources.review_step_model
 import nitpick.shared.generated.resources.review_step_place
@@ -70,6 +72,9 @@ fun ReviewPanel(
     onCommitMessage: (String) -> Unit,
     onCommit: () -> Unit,
     onOpenSettings: () -> Unit,
+    onShare: () -> Unit,
+    onLoadSharedReviews: () -> Unit,
+    onOpenSharedReview: (SharedReview) -> Unit,
     modifier: Modifier = Modifier,
 ) {
     Column(modifier.fillMaxSize()) {
@@ -80,12 +85,15 @@ fun ReviewPanel(
                 onRetry = onReview,
                 onOpenSettings = onOpenSettings,
             )
-            state.review == null -> NitpickEmptyState(
-                title = stringResource(Res.string.review_empty),
-                modifier = Modifier.weight(1f),
-                actionLabel = stringResource(Res.string.review_run),
-                onAction = onReview,
-            )
+            state.review == null -> Column(Modifier.weight(1f)) {
+                NitpickEmptyState(
+                    title = stringResource(Res.string.review_empty),
+                    modifier = Modifier.weight(1f),
+                    actionLabel = stringResource(Res.string.review_run),
+                    onAction = onReview,
+                )
+                SharedReviewList(state, onLoadSharedReviews, onOpenSharedReview, Modifier.padding(12.dp))
+            }
             state.diff.isEmpty() -> NitpickEmptyState(
                 title = stringResource(Res.string.diff_empty, state.baseRef),
                 modifier = Modifier.weight(1f),
@@ -109,7 +117,10 @@ fun ReviewPanel(
                     item {
                         NitpickCard(verticalArrangement = Arrangement.spacedBy(8.dp)) {
                             Row(verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(8.dp)) {
-                                NitpickBadge(stringResource(Res.string.review_local), tone = NitpickTone.Info)
+                                NitpickBadge(
+                                    stringResource(if (state.openedSharedReview != null) Res.string.shared_badge else Res.string.review_local),
+                                    tone = NitpickTone.Info,
+                                )
                                 Text(review.summary, style = NitpickTheme.typography.section)
                             }
                             Text(
@@ -117,6 +128,7 @@ fun ReviewPanel(
                                 style = NitpickTheme.typography.small,
                                 color = NitpickTheme.colors.textSecondary,
                             )
+                            ShareReviewAction(state, onShare)
                         }
                     }
                     items(review.comments, key = { it.id }) { comment ->

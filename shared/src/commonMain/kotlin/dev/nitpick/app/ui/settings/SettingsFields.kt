@@ -18,6 +18,7 @@ import androidx.compose.ui.text.input.PasswordVisualTransformation
 import androidx.compose.ui.text.input.VisualTransformation
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
+import dev.nitpick.app.settings.DEFAULT_SERVER_URL
 import dev.nitpick.app.settings.LlmProvider
 import dev.nitpick.app.ui.components.NitpickButton
 import dev.nitpick.app.ui.components.NitpickButtonSize
@@ -30,6 +31,8 @@ import nitpick.shared.generated.resources.connect_token_hide
 import nitpick.shared.generated.resources.connect_token_show
 import nitpick.shared.generated.resources.settings_api_key
 import nitpick.shared.generated.resources.settings_api_key_help
+import nitpick.shared.generated.resources.settings_server_url
+import nitpick.shared.generated.resources.settings_server_url_help
 import org.jetbrains.compose.resources.stringResource
 
 /** Model select shared by the desktop dialog and the phone screen: a secondary button plus a menu. */
@@ -52,6 +55,25 @@ internal fun ModelSelector(model: String, models: List<String>, onSelect: (Strin
                 )
             }
         }
+    }
+}
+
+/** URL of the review-sharing server, with the help line on how a phone reaches the laptop. */
+@Composable
+internal fun ServerUrlField(serverUrl: String, onChange: (String) -> Unit, modifier: Modifier = Modifier, minHeight: Dp = 34.dp) {
+    Column(modifier, verticalArrangement = Arrangement.spacedBy(4.dp)) {
+        NitpickTextField(
+            value = serverUrl,
+            onValueChange = onChange,
+            label = stringResource(Res.string.settings_server_url),
+            placeholder = DEFAULT_SERVER_URL,
+            minHeight = minHeight,
+        )
+        Text(
+            text = stringResource(Res.string.settings_server_url_help),
+            style = NitpickTheme.typography.micro,
+            color = NitpickTheme.colors.textMuted,
+        )
     }
 }
 

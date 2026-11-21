@@ -140,4 +140,18 @@
     <string name="pull_up_to_date">Already up to date</string>
     <string name="pull_conflict">Pull cancelled, conflicts in: %1$s</string>
     <string name="pull_error">Pull failed</string>
+    <string name="share_action">Share review</string>
+    <string name="share_in_progress">Sharing…</string>
+    <string name="share_done">Shared</string>
+    <string name="share_no_remote">This repository has no origin remote, so other devices cannot find the review.</string>
+    <string name="share_unreachable">Review server unreachable. Start it with ./gradlew :server:run and check its URL in Settings.</string>
+    <string name="shared_title">Shared reviews</string>
+    <string name="shared_open">Shared</string>
+    <string name="shared_refresh">Refresh</string>
+    <string name="shared_empty">No shared review for this repository yet.</string>
+    <string name="shared_row">%1$s · %2$s · %3$d nits</string>
+    <string name="shared_badge">Shared review</string>
+    <string name="settings_kicker_sharing">Sharing</string>
+    <string name="settings_server_url">Review server URL</string>
+    <string name="settings_server_url_help">On the phone: adb reverse tcp:8080 tcp:8080, 10.0.2.2:8080 on the emulator, or the laptop LAN IP.</string>
 </resources>

@@ -37,6 +37,7 @@ import nitpick.shared.generated.resources.pull_action
 import nitpick.shared.generated.resources.pull_in_progress
 import nitpick.shared.generated.resources.repository_loading
 import nitpick.shared.generated.resources.review_cta
+import nitpick.shared.generated.resources.shared_open
 import nitpick.shared.generated.resources.commits_empty
 import nitpick.shared.generated.resources.commits_title
 import nitpick.shared.generated.resources.refs_local_branches
@@ -56,6 +57,7 @@ fun PhoneGraphScreen(
     onCheckoutBranch: (String) -> Unit,
     onPull: () -> Unit,
     onReview: () -> Unit,
+    onOpenShared: () -> Unit,
     onOpenSettings: () -> Unit,
     modifier: Modifier = Modifier,
 ) {
@@ -67,6 +69,7 @@ fun PhoneGraphScreen(
                     onClick = { if (!state.isPulling) onPull() },
                 )
             }
+            NitpickToolbarAction(text = stringResource(Res.string.shared_open), onClick = onOpenShared)
             SettingsAction(onOpenSettings)
         }
         when {
