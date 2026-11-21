@@ -48,6 +48,9 @@ import nitpick.shared.generated.resources.refs_local_branches
 import nitpick.shared.generated.resources.repository_error_title
 import nitpick.shared.generated.resources.repository_on_branch
 import nitpick.shared.generated.resources.status_commits
+import nitpick.shared.generated.resources.sync_ahead_behind
+import nitpick.shared.generated.resources.sync_pull_count
+import nitpick.shared.generated.resources.sync_push_count
 import org.jetbrains.compose.resources.stringResource
 
 private enum class GraphTab { Commits, Branches }
@@ -76,15 +79,23 @@ fun PhoneGraphScreen(
                     onClick = { if (!syncing) onFetch() },
                 )
                 NitpickToolbarAction(
-                    text = stringResource(if (state.isPulling) Res.string.pull_in_progress else Res.string.pull_action) +
-                        (state.tracking?.behind?.takeIf { it > 0 }?.let { " $it" } ?: ""),
+                    text = when {
+                        state.isPulling -> stringResource(Res.string.pull_in_progress)
+                        (state.tracking?.behind ?: 0) > 0 -> stringResource(Res.string.sync_pull_count, state.tracking!!.behind)
+                        else -> stringResource(Res.string.pull_action)
+                    },
                     onClick = { if (!syncing) onPull() },
                 )
-                NitpickToolbarAction(
-                    text = stringResource(if (state.isPushing) Res.string.push_in_progress else Res.string.push_action) +
-                        (state.tracking?.ahead?.takeIf { it > 0 }?.let { " $it" } ?: ""),
-                    onClick = { if (!syncing) onPush() },
-                )
+                if (state.tracking != null) {
+                    NitpickToolbarAction(
+                        text = when {
+                            state.isPushing -> stringResource(Res.string.push_in_progress)
+                            state.tracking.ahead > 0 -> stringResource(Res.string.sync_push_count, state.tracking.ahead)
+                            else -> stringResource(Res.string.push_action)
+                        },
+                        onClick = { if (!syncing) onPush() },
+                    )
+                }
             }
             NitpickToolbarAction(text = stringResource(Res.string.shared_open), onClick = onOpenShared)
             SettingsAction(onOpenSettings)
@@ -134,6 +145,13 @@ private fun GraphContent(state: RepositoryUiState, onSelectCommit: (String) -> U
             style = NitpickTheme.typography.body,
             color = NitpickTheme.colors.textMuted,
         )
+        state.tracking?.let {
+            Text(
+                text = stringResource(Res.string.sync_ahead_behind, it.ahead, it.behind),
+                style = NitpickTheme.typography.codeSmall,
+                color = NitpickTheme.colors.textMuted,
+            )
+        }
     }
     Row(Modifier.fillMaxWidth().background(NitpickTheme.colors.panelHeader).padding(horizontal = 4.dp), verticalAlignment = Alignment.Bottom) {
         NitpickTab(stringResource(Res.string.commits_title), selected = tab == GraphTab.Commits, onClick = { tab = GraphTab.Commits })
@@ -148,7 +166,7 @@ private fun GraphContent(state: RepositoryUiState, onSelectCommit: (String) -> U
                 style = NitpickTheme.typography.micro,
                 color = NitpickTheme.colors.textMuted,
             )
-            RefsSidebar(state.refs, state.currentBranch, Modifier.fillMaxSize(), onSelectBranch = onCheckoutBranch)
+            RefsSidebar(state.refs, state.currentBranch, Modifier.fillMaxSize(), ahead = state.tracking?.ahead, onSelectBranch = onCheckoutBranch)
         }
         state.graph.isEmpty() -> Text(
             text = stringResource(Res.string.commits_empty),

@@ -157,4 +157,8 @@
     <string name="fetch_action">Récupérer</string>
     <string name="fetch_in_progress">Récupération…</string>
     <string name="fetch_error">La récupération a échoué</string>
+    <string name="sync_ahead">↑%1$d</string>
+    <string name="sync_ahead_behind">↑%1$d ↓%2$d</string>
+    <string name="sync_pull_count">Pull %1$d</string>
+    <string name="sync_push_count">Push %1$d</string>
 </resources>

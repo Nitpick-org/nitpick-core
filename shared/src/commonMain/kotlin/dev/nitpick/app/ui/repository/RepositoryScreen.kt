@@ -58,6 +58,9 @@ import org.jetbrains.compose.resources.stringResource
 
 private val InspectorWideWidth = 680.dp
 private const val ReviewShortcut = "⌘⇧R"
+private const val FetchShortcut = "⌘⇧F"
+private const val PullShortcut = "⌘⇧L"
+private const val PushShortcut = "⌘⇧P"
 
 enum class InspectorTab { Details, Diff, Review }
 
@@ -206,20 +209,35 @@ private fun RepositoryToolbar(
         }
         if (hasRepository) {
             val syncing = state.isSyncing
-            NitpickToolbarAction(
-                text = stringResource(if (state.isFetching) Res.string.fetch_in_progress else Res.string.fetch_action),
-                onClick = { if (!syncing) onFetch() },
-            )
-            NitpickToolbarAction(
-                text = stringResource(if (state.isPulling) Res.string.pull_in_progress else Res.string.pull_action) +
-                    (state.tracking?.behind?.takeIf { it > 0 }?.let { " $it" } ?: ""),
-                onClick = { if (!syncing) onPull() },
-            )
-            NitpickToolbarAction(
-                text = stringResource(if (state.isPushing) Res.string.push_in_progress else Res.string.push_action) +
-                    (state.tracking?.ahead?.takeIf { it > 0 }?.let { " $it" } ?: ""),
-                onClick = { if (!syncing) onPush() },
-            )
+            NitpickTooltip(text = stringResource(Res.string.fetch_action), shortcut = FetchShortcut) {
+                NitpickToolbarAction(
+                    text = stringResource(if (state.isFetching) Res.string.fetch_in_progress else Res.string.fetch_action),
+                    onClick = { if (!syncing) onFetch() },
+                )
+            }
+            NitpickTooltip(text = stringResource(Res.string.pull_action), shortcut = PullShortcut) {
+                NitpickToolbarAction(
+                    text = when {
+                        state.isPulling -> stringResource(Res.string.pull_in_progress)
+                        (state.tracking?.behind ?: 0) > 0 -> stringResource(Res.string.sync_pull_count, state.tracking!!.behind)
+                        else -> stringResource(Res.string.pull_action)
+                    },
+                    onClick = { if (!syncing) onPull() },
+                )
+            }
+            if (state.tracking != null) {
+                NitpickTooltip(text = stringResource(Res.string.push_action), shortcut = PushShortcut) {
+                    NitpickToolbarAction(
+                        text = when {
+                            state.isPushing -> stringResource(Res.string.push_in_progress)
+                            state.tracking.ahead > 0 -> stringResource(Res.string.sync_push_count, state.tracking.ahead)
+                            else -> stringResource(Res.string.push_action)
+                        },
+                        onClick = { if (!syncing) onPush() },
+                    )
+                }
+            }
+            NitpickVerticalDivider(Modifier.padding(horizontal = 4.dp))
             NitpickTooltip(text = stringResource(Res.string.review_cta_tooltip), shortcut = ReviewShortcut) {
                 NitpickButton(
                     text = stringResource(Res.string.review_cta),
@@ -272,7 +290,7 @@ internal fun RefsSidebar(refs: List<Ref>, currentBranch: String, modifier: Modif
                     val isCurrent = ref.type == RefType.LOCAL_BRANCH && ref.name == currentBranch
                     val select = onSelectBranch?.takeIf { ref.type != RefType.TAG && !isCurrent }
                     Text(
-                        text = ref.name,
+                        text = ref.name + if (isCurrent && ahead != null && ahead > 0) " " + stringResource(Res.string.sync_ahead, ahead) else "",
                         modifier = Modifier
                             .fillMaxWidth()
                             .background(if (isCurrent) NitpickTheme.colors.selection else Color.Transparent)
@@ -559,7 +577,7 @@ private fun RepositoryStatusBar(state: RepositoryUiState, settings: Settings, ha
     NitpickStatusBar {
         StatusText(state.currentBranch.ifEmpty { stringResource(Res.string.status_no_branch) })
         if (hasRepository) StatusText(stringResource(Res.string.status_commits, state.graph.size))
-        state.tracking?.let { tracking -> StatusText("↑${tracking.ahead} ↓${tracking.behind}") }
+        state.tracking?.let { tracking -> StatusText(stringResource(Res.string.sync_ahead_behind, tracking.ahead, tracking.behind)) }
         syncStatusMessage(state)?.let { message ->
             Text(
                 text = message,
