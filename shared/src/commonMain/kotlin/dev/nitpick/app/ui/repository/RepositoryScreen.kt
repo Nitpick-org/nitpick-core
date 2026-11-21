@@ -3,6 +3,7 @@ package dev.nitpick.app.ui.repository
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
+import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
@@ -11,6 +12,7 @@ import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
@@ -29,7 +31,6 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontWeight
-import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import dev.nitpick.app.domain.Ref
@@ -276,7 +277,8 @@ private fun CommitsPanel(state: RepositoryUiState, onSelectCommit: (String) -> U
     val branches = remember(state.refs) {
         state.refs.filter { it.type != RefType.TAG }.map { it.name }.distinct().sorted()
     }
-    val now = remember { Clock.System.now().epochSeconds }
+    // Read the clock when the date filter changes, so a long session does not keep a stale "today".
+    val now = remember(date) { Clock.System.now().epochSeconds }
     val filtered = remember(state.graph, state.refs, filters, now) {
         filterCommits(state.graph, state.refs, filters, now)
     }
@@ -315,11 +317,12 @@ private fun CommitsPanel(state: RepositoryUiState, onSelectCommit: (String) -> U
                 if (filtered.isEmpty()) {
                     PanelHint(stringResource(Res.string.commits_no_match))
                 } else {
-                    FilteredCommitList(
+                    CommitGraphList(
                         graph = filtered,
                         selectedCommitId = state.selectedCommitId,
                         onSelectCommit = onSelectCommit,
                         modifier = Modifier.weight(1f).fillMaxWidth(),
+                        showLanes = false,
                     )
                 }
             } else {
@@ -349,14 +352,14 @@ private fun CommitFilterBar(
     active: Boolean,
     onClear: () -> Unit,
 ) {
-    Column(Modifier.fillMaxWidth().padding(horizontal = 8.dp, vertical = 6.dp), verticalArrangement = androidx.compose.foundation.layout.Arrangement.spacedBy(6.dp)) {
+    Column(Modifier.fillMaxWidth().padding(horizontal = 8.dp, vertical = 6.dp), verticalArrangement = Arrangement.spacedBy(6.dp)) {
         NitpickTextField(
             value = query,
             onValueChange = onQueryChange,
             placeholder = stringResource(Res.string.commits_filter_placeholder),
             modifier = Modifier.fillMaxWidth(),
         )
-        Row(horizontalArrangement = androidx.compose.foundation.layout.Arrangement.spacedBy(6.dp), verticalAlignment = Alignment.CenterVertically) {
+        Row(horizontalArrangement = Arrangement.spacedBy(6.dp), verticalAlignment = Alignment.CenterVertically) {
             StringFilterDropdown(
                 label = stringResource(Res.string.filter_branch),
                 options = branches,
@@ -445,51 +448,6 @@ private fun FilterChip(text: String, onClick: () -> Unit) {
             color = NitpickTheme.colors.textSecondary,
             maxLines = 1,
         )
-    }
-}
-
-@Composable
-private fun FilteredCommitList(
-    graph: List<dev.nitpick.app.graph.CommitGraphRow>,
-    selectedCommitId: String?,
-    onSelectCommit: (String) -> Unit,
-    modifier: Modifier,
-) {
-    LazyColumn(modifier) {
-        items(graph, key = { it.commit.id }) { row ->
-            val selected = row.commit.id == selectedCommitId
-            Row(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .background(if (selected) NitpickTheme.colors.selection else Color.Transparent)
-                    .clickable { onSelectCommit(row.commit.id) }
-                    .padding(horizontal = 12.dp, vertical = 6.dp),
-                verticalAlignment = Alignment.CenterVertically,
-            ) {
-                Column(Modifier.weight(1f)) {
-                    Text(
-                        text = row.commit.shortMessage,
-                        style = NitpickTheme.typography.body,
-                        fontWeight = if (selected) FontWeight.Medium else FontWeight.Normal,
-                        color = if (selected) NitpickTheme.colors.onSelection else NitpickTheme.colors.text,
-                        maxLines = 1,
-                        overflow = TextOverflow.Ellipsis,
-                    )
-                    Text(
-                        text = "${row.commit.authorName} · ${row.commit.id.take(7)}",
-                        style = NitpickTheme.typography.codeSmall,
-                        color = if (selected) NitpickTheme.colors.onSelection.copy(alpha = 0.72f) else NitpickTheme.colors.textMuted,
-                        maxLines = 1,
-                        overflow = TextOverflow.Ellipsis,
-                    )
-                }
-                Text(
-                    text = formatCommitTime(row.commit.timestampEpochSeconds),
-                    style = NitpickTheme.typography.codeSmall,
-                    color = NitpickTheme.colors.textMuted,
-                )
-            }
-        }
     }
 }
 
