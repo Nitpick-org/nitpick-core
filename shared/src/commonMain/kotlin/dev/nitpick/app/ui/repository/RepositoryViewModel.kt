@@ -260,7 +260,7 @@ class RepositoryViewModel(
     fun reviewBranch() {
         val git = repository ?: return
         if (_state.value.isReviewing) return
-        _state.update { it.copy(isReviewing = true, reviewError = null) }
+        _state.update { it.copy(isReviewing = true, reviewError = null, actionError = null) }
         viewModelScope.launch {
             try {
                 val result = withTimeout(REVIEW_TIMEOUT) { reviewAgent.review(git, _state.value.baseRef) }
@@ -283,20 +283,21 @@ class RepositoryViewModel(
         viewModelScope.launch {
             try {
                 writeLock.withLock {
+                    // A double tap must not run the same patch twice.
+                    if (comment.id in _state.value.appliedIds) return@withLock
                     val content = git.readFile(comment.filePath)
                         ?: error("File not found: ${comment.filePath}")
                     git.writeFile(comment.filePath, ReviewAnchoring.apply(content, comment))
+                    if (repository !== git) return@withLock
+                    _state.update {
+                        it.copy(
+                            appliedIds = it.appliedIds + comment.id,
+                            appliedFiles = it.appliedFiles + comment.filePath,
+                            commitMessage = it.commitMessage.ifBlank { "Apply review suggestions" },
+                        )
+                    }
                 }
-                // The user may have opened another repository while the write ran.
-                if (repository !== git) return@launch
-                _state.update {
-                    it.copy(
-                        appliedIds = it.appliedIds + comment.id,
-                        appliedFiles = it.appliedFiles + comment.filePath,
-                        commitMessage = it.commitMessage.ifBlank { "Apply review suggestions" },
-                    )
-                }
-                refreshDiff()
+                if (repository === git) refreshDiff()
             } catch (e: CancellationException) {
                 throw e
             } catch (e: Exception) {
@@ -321,36 +322,38 @@ class RepositoryViewModel(
         if (_state.value.appliedFiles.isEmpty()) return
         viewModelScope.launch {
             try {
-                // Read the applied files inside the lock: an apply still writing must be included.
+                // Hold the lock until appliedFiles is cleared: a second tap must see the commit done.
                 writeLock.withLock {
                     val state = _state.value
+                    if (state.appliedFiles.isEmpty()) return@withLock
                     git.stage(state.appliedFiles.toList())
                     git.commit(state.commitMessage)
+                    if (repository !== git) return@withLock
+                    val commits = git.log()
+                    val graph = withContext(graphDispatcher) { buildCommitGraph(commits) }
+                    val refs = git.refs()
+                    val tracking = git.trackingStatus()
+                    // The nits not applied yet stay, moved to their new lines.
+                    val remaining = reanchor(git, state.review?.comments.orEmpty().filterNot { it.id in state.appliedIds })
+                    _state.update {
+                        it.copy(
+                            graph = graph,
+                            refs = refs,
+                            tracking = tracking,
+                            selectedCommitId = graph.firstOrNull()?.commit?.id,
+                            review = it.review?.takeIf { remaining.isNotEmpty() }?.copy(comments = remaining),
+                            reviewError = null,
+                            sharedReviewId = null,
+                            shareFailure = null,
+                            openedSharedReview = null,
+                            appliedIds = emptySet(),
+                            appliedFiles = emptySet(),
+                            commitMessage = "",
+                            lastPull = null,
+                        )
+                    }
                 }
-                if (repository !== git) return@launch
-                val commits = git.log()
-                val graph = withContext(graphDispatcher) { buildCommitGraph(commits) }
-                // The nits not applied yet stay, moved to their new lines: they can still be shared or applied elsewhere.
-                val committed = _state.value
-                val remaining = reanchor(git, committed.review?.comments.orEmpty().filterNot { it.id in committed.appliedIds })
-                _state.update {
-                    it.copy(
-                        graph = graph,
-                        refs = git.refs(),
-                        tracking = git.trackingStatus(),
-                        selectedCommitId = graph.firstOrNull()?.commit?.id,
-                        review = it.review?.takeIf { remaining.isNotEmpty() }?.copy(comments = remaining),
-                        reviewError = null,
-                        sharedReviewId = null,
-                        shareFailure = null,
-                        openedSharedReview = null,
-                        appliedIds = emptySet(),
-                        appliedFiles = emptySet(),
-                        commitMessage = "",
-                        lastPull = null,
-                    )
-                }
-                refreshDiff()
+                if (repository === git) refreshDiff()
             } catch (e: CancellationException) {
                 throw e
             } catch (e: Exception) {
@@ -460,7 +463,7 @@ class RepositoryViewModel(
     fun fetchBranch(credentials: Credentials?) {
         val git = repository ?: return
         if (_state.value.isSyncing) return
-        _state.update { it.copy(isFetching = true, fetchError = null) }
+        _state.update { it.copy(isFetching = true, fetchError = null, pushError = null) }
         viewModelScope.launch {
             try {
                 git.fetch(credentials)
@@ -529,7 +532,7 @@ class RepositoryViewModel(
         val git = repository ?: return
         // Applied but uncommitted suggestions would be merged over; commit them first.
         if (_state.value.isSyncing || _state.value.isReviewing || _state.value.appliedFiles.isNotEmpty()) return
-        _state.update { it.copy(isPulling = true, pullError = null, fetchError = null, lastPull = null) }
+        _state.update { it.copy(isPulling = true, pullError = null, fetchError = null, pushError = null, lastPull = null) }
         viewModelScope.launch {
             try {
                 val result = git.pull(credentials)
@@ -577,7 +580,7 @@ class RepositoryViewModel(
 
     /** Checks out [branch] and reloads graph and diff; false when the checkout failed or another repository was opened. */
     private suspend fun switchTo(git: GitRepository, branch: String): Boolean {
-        _state.update { it.copy(isCheckingOut = true, checkoutError = null) }
+        _state.update { it.copy(isCheckingOut = true, checkoutError = null, actionError = null) }
         try {
             git.checkout(branch)
             val commits = git.log()
