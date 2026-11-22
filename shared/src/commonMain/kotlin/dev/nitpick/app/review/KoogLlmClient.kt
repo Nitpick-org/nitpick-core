@@ -112,6 +112,10 @@ class KoogLlmClient(private val settingsStore: SettingsStore) : ToolCallingLlmCl
                 conversation = next
                 answer = client.execute(conversation, model, descriptors)
             }
+            // The last round may already contain the final answer: do not throw it away (#148).
+            if (answer.parts.none { it is MessagePart.Tool.Call }) {
+                return@withClient textOf(answer)
+            }
             throw ReviewProviderException(
                 "The ${settings.provider.name} review exceeded $MAX_TOOL_ROUNDS tool rounds",
                 IllegalStateException("tool-call loop did not converge"),
