@@ -19,6 +19,7 @@ import androidx.compose.ui.graphics.painter.Painter
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import dev.nitpick.app.ui.theme.NitpickTheme
+import org.jetbrains.compose.resources.DrawableResource
 
 /**
  * Page/panel heading. The kicker is optional and always uppercase; the title carries the
@@ -67,6 +68,10 @@ fun NitpickEmptyState(
     actionLabel: String? = null,
     onAction: (() -> Unit)? = null,
     icon: Painter? = null,
+    actionIcon: DrawableResource? = null,
+    secondaryActionLabel: String? = null,
+    onSecondaryAction: (() -> Unit)? = null,
+    secondaryActionIcon: DrawableResource? = null,
 ) {
     Column(
         modifier = modifier.fillMaxSize().padding(32.dp),
@@ -95,7 +100,17 @@ fun NitpickEmptyState(
         }
         if (actionLabel != null && onAction != null) {
             Spacer(Modifier.height(20.dp))
-            NitpickButton(text = actionLabel, onClick = onAction)
+            Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
+                NitpickButton(text = actionLabel, onClick = onAction, icon = actionIcon)
+                if (secondaryActionLabel != null && onSecondaryAction != null) {
+                    NitpickButton(
+                        text = secondaryActionLabel,
+                        onClick = onSecondaryAction,
+                        variant = NitpickButtonVariant.Secondary,
+                        icon = secondaryActionIcon,
+                    )
+                }
+            }
         }
     }
 }

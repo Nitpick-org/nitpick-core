@@ -24,6 +24,8 @@ import dev.nitpick.app.ui.components.NitpickCard
 import dev.nitpick.app.ui.theme.NitpickTheme
 import dev.nitpick.app.ui.theme.NitpickTone
 import nitpick.shared.generated.resources.Res
+import nitpick.shared.generated.resources.ic_fetch
+import nitpick.shared.generated.resources.ic_share
 import nitpick.shared.generated.resources.share_action
 import nitpick.shared.generated.resources.share_done
 import nitpick.shared.generated.resources.share_in_progress
@@ -48,6 +50,7 @@ internal fun ShareReviewAction(state: RepositoryUiState, onShare: () -> Unit, to
                 onClick = onShare,
                 enabled = !state.isSharing,
                 variant = NitpickButtonVariant.Secondary,
+                icon = Res.drawable.ic_share,
                 size = if (touch) NitpickButtonSize.Large else NitpickButtonSize.Small,
             )
         }
@@ -76,6 +79,7 @@ internal fun SharedReviewList(
                 onClick = onRefresh,
                 enabled = !state.isLoadingSharedReviews,
                 variant = NitpickButtonVariant.Ghost,
+                icon = Res.drawable.ic_fetch,
                 size = NitpickButtonSize.Small,
             )
         }

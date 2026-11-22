@@ -238,6 +238,7 @@ internal fun FileHunks(
                         text = stringResource(Res.string.review_apply_all),
                         onClick = { onApplyAll(file.path) },
                         variant = NitpickButtonVariant.Secondary,
+                        icon = Res.drawable.ic_check,
                         size = NitpickButtonSize.Small,
                     )
                 }
