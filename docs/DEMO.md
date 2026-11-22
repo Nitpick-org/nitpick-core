@@ -42,8 +42,8 @@
 ./scripts/count-lines.sh
 ```
 
-Reading of 22/11, 02:10 on `main`: **8 198 / 8 282 production lines = 99,0 % shared**
-(`commonMain` + `jvmSharedMain`); 84 platform lines; 2 947 test lines excluded.
+Reading of 22/11, 10:05 on `main`: **8 965 / 9 092 production lines = 98,6 % shared**
+(`commonMain` + `jvmSharedMain`); 127 platform lines; 3 315 test lines excluded.
 Re-run `./scripts/count-lines.sh` just before the demo and paste the up-to-date number.
 
 ## What we created vs reused
@@ -100,6 +100,17 @@ Prepare 10 answers of 2 sentences:
   `docs/demo/junie-brief.md` remain the plan B if this repo is recreated; it is not in
   this repository. Prepare the local clones on the laptop and the emulator before the scene.
 - **Fallback URL**: none; the demo is local (desktop + Android + Ktor server on the laptop).
+- **Backup shared review**: the server keeps its reviews in `~/.nitpick/server/reviews.json`
+  across restarts, so share one from the demo clone before the scene and it stays available
+  (the key fix in #235 keeps a review shared before that merge visible).
+- **Demo repo state (22/11, 10:10)**: `perf/thumbnail-lookup` on GitHub no longer carries the two
+  planted bugs (the night's replays fixed them in `cb55041`, `f91a419`, `93089d1`). Before the
+  scene, reset it to `3a0510d` (`git push --force origin 3a0510d:perf/thumbnail-lookup`) or push
+  a fresh branch from that commit, then re-clone on the laptop and the emulator.
+- **Desktop replay on `main` (22/11, 10:15, after the six audit merges)**: Open → graph →
+  Nitpick branch → Review panel, a shared review opened from the local server, Settings dialog:
+  no regression seen. Apply → commit → push not replayed on this pass (covered by the 02:05
+  share proof and the 00:45 Android replay).
 
 ## Rehearsal
 

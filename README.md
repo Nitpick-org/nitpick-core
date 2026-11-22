@@ -29,7 +29,7 @@ Ollama running locally.
 | Shared contracts (`GitRepository`, review model) | ✅ in `commonMain`, JGit behind the interface |
 | Commit graph, branch diff | ✅ lanes, colours, refs, per-commit details, diff vs base |
 | AI review with Koog, anchored nits, apply a suggestion, commit | ✅ real provider calls, snippet anchoring, Review panel, Apply/Dismiss, commit |
-| Light/dark theme, English/French | ✅ system/light/dark, 179 strings + 7 plurals EN/FR |
+| Light/dark theme, English/French | ✅ system/light/dark, 190 strings + 7 plurals EN/FR |
 
 Full scope (MUST / SHOULD / WON'T) and the hour-by-hour plan: [docs/CONTEXT.md](docs/CONTEXT.md).
 
