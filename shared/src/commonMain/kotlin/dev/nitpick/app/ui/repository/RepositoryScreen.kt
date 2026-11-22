@@ -589,7 +589,14 @@ private fun Inspector(
                     )
                 }
             }
-            InspectorTab.Diff -> DiffPanel(state, onSelectBase, onSelectDiffFile, Modifier.weight(1f))
+            InspectorTab.Diff -> DiffPanel(
+                state = state,
+                onSelectBase = onSelectBase,
+                onSelectFile = onSelectDiffFile,
+                modifier = Modifier.weight(1f),
+                onApply = onApplySuggestion,
+                onDismiss = onDismissSuggestion,
+            )
             InspectorTab.Review -> ReviewPanel(
                 state = state,
                 onReview = onRunReview,

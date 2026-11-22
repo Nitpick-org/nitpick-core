@@ -31,14 +31,19 @@ import androidx.compose.ui.unit.dp
 import dev.nitpick.app.domain.FileDiff
 import dev.nitpick.app.domain.Hunk
 import dev.nitpick.app.domain.RefType
+import dev.nitpick.app.domain.ReviewComment
+import dev.nitpick.app.domain.ReviewResult
 import dev.nitpick.app.ui.components.DiffLineRow
+import dev.nitpick.app.ui.components.NitpickBadge
 import dev.nitpick.app.ui.components.NitpickButton
 import dev.nitpick.app.ui.components.NitpickButtonSize
 import dev.nitpick.app.ui.components.NitpickButtonVariant
 import dev.nitpick.app.ui.components.NitpickIcon
 import dev.nitpick.app.ui.components.NitpickDivider
 import dev.nitpick.app.ui.components.NitpickEmptyState
+import dev.nitpick.app.ui.components.ReviewCommentCard
 import dev.nitpick.app.ui.theme.NitpickTheme
+import dev.nitpick.app.ui.theme.NitpickTone
 import nitpick.shared.generated.resources.*
 import org.jetbrains.compose.resources.pluralStringResource
 import org.jetbrains.compose.resources.stringResource
@@ -52,6 +57,11 @@ fun DiffPanel(
     onSelectBase: (String) -> Unit,
     onSelectFile: (String) -> Unit,
     modifier: Modifier = Modifier,
+    review: ReviewResult? = state.review,
+    appliedIds: Set<String> = state.appliedIds,
+    isRewritingWorkingTree: Boolean = state.isRewritingWorkingTree,
+    onApply: ((ReviewComment) -> Unit)? = null,
+    onDismiss: ((String) -> Unit)? = null,
 ) {
     Column(modifier) {
         DiffHeader(state, onSelectBase)
@@ -85,7 +95,15 @@ fun DiffPanel(
             else -> {
                 ChangedFiles(state.diff, selected.path, onSelectFile)
                 NitpickDivider()
-                FileHunks(selected, Modifier.weight(1f))
+                FileHunks(
+                    file = selected,
+                    modifier = Modifier.weight(1f),
+                    review = review,
+                    appliedIds = appliedIds,
+                    isRewritingWorkingTree = isRewritingWorkingTree,
+                    onApply = onApply,
+                    onDismiss = onDismiss,
+                )
             }
         }
     }
@@ -180,7 +198,20 @@ private fun ChangedFiles(files: List<FileDiff>, selectedPath: String, onSelectFi
 }
 
 @Composable
-internal fun FileHunks(file: FileDiff, modifier: Modifier) {
+internal fun FileHunks(
+    file: FileDiff,
+    modifier: Modifier,
+    review: ReviewResult? = null,
+    appliedIds: Set<String> = emptySet(),
+    isRewritingWorkingTree: Boolean = false,
+    onApply: ((ReviewComment) -> Unit)? = null,
+    onDismiss: ((String) -> Unit)? = null,
+) {
+    val comments = remember(file.path, review) {
+        review?.comments.orEmpty().filter { it.filePath == file.path }
+    }
+    val fileLevel = comments.filter { it.isFileLevel }
+    val byLine = remember(comments) { comments.filterNot { it.isFileLevel }.groupBy { it.startLine } }
     LazyColumn(modifier.fillMaxWidth()) {
         item {
             Text(
@@ -195,6 +226,11 @@ internal fun FileHunks(file: FileDiff, modifier: Modifier) {
                 overflow = TextOverflow.Ellipsis,
             )
         }
+        if (fileLevel.isNotEmpty()) {
+            items(fileLevel, key = { "file:${it.id}" }) { comment ->
+                InlineNit(comment, appliedIds, isRewritingWorkingTree, onApply, onDismiss)
+            }
+        }
         if (file.isBinary || file.hunks.isEmpty()) {
             item {
                 Text(
@@ -207,8 +243,42 @@ internal fun FileHunks(file: FileDiff, modifier: Modifier) {
         }
         file.hunks.forEach { hunk ->
             item { HunkHeader(hunk) }
-            items(hunk.lines) { line -> DiffLineRow(line) }
+            items(hunk.lines) { line ->
+                Column {
+                    DiffLineRow(line)
+                    val anchored = line.newLineNumber?.let(byLine::get).orEmpty()
+                    anchored.forEach { comment ->
+                        InlineNit(comment, appliedIds, isRewritingWorkingTree, onApply, onDismiss)
+                    }
+                }
+            }
         }
+    }
+}
+
+@Composable
+private fun InlineNit(
+    comment: ReviewComment,
+    appliedIds: Set<String>,
+    isRewritingWorkingTree: Boolean,
+    onApply: ((ReviewComment) -> Unit)?,
+    onDismiss: ((String) -> Unit)?,
+) {
+    val applied = comment.id in appliedIds
+    Column(Modifier.fillMaxWidth().padding(horizontal = 12.dp, vertical = 4.dp)) {
+        if (applied) {
+            NitpickBadge(stringResource(Res.string.review_applied), tone = NitpickTone.Success)
+        }
+        ReviewCommentCard(
+            filePath = comment.filePath,
+            line = comment.startLine,
+            severity = comment.severity,
+            message = comment.message,
+            suggestion = comment.suggestion,
+            original = comment.originalSnippet,
+            onApply = if (applied || comment.isFileLevel || isRewritingWorkingTree) null else onApply?.let { action -> { action(comment) } },
+            onDismiss = if (applied) null else onDismiss?.let { action -> { action(comment.id) } },
+        )
     }
 }
 
