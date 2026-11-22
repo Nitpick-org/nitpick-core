@@ -48,7 +48,7 @@
 ## JetBrains AI (Junie) as a review provider
 
 - **For**: a JetBrains user who wants the review to run through the account they already pay for, and the jury reading criterion 5 of the JetBrains brief (#227, reading B).
-- **What it would do**: a fifth entry in the Settings provider list, "JetBrains AI (Junie)", greyed with a "coming" tooltip until a public API exists; never a fake call.
+- **What it would do**: a fifth entry in the Settings provider list, "JetBrains AI (Junie)", that runs the review through the Junie CLI already signed in on the machine; never a fake call.
 - **Why it is interesting**: shows the JetBrains ecosystem inside the product, not only in the process.
 - **Estimated cost**: 20 min for the greyed entry (enum value, 2 strings EN/FR, disabled state in `NitpickRadioGroup`); unknown for a real integration, no public Junie API known (`docs/RESEARCH.md` has nothing).
-- **Verdict**: H2 chose the greyed entry on 22/11, shipped in #240; a real integration waits for a public API. Reading A (a real Junie Lite ticket, `docs/demo/junie-lite-brief.md`) remains the criterion as written.
+- **Verdict**: done in #240 (22/11): on desktop, Junie is a real review provider through the Junie CLI signed in on the machine (`junie --task … --act-as-interactive`, free `junie-lite`, 9 s on the probe diff); on Android it stays a greyed entry, no CLI on a phone. Reading A (a real Junie Lite ticket, `docs/demo/junie-lite-brief.md`) remains the criterion as written.
