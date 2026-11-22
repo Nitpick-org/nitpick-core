@@ -17,6 +17,9 @@ class SettingsTest {
         assertEquals("", settings.apiKey)
         assertEquals(emptyList(), settings.recentRepositories)
         assertEquals(null, settings.gitConnection)
+        assertEquals(AppLanguage.SYSTEM, settings.language)
+        assertEquals(null, AppLanguage.SYSTEM.tag)
+        assertEquals("fr", AppLanguage.FRENCH.tag)
     }
 
     @Test
@@ -28,7 +31,7 @@ class SettingsTest {
 
     @Test
     fun theConnectionSurvivesTheSettingsFile() {
-        val settings = Settings(gitConnection = GitConnection(GitHost.GITLAB, "glpat_1"))
+        val settings = Settings(gitConnection = GitConnection(GitHost.GITLAB, "glpat_1"), language = AppLanguage.FRENCH)
         val json = Json.encodeToString(Settings.serializer(), settings)
         assertEquals(settings, Json.decodeFromString(Settings.serializer(), json))
     }

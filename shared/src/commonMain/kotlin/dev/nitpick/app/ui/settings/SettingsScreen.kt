@@ -11,6 +11,11 @@ import androidx.compose.foundation.layout.safeContentPadding
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.Text
+import dev.nitpick.app.settings.AppLanguage
+import nitpick.shared.generated.resources.language_english
+import nitpick.shared.generated.resources.language_french
+import nitpick.shared.generated.resources.language_system
+import nitpick.shared.generated.resources.settings_language
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
@@ -42,6 +47,13 @@ import org.jetbrains.compose.resources.stringResource
 private val TouchControlHeight = 48.dp
 private val RadioRowHeight = 52.dp
 
+internal val AppLanguage.label: StringResource
+    get() = when (this) {
+        AppLanguage.SYSTEM -> Res.string.language_system
+        AppLanguage.ENGLISH -> Res.string.language_english
+        AppLanguage.FRENCH -> Res.string.language_french
+    }
+
 internal val ThemeMode.label: StringResource
     get() = when (this) {
         ThemeMode.SYSTEM -> Res.string.theme_system
@@ -56,6 +68,7 @@ private val LlmProvider.hint: StringResource
 @Composable
 fun SettingsScreen(settings: Settings, onChange: ((Settings) -> Settings) -> Unit, onBack: () -> Unit) {
     val themeLabels = ThemeMode.entries.associateWith { stringResource(it.label) }
+    val languageLabels = AppLanguage.entries.associateWith { stringResource(it.label) }
     val providerLabels = LlmProvider.entries.associateWith { stringResource(it.label) }
     val providerHints = LlmProvider.entries.associateWith { stringResource(it.hint) }
     // Background first so the canvas colour also fills the status-bar inset.
@@ -72,6 +85,15 @@ fun SettingsScreen(settings: Settings, onChange: ((Settings) -> Settings) -> Uni
                     selected = settings.themeMode,
                     label = { themeLabels.getValue(it) },
                     onSelect = { mode -> onChange { it.copy(themeMode = mode) } },
+                    modifier = Modifier.fillMaxWidth(),
+                    height = TouchControlHeight,
+                )
+                SectionTitle(Res.string.settings_language)
+                NitpickSegmentedControl(
+                    options = AppLanguage.entries,
+                    selected = settings.language,
+                    label = { languageLabels.getValue(it) },
+                    onSelect = { language -> onChange { it.copy(language = language) } },
                     modifier = Modifier.fillMaxWidth(),
                     height = TouchControlHeight,
                 )

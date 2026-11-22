@@ -154,7 +154,15 @@
     <string name="settings_section_general">Général</string>
     <string name="settings_section_review">Review</string>
     <string name="settings_section_git">Git</string>
-    <string name="settings_section_keymap">Raccourcis</string>
+    <string name="settings_language">Langue</string>
+    <string name="language_system">Système</string>
+    <string name="language_english">English</string>
+    <string name="language_french">Français</string>
+    <string name="settings_section_sharing">Partage</string>
+    <string name="settings_section_about">À propos</string>
+    <string name="about_tagline">Nitpick your branch before main does.</string>
+    <string name="about_repository">Source sur GitHub</string>
+    <string name="about_team">Équipe</string>
     <string name="settings_kicker_appearance">Apparence</string>
     <string name="settings_kicker_ai_review">Review IA</string>
     <string name="settings_api_key_help">Stockée dans le fichier de réglages de l’app. Envoyée uniquement à %1$s.</string>

@@ -16,6 +16,25 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
+import androidx.compose.foundation.Image
+import androidx.compose.foundation.clickable
+import androidx.compose.foundation.layout.size
+import androidx.compose.runtime.saveable.rememberSaveable
+import androidx.compose.ui.draw.clip
+import androidx.compose.ui.platform.LocalUriHandler
+import dev.nitpick.app.settings.AppLanguage
+import dev.nitpick.app.ui.components.NitpickIcon
+import dev.nitpick.app.ui.nitpickAppIcon
+import nitpick.shared.generated.resources.about_repository
+import nitpick.shared.generated.resources.about_tagline
+import nitpick.shared.generated.resources.about_team
+import nitpick.shared.generated.resources.ic_github
+import nitpick.shared.generated.resources.language_english
+import nitpick.shared.generated.resources.language_french
+import nitpick.shared.generated.resources.language_system
+import nitpick.shared.generated.resources.settings_language
+import nitpick.shared.generated.resources.settings_section_about
+import nitpick.shared.generated.resources.settings_section_sharing
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -56,7 +75,6 @@ import nitpick.shared.generated.resources.settings_provider
 import nitpick.shared.generated.resources.settings_search
 import nitpick.shared.generated.resources.settings_section_general
 import nitpick.shared.generated.resources.settings_section_git
-import nitpick.shared.generated.resources.settings_section_keymap
 import nitpick.shared.generated.resources.settings_section_review
 import nitpick.shared.generated.resources.settings_theme
 import org.jetbrains.compose.resources.StringResource
@@ -69,13 +87,19 @@ private val ContentWidth = 380.dp
 private val ControlWidth = 300.dp
 private val KeyFieldWidth = 320.dp
 
-// Only General has content today; the other sections are listed, muted, to keep the IDE layout.
-private val SECTIONS = listOf(
-    Res.string.settings_section_general,
-    Res.string.settings_section_review,
-    Res.string.settings_section_git,
-    Res.string.settings_section_keymap,
-)
+private enum class SettingsSection(val label: StringResource) {
+    General(Res.string.settings_section_general),
+    Review(Res.string.settings_section_review),
+    Git(Res.string.settings_section_git),
+    Sharing(Res.string.settings_section_sharing),
+    About(Res.string.settings_section_about),
+}
+
+private data class TeamMember(val name: String, val login: String)
+
+private const val REPOSITORY_URL = "https://github.com/Nitpick-org/nitpick-core"
+private val TEAM = listOf(TeamMember("Thomas", "pepito2t"), TeamMember("Elliot", "zooldyyk"), TeamMember("Gabriel", "dovatgabriel"))
+private val AboutIconSize = 48.dp
 
 /**
  * Desktop settings as an IDE dialog (handoff §3.5). It edits a draft and only [onSave] writes
@@ -88,6 +112,7 @@ fun SettingsDialog(
     onSave: () -> Unit,
     onCancel: () -> Unit,
 ) {
+    var section by rememberSaveable { mutableStateOf(SettingsSection.General) }
     Dialog(onDismissRequest = onCancel, properties = DialogProperties(usePlatformDefaultWidth = false)) {
         Surface(
             modifier = Modifier.widthIn(max = DialogMaxWidth).heightIn(max = DialogMaxHeight),
@@ -97,17 +122,16 @@ fun SettingsDialog(
         ) {
             Column {
                 Row(Modifier.weight(1f)) {
-                    SettingsNav(Modifier.width(NavWidth).fillMaxHeight())
+                    SettingsNav(section, onSelect = { section = it }, Modifier.width(NavWidth).fillMaxHeight())
                     NitpickVerticalDivider()
-                    GeneralSection(
-                        draft = draft,
-                        onEdit = onEdit,
-                        modifier = Modifier
-                            .width(ContentWidth)
-                            .fillMaxHeight()
-                            .verticalScroll(rememberScrollState())
-                            .padding(20.dp),
-                    )
+                    val content = Modifier.width(ContentWidth).fillMaxHeight().verticalScroll(rememberScrollState()).padding(20.dp)
+                    when (section) {
+                        SettingsSection.General -> GeneralSection(draft, onEdit, content)
+                        SettingsSection.Review -> ReviewSection(draft, onEdit, content)
+                        SettingsSection.Git -> GitSection(draft, onEdit, content)
+                        SettingsSection.Sharing -> SharingSection(draft, onEdit, content)
+                        SettingsSection.About -> AboutSection(content)
+                    }
                 }
                 NitpickDivider()
                 Row(
@@ -123,21 +147,23 @@ fun SettingsDialog(
 }
 
 @Composable
-private fun SettingsNav(modifier: Modifier) {
+private fun SettingsNav(selected: SettingsSection, onSelect: (SettingsSection) -> Unit, modifier: Modifier) {
     var query by remember { mutableStateOf("") }
-    val labels = SECTIONS.map { stringResource(it) }
-    Column(modifier.background(NitpickTheme.colors.canvas).padding(12.dp), verticalArrangement = Arrangement.spacedBy(8.dp)) {
+    val labels = SettingsSection.entries.associateWith { stringResource(it.label) }
+    Column(modifier.background(NitpickTheme.colors.canvas).padding(12.dp), verticalArrangement = Arrangement.spacedBy(4.dp)) {
         NitpickTextField(value = query, onValueChange = { query = it }, placeholder = stringResource(Res.string.settings_search))
-        labels.filter { it.contains(query, ignoreCase = true) }.forEachIndexed { index, label ->
-            val isGeneral = index == 0 && labels[0] == label
+        SettingsSection.entries.filter { labels.getValue(it).contains(query, ignoreCase = true) }.forEach { section ->
+            val isSelected = section == selected
             Text(
-                text = label,
+                text = labels.getValue(section),
                 modifier = Modifier
                     .fillMaxWidth()
-                    .background(if (isGeneral) NitpickTheme.colors.selection else NitpickTheme.colors.canvas, RoundedCornerShape(NitpickTheme.radii.sm))
+                    .clip(RoundedCornerShape(NitpickTheme.radii.sm))
+                    .background(if (isSelected) NitpickTheme.colors.selection else NitpickTheme.colors.canvas)
+                    .clickable { onSelect(section) }
                     .padding(horizontal = 10.dp, vertical = 5.dp),
-                style = if (isGeneral) NitpickTheme.typography.bodyStrong else NitpickTheme.typography.body,
-                color = if (isGeneral) NitpickTheme.colors.onSelection else NitpickTheme.colors.textMuted,
+                style = if (isSelected) NitpickTheme.typography.bodyStrong else NitpickTheme.typography.body,
+                color = if (isSelected) NitpickTheme.colors.onSelection else NitpickTheme.colors.text,
             )
         }
     }
@@ -147,11 +173,7 @@ private fun SettingsNav(modifier: Modifier) {
 private fun GeneralSection(draft: Settings, onEdit: ((Settings) -> Settings) -> Unit, modifier: Modifier) {
     // Labels are resolved here: the option lambdas of the controls are not composable.
     val themeLabels = ThemeMode.entries.associateWith { stringResource(it.label) }
-    val providerLabels = LlmProvider.entries.associateWith { stringResource(it.label) }
-    val hostLabels = mapOf(
-        GitHost.GITHUB to stringResource(Res.string.connect_github),
-        GitHost.GITLAB to stringResource(Res.string.connect_gitlab),
-    )
+    val languageLabels = AppLanguage.entries.associateWith { stringResource(it.label) }
     Column(modifier, verticalArrangement = Arrangement.spacedBy(14.dp)) {
         Kicker(Res.string.settings_kicker_appearance)
         FieldLabel(Res.string.settings_theme)
@@ -162,8 +184,22 @@ private fun GeneralSection(draft: Settings, onEdit: ((Settings) -> Settings) -> 
             onSelect = { mode -> onEdit { it.copy(themeMode = mode) } },
             modifier = Modifier.width(ControlWidth),
         )
+        FieldLabel(Res.string.settings_language)
+        NitpickSegmentedControl(
+            options = AppLanguage.entries,
+            selected = draft.language,
+            label = { languageLabels.getValue(it) },
+            onSelect = { language -> onEdit { it.copy(language = language) } },
+            modifier = Modifier.width(ControlWidth),
+        )
+    }
+}
 
-        Kicker(Res.string.settings_kicker_ai_review, topPadding = 12.dp)
+@Composable
+private fun ReviewSection(draft: Settings, onEdit: ((Settings) -> Settings) -> Unit, modifier: Modifier) {
+    val providerLabels = LlmProvider.entries.associateWith { stringResource(it.label) }
+    Column(modifier, verticalArrangement = Arrangement.spacedBy(14.dp)) {
+        Kicker(Res.string.settings_kicker_ai_review)
         FieldLabel(Res.string.settings_provider)
         NitpickRadioGroup(
             options = LlmProvider.entries,
@@ -171,13 +207,20 @@ private fun GeneralSection(draft: Settings, onEdit: ((Settings) -> Settings) -> 
             label = { providerLabels.getValue(it) },
             onSelect = { provider -> onEdit { it.copy(provider = provider, model = provider.knownModels.first()) } },
         )
-
         FieldLabel(Res.string.settings_model)
         ModelSelector(draft.model, draft.provider.knownModels, { model -> onEdit { it.copy(model = model) } }, Modifier.width(ControlWidth))
-
         ApiKeyField(draft.apiKey, draft.provider, { key -> onEdit { it.copy(apiKey = key) } }, Modifier.width(KeyFieldWidth))
+    }
+}
 
-        Kicker(Res.string.settings_kicker_git, topPadding = 12.dp)
+@Composable
+private fun GitSection(draft: Settings, onEdit: ((Settings) -> Settings) -> Unit, modifier: Modifier) {
+    val hostLabels = mapOf(
+        GitHost.GITHUB to stringResource(Res.string.connect_github),
+        GitHost.GITLAB to stringResource(Res.string.connect_gitlab),
+    )
+    Column(modifier, verticalArrangement = Arrangement.spacedBy(14.dp)) {
+        Kicker(Res.string.settings_kicker_git)
         FieldLabel(Res.string.connect_host)
         NitpickRadioGroup(
             options = GitHost.entries,
@@ -194,9 +237,46 @@ private fun GeneralSection(draft: Settings, onEdit: ((Settings) -> Settings) -> 
             },
             modifier = Modifier.width(KeyFieldWidth),
         )
+    }
+}
 
-        Kicker(Res.string.settings_kicker_sharing, topPadding = 12.dp)
+@Composable
+private fun SharingSection(draft: Settings, onEdit: ((Settings) -> Settings) -> Unit, modifier: Modifier) {
+    Column(modifier, verticalArrangement = Arrangement.spacedBy(14.dp)) {
+        Kicker(Res.string.settings_kicker_sharing)
         ServerUrlField(draft.serverUrl, { url -> onEdit { it.copy(serverUrl = url) } }, Modifier.width(KeyFieldWidth))
+    }
+}
+
+/** The app, its source and the three humans behind it; every line opens GitHub in the browser. */
+@Composable
+private fun AboutSection(modifier: Modifier) {
+    val uriHandler = LocalUriHandler.current
+    Column(modifier, verticalArrangement = Arrangement.spacedBy(14.dp)) {
+        Row(verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(12.dp)) {
+            Image(painter = nitpickAppIcon(), contentDescription = null, modifier = Modifier.size(AboutIconSize))
+            Column {
+                Text("Nitpick", style = NitpickTheme.typography.title, color = NitpickTheme.colors.text)
+                Text(stringResource(Res.string.about_tagline), style = NitpickTheme.typography.small, color = NitpickTheme.colors.textSecondary)
+            }
+        }
+        GitHubLink(stringResource(Res.string.about_repository), REPOSITORY_URL, uriHandler::openUri)
+        Kicker(Res.string.about_team, topPadding = 12.dp)
+        TEAM.forEach { member ->
+            GitHubLink("${member.name} · @${member.login}", "https://github.com/${member.login}", uriHandler::openUri)
+        }
+    }
+}
+
+@Composable
+private fun GitHubLink(text: String, url: String, open: (String) -> Unit) {
+    Row(
+        modifier = Modifier.clip(RoundedCornerShape(NitpickTheme.radii.sm)).clickable { open(url) }.padding(horizontal = 6.dp, vertical = 4.dp),
+        verticalAlignment = Alignment.CenterVertically,
+        horizontalArrangement = Arrangement.spacedBy(8.dp),
+    ) {
+        NitpickIcon(Res.drawable.ic_github, contentDescription = null, tint = NitpickTheme.colors.text)
+        Text(text, style = NitpickTheme.typography.body, color = NitpickTheme.colors.primary)
     }
 }
 

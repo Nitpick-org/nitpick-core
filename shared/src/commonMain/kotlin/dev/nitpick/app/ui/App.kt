@@ -4,6 +4,8 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.safeContentPadding
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Surface
+import androidx.compose.runtime.CompositionLocalProvider
+import androidx.compose.runtime.key
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
@@ -79,86 +81,91 @@ fun App(
         }
     }
 
-    NitpickTheme(settings.themeMode) {
-        Surface(Modifier.fillMaxSize(), color = MaterialTheme.colorScheme.background) {
-            when {
-                showSettings && cloneRoot != null -> SettingsScreen(settings, settingsViewModel::update, onBack = { showSettings = false })
-                // The account gate must not flash before the settings file is read.
-                cloneRoot != null && !settingsLoaded -> Unit
-                cloneRoot != null -> PhoneFlow(
-                    state = state,
-                    settings = settings,
-                    cloneRoot = cloneRoot,
-                    onOpenRepository = repositoryViewModel::openRepository,
-                    onCloneRepository = repositoryViewModel::cloneRepository,
-                    onSelectCommit = repositoryViewModel::selectCommit,
-                    onCheckoutBranch = repositoryViewModel::checkoutBranch,
-                    onRunReview = repositoryViewModel::reviewBranch,
-                    onSelectDiffFile = repositoryViewModel::selectDiffFile,
-                    onApplySuggestion = repositoryViewModel::applySuggestion,
-                    onDismissSuggestion = repositoryViewModel::dismissSuggestion,
-                    onCommitMessage = repositoryViewModel::setCommitMessage,
-                    onCommit = repositoryViewModel::commitAppliedSuggestions,
-                    onPush = repositoryViewModel::pushBranch,
-                    onPublish = repositoryViewModel::publishBranch,
-                    onPull = repositoryViewModel::pullBranch,
-                    onShareReview = repositoryViewModel::shareReview,
-                    onLoadSharedReviews = repositoryViewModel::loadSharedReviews,
-                    onOpenSharedReview = repositoryViewModel::openSharedReview,
-                    onFetch = repositoryViewModel::fetchBranch,
-                    onConnect = { connection -> settingsViewModel.update { it.copy(gitConnection = connection) } },
-                    forge = container.forgeClient,
-                    onOpenSettings = { showSettings = true },
-                    modifier = Modifier.safeContentPadding(),
-                )
-                else -> {
-                    RepositoryScreen(
-                    state = state,
-                    settings = settings,
-                    onOpenRepository = openRepository,
-                    onCloneRepository = pickRepositoryPath?.let { { showClone = true } },
-                    onSelectCommit = repositoryViewModel::selectCommit,
-                    onShowDiff = repositoryViewModel::refreshDiff,
-                    onCheckoutBranch = repositoryViewModel::checkoutBranch,
-                    onPull = { repositoryViewModel.pullBranch(settings.gitConnection?.takeIf { it.isComplete }?.toCredentials()) },
-                    onPush = { repositoryViewModel.pushBranch(settings.gitConnection?.takeIf { it.isComplete }?.toCredentials()) },
-                    onPublish = { repositoryViewModel.publishBranch(settings.gitConnection?.takeIf { it.isComplete }?.toCredentials()) },
-                    onFetch = { repositoryViewModel.fetchBranch(settings.gitConnection?.takeIf { it.isComplete }?.toCredentials()) },
-                    onSelectBase = repositoryViewModel::selectBase,
-                    onSelectDiffFile = repositoryViewModel::selectDiffFile,
-                    onOpenSettings = { showSettings = true },
-                    onRunReview = repositoryViewModel::reviewBranch,
-                    onApplySuggestion = repositoryViewModel::applySuggestion,
-                    onApplyAll = repositoryViewModel::applyAllSuggestions,
-                    onDismissSuggestion = repositoryViewModel::dismissSuggestion,
-                    onCommitMessage = repositoryViewModel::setCommitMessage,
-                    onCommit = repositoryViewModel::commitAppliedSuggestions,
-                    onShareReview = repositoryViewModel::shareReview,
-                    onLoadSharedReviews = repositoryViewModel::loadSharedReviews,
-                    onOpenSharedReview = repositoryViewModel::openSharedReview,
-                    modifier = Modifier.safeContentPadding(),
-                )
-                if (showClone && pickRepositoryPath != null) {
-                    CloneDialog(
-                        state = state,
-                        pickDirectory = pickRepositoryPath,
-                        onClone = repositoryViewModel::cloneRepository,
-                        onCancel = { showClone = false },
-                        onCloned = { showClone = false },
-                    )
-                }
-                if (showSettings) {
-                    val draft by settingsViewModel.draft.collectAsStateWithLifecycle()
-                    LaunchedEffect(Unit) { settingsViewModel.startEditing() }
-                    draft?.let {
-                        SettingsDialog(
-                            draft = it,
-                            onEdit = settingsViewModel::editDraft,
-                            onSave = { settingsViewModel.saveDraft(); showSettings = false },
-                            onCancel = { settingsViewModel.discardDraft(); showSettings = false },
+    // key(language): every stringResource is re-read when the language changes.
+    CompositionLocalProvider(LocalAppLocale provides settings.language.tag) {
+        key(settings.language) {
+            NitpickTheme(settings.themeMode) {
+                Surface(Modifier.fillMaxSize(), color = MaterialTheme.colorScheme.background) {
+                    when {
+                        showSettings && cloneRoot != null -> SettingsScreen(settings, settingsViewModel::update, onBack = { showSettings = false })
+                        // The account gate must not flash before the settings file is read.
+                        cloneRoot != null && !settingsLoaded -> Unit
+                        cloneRoot != null -> PhoneFlow(
+                            state = state,
+                            settings = settings,
+                            cloneRoot = cloneRoot,
+                            onOpenRepository = repositoryViewModel::openRepository,
+                            onCloneRepository = repositoryViewModel::cloneRepository,
+                            onSelectCommit = repositoryViewModel::selectCommit,
+                            onCheckoutBranch = repositoryViewModel::checkoutBranch,
+                            onRunReview = repositoryViewModel::reviewBranch,
+                            onSelectDiffFile = repositoryViewModel::selectDiffFile,
+                            onApplySuggestion = repositoryViewModel::applySuggestion,
+                            onDismissSuggestion = repositoryViewModel::dismissSuggestion,
+                            onCommitMessage = repositoryViewModel::setCommitMessage,
+                            onCommit = repositoryViewModel::commitAppliedSuggestions,
+                            onPush = repositoryViewModel::pushBranch,
+                            onPublish = repositoryViewModel::publishBranch,
+                            onPull = repositoryViewModel::pullBranch,
+                            onShareReview = repositoryViewModel::shareReview,
+                            onLoadSharedReviews = repositoryViewModel::loadSharedReviews,
+                            onOpenSharedReview = repositoryViewModel::openSharedReview,
+                            onFetch = repositoryViewModel::fetchBranch,
+                            onConnect = { connection -> settingsViewModel.update { it.copy(gitConnection = connection) } },
+                            forge = container.forgeClient,
+                            onOpenSettings = { showSettings = true },
+                            modifier = Modifier.safeContentPadding(),
                         )
+                        else -> {
+                            RepositoryScreen(
+                            state = state,
+                            settings = settings,
+                            onOpenRepository = openRepository,
+                            onCloneRepository = pickRepositoryPath?.let { { showClone = true } },
+                            onSelectCommit = repositoryViewModel::selectCommit,
+                            onShowDiff = repositoryViewModel::refreshDiff,
+                            onCheckoutBranch = repositoryViewModel::checkoutBranch,
+                            onPull = { repositoryViewModel.pullBranch(settings.gitConnection?.takeIf { it.isComplete }?.toCredentials()) },
+                            onPush = { repositoryViewModel.pushBranch(settings.gitConnection?.takeIf { it.isComplete }?.toCredentials()) },
+                            onPublish = { repositoryViewModel.publishBranch(settings.gitConnection?.takeIf { it.isComplete }?.toCredentials()) },
+                            onFetch = { repositoryViewModel.fetchBranch(settings.gitConnection?.takeIf { it.isComplete }?.toCredentials()) },
+                            onSelectBase = repositoryViewModel::selectBase,
+                            onSelectDiffFile = repositoryViewModel::selectDiffFile,
+                            onOpenSettings = { showSettings = true },
+                            onRunReview = repositoryViewModel::reviewBranch,
+                            onApplySuggestion = repositoryViewModel::applySuggestion,
+                            onApplyAll = repositoryViewModel::applyAllSuggestions,
+                            onDismissSuggestion = repositoryViewModel::dismissSuggestion,
+                            onCommitMessage = repositoryViewModel::setCommitMessage,
+                            onCommit = repositoryViewModel::commitAppliedSuggestions,
+                            onShareReview = repositoryViewModel::shareReview,
+                            onLoadSharedReviews = repositoryViewModel::loadSharedReviews,
+                            onOpenSharedReview = repositoryViewModel::openSharedReview,
+                            modifier = Modifier.safeContentPadding(),
+                        )
+                        if (showClone && pickRepositoryPath != null) {
+                            CloneDialog(
+                                state = state,
+                                pickDirectory = pickRepositoryPath,
+                                onClone = repositoryViewModel::cloneRepository,
+                                onCancel = { showClone = false },
+                                onCloned = { showClone = false },
+                            )
+                        }
+                        if (showSettings) {
+                            val draft by settingsViewModel.draft.collectAsStateWithLifecycle()
+                            LaunchedEffect(Unit) { settingsViewModel.startEditing() }
+                            draft?.let {
+                                SettingsDialog(
+                                    draft = it,
+                                    onEdit = settingsViewModel::editDraft,
+                                    onSave = { settingsViewModel.saveDraft(); showSettings = false },
+                                    onCancel = { settingsViewModel.discardDraft(); showSettings = false },
+                                )
+                            }
+                        }
+                        }
                     }
-                }
                 }
             }
         }
