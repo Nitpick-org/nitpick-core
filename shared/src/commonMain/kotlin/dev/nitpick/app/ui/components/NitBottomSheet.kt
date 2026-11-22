@@ -10,6 +10,10 @@ import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.ModalBottomSheet
 import androidx.compose.material3.Text
 import androidx.compose.material3.rememberModalBottomSheetState
+import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.height
+import nitpick.shared.generated.resources.review_apply
+import nitpick.shared.generated.resources.review_dismiss
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
@@ -19,8 +23,10 @@ import nitpick.shared.generated.resources.Res
 import nitpick.shared.generated.resources.review_nit_position
 import org.jetbrains.compose.resources.stringResource
 
+private val SheetActionHeight = 56.dp
+
 /**
- * One nit on a phone (UI handoff §4.3): the review card with its 44 dp check and cross actions.
+ * One nit on a phone (UI handoff §4.3): the review card with its check and cross, plus two thumb-sized actions.
  * [onApply] is null for a nit without a suggestion or one that was already applied.
  */
 @Composable
@@ -51,6 +57,24 @@ fun NitSheetContent(
                 onDismiss = onDismiss,
                 touch = true,
             )
+        }
+        // The same two actions again, thumb-sized and pinned at the bottom: the card's squares are the IDE gesture, these are the reach.
+        Row(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.spacedBy(12.dp)) {
+            NitpickButton(
+                text = stringResource(Res.string.review_dismiss),
+                onClick = onDismiss,
+                variant = NitpickButtonVariant.Secondary,
+                size = NitpickButtonSize.Large,
+                modifier = Modifier.weight(1f).height(SheetActionHeight),
+            )
+            if (onApply != null) {
+                NitpickButton(
+                    text = stringResource(Res.string.review_apply),
+                    onClick = onApply,
+                    size = NitpickButtonSize.Large,
+                    modifier = Modifier.weight(1f).height(SheetActionHeight),
+                )
+            }
         }
     }
 }
