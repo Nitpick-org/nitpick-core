@@ -19,7 +19,9 @@ import kotlin.test.assertTrue
  * Acceptance proof of #20 and #82: one real review per provider. Opt-in, so check.sh never
  * spends money: each test is skipped unless APP_<PROVIDER>_API_KEY is set (the app keys,
  * never ANTHROPIC_API_KEY), or, for Ollama, unless APP_OLLAMA_MODEL is set.
- * APP_<PROVIDER>_MODEL overrides the first known model. Keys are never printed.
+ * APP_<PROVIDER>_MODEL overrides the first known model. APP_OPENAI_BASE_URL points the OpenAI
+ * client at a local OpenAI-compatible server (LM Studio on http://localhost:1234, any key).
+ * Keys are never printed.
  */
 class RealReviewCallTest {
 
@@ -59,7 +61,8 @@ class RealReviewCallTest {
         val diff = FileDiff("Last.kt", null, FileChangeType.ADDED, false, listOf(Hunk(0, 0, 1, lines.size, lines)))
         val repository = FakeGitRepository(branch = "feature", diffs = mapOf("main" to listOf(diff)), files = mapOf("Last.kt" to buggy))
 
-        val result = LlmReviewAgent(KoogLlmClient(store)).review(repository, "main")
+        val openAiBaseUrl = System.getenv("APP_OPENAI_BASE_URL")?.takeIf { provider == LlmProvider.OPENAI && it.isNotBlank() }
+        val result = LlmReviewAgent(KoogLlmClient(store, openAiBaseUrl = openAiBaseUrl)).review(repository, "main")
 
         println("${provider.name} $model summary: ${result.summary}")
         result.comments.forEach { println("${it.severity} ${it.filePath}:${it.startLine}-${it.endLine} ${it.message}") }
