@@ -63,6 +63,8 @@
 - [Demo video](#demo-video)
 - [Why](#why)
 - [At a glance](#at-a-glance)
+- [Status](#status)
+- [Platforms](#platforms)
 - [Features](#features)
 - [Screenshots](#screenshots)
 - [Architecture](#architecture)
@@ -107,6 +109,30 @@ flowchart LR
 | **Tests** | 222 test cases: shared JVM tests, 11 Ktor server tests, 4 instrumented tests on Android ART |
 | **i18n** | English + French: 191 strings and 7 plurals in each language |
 | **Process** | 369 commits, 124 merged PRs, 105 GitHub issues, one journal per ticket in `progress/` |
+
+## Status
+
+> Updated at each team sync. Only what runs today is listed as done.
+
+| Piece | State |
+| --- | --- |
+| KMP project (desktop + Android, shared Compose UI) | ✅ generated, builds on both targets |
+| JGit behind a shared source set (`jvmSharedMain`) | ✅ log, diff, stage, commit, fetch/pull/push and checkout run on desktop and Android (emulator, API 36) |
+| Shared contracts (`GitRepository`, review model) | ✅ in `commonMain`, JGit behind the interface |
+| Commit graph, branch diff | ✅ lanes, colours, refs, per-commit details, diff vs base |
+| AI review with Koog, anchored nits, apply a suggestion, commit | ✅ real provider calls, snippet anchoring, Review panel, Apply/Dismiss, commit |
+| Light/dark theme, English/French | ✅ system/light/dark, 191 strings + 7 plurals EN/FR |
+
+Full scope (MUST / SHOULD / WON'T) and the hour-by-hour plan: [docs/CONTEXT.md](docs/CONTEXT.md).
+
+## Platforms
+
+| Target | Role |
+| --- | --- |
+| Desktop (macOS, Windows, Linux) | The main app: full git client + AI review |
+| Android | Review on the go: clone over HTTPS with a token, see the graph, run the review, accept suggestions, commit and push |
+| Kotlin server (Ktor) | Shares a finished review between devices and teammates; the review itself still runs locally |
+| iOS, web | Out of scope: JGit does not run there |
 
 ## Features
 
