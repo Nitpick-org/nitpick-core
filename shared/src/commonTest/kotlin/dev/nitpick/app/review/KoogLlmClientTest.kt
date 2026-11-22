@@ -6,8 +6,10 @@ import dev.nitpick.app.settings.SettingsStore
 import kotlinx.coroutines.test.runTest
 import kotlin.test.Test
 import kotlin.test.assertEquals
+import kotlin.test.assertFalse
 import kotlin.test.assertFailsWith
 import kotlin.test.assertTrue
+import ai.koog.prompt.executor.clients.LLMClientException
 import ai.koog.prompt.llm.LLMCapability
 
 class KoogLlmClientTest {
@@ -25,6 +27,16 @@ class KoogLlmClientTest {
             val error = assertFailsWith<MissingApiKeyException> { client.complete("s", "u") }
             assertEquals(provider, error.provider)
         }
+    }
+
+    @Test
+    fun onlyAToolUnsupportedErrorAllowsTheNoToolFallback() {
+        assertTrue(LLMClientException("model does not support tools", "anthropic", null).allowsToolFallback())
+        assertTrue(LLMClientException("tools are unsupported", "openai", null).allowsToolFallback())
+        assertTrue(UnsupportedOperationException("no tools").allowsToolFallback())
+        assertFalse(LLMClientException("401 Unauthorized", "anthropic", null).allowsToolFallback())
+        assertFalse(LLMClientException("429 rate limit", "anthropic", null).allowsToolFallback())
+        assertFalse(IllegalStateException("tool call failed").allowsToolFallback())
     }
 
     @Test

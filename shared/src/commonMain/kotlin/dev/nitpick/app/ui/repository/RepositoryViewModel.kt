@@ -65,11 +65,15 @@ private fun Throwable.toReviewFailure(): ReviewFailure = when {
 }
 
 private fun Throwable.isTimeout(): Boolean {
-    val text = generateSequence(this as Throwable?) { it.cause }
-        .mapNotNull { it.message }
-        .joinToString(" ")
-        .lowercase()
-    return "timeout" in text || "timed out" in text
+    val causes = generateSequence(this as Throwable?) { it.cause }.toList()
+    if (causes.any { it is TimeoutCancellationException || it is io.ktor.client.plugins.HttpRequestTimeoutException }) {
+        return true
+    }
+    // Koog wraps provider timeouts in ReviewProviderException/LLMClientException without the
+    // Ktor type; keep a narrow message fallback only for provider errors (#146).
+    return this is ReviewProviderException && causes.any { cause ->
+        cause.message?.lowercase()?.let { "timeout" in it || "timed out" in it } == true
+    }
 }
 
 /** The clone into [path]: running while [errorMessage] is null. */

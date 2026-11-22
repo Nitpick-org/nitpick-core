@@ -59,8 +59,9 @@ class KoogLlmClient(private val settingsStore: SettingsStore) : ToolCallingLlmCl
                 client.execute(conversation, model, descriptors)
             } catch (e: Exception) {
                 if (e is kotlinx.coroutines.CancellationException) throw e
-                // Only a provider/tool-support failure may fall back; a programming error must surface.
-                if (e !is LLMClientException && e !is UnsupportedOperationException) throw e
+                // Only a provider/tool-support failure may fall back; a 401/429 or a programming
+                // error must surface without a second call (#146).
+                if (!e.allowsToolFallback()) throw e
                 val plainPrompt = prompt.withoutTools()
                 val plain = Prompt.builder("nitpick-review").apply {
                     system(plainPrompt.system)
@@ -190,4 +191,21 @@ private fun llmClient(settings: Settings, model: LLModel, httpClientFactory: Kto
     LlmProvider.OPENAI -> OpenAILLMClient(apiKey = settings.apiKey, httpClientFactory = httpClientFactory)
     LlmProvider.GOOGLE -> GoogleLLMClient(apiKey = settings.apiKey, httpClientFactory = httpClientFactory)
     LlmProvider.OLLAMA -> OllamaClient(baseUrl = OLLAMA_BASE_URL, httpClientFactory = httpClientFactory)
+}
+
+
+/**
+ * Only a provider that explicitly refuses tools may trigger the no-tool fallback. Koog's
+ * [LLMClientException] has no status code, so this is a narrow message check; a 401/429 must
+ * not double the call (#146).
+ */
+internal fun Throwable.allowsToolFallback(): Boolean =
+    this is UnsupportedOperationException || (this is LLMClientException && isToolUnsupportedMessage())
+
+private fun Throwable.isToolUnsupportedMessage(): Boolean {
+    val text = generateSequence(this as Throwable?) { it.cause }
+        .mapNotNull { it.message }
+        .joinToString(" ")
+        .lowercase()
+    return "tool" in text && ("not support" in text || "unsupported" in text || "does not support" in text)
 }
