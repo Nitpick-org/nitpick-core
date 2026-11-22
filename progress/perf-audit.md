@@ -1,68 +1,68 @@
-# Audit perf — chemins chauds git / diff
+# Perf audit — git / diff hot paths
 
-- Statut : relu (seconde passe, Fable, 21/11 soir) ; reste à rejouer sur un appareil ART
-- Piste : performance desktop + Android, cœur partagé
-- Agent : lead (DeepSeek), 21/11 ~22:00 ; relecture + volet Android : lead (Fable)
-- Fichiers : `git/JGitRepository.kt`, `ui/repository/{RepositoryViewModel,DiffPanel,
+- Status: reviewed (second pass, Fable, 21/11 evening); still to replay on an ART device
+- Track: desktop + Android performance, shared core
+- Agent: lead (DeepSeek), 21/11 ~22:00; re-read + Android side: lead (Fable)
+- Files: `git/JGitRepository.kt`, `ui/repository/{RepositoryViewModel,DiffPanel,
   RepositoryScreen,CommitGraph}.kt`, `domain/Diff.kt`, `review/ReviewContext.kt`,
   `settings/{Settings,LlmModels}.kt`, `ui/settings/SettingsViewModel.kt`,
-  `ui/theme/NitpickTheme.kt`, `ui/phone/PhoneReviewScreen.kt`, tests JVM/common,
+  `ui/theme/NitpickTheme.kt`, `ui/phone/PhoneReviewScreen.kt`, JVM/common tests,
   `docs/PERFORMANCE-AUDIT.md`
-- Rapport complet : `docs/PERFORMANCE-AUDIT.md` (mesures, protocole, pistes non faites)
+- Full report: `docs/PERFORMANCE-AUDIT.md` (measurements, protocol, tracks not done)
 
-## Mini explication
+## Short explanation
 
-La lenteur ne venait pas de Compose mais de deux parcours JGit non bornés :
+The slowness did not come from Compose but from two unbounded JGit paths:
 
-- `log()` utilisait le tri TOPO de JGit, qui parcourt **tout l'historique** avant de rendre la
-  première ligne. `buildReviewContext` repayait ce coût pour 10 messages de commit.
-- `diffAgainst()` comparait le working tree entier : chaque fichier suivi était haché à chaque
-  refresh, même quand 4 fichiers avaient changé.
+- `log()` used JGit's TOPO sort, which walks **the whole history** before returning the
+  first line. `buildReviewContext` paid that cost again for 10 commit messages.
+- `diffAgainst()` compared the whole working tree: every tracked file was hashed on every
+  refresh, even when 4 files had changed.
 
-Corrigé : fenêtre temporelle + tri topologique en mémoire pour `log()` ; filtre sur les
-chemins réellement changés (status + fork→HEAD) pour `diffAgainst()`, avec un chemin
-arbre→arbre quand le working tree est propre. Mesures : `log(500)` 449 → 5 ms sur 100k
-commits ; `diffAgainst` 234 → 28 ms (propre) / 107 ms (sale) sur 3k fichiers.
+Fixed: time window + in-memory topological sort for `log()`; filter on the paths that
+actually changed (status + fork→HEAD) for `diffAgainst()`, with a tree→tree path when
+the working tree is clean. Measurements: `log(500)` 449 → 5 ms on 100k commits;
+`diffAgainst` 234 → 28 ms (clean) / 107 ms (dirty) on 3k files.
 
-Ajouts : refresh de diff single-flight, compteurs de lignes précalculés, `stage()` groupé,
-lecture unique par fichier au re-anchoring, settings non réécrits sans changement,
-micro-allocations UI. Le défaut Anthropic passe à Sonnet (Opus reste dans la liste).
+Additions: single-flight diff refresh, precomputed line counters, grouped `stage()`,
+single read per file at re-anchoring, settings not rewritten without a change,
+UI micro-allocations. The Anthropic default moves to Sonnet (Opus stays in the list).
 
-## Relecture faite (Fable, 21/11 soir)
+## Review done (Fable, 21/11 evening)
 
-Les 4 points ci-dessous sont relus : verdicts et le cas limite trouvé (fichier supprimé
-fork→HEAD mais recréé non suivi : il entre dans le diff de review depuis la suppression du
-`TrackedFilter`) sont dans `docs/PERFORMANCE-AUDIT.md` § Relecture. `check.sh` vert sur une
-machine avec SDK ; comptes vérifiés : jvmTest 147, testAndroidHostTest 107, 0 échec. Volet
-Android ajouté au rapport (pas d'appareil branché : analyse code + leviers, pas de mesures
-ART). Hors perf, remarqué au passage : après une mort de process, `PhoneFlow` restaure
-`screen = Graph` (rememberSaveable) sur un état vide — écran Graph vide au lieu de Repos.
+The 4 points below are reviewed: verdicts and the edge case found (file deleted
+fork→HEAD but recreated untracked: it enters the review diff since the removal of
+`TrackedFilter`) are in `docs/PERFORMANCE-AUDIT.md` § Review. `check.sh` green on a
+machine with the SDK; counts verified: jvmTest 147, testAndroidHostTest 107, 0 failures. Android side
+added to the report (no device plugged in: code analysis + levers, no ART
+measurements). Outside perf, noticed along the way: after a process death, `PhoneFlow` restores
+`screen = Graph` (rememberSaveable) on an empty state — empty Graph screen instead of Repos.
 
-## À relire en priorité (Fable)
+## To review first (Fable)
 
-1. `JGitRepository.diffAgainst` + `changedPathsBetween` : rename, suppression, fichier
-   staged, working tree propre/sale. Tests `JGitRepositoryTest` correspondants.
-2. `JGitRepository.log` + `childrenBeforeParents` : ordre enfants-avant-parents, limite 500,
-   horloge inversée (`logKeepsChildrenBeforeParentsWhenAClockSkewInvertsCommitTimes`).
-3. `RepositoryViewModel.refreshDiff` : single-flight, cancellation, changement de dépôt.
-4. `LlmModels` : Sonnet par défaut est un choix produit ; un `settings.json` existant garde
+1. `JGitRepository.diffAgainst` + `changedPathsBetween`: rename, deletion, staged
+   file, clean/dirty working tree. Matching `JGitRepositoryTest` tests.
+2. `JGitRepository.log` + `childrenBeforeParents`: children-before-parents order, limit 500,
+   reversed clock (`logKeepsChildrenBeforeParentsWhenAClockSkewInvertsCommitTimes`).
+3. `RepositoryViewModel.refreshDiff`: single-flight, cancellation, repository change.
+4. `LlmModels`: Sonnet by default is a product choice; an existing `settings.json` keeps
    Opus.
 
-## Incertain / non fait
+## Uncertain / not done
 
-- Le prompt de review peut encore atteindre 120k caractères de contenu de fichiers ; réduire
-  `MAX_PROMPT_TOTAL_CHARS` à 60k est une piste qualité/latence, pas appliquée.
-- `git status()` reste un plancher de ~20–30 ms par diff ; un cache indexé sur HEAD + mtime
-  de l'index est possible mais risqué (édition externe).
-- Le défaut Sonnet ne migre pas un réglage existant.
-- ~~`./scripts/check.sh` complet n'a pas tourné~~ : fait en seconde passe, vert (Android
-  compris). Rien sur ART, toujours.
-- Cas limite `diffAgainst` (fichier non suivi à un chemin supprimé par la branche) : non
-  corrigé, décision H2 — fix propre = refiltrer sur l'index.
+- The review prompt can still reach 120k characters of file content; reducing
+  `MAX_PROMPT_TOTAL_CHARS` to 60k is a quality/latency track, not applied.
+- `git status()` remains a floor of ~20–30 ms per diff; a cache keyed on HEAD + index
+  mtime is possible but risky (external editing).
+- The Sonnet default does not migrate an existing setting.
+- ~~The full `./scripts/check.sh` has not run~~: done in the second pass, green (Android
+  included). Nothing on ART, still.
+- `diffAgainst` edge case (untracked file at a path deleted by the branch): not
+  fixed, H2 decision — clean fix = re-filter on the index.
 
-## Suivant
+## Next
 
-- Rejouer la démo sur un vrai dépôt et sur ART, comparer le ressenti avant/après ; cold
+- Replay the demo on a real repository and on ART, compare the feel before/after; cold
   start via `am start -W`.
-- Décision H3 : démo Android en release (une `signingConfig` à ajouter) ou en debug.
-- Décider avec H1/H2 : budget de prompt, cache de review pour la démo, streaming.
+- H3 decision: Android demo in release (a `signingConfig` to add) or in debug.
+- Decide with H1/H2: prompt budget, review cache for the demo, streaming.

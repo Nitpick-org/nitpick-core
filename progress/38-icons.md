@@ -1,42 +1,42 @@
 # Ticket 38-icons
 
-- Statut : prêt pour PR
-- Propriétaire humain : @zooldyyk
-- Piste : C (design system)
-- Agent : lead
-- Model : session principale
-- Escalations : aucune
-- Fichiers : `shared/src/commonMain/composeResources/drawable/*.svg`,
+- Status: ready for PR
+- Human owner: @zooldyyk
+- Track: C (design system)
+- Agent: lead
+- Model: main session
+- Escalations: none
+- Files: `shared/src/commonMain/composeResources/drawable/*.svg`,
   `ui/components/{NitpickIcon,NitpickIdeShell}.kt`, `ui/repository/{RepositoryScreen,DiffPanel}.kt`,
   `ui/NitpickAppIcon.kt`, `desktopApp/.../main.kt`, `androidApp/src/main/res/**`
 
-## Journal
+## Log
 
-- 21:05 — 15 SVG 24 px, trait 1,8, repris des `path` du bloc `ic` de la maquette :
+- 21:05 — 15 SVG 24 px, stroke 1,8, taken from the `path` entries of the `ic` block of the mockup:
   branch, cloud, tag, chevron, gear, folder, key, wifi-off, clock, check, x, tweezers,
   fetch, pull, push.
-- 21:10 — `NitpickIcon` (16 dp, tint du contexte) ; chevrons de sections et icônes
-  branche/cloud/tag dans l'arbre ; pince sur le CTA ; engrenage sur Settings ; chevron
-  sur le sélecteur de base.
-- 21:15 — icône d'app pince teal : Android foreground/background + mipmaps legacy ;
-  desktop via `nitpickAppIcon()` (ressource Compose partagée, pas de painterResource
-  déprécié).
+- 21:10 — `NitpickIcon` (16 dp, context tint); section chevrons and branch/cloud/tag icons
+  in the tree; tweezers on the CTA; gear on Settings; chevron
+  on the base selector.
+- 21:15 — teal tweezers app icon: Android foreground/background + legacy mipmaps;
+  desktop through `nitpickAppIcon()` (shared Compose resource, no deprecated
+  painterResource).
 
-## Décisions
+## Decisions
 
-- Les icônes sont des SVG Compose Resources, pas des ImageVector Kotlin : un seul fichier
-  par icône, tint au rendu, pas de dépendance Material Icons.
-- Les icônes adjacentes à un texte ont `contentDescription = null` (le texte porte le sens) ;
-  `NitpickIcon` rend le paramètre obligatoire pour éviter les icônes seules muettes.
+- The icons are Compose Resources SVGs, not Kotlin ImageVector: one file
+  per icon, tint at render time, no Material Icons dependency.
+- Icons next to text have `contentDescription = null` (the text carries the meaning);
+  `NitpickIcon` makes the parameter mandatory to avoid silent standalone icons.
 
-## Vérifications
+## Verifications
 
-- `:shared:jvmTest --rerun-tasks` : **139 tests, 0 échec**.
-- `:shared:compileKotlinJvm` + `:desktopApp:compileKotlin` verts.
-- `:androidApp:assembleDebug` bloqué par l'absence de SDK Android dans cet environnement.
+- `:shared:jvmTest --rerun-tasks`: **139 tests, 0 failure**.
+- `:shared:compileKotlinJvm` + `:desktopApp:compileKotlin` green.
+- `:androidApp:assembleDebug` blocked by the missing Android SDK in this environment.
 
-## Incertain
+## Uncertain
 
-- Rendu visuel 1×/2× et dock macOS non vérifiés à l'écran.
-- Les PNG legacy Android sont générés, mais seuls les mipmaps `anydpi-v26` utilisent le
-  foreground vector ; à contrôler sur un émulateur.
+- Visual rendering at 1×/2× and the macOS dock not verified on screen.
+- The legacy Android PNGs are generated, but only the `anydpi-v26` mipmaps use the
+  vector foreground; to check on an emulator.

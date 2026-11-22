@@ -1,65 +1,65 @@
 # Ticket 19-diff
 
-- Statut : fini, à pousser et merger
-- Propriétaire humain : @dovatgabriel
-- Piste : B git + desktop
-- Agent : Claude Code, session interactive
-- Model : opus
-- Escalations : aucune
-- Fichiers autorisés : shared/src/jvmSharedMain/.../git/JGitRepository.kt, shared/src/jvmTest/.../git/,
+- Status: done, to push and merge
+- Human owner: @dovatgabriel
+- Track: B git + desktop
+- Agent: Claude Code, interactive session
+- Model: opus
+- Escalations: none
+- Allowed files: shared/src/jvmSharedMain/.../git/JGitRepository.kt, shared/src/jvmTest/.../git/,
   shared/src/commonMain/.../ui/repository/{DiffPanel,RepositoryScreen,RepositoryViewModel}.kt,
   shared/src/commonMain/.../ui/App.kt, ui/components/NitpickReview.kt (DiffLineRow),
   composeResources/values{,-fr}/strings.xml, shared/src/commonTest/.../ui/repository/
 
-## Journal
+## Log
 
-- 17:35 : worktree créé. La PR #50 (H2) livrait déjà un premier `diffAgainst` et un
-  onglet Diff minimal, mélangés avec le #22. Décision humaine : extraire et compléter le #19
-  plutôt que le refaire.
-- 17:40 : tests JGit rouges, puis `diffAgainst` : merge-base, renommages, arbre de travail,
-  fichiers ignorés exclus.
-- 17:45 : ViewModel : `baseRef`, `isDiffLoading`, `diffError`, `selectedDiffPath`,
-  `selectBase`, `selectDiffFile`, `refreshDiff`. 7 tests verts.
-- 17:50 : `DiffPanel` selon UI-HANDOFF §3.3. `check.sh` vert.
-- 18:20 : review ponytail : non suivis exclus, branches distantes dans le sélecteur, plus
-  de clignotement au rechargement, `shortcut:` sur le hachage.
-- 17:55 : #50 mergée entre-temps. Rebasé sur `main`, conflits résolus : la review,
-  l'apply et le commit de #50 restent, et rechargent le diff par `refreshDiff`.
+- 17:35: worktree created. PR #50 (H2) already shipped a first `diffAgainst` and a
+  minimal Diff tab, mixed with #22. Human decision: extract and complete #19
+  rather than redo it.
+- 17:40: red JGit tests, then `diffAgainst`: merge-base, renames, working tree,
+  ignored files excluded.
+- 17:45: ViewModel: `baseRef`, `isDiffLoading`, `diffError`, `selectedDiffPath`,
+  `selectBase`, `selectDiffFile`, `refreshDiff`. 7 green tests.
+- 17:50: `DiffPanel` per UI-HANDOFF §3.3. `check.sh` green.
+- 18:20: ponytail review: untracked excluded, remote branches in the selector, no more
+  flicker on reload, `shortcut:` on the hash.
+- 17:55: #50 merged in the meantime. Rebased on `main`, conflicts resolved: #50's review,
+  apply and commit stay, and reload the diff via `refreshDiff`.
 
-## Décisions
+## Decisions
 
-- Le côté gauche est la **merge-base** entre HEAD et la base, pas la pointe de la base. Sans
-  cela, un commit arrivé sur `main` après la bifurcation apparaît comme retiré par la
-  branche. Sans ancêtre commun, on compare à la base elle-même.
-- Le côté droit est l'**arbre de travail** (demande de la review de #51) : une suggestion
-  appliquée apparaît tout de suite. Les fichiers **non suivis** sont exclus (`TrackedFilter`) :
-  la review envoie chaque fichier du diff au provider, et un fichier de secrets absent du
-  `.gitignore` ne doit pas partir. Un nouveau fichier compte dès qu'il est indexé (`git add`).
-  Les fichiers ignorés sont aussi exclus par le `FileTreeIterator`.
-- Lockfiles, binaires et fichiers générés : déjà filtrés pour la review par `isReviewable`
-  (`review/ReviewContext.kt`, #20). Le diff les montre ; un binaire affiche « Binary file,
-  not shown ».
-- Le diff se recharge à l'ouverture du repo, au changement de base, en ouvrant l'onglet Diff
-  (l'arbre de travail a pu changer) et après apply ou commit.
-- Le sélecteur de base liste les branches locales (sauf la courante) et distantes : un clone
-  `-b feature` n'a pas de `main` local, et l'utilisateur restait bloqué sur l'erreur.
-- Un rechargement garde le diff affiché ; le spinner n'apparaît que s'il n'y a rien à montrer.
-- `DiffLineRow` affichait « null » pour le numéro absent d'une ligne ajoutée ou retirée :
-  corrigé.
+- The left side is the **merge-base** between HEAD and the base, not the tip of the base. Without
+  that, a commit that landed on `main` after the fork appears as removed by the
+  branch. Without a common ancestor, we compare against the base itself.
+- The right side is the **working tree** (#51 review request): an applied suggestion
+  appears immediately. **Untracked** files are excluded (`TrackedFilter`):
+  the review sends each file of the diff to the provider, and a secrets file missing from
+  `.gitignore` must not leave. A new file counts as soon as it is staged (`git add`).
+  Ignored files are also excluded by the `FileTreeIterator`.
+- Lockfiles, binaries and generated files: already filtered for the review by `isReviewable`
+  (`review/ReviewContext.kt`, #20). The diff shows them; a binary displays "Binary file,
+  not shown".
+- The diff reloads when the repo opens, on base change, when opening the Diff tab
+  (the working tree may have changed) and after apply or commit.
+- The base selector lists local (except the current one) and remote branches: a clone
+  `-b feature` has no local `main`, and the user stayed stuck on the error.
+- A reload keeps the displayed diff; the spinner only appears when there is nothing to show.
+- `DiffLineRow` displayed "null" for the missing number of an added or removed line:
+  fixed.
 
-## Vérifications
+## Verification
 
-- `:shared:jvmTest` : JGitRepositoryTest 17 tests et RepositoryViewModelTest 7 tests, 0 échec.
-- `./scripts/check.sh` vert.
+- `:shared:jvmTest`: JGitRepositoryTest 17 tests and RepositoryViewModelTest 7 tests, 0 failure.
+- `./scripts/check.sh` green.
 
-## Incertain
+## Uncertain
 
-- Lignes longues coupées à droite (pas de scroll horizontal dans `DiffLineRow`).
-- `FileTreeIterator` hache chaque fichier suivi à chaque chargement : rapide sur un repo
-  de démo, à mesurer sur un gros repo.
-- Android non câblé ici (piste C, #21/#23) ; `diffAgainst` vit dans `jvmSharedMain`, mais aucun
-  test sur ART ne le couvre encore.
+- Long lines cut off on the right (no horizontal scroll in `DiffLineRow`).
+- `FileTreeIterator` hashes every tracked file on every load: fast on a demo repo,
+  to measure on a big repo.
+- Android not wired here (track C, #21/#23); `diffAgainst` lives in `jvmSharedMain`, but no
+  test on ART covers it yet.
 
-## Suivant
+## Next
 
-- #22 : la boucle review utilise ce diff.
+- #22: the review loop uses this diff.

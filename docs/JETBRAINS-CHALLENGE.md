@@ -1,121 +1,121 @@
-# Challenge JetBrains — Cross-Platform Apps with Kotlin Multiplatform
+# JetBrains Challenge — Cross-Platform Apps with Kotlin Multiplatform
 
-> **Source** : brief officiel du challenge, fourni par JetBrains / LauzHack 2026
-> (`LauzHack.docx`). Ce document est la référence pour le pitch, les critères et les
-> bonus ; `docs/CONTEXT.md` reste la spec produit de Nitpick.
+> **Source**: official challenge brief, provided by JetBrains / LauzHack 2026
+> (`LauzHack.docx`). This document is the reference for the pitch, the criteria and the
+> bonus; `docs/CONTEXT.md` remains the product spec for Nitpick.
 
 ## 1. Build with JetBrains Air (recommended)
 
-Le brief **recommande** de construire le projet avec **JetBrains Air** dans un IDE
-JetBrains. Ce n'est pas obligatoire, mais cela donne des **points bonus** au titre du
-critère *Agentic Development Process*.
+The brief **recommends** building the project with **JetBrains Air** in a JetBrains IDE.
+This is not mandatory, but it earns **bonus points** under the *Agentic Development
+Process* criterion.
 
-Air permet de :
+Air allows you to:
 
-- faire tourner plusieurs agents de code **côte à côte** ;
-- suivre et relire leur travail au même endroit ;
-- les piloter avec l'intelligence de l'IDE ;
-- utiliser les agents déjà connus : **Codex, Gemini, GitHub Copilot, Claude, Junie**, et
-  d'autres via **ACP** ;
-- utiliser **Junie Lite gratuitement** si l'on n'a pas d'agent/abonnement ;
-- laisser les agents travailler avec les outils déterministes de l'IDE (moins d'erreurs,
-  moins de tokens).
+- run several code agents **side by side**;
+- follow and review their work in the same place;
+- steer them with the IDE's intelligence;
+- use the already known agents: **Codex, Gemini, GitHub Copilot, Claude, Junie**, and
+  others via **ACP**;
+- use **Junie Lite for free** if you have no agent/subscription;
+- let agents work with the IDE's deterministic tools (fewer errors,
+  fewer tokens).
 
-**Point clé** : Air est un **environnement d'orchestration d'agents dans l'IDE**, pas un
-provider IA et pas une dépendance runtime de l'application. Le brief demande de
-**construire avec Air**, pas d'appeler une API Air depuis l'app.
+**Key point**: Air is an **agent orchestration environment inside the IDE**, not an
+AI provider and not a runtime dependency of the application. The brief asks you to
+**build with Air**, not to call an Air API from the app.
 
-## 2. Description du challenge
+## 2. Challenge description
 
-Kotlin Multiplatform (KMP) permet de partager du code entre plateformes tout en gardant
-des expériences natives. Le but est de construire une **app cross-platform** avec KMP :
+Kotlin Multiplatform (KMP) lets you share code across platforms while keeping
+native experiences. The goal is to build a **cross-platform app** with KMP:
 
-- écrire la logique une fois et la réutiliser sur Android, iOS, web ou desktop ;
-- rester platform-specific là où c'est nécessaire ;
-- explorer comment le shared logic rend le développement plus efficace ;
-- livrer un produit **poli et user-friendly**.
+- write the logic once and reuse it on Android, iOS, web or desktop;
+- stay platform-specific where it is necessary;
+- explore how shared logic makes development more efficient;
+- ship a **polished and user-friendly** product.
 
-L'app peut être :
+The app can be:
 
-- à impact social (communautés, sensibilisation, problèmes réels) ;
-- ou simple et fun (to-do, météo, quiz).
+- social impact (communities, awareness, real problems);
+- or simple and fun (to-do, weather, quiz).
 
-L'important : apprendre, expérimenter, contribuer, et construire avec KMP.
+What matters: learn, experiment, contribute, and build with KMP.
 
-## 3. Features qui donnent des points bonus
+## 3. Features that earn bonus points
 
 - **Dark/light mode**
-- **Localisation** (multi-langues)
-- **Jetpack Compose / Compose Multiplatform** pour l'UI
+- **Localization** (multi-language)
+- **Jetpack Compose / Compose Multiplatform** for the UI
 - **Kotlin backend integration**
-- **Shared AI/agent logic** : si l'app a une feature IA, un framework Kotlin-native comme
-  **Koog** permet d'écrire la logique une fois dans `commonMain` et de la faire tourner sur
-  toutes les cibles. Ce n'est pas obligatoire et il ne faut pas forcer une feature IA si
-  l'idée n'en a pas besoin.
+- **Shared AI/agent logic**: if the app has an AI feature, a Kotlin-native framework such as
+  **Koog** lets you write the logic once in `commonMain` and run it on
+  all targets. It is not mandatory, and you should not force an AI feature if
+  the idea does not need one.
 
-## 4. Résultat final
+## 4. Final result
 
-Une app qui tourne sur **au moins 2 plateformes**.
+An app that runs on **at least 2 platforms**.
 
-## 5. Critères de jugement
+## 5. Judging criteria
 
-1. **Implementation and Proof of Concept** — l'app tourne vraiment sur au moins 2
-   plateformes, avec la fonctionnalité centrale qui marche.
-2. **User Experience and Interface** — poli et **native-feeling** sur chaque plateforme,
-   pas seulement fonctionnel.
-3. **Technical Features** — part de logique réellement partagée (`commonMain`) vs dupliquée
-   par plateforme ; Compose Multiplatform, backend integration, localisation, shared
-   AI/agent logic quand c'est pertinent.
-4. **Innovation and Creativity** — originalité de l'idée, surtout pour le social-good track.
-5. **Agentic Development Process** — **points bonus, non obligatoires** : des agents dans
-   **JetBrains Air** ont-ils fait du vrai travail pendant que les humains relisaient et
-   pilotaient ? Bonus supplémentaire pour le **multi-agent** : agents différents sur le
-   shared code et le platform-specific code, ou comparaison de leurs résultats.
-6. **Presentation** — clarté de la démo, avec un compte rendu explicite de ce qui est
-   partagé entre plateformes et de ce qui reste spécifique.
+1. **Implementation and Proof of Concept** — the app really runs on at least 2
+   platforms, with the core feature working.
+2. **User Experience and Interface** — polished and **native-feeling** on each platform,
+   not just functional.
+3. **Technical Features** — the share of logic genuinely shared (`commonMain`) vs duplicated
+   per platform; Compose Multiplatform, backend integration, localization, shared
+   AI/agent logic where relevant.
+4. **Innovation and Creativity** — originality of the idea, especially for the social-good track.
+5. **Agentic Development Process** — **bonus points, not mandatory**: did agents in
+   **JetBrains Air** do real work while humans reviewed and
+   steered? Extra bonus for **multi-agent**: different agents on the
+   shared code and the platform-specific code, or a comparison of their results.
+6. **Presentation** — clarity of the demo, with an explicit account of what is
+   shared across platforms and what stays platform-specific.
 
-## 6. Ressources utiles
+## 6. Useful resources
 
-- KMP templates : https://kmp.jetbrains.com
-- KMP docs : https://kotlinlang.org/docs/multiplatform/multiplatform-create-first-app.html
-- Compose Multiplatform : https://www.jetbrains.com/compose-multiplatform/
-- Vidéo MVI + Compose Multiplatform : https://youtu.be/dveR4xWid4Q
-- Air in JetBrains IDEs / plugin Air : https://blog.jetbrains.com/ai/2026/10/air-in-ides-eap/
-- Junie / Junie Lite : https://junie.jetbrains.com
-- Koog : https://docs.koog.ai
+- KMP templates: https://kmp.jetbrains.com
+- KMP docs: https://kotlinlang.org/docs/multiplatform/multiplatform-create-first-app.html
+- Compose Multiplatform: https://www.jetbrains.com/compose-multiplatform/
+- MVI + Compose Multiplatform video: https://youtu.be/dveR4xWid4Q
+- Air in JetBrains IDEs / Air plugin: https://blog.jetbrains.com/ai/2026/10/air-in-ides-eap/
+- Junie / Junie Lite: https://junie.jetbrains.com
+- Koog: https://docs.koog.ai
 
-## 7. Lecture pour Nitpick
+## 7. Reading for Nitpick
 
-| Exigence / bonus | Nitpick | Statut |
+| Requirement / bonus | Nitpick | Status |
 | --- | --- | --- |
-| App sur **2 plateformes** | Desktop JVM + Android | P0 — en cours |
-| KMP / shared logic | `commonMain` + `jvmShared` | P0 — en place |
-| Compose Multiplatform | UI `commonMain` | en place |
-| Dark/light | `ThemeMode` + thème | en place |
-| Localisation EN/FR | `composeResources` | en cours |
+| App on **2 platforms** | Desktop JVM + Android | P0 — in progress |
+| KMP / shared logic | `commonMain` + `jvmShared` | P0 — in place |
+| Compose Multiplatform | UI `commonMain` | in place |
+| Dark/light | `ThemeMode` + theme | in place |
+| Localization EN/FR | `composeResources` | in progress |
 | Shared AI/agent logic (Koog) | `ReviewAgent` + Koog | P0 — #20 |
-| Kotlin backend | serveur Ktor `server/` : partage des reviews (`CONTEXT.md` §7.1) | P0 après la porte de 21:00 |
-| Air / Junie process | H1/H2/H3 utilisent Air | à prouver |
-| Multi-agent | Junie + second agent sur une tâche | à faire |
-| Démo claire | `docs/DEMO.md` + captures Air | à faire |
+| Kotlin backend | Ktor `server/` server: review sharing (`CONTEXT.md` §7.1) | P0 after the 21:00 gate |
+| Air / Junie process | H1/H2/H3 use Air | to prove |
+| Multi-agent | Junie + second agent on one task | to do |
+| Clear demo | `docs/DEMO.md` + Air screenshots | to do |
 
-## 8. Décisions qui découlent du brief
+## 8. Decisions that follow from the brief
 
-1. **Air/Junie = process de développement**, pas une API dans l'app.
-2. **Koog = moteur IA du produit**, dans `commonMain` ([#20](https://github.com/Nitpick-org/nitpick-core/issues/20)).
-3. **Preuves Air** : captures, `AGENT_LOG.md`, `REVIEW_LOG.md`, comparaison de deux agents.
-4. **Pas d'intégration runtime Air/Junie** dans Nitpick pour le hackathon : hors scope,
-   fallback CLI documenté si besoin.
-5. **Au moins 2 plateformes** : desktop + Android ; la démo doit le montrer.
-6. **Les 5 features bonus sont visées**, backend Kotlin compris : un serveur Ktor qui
-   partage les reviews, alors que la review elle-même reste locale.
+1. **Air/Junie = development process**, not an API inside the app.
+2. **Koog = the product's AI engine**, in `commonMain` ([#20](https://github.com/Nitpick-org/nitpick-core/issues/20)).
+3. **Air evidence**: screenshots, `AGENT_LOG.md`, `REVIEW_LOG.md`, comparison of two agents.
+4. **No Air/Junie runtime integration** in Nitpick for the hackathon: out of scope,
+   documented CLI fallback if needed.
+5. **At least 2 platforms**: desktop + Android; the demo must show it.
+6. **All 5 bonus features are targeted**, Kotlin backend included: a Ktor server that
+   shares reviews, while the review itself stays local.
 
-## 9. Ce qu'il faut montrer au jury
+## 9. What to show the jury
 
-- Une app qui tourne sur desktop **et** Android.
-- La boucle review : diff → nits inline → apply → commit.
-- Une review partagée depuis le desktop par le backend Ktor, puis ouverte sur Android.
-- Ce qui est partagé (`commonMain`, Koog) vs spécifique.
-- Les captures Air avec les agents côte à côte + une correction humaine.
-- Une comparaison multi-agent (même tâche, deux agents, résultat conservé).
-- Une démo de 3 minutes, sans slides.
+- An app that runs on desktop **and** Android.
+- The review loop: diff → inline nits → apply → commit.
+- A review shared from the desktop by the Ktor backend, then opened on Android.
+- What is shared (`commonMain`, Koog) vs platform-specific.
+- Air screenshots with the agents side by side + one human correction.
+- A multi-agent comparison (same task, two agents, kept result).
+- A 3-minute demo, without slides.

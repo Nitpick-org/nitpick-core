@@ -1,23 +1,23 @@
 # Ticket 140 — Pull is a silent no-op while suggestions are applied or a review runs
 
-- Statut : fait
-- Propriétaire humain : @pepito2t (H3)
-- Piste : B git+desktop, C android
-- Agent : Claude Code (Fable 5.1), session humaine
-- Model : fable
-- Fichiers autorisés : `ui/repository/{RepositoryViewModel,SyncStatus,RepositoryScreen}.kt`,
-  `ui/phone/PhoneGraphScreen.kt`, strings EN/FR, `RepositoryViewModelTest.kt`
+- Status: done
+- Human owner: @pepito2t (H3)
+- Track: B git+desktop, C android
+- Agent: Claude Code (Fable 5.1), human session
+- Model: fable
+- Allowed files: `ui/repository/{RepositoryViewModel,SyncStatus,RepositoryScreen}.kt`,
+  `ui/phone/PhoneGraphScreen.kt`, EN/FR strings, `RepositoryViewModelTest.kt`
 
-## Fait
+## Done
 
-- `RepositoryUiState.isPullBlocked` (suggestions appliquées non commitées, ou review en cours) ;
-  `pullBranch` l'utilise à la place de la condition inline.
-- Desktop : action Pull à 50 % d'opacité, clic ignoré, tooltip « Commit the applied suggestions
-  before pulling or switching branch ». Téléphone : bouton Pull désactivé.
-- Ligne de statut sync (desktop et Graph téléphone) : même phrase tant que des suggestions sont
-  appliquées, pour dire pourquoi au lieu de ne rien faire.
-- Test : `pullIsBlockedAndSaysSoWhileSuggestionsAreApplied`.
+- `RepositoryUiState.isPullBlocked` (applied suggestions not committed, or a review running);
+  `pullBranch` uses it instead of the inline condition.
+- Desktop: Pull action at 50 % opacity, click ignored, tooltip "Commit the applied suggestions
+  before pulling or switching branch". Phone: Pull button disabled.
+- Sync status line (desktop and phone Graph): same sentence while suggestions are
+  applied, to say why instead of doing nothing.
+- Test: `pullIsBlockedAndSaysSoWhileSuggestionsAreApplied`.
 
-## Journal
+## Log
 
-- 02:05 — worktree, fix, check vert.
+- 02:05 — worktree, fix, check green.

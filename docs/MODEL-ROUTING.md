@@ -1,147 +1,147 @@
-# Model routing — dépenser les tokens au bon endroit
+# Model routing — spending tokens in the right place
 
-> Objectif : sur 24 h, avec 2 comptes Ultra, utiliser **le modèle le moins cher qui peut
-> finir la tâche**. On ne monte en puissance que sur preuve. On ne descend jamais en
-> qualité sur une décision à fort enjeu.
+> Goal: over 24 h, with 2 Ultra accounts, use **the cheapest model that can
+> finish the task**. We escalate only on evidence. We never lower
+> quality on a high-stakes decision.
 
-## Les 4 tiers
+## The 4 tiers
 
-| Tier | Modèle | Pour | À éviter |
+| Tier | Model | For | Avoid |
 | --- | --- | --- | --- |
-| **T0** | Haiku | docs, progress, résumés, changelog, données de test, messages de commit | architecture, code complexe, pitch |
-| **T1** | Sonnet | code standard, tests, UI, recherche, QA, docs nuancées | refactor risqué, auth/sécurité, review finale |
-| **T2** | Opus | architecture, review, code critique, pitch, avocat du diable, debug bloquant | docs-only, formatage, renommage |
-| **T3** | Fable | **manuel uniquement** : idée, modules, pitch final, bug > 30 min | tout le reste, et jamais en AFK |
+| **T0** | Haiku | docs, progress, summaries, changelog, test data, commit messages | architecture, complex code, pitch |
+| **T1** | Sonnet | standard code, tests, UI, research, QA, nuanced docs | risky refactor, auth/security, final review |
+| **T2** | Opus | architecture, review, critical code, pitch, devil's advocate, blocking debug | docs-only, formatting, renaming |
+| **T3** | Fable | **manual only**: idea, modules, final pitch, bug > 30 min | everything else, and never in AFK |
 
-> Fable a une limite hebdomadaire séparée et consomme plus vite. Il ne doit jamais être
-> utilisé par un agent en automatique.
+> Fable has a separate weekly limit and consumes faster. It must never be
+> used by an agent automatically.
 
-## Table de routage
+## Routing table
 
-| Tâche | Agent | Modèle | maxTurns |
+| Task | Agent | Model | maxTurns |
 | --- | --- | --- | --- |
-| Doc factuelle, README, progress, résumé | `scribe` | Haiku | 10–15 |
-| Doc publique nuancée (onboarding, guide) | `scribe` | Sonnet | 15–20 |
-| Petit code, test, UI simple | `implementer` | Sonnet | 20–30 |
-| Code complexe/cross-module, auth/sécurité, ou critique démo avec risque ≥ moyen | `implementer` | Opus | 40–50 |
-| Recherche standard | `researcher` | Sonnet | 20–30 |
-| Recherche ambiguë / structurante | `researcher` | Opus | 30 |
-| Review de code | `reviewer` | Opus | 25 |
-| Review docs-only | `scribe` / humain | Haiku | 10 |
-| QA standard | `qa-demo` | Sonnet | 25–30 |
-| Bug bloquant / flaky | `qa-demo` | Opus | 30 |
+| Factual doc, README, progress, summary | `scribe` | Haiku | 10–15 |
+| Nuanced public doc (onboarding, guide) | `scribe` | Sonnet | 15–20 |
+| Small code, test, simple UI | `implementer` | Sonnet | 20–30 |
+| Complex/cross-module code, auth/security, or demo-critical with risk ≥ medium | `implementer` | Opus | 40–50 |
+| Standard research | `researcher` | Sonnet | 20–30 |
+| Ambiguous / structural research | `researcher` | Opus | 30 |
+| Code review | `reviewer` | Opus | 25 |
+| Docs-only review | `scribe` / human | Haiku | 10 |
+| Standard QA | `qa-demo` | Sonnet | 25–30 |
+| Blocking / flaky bug | `qa-demo` | Opus | 30 |
 | Architecture / tickets | `architect` | Opus | 20 |
-| Challenge PRD | `devils-advocate` | Opus | 20 |
-| Pitch / PRD | `pitch` (H1 décide) | Opus | 20 |
+| Challenge the PRD | `devils-advocate` | Opus | 20 |
+| Pitch / PRD | `pitch` (H1 decides) | Opus | 20 |
 
-## Escalade : quand monter
+## Escalation: when to go up
 
-Un tier au-dessus si :
+One tier up if:
 
-- 2 tentatives échouées sur le même point ;
-- `./scripts/check.sh` rouge après 2 corrections ;
-- ticket `critique démo` **et** risque `moyen`/`haut` (un critique démo à risque bas reste Sonnet) ;
-- changement cross-module, auth, sécurité, données, contrat d'API ;
-- l'agent dit « bloqué » ou « incertain » deux fois.
+- 2 failed attempts on the same point;
+- `./scripts/check.sh` red after 2 fixes;
+- ticket `demo-critical` **and** risk `medium`/`high` (a demo-critical ticket at low risk stays Sonnet);
+- cross-module change, auth, security, data, API contract;
+- the agent says "blocked" or "uncertain" twice.
 
-**Haiku → Sonnet** : la doc devient un guide public, ou le résumé doit être exact.
-**Sonnet → Opus** : le code touche plusieurs modules, la démo, l'auth, ou les tests
-échouent sans explication.
-**Opus → Fable** : jamais automatique. Un humain décide, hors AFK.
+**Haiku → Sonnet**: the doc becomes a public guide, or the summary must be exact.
+**Sonnet → Opus**: the code touches several modules, the demo, auth, or the tests
+fail without explanation.
+**Opus → Fable**: never automatic. A human decides, outside AFK.
 
-## Dé-escalade : quand descendre
+## De-escalation: when to go down
 
-- docs-only, formatage, renommage, données de test, résumé ;
-- diff < 50 lignes, un seul fichier, déjà couvert par un test ;
-- tâche répétitive (10e ticket du même type) avec un pattern connu.
+- docs-only, formatting, renaming, test data, summary;
+- diff < 50 lines, a single file, already covered by a test;
+- repetitive task (10th ticket of the same type) with a known pattern.
 
-## Comment override dans Claude Code
+## How to override in Claude Code
 
-Le modèle se choisit **au moment d'invoquer l'agent**, pas dans son prompt :
+The model is chosen **at the moment of invoking the agent**, not in its prompt:
 
 ```text
-Utilise implementer avec le modèle sonnet pour le ticket #12.
-Utilise scribe pour mettre à jour README.md.
-Utilise researcher avec le modèle opus pour trancher l'API sponsor.
-Utilise reviewer sur le diff.
+Use implementer with the sonnet model for ticket #12.
+Use scribe to update README.md.
+Use researcher with the opus model to settle the sponsor API.
+Use reviewer on the diff.
 ```
 
-- `haiku`, `sonnet`, `opus`, `fable` sont des alias acceptés.
-- Le modèle par défaut de l'agent reste dans son frontmatter ; l'override ponctuel ne le
-  change pas.
-- Un agent **ne peut pas changer son propre modèle en cours de run**. S'il demande une
-  escalade, l'orchestrateur le relance avec le modèle supérieur (nouvelle invocation,
-  même ticket).
+- `haiku`, `sonnet`, `opus`, `fable` are accepted aliases.
+- The agent's default model stays in its frontmatter; the one-off override does not
+  change it.
+- An agent **cannot change its own model mid-run**. If it asks for an
+  escalation, the orchestrator relaunches it with the higher model (new invocation,
+  same ticket).
 
-## Budgets indicatifs
+## Indicative budgets
 
-| Tier | Tokens par tâche | Signal d'alerte |
+| Tier | Tokens per task | Warning signal |
 | --- | --- | --- |
-| T0 | < 20 k | un doc qui prend 50 k = mauvais prompt |
-| T1 | < 100 k | 2 échecs = escalade, pas 5 essais |
-| T2 | < 250 k | au-delà, découper le ticket |
-| T3 | manuel | jamais en AFK |
+| T0 | < 20 k | a doc that takes 50 k = bad prompt |
+| T1 | < 100 k | 2 failures = escalation, not 5 tries |
+| T2 | < 250 k | beyond that, split the ticket |
+| T3 | manual | never in AFK |
 
-Le budget hebdomadaire des comptes Ultra est dans `docs/ULTRA.md`. Vérifie `/usage` à
-chaque sync.
+The weekly budget of the Ultra accounts is in `docs/ULTRA.md`. Check `/usage` at
+every sync.
 
 ### AFK
 
-`ralph-once.sh` et `afk-ralph.sh` forcent un modèle explicite : `RALPH_MODEL` /
-`AFK_MODEL`, défaut **Sonnet**. Fable est refusé. Sans ce garde-fou, un `claude -p` sans
-`--model` prend le modèle par défaut de la machine — et un AFK peut brûler le budget en
-quelques secondes.
+`ralph-once.sh` and `afk-ralph.sh` force an explicit model: `RALPH_MODEL` /
+`AFK_MODEL`, default **Sonnet**. Fable is refused. Without this guardrail, a `claude -p` without
+`--model` takes the machine's default model — and an AFK can burn the budget in
+a few seconds.
 
-## Journalisation
+## Logging
 
-Dans `progress/<ticket>.md` :
+In `progress/<ticket>.md`:
 
 ```md
 - Model: sonnet
-- Escalations: sonnet → opus (2 échecs sur le parsing CSV)
-- Why: le ticket est critique démo et le test e2e échoue
+- Escalations: sonnet → opus (2 failures on CSV parsing)
+- Why: the ticket is demo-critical and the e2e test fails
 ```
 
-À la rétro, si un doc a consommé Opus, c'est un bug de routage.
+At the retro, if a doc consumed Opus, that is a routing bug.
 
-## Automatisation
+## Automation
 
-- **Skill `/route-task`** : classifie la tâche et rend une décision
-  `agent / model / maxTurns / escalade`. Claude peut l'invoquer seul quand la description
-  correspond.
-- **CLAUDE.md** : règle « classer avant de déléguer, commencer bas, escalader sur preuve ».
-- **`scribe`** : agent docs-only sur Haiku. C'est le défaut pour README, progress, résumés.
-- **`Explore` / `Plan`** : reconnaissance codebase read-only, pas un agent custom.
-- **`Stop` + `check.sh`** : empêchent de déclarer « fini » trop tôt.
+- **`/route-task` skill**: classifies the task and returns a decision
+  `agent / model / maxTurns / escalade`. Claude can invoke it alone when the description
+  matches.
+- **CLAUDE.md**: rule "classify before delegating, start low, escalate on evidence".
+- **`scribe`**: docs-only agent on Haiku. It is the default for README, progress, summaries.
+- **`Explore` / `Plan`**: read-only codebase reconnaissance, not a custom agent.
+- **`Stop` + `check.sh`**: prevent declaring "done" too early.
 
-## Exemples
+## Examples
 
-| Demande | Route |
+| Request | Route |
 | --- | --- |
-| « Mets à jour le README avec le dry run » | `scribe` / Haiku / 10 |
-| « Réécris l'onboarding pour qu'il soit limpide » | `scribe` / Sonnet / 20 |
-| « Ajoute le parser CSV + tests » | `implementer` / Sonnet / 25 ; Opus si 2 échecs |
-| « Pourquoi le test e2e est flaky ? » | `qa-demo` / Sonnet / 20 ; Opus si non reproductible |
-| « Review la PR auth » | `reviewer` / Opus / 25 |
-| « Trouve le pricing de l'API sponsor » | `researcher` / Sonnet / 20 |
-| « Découpe le PRD en modules » | `architect` / Opus / 20 |
-| « Écris le pitch de 2:45 » | `pitch` / Opus / 20 ; Fable manuel si bloqué |
+| "Update the README with the dry run" | `scribe` / Haiku / 10 |
+| "Rewrite the onboarding so that it is crystal clear" | `scribe` / Sonnet / 20 |
+| "Add the CSV parser + tests" | `implementer` / Sonnet / 25; Opus if 2 failures |
+| "Why is the e2e test flaky?" | `qa-demo` / Sonnet / 20; Opus if not reproducible |
+| "Review the auth PR" | `reviewer` / Opus / 25 |
+| "Find the pricing of the sponsor API" | `researcher` / Sonnet / 20 |
+| "Split the PRD into modules" | `architect` / Opus / 20 |
+| "Write the 2:45 pitch" | `pitch` / Opus / 20; manual Fable if blocked |
 
 ## Anti-patterns
 
-| Anti-pattern | Coût | Correction |
+| Anti-pattern | Cost | Fix |
 | --- | --- | --- |
-| Opus pour un README | 5–10× le coût | `scribe` / Haiku |
-| Sonnet pour une review sécurité | risque | `reviewer` / Opus |
-| Fable par défaut | limite séparée vidée | manuel, décisions clés |
-| 5 essais Sonnet au lieu d'une escalade | temps + tokens | 2 échecs → Opus |
-| Re-lire tout le repo à chaque tour | contexte saturé | cibler ticket + `progress/` |
-| Sous-agent pour une décision produit | dérive | humain |
-| Agent qui s'auto-attribue Opus | pas de contrôle | orchestrateur décide |
+| Opus for a README | 5–10× the cost | `scribe` / Haiku |
+| Sonnet for a security review | risk | `reviewer` / Opus |
+| Fable by default | separate limit drained | manual, key decisions |
+| 5 Sonnet tries instead of an escalation | time + tokens | 2 failures → Opus |
+| Re-reading the whole repo at every turn | saturated context | target the ticket + `progress/` |
+| Sub-agent for a product decision | drift | human |
+| Agent that assigns itself Opus | no control | orchestrator decides |
 
 ## Sources
 
-- [Claude Code — subagents](https://code.claude.com/docs/en/sub-agents) : modèle par agent, `model: inherit`, override par invocation.
-- [Claude Code — modèles](https://code.claude.com/docs/en/model-config) : alias et effort.
-- [Claude Code — coûts](https://code.claude.com/docs/en/costs) : multi-agent ≈ 15× un chat.
-- [AI Hero — Ralph](https://www.aihero.dev/tips-for-ai-coding-with-ralph-wiggum) : petits pas, feedback loops.
+- [Claude Code — subagents](https://code.claude.com/docs/en/sub-agents): model per agent, `model: inherit`, override per invocation.
+- [Claude Code — models](https://code.claude.com/docs/en/model-config): aliases and effort.
+- [Claude Code — costs](https://code.claude.com/docs/en/costs): multi-agent ≈ 15× a chat.
+- [AI Hero — Ralph](https://www.aihero.dev/tips-for-ai-coding-with-ralph-wiggum): small steps, feedback loops.

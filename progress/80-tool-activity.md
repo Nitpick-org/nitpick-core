@@ -1,37 +1,37 @@
 # Ticket 80-tool-activity
 
-- Statut : prêt pour PR
-- Propriétaire humain : @dovatgabriel (H1) ; implémentation H2
-- Piste : A + B
-- Agent : lead
-- Fichiers : `domain/{Review,ReviewToolUse}.kt`, `review/{LlmReviewAgent,ReviewToolbox}.kt`,
+- Status: ready for PR
+- Human owner: @dovatgabriel (H1); H2 implementation
+- Track: A + B
+- Agent: lead
+- Files: `domain/{Review,ReviewToolUse}.kt`, `review/{LlmReviewAgent,ReviewToolbox}.kt`,
   `ui/repository/ReviewPanel.kt`, `commonTest/.../LlmReviewAgentTest.kt`, strings
 
-## Journal
+## Log
 
-- 23:25 — `ReviewToolUse(tool, path)` passe dans `ReviewResult` (défaut vide, compatible
-  avec les reviews partagées existantes). `LlmReviewAgent` collecte les appels de sa toolbox.
-- 23:28 — carte résumé Review : ligne « Tools used: Pricing.kt » (chemins distincts, sans
-  contenu ni clé), visible seulement si des outils ont servi.
-- 23:30 — test : un client tool-capable qui lit `Main.kt` produit
-  `ReviewToolUse("read_file","Main.kt")` dans le résultat.
+- 23:25 — `ReviewToolUse(tool, path)` moves into `ReviewResult` (empty default, compatible
+  with existing shared reviews). `LlmReviewAgent` collects the calls of its toolbox.
+- 23:28 — Review summary card: "Tools used: Pricing.kt" line (distinct paths, with no
+  content and no key), visible only if tools were used.
+- 23:30 — test: a tool-capable client that reads `Main.kt` produces
+  `ReviewToolUse("read_file","Main.kt")` in the result.
 
-## Décisions
+## Decisions
 
-- `toolUses` est un champ du résultat, pas un état UI séparé : une review partagée garde
-  la trace de ses outils.
-- Pas de compteur grammatical pour l’instant : on liste les chemins, ce qui évite le bug
-  de pluriel #90.
+- `toolUses` is a field of the result, not a separate UI state: a shared review keeps
+  the trace of its tools.
+- No grammatical counter for now: we list the paths, which avoids plural
+  bug #90.
 
-## Vérifications
+## Checks
 
-- `:shared:jvmTest --rerun-tasks` : **137 tests, 0 échec**.
-- `:shared:compileKotlinJvm` + `:desktopApp:compileKotlin` verts.
-- Android non rejoué (SDK absent).
+- `:shared:jvmTest --rerun-tasks`: **137 tests, 0 failure**.
+- `:shared:compileKotlinJvm` + `:desktopApp:compileKotlin` green.
+- Android not replayed (SDK missing).
 
-## Incertain
+## Uncertain
 
-- La ligne peut être longue sur un petit écran ; limitée à 2 lignes et aux chemins
-  distincts.
-- `ReviewResult` gagne un champ sérialisé : les anciens JSON restent lisibles grâce au
-  défaut, à vérifier côté serveur de partage (#46/#48).
+- The line can be long on a small screen; limited to 2 lines and to distinct
+  paths.
+- `ReviewResult` gains a serialized field: the old JSON stays readable thanks to the
+  default, to be checked on the sharing server side (#46/#48).

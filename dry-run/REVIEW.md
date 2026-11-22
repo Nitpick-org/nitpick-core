@@ -1,136 +1,136 @@
-# Review de la base — <ton prénom>
+# Base review — <your first name>
 
-> À remplir après le dry run. **20 minutes max.** Sois direct, donne des preuves, ne réécris
-> pas les docs : propose. Le but est de corriger la base avant H0, pas de choisir l'idée.
+> To fill in after the dry run. **20 minutes max.** Be direct, give evidence, do not
+> rewrite the docs: propose. The goal is to fix the base before H0, not to choose the idea.
 >
-> Si tu as 5 minutes : sections **1**, **6** et **8**. Si tu as 20 minutes : tout.
+> If you have 5 minutes: sections **1**, **6** and **8**. If you have 20 minutes: everything.
 
-## Comment remplir
+## How to fill it in
 
-1. **Verdict** (2 min) : note, GO/NO-GO, top 3.
-2. **Preuves** (12 min) : temps, bugs, agents, docs.
-3. **Recommandations** (6 min) : P0 / P1 / P2.
+1. **Verdict** (2 min): score, GO/NO-GO, top 3.
+2. **Evidence** (12 min): time, bugs, agents, docs.
+3. **Recommendations** (6 min): P0 / P1 / P2.
 
-Règles :
+Rules:
 
-- Dur sur le fond, pas sur les personnes.
-- Une affirmation = une preuve : commande, message d'erreur, timestamp, capture.
-- Distingue **bug**, **friction**, **préférence**.
-- Si tu n'as pas testé, écris « non testé ». Ne devine pas.
-- Pas d'idée produit ici : la review porte sur la base, les docs, les agents et le rythme.
+- Hard on the substance, not on the people.
+- One claim = one piece of evidence: command, error message, timestamp, screenshot.
+- Distinguish **bug**, **friction**, **preference**.
+- If you did not test it, write "not tested". Do not guess.
+- No product idea here: the review covers the base, the docs, the agents and the pace.
 
 ---
 
-## 0. Contexte
+## 0. Context
 
-| Champ | Valeur |
+| Field | Value |
 | --- | --- |
-| Review de | <prénom> |
+| Reviewed by | <first name> |
 | Date | |
-| Commit testé | `...` |
+| Commit tested | `...` |
 | OS / Node / pnpm / Claude Code | |
-| Compte | Ultra / Pro / autre |
-| Temps total passé | |
-| Dry run fait dans | clone jetable / autre |
-| Branche | `dry-run/base` |
-| `./scripts/check.sh` final | ✅ / ❌ |
-| `./scripts/check.sh --demo` final | ✅ / ❌ |
-| Démo 3 min tenue | ✅ / ❌ |
+| Plan | Ultra / Pro / other |
+| Total time spent | |
+| Dry run done in | disposable clone / other |
+| Branch | `dry-run/base` |
+| Final `./scripts/check.sh` | ✅ / ❌ |
+| Final `./scripts/check.sh --demo` | ✅ / ❌ |
+| 3-min demo held | ✅ / ❌ |
 
-## 1. Verdict en 30 secondes
+## 1. Verdict in 30 seconds
 
-| Dimension | Poids | Note /5 | Points |
+| Dimension | Weight | Score /5 | Points |
 | --- | --- | --- | --- |
 | Onboarding | 4 | | |
 | Dry run | 5 | | |
 | Docs | 3 | | |
-| Agents / modèles | 4 | | |
-| Confiance pour H0 | 4 | | |
+| Agents / models | 4 | | |
+| Confidence for H0 | 4 | | |
 | **Total** | **20** | | **/20** |
 
-- **GO / NO-GO pour H0** :
-- **Les 3 choses à corriger avant H0** :
+- **GO / NO-GO for H0**:
+- **The 3 things to fix before H0**:
   1.
   2.
   3.
-- **La chose qui te ferait gagner le plus de temps** :
-- **La chose la plus solide de la base** :
+- **The thing that would save you the most time**:
+- **The most solid thing in the base**:
 
 ## 2. Onboarding
 
-| Étape | Temps | Statut | Blocage / commentaire |
+| Step | Time | Status | Blocker / comment |
 | --- | --- | --- | --- |
 | Invitation + clone | | ✅ / ⚠️ / ❌ | |
 | Hooks + `.env` | | | |
-| Connexion Claude / Ultra | | | |
+| Claude / Ultra login | | | |
 | Skills + `/setup-matt-pocock-skills` | | | |
 | `doctor.sh` | | | |
-| Premier agent lancé | | | |
-| Premier worktree | | | |
-| Premier `check.sh` vert | | | |
+| First agent launched | | | |
+| First worktree | | | |
+| First green `check.sh` | | | |
 
-- Temps jusqu'au premier `check.sh` vert :
-- Ce qui était clair :
-- Ce qui était ambigu :
-- Ce qui manquait :
-- **Suggestion concrète** :
+- Time to the first green `check.sh`:
+- What was clear:
+- What was ambiguous:
+- What was missing:
+- **Concrete suggestion**:
 
-### Signaux faibles
+### Weak signals
 
-- J'ai hésité à :
-- J'ai supposé que :
-- Je n'ai pas compris :
-- J'ai cherché sans trouver :
+- I hesitated to:
+- I assumed that:
+- I did not understand:
+- I searched without finding:
 
 ## 3. Dry run
 
-| Métrique | Valeur |
+| Metric | Value |
 | --- | --- |
-| Temps jusqu'au premier `check.sh` vert | |
-| Temps jusqu'au premier commit d'agent | |
-| Temps jusqu'au premier merge | |
-| Temps jusqu'à la première démo | |
-| Tickets terminés | /3 |
-| Conflits de merge | |
-| `check.sh` vert au premier essai | ✅ / ❌ |
-| `check.sh --demo` vert | ✅ / ❌ |
-| Démo 3 min | ✅ / ❌ |
-| Nombre d'agents utilisés | |
+| Time to the first green `check.sh` | |
+| Time to the first agent commit | |
+| Time to the first merge | |
+| Time to the first demo | |
+| Tickets completed | /3 |
+| Merge conflicts | |
+| `check.sh` green on the first try | ✅ / ❌ |
+| `check.sh --demo` green | ✅ / ❌ |
+| 3-min demo | ✅ / ❌ |
+| Number of agents used | |
 
-- Ce qui a cassé :
-- Ce qui a été plus lent que prévu :
-- Ce qui a été plus rapide que prévu :
-- Ce que tu as dû faire à la main alors que ça devait être automatique :
-- **Le moment où tu as failli abandonner** :
+- What broke:
+- What was slower than expected:
+- What was faster than expected:
+- What you had to do by hand when it was supposed to be automatic:
+- **The moment you almost gave up**:
 
-### Top 3 pertes de temps
+### Top 3 time sinks
 
-| # | Moment | Minutes perdues | Cause | Correctif |
+| # | Moment | Minutes lost | Cause | Fix |
 | --- | --- | --- | --- | --- |
 | 1 | | | | |
 | 2 | | | | |
 | 3 | | | | |
 
-## 4. Docs et repo
+## 4. Docs and repo
 
-| Dimension | Note /5 | Commentaire |
+| Dimension | Score /5 | Comment |
 | --- | --- | --- |
-| Clarté | | |
-| Exactitude | | |
-| Complétude | | |
-| Cohérence FR / EN | | |
-| Longueur / navigabilité | | |
+| Clarity | | |
+| Accuracy | | |
+| Completeness | | |
+| FR / EN consistency | | |
+| Length / navigability | | |
 
-- Doc la plus utile :
-- Doc la plus confuse :
-- Lien mort / commande fausse / contradiction :
-- Ce qu'on peut supprimer :
-- Ce qu'on doit ajouter :
-- Un nouveau collaborateur comprendrait-il le repo en < 30 min ? ✅ / ❌
+- Most useful doc:
+- Most confusing doc:
+- Dead link / wrong command / contradiction:
+- What can be deleted:
+- What must be added:
+- Would a new collaborator understand the repo in < 30 min? ✅ / ❌
 
-## 5. Agents et modèles
+## 5. Agents and models
 
-| Agent | Testé | Modèle | Verdict | Problème / réglage |
+| Agent | Tested | Model | Verdict | Problem / setting |
 | --- | --- | --- | --- | --- |
 | `researcher` | | | | |
 | `devils-advocate` | | | | |
@@ -141,41 +141,41 @@ Règles :
 | `pitch` | | | | |
 | `scribe` | | | | |
 
-- `/route-task` utilisé ? ✅ / ❌ — utile ?
-- `scribe` utilisé pour la doc ? ✅ / ❌ — qualité ?
-- Escalade déclenchée ? ✅ / ❌ — combien, pourquoi ?
-- Modèle le plus utile :
-- Modèle le plus surdimensionné :
-- `/usage` avant / après (ou % consommé) :
-- Où les tokens ont brûlé :
-- Briefs d'agents : assez clairs ? ✅ / ❌
-- Hooks `Stop` / `PreToolUse` : utiles ? fausses alertes ?
-- Ce qui manque dans les agents :
-- Ce qu'on peut supprimer :
+- `/route-task` used? ✅ / ❌ — useful?
+- `scribe` used for the docs? ✅ / ❌ — quality?
+- Escalation triggered? ✅ / ❌ — how many, why?
+- Most useful model:
+- Most oversized model:
+- `/usage` before / after (or % consumed):
+- Where the tokens burned:
+- Agent briefs: clear enough? ✅ / ❌
+- `Stop` / `PreToolUse` hooks: useful? false alarms?
+- What is missing in the agents:
+- What can be deleted:
 
-## 6. Bugs et frictions
+## 6. Bugs and frictions
 
-| # | Sévérité | Où | Repro | Attendu | Obtenu | Correctif proposé |
+| # | Severity | Where | Repro | Expected | Got | Proposed fix |
 | --- | --- | --- | --- | --- | --- | --- |
 | 1 | P0 / P1 / P2 | | | | | |
 | 2 | | | | | | |
 | 3 | | | | | | |
 
-> P0 = bloque la démo ou l'onboarding. P1 = ralentit vraiment. P2 = polish.
+> P0 = blocks the demo or onboarding. P1 = really slows down. P2 = polish.
 
-## 7. Risques pour le vrai hackathon
+## 7. Risks for the real hackathon
 
-| Risque | Probabilité | Impact | Mitigation |
+| Risk | Probability | Impact | Mitigation |
 | --- | --- | --- | --- |
-| Démo | | | |
+| Demo | | | |
 | Timing | | | |
-| Coordination 3 humains | | | |
-| Quota Ultra | | | |
-| Stack / déploiement | | | |
+| Coordination of 3 humans | | | |
+| Ultra quota | | | |
+| Stack / deployment | | | |
 
-## 8. Recommandations
+## 8. Recommendations
 
-### À faire avant H0 (P0)
+### To do before H0 (P0)
 
 1.
 2.
@@ -186,49 +186,49 @@ Règles :
 1.
 2.
 
-### À ignorer / plus tard (P2)
+### To ignore / later (P2)
 
 1.
 2.
 
-## 9. Questions / décisions
+## 9. Questions / decisions
 
-| Question | Options | Ta recommandation |
+| Question | Options | Your recommendation |
 | --- | --- | --- |
 | | | |
 | | | |
 
-## 10. Preuves
+## 10. Evidence
 
-- Commandes lancées :
-- Logs / captures :
-- Branche / commit :
-- Temps par étape :
-- Ce que tu n'as pas testé :
+- Commands run:
+- Logs / screenshots:
+- Branch / commit:
+- Time per step:
+- What you did not test:
 
 ---
 
-## Le message à renvoyer
+## The message to send back
 
 ```text
-Review de <prénom> — commit <sha>
+Review by <first name> — commit <sha>
 
-Note : <x>/20 — GO / NO-GO
+Score: <x>/20 — GO / NO-GO
 
-Top 3 à corriger :
+Top 3 to fix:
 1.
 2.
 3.
 
-Le plus gros gain de temps :
+Biggest time saver:
 - ...
 
-Bugs P0 :
+P0 bugs:
 - ...
 
-Ce qui manque dans les agents :
+What the agents lack:
 - ...
 
-Ce que je n'ai pas testé :
+What I did not test:
 - ...
 ```

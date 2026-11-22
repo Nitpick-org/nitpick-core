@@ -1,64 +1,64 @@
 # Ticket 42-pull
 
-- Statut : fini, à relire puis merger (issue #42)
-- Propriétaire humain : @pepito2t (H3)
-- Piste : B + C
-- Agent : Claude Code, session principale
-- Model : fable
-- Escalations : aucune
-- Fichiers autorisés : shared/src/jvmSharedMain/git, shared/src/commonMain/kotlin/dev/nitpick/app/ui/{repository/RepositoryViewModel.kt,repository/RepositoryScreen.kt,repository/SyncStatus.kt,phone,App.kt}, composeResources, shared/src/{jvmTest,commonTest}
-- Hors limites : toolbar Fetch/Push + compteurs ahead/behind (#36, H2), réglages (#35, PR #69), serveur (#46, PR #67)
+- Status: done, to re-read then merge (issue #42)
+- Human owner: @pepito2t (H3)
+- Track: B + C
+- Agent: Claude Code, main session
+- Model: fable
+- Escalations: none
+- Allowed files: shared/src/jvmSharedMain/git, shared/src/commonMain/kotlin/dev/nitpick/app/ui/{repository/RepositoryViewModel.kt,repository/RepositoryScreen.kt,repository/SyncStatus.kt,phone,App.kt}, composeResources, shared/src/{jvmTest,commonTest}
+- Out of bounds: Fetch/Push toolbar + ahead/behind counters (#36, H2), settings (#35, PR #69), server (#46, PR #67)
 
-## Journal
+## Log
 
-- 20:40 — worktree créé sur `b0af949`. `checkout` est déjà livré par #23 (JGit + onglet Branches sur
-  Android) : le ticket se réduit à `pull`, au checkout depuis l'arbre des branches desktop et à un
-  bouton Pull sur les deux cibles.
-- 20:50 — `JGitRepository.pull` : `PullCommand` (fetch + merge de l'upstream). Statut `CONFLICTING` →
-  `reset --hard` pour remettre l'arbre tel quel et `PullResult(conflictedPaths)` ; `ALREADY_UP_TO_DATE`
-  → `updated = false` ; `FAST_FORWARD`/`MERGED` → `updated = true` ; autre statut → erreur. 3 tests
-  `jvmTest` avec un bare en remote : fast-forward, rien de neuf, conflit annulé (HEAD, fichier et
-  `status()` inchangés). 26 tests JGit verts.
-- 21:00 — `RepositoryViewModel.pullBranch(credentials)` : `isPulling`, `pullError`, `lastPull` ;
-  graphe et refs rechargés, diff rafraîchi seulement si des commits sont arrivés. 2 tests VM (commits
-  reçus, conflit). 21 tests VM verts.
-- 21:10 — UI : desktop → clic sur une branche de l'arbre = checkout (`RefsSidebar.onSelectBranch`),
-  action **Pull** dans la toolbar, résultat du pull / erreur de checkout dans la status bar
-  (`syncStatusMessage`, partagé). Android → action **Pull** dans la barre de l'écran Graph, même
-  message sous le graphe. Strings EN/FR. `check.sh` vert.
-- 21:25 — advisor : `setRebase(false)` sur le pull (un `pull.rebase = true` dans le gitconfig de
-  l'utilisateur aurait laissé `mergeResult` à null → crash) avec test ; le test de conflit vérifie aussi
-  qu'aucun `MERGE_HEAD` ne reste ; un seul garde `isSyncing` pour pull / push / checkout ; un pull qui
-  ramène des commits remet la review à zéro et un checkout efface l'erreur de pull (test). `check.sh`
-  vert (117 tests JVM, 83 hôte Android).
-- 21:40 — review ponytail : le message de pull s'efface après un commit ou un push ; identité de
-  commit (`JGitRepositoryFactory(GitIdentity)`, écrite dans la config locale de chaque clone ; le
-  desktop n'en passe pas et garde son gitconfig) : Android passe « Nitpick on Android », à remplacer par le login du compte
-  forge quand #64 l'obtiendra (`shortcut:` dans `MainActivity`). Test jvm.
+- 20:40 — worktree created on `b0af949`. `checkout` is already shipped by #23 (JGit + Branches tab on
+  Android): the ticket shrinks to `pull`, to checkout from the desktop branch tree and to a
+  Pull button on both targets.
+- 20:50 — `JGitRepository.pull`: `PullCommand` (fetch + merge of the upstream). `CONFLICTING` status →
+  `reset --hard` to put the tree back as-is and `PullResult(conflictedPaths)`; `ALREADY_UP_TO_DATE`
+  → `updated = false`; `FAST_FORWARD`/`MERGED` → `updated = true`; other status → error. 3
+  `jvmTest` tests with a bare remote: fast-forward, nothing new, cancelled conflict (HEAD, file and
+  `status()` unchanged). 26 JGit tests green.
+- 21:00 — `RepositoryViewModel.pullBranch(credentials)`: `isPulling`, `pullError`, `lastPull`;
+  graph and refs reloaded, diff refreshed only if commits arrived. 2 VM tests (commits
+  received, conflict). 21 VM tests green.
+- 21:10 — UI: desktop → click on a branch of the tree = checkout (`RefsSidebar.onSelectBranch`),
+  **Pull** action in the toolbar, pull result / checkout error in the status bar
+  (`syncStatusMessage`, shared). Android → **Pull** action in the bar of the Graph screen, same
+  message under the graph. EN/FR strings. `check.sh` green.
+- 21:25 — advisor: `setRebase(false)` on pull (a `pull.rebase = true` in the user's gitconfig
+  would have left `mergeResult` null → crash) with a test; the conflict test also checks
+  that no `MERGE_HEAD` is left; a single `isSyncing` guard for pull / push / checkout; a pull that
+  brings commits resets the review and a checkout clears the pull error (test). `check.sh`
+  green (117 JVM tests, 83 Android host).
+- 21:40 — ponytail review: the pull message clears after a commit or a push; commit
+  identity (`JGitRepositoryFactory(GitIdentity)`, written into the local config of each clone; the
+  desktop does not pass one and keeps its gitconfig): Android passes "Nitpick on Android", to be replaced by the
+  forge account login when #64 gets it (`shortcut:` in `MainActivity`). jvm test.
 
-## Décisions
+## Decisions
 
-- Pull = `git pull` par défaut (fast-forward si possible, sinon merge) ; un conflit est annulé par
-  `reset --hard`, jamais résolu (WON'T §8). Les chemins en conflit sont remontés à l'UI.
-- Les boutons Fetch/Push et les compteurs ↑n ↓m restent à #36 : ici un seul bouton Pull, que #36
-  complète. Commentaire dans la toolbar pour le dire.
-- Desktop : les credentials viennent de `Settings.gitConnection` s'il existe (saisi aujourd'hui seulement
-  sur Android) ; sinon pull sans credentials, ce qui suffit pour un remote public ou un remote local.
-- Un pull est refusé pendant une review (même raison que le checkout : les nits atterriraient sur un
-  autre état de l'arbre).
+- Pull = `git pull` by default (fast-forward if possible, otherwise merge); a conflict is cancelled by
+  `reset --hard`, never resolved (WON'T §8). The conflicting paths are reported to the UI.
+- The Fetch/Push buttons and the ↑n ↓m counters stay in #36: here a single Pull button, which #36
+  completes. Comment in the toolbar to say so.
+- Desktop: credentials come from `Settings.gitConnection` if it exists (entered today only
+  on Android); otherwise pull without credentials, which is enough for a public remote or a local remote.
+- A pull is refused during a review (same reason as checkout: the nits would land on
+  another state of the tree).
 
-## Incertain
+## Uncertain
 
-- Checkout depuis l'UI desktop non rejoué à la main (pas de pilotage de la fenêtre) : couvert par le
-  test VM `checkingOutABranchReloadsTheGraphAndDropsTheReview` et la même `RefsSidebar` déjà vue sur
-  Android. À cliquer une fois avant merge.
-- Pull sur une branche locale sans upstream : JGit lève une erreur (« no upstream »), affichée telle
-  quelle dans la status bar.
+- Checkout from the desktop UI not replayed by hand (no window driving): covered by the
+  VM test `checkingOutABranchReloadsTheGraphAndDropsTheReview` and the same `RefsSidebar` already seen on
+  Android. To click once before merge.
+- Pull on a local branch without an upstream: JGit raises an error ("no upstream"), shown as-is
+  in the status bar.
 
-## Blocages
+## Blockers
 
-- Aucun.
+- None.
 
-## Suivant
+## Next
 
-- #36 : Fetch / Push / compteurs sur cette base ; #64 : OAuth device flow.
+- #36: Fetch / Push / counters on this base; #64: OAuth device flow.

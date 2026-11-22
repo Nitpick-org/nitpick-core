@@ -1,78 +1,78 @@
 # Ticket 15-open-repo
 
-- Statut : fini, à relire puis merger (issue Nitpick-org/nitpick-core#15)
-- Propriétaire humain : @dovatgabriel
-- Piste : B git+desktop
-- Agent : Claude Code, session principale
-- Model : opus
-- Escalations : aucune
-- Fichiers autorisés : shared/src/jvmSharedMain, shared/src/commonMain/kotlin/dev/nitpick/app/{ui,AppContainer.kt}, shared/src/commonMain/composeResources, shared/src/{jvmTest,commonTest}, desktopApp, androidApp (MainActivity), gradle/libs.versions.toml, shared/build.gradle.kts
+- Status: done, to review then merge (issue Nitpick-org/nitpick-core#15)
+- Human owner: @dovatgabriel
+- Track: B git+desktop
+- Agent: Claude Code, main session
+- Model: opus
+- Escalations: none
+- Allowed files: shared/src/jvmSharedMain, shared/src/commonMain/kotlin/dev/nitpick/app/{ui,AppContainer.kt}, shared/src/commonMain/composeResources, shared/src/{jvmTest,commonTest}, desktopApp, androidApp (MainActivity), gradle/libs.versions.toml, shared/build.gradle.kts
 
-## Journal
+## Log
 
-- 14:16 — worktree créé.
-- 14:20 — `JGitRepository` (jvmSharedMain) : log, refs, currentBranch, status, readFile,
-  listFiles ; les écritures, le réseau et `diffAgainst` lèvent `NotImplementedError`
-  (« … is not implemented yet »). `JGitRepositoryFactory.open` ; `clone` en TODO. Spike supprimé.
-- 14:35 — 12 tests `jvmTest` sur des dépôts temporaires créés avec la CLI git (aucun import
-  JGit dans les tests). Piège : `fun test() = runBlocking { … }` qui finit sur
-  `assertFailsWith` ne renvoie pas `Unit`, JUnit rejette la classe → `runBlocking<Unit>`.
-- 14:50 — UI : `AppContainer` (DI manuelle), `RepositoryViewModel` (StateFlow, état immuable),
-  `RepositoryScreen` 3 panneaux (refs | commits | placeholder détails) avec états vide,
-  chargement et erreur, strings EN + FR, sélecteur de dossier natif dans `desktopApp`.
-  3 tests du ViewModel en `commonTest` avec `FakeGitRepository`, verts sur JVM et hôte Android.
-- 15:00 — `check.sh` vert (21 tests exécutés). App desktop lancée : un vrai dépôt ouvert via
-  le sélecteur affiche ses commits, branches, remote et tag (capture prise).
+- 14:16 — worktree created.
+- 14:20 — `JGitRepository` (jvmSharedMain): log, refs, currentBranch, status, readFile,
+  listFiles; writes, network and `diffAgainst` throw `NotImplementedError`
+  ("… is not implemented yet"). `JGitRepositoryFactory.open`; `clone` in TODO. Spike removed.
+- 14:35 — 12 `jvmTest` tests on temporary repositories created with the git CLI (no JGit
+  import in the tests). Trap: `fun test() = runBlocking { … }` that ends on
+  `assertFailsWith` does not return `Unit`, JUnit rejects the class → `runBlocking<Unit>`.
+- 14:50 — UI: `AppContainer` (manual DI), `RepositoryViewModel` (StateFlow, immutable state),
+  `RepositoryScreen` 3 panels (refs | commits | details placeholder) with empty,
+  loading and error states, EN + FR strings, native folder picker in `desktopApp`.
+  3 ViewModel tests in `commonTest` with `FakeGitRepository`, green on JVM and Android host.
+- 15:00 — `check.sh` green (21 tests executed). Desktop app launched: a real repository opened via
+  the picker displays its commits, branches, remote and tag (screenshot taken).
 
-- 15:40 — revue demandée par l'humain (ponytail-review), 4 points corrigés :
-  worktree lié refusé avec un message clair (JGit 6.10 ne sait pas l'ouvrir), indication
-  « choisissez un dépôt » masquée sans sélecteur, HEAD détachée affichée en id court, faux
-  dépôt réduit à ce que les tests utilisent.
-- 15:45 — **incident** : le hook `pre-commit` exporte `GIT_DIR` et `GIT_INDEX_FILE` ; les
-  commandes git de `TestGitRepo` en ont hérité et ont écrit dans le vrai dépôt (8 commits de
-  test sur la branche du ticket, une branche `feature` et son worktree, index écrasé,
-  `core.bare=true`). Rien de poussé, `main` intact. Restauré (`core.bare=false`, branche
-  ramenée à `d263555` avec `reset --mixed`, branche et worktree parasites supprimés).
-  Cause corrigée : `TestGitRepo` retire tout `GIT_*` hérité ; prouvé en lançant les tests avec
-  un `GIT_DIR` inexistant (13 échecs avant, 13 succès après).
+- 15:40 — review requested by the human (ponytail-review), 4 points fixed:
+  linked worktree refused with a clear message (JGit 6.10 cannot open it), "choose a repository"
+  hint hidden without a picker, detached HEAD displayed as a short id, fake
+  repository reduced to what the tests use.
+- 15:45 — **incident**: the `pre-commit` hook exports `GIT_DIR` and `GIT_INDEX_FILE`; the
+  git commands of `TestGitRepo` inherited them and wrote into the real repository (8 test
+  commits on the ticket branch, a `feature` branch and its worktree, index overwritten,
+  `core.bare=true`). Nothing pushed, `main` intact. Restored (`core.bare=false`, branch
+  brought back to `d263555` with `reset --mixed`, stray branch and worktree deleted).
+  Cause fixed: `TestGitRepo` strips any inherited `GIT_*`; proven by running the tests with
+  a non-existent `GIT_DIR` (13 failures before, 13 passes after).
 
-## Décisions
+## Decisions
 
-- `log` trie en ordre topologique puis par date : chaque enfant passe avant ses parents,
-  ce dont les lanes (#16) ont besoin. TOPO parcourt tout l'historique avant de rendre la
-  main (commentaire `shortcut:` dans le code).
-- Les dates sont celles de l'auteur, comme `git log`.
-- `readFile` refuse les chemins absolus, ceux qui sortent du dépôt (y compris par lien
-  symbolique) et ceux qui visent `.git` (le config peut contenir un token) : ces chemins
-  viendront du LLM.
-- `listFiles` lit l'index : fichiers suivis seulement, donc pas de `build/` ni d'ignorés.
-- `open` accepte un sous-dossier d'un dépôt (`findGitDir` remonte) et refuse un dépôt bare.
-- `formatCommitTime` : `expect` dans commonMain, un seul `actual` dans jvmSharedMain
-  (java.time existe sur desktop et sur Android dès l'API 26), localisé par la locale système.
-- Le sélecteur macOS est le `FileDialog` natif ; Windows et Linux passent par `JFileChooser`.
-- Code d'exemple du wizard supprimé (Greeting, Platform, drawable) : plus rien ne l'utilisait.
-- Dépendances : `kotlinx-coroutines-core` déclaré explicitement (déjà présent en transitif,
-  utilisé pour `Dispatchers.IO`) et `kotlinx-coroutines-test` pour `Dispatchers.setMain`.
+- `log` sorts in topological order then by date: each child comes before its parents,
+  which is what the lanes (#16) need. TOPO walks the whole history before handing back
+  control (`shortcut:` comment in the code).
+- The dates are the author's, like `git log`.
+- `readFile` refuses absolute paths, those that leave the repository (including via
+  symlink) and those that target `.git` (the config may contain a token): these paths
+  will come from the LLM.
+- `listFiles` reads the index: tracked files only, so no `build/` and no ignored files.
+- `open` accepts a subdirectory of a repository (`findGitDir` walks up) and refuses a bare repository.
+- `formatCommitTime`: `expect` in commonMain, a single `actual` in jvmSharedMain
+  (java.time exists on desktop and on Android from API 26), localised by the system locale.
+- The macOS picker is the native `FileDialog`; Windows and Linux go through `JFileChooser`.
+- Wizard sample code removed (Greeting, Platform, drawable): nothing used it any more.
+- Dependencies: `kotlinx-coroutines-core` declared explicitly (already present transitively,
+  used for `Dispatchers.IO`) and `kotlinx-coroutines-test` for `Dispatchers.setMain`.
 
-## Incertain
+## Uncertain
 
-- Le test JGit sur ART (spike) est supprimé avec le spike ; `assembleDebug` dexe toujours
-  JGit, mais l'exécution sur Android revient avec le clone (#21).
-- `GitRepository` n'a pas de `close()` : le dépôt JGit reste ouvert tant que l'app tourne
-  (bénin sur macOS/Linux, peut verrouiller des fichiers sur Windows). Changer le contrat =
-  accord de H2.
-- Sélecteur Windows/Linux non testé (seulement macOS).
+- The JGit test on ART (spike) is removed with the spike; `assembleDebug` still dexes
+  JGit, but running on Android comes back with the clone (#21).
+- `GitRepository` has no `close()`: the JGit repository stays open as long as the app runs
+  (benign on macOS/Linux, may lock files on Windows). Changing the contract =
+  H2's approval.
+- Windows/Linux picker not tested (macOS only).
 
-## Blocages
+## Blockers
 
-- Aucun. Attention au merge avec #18 (piste C) : les deux tickets créent
+- None. Watch out for the merge with #18 (track C): both tickets create
   `composeResources/values*/strings.xml`.
 
-## Leçon à ajouter à AGENTS.md (H2)
+## Lesson to add to AGENTS.md (H2)
 
-- Un test qui lance `git` doit retirer les variables `GIT_*` héritées : le hook
-  `pre-commit` les exporte, et le test écrit alors dans le vrai dépôt.
+- A test that runs `git` must strip inherited `GIT_*` variables: the `pre-commit`
+  hook exports them, and the test then writes into the real repository.
 
-## Suivant
+## Next
 
-- #19 (diff vs base) peut s'appuyer sur `RepositoryViewModel` ; #16 consomme `Commit.parentIds`.
+- #19 (diff vs base) can build on `RepositoryViewModel`; #16 consumes `Commit.parentIds`.

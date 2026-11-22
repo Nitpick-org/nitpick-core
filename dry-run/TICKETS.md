@@ -1,88 +1,88 @@
-# Dry run — tickets du mini-projet « Pulse »
+# Dry run — tickets for the "Pulse" mini-project
 
-> Projet fictif, jetable, pour tester la base et les agents en situation réelle.
-> **Ne pas merger cette branche dans `main`.** Guide : `docs/DRY-RUN.md`.
+> Fictional, throwaway project, to test the base and the agents in real conditions.
+> **Do not merge this branch into `main`.** Guide: `docs/DRY-RUN.md`.
 
-## Le scénario
+## The scenario
 
-**Pulse** : un ingénieur d'astreinte colle un CSV de métriques et voit immédiatement les
-valeurs aberrantes, avec leur z-score. Pas de compte, pas de base de données, pas d'API
-externe. Le « aha » doit être visible en moins de 20 secondes.
+**Pulse**: an on-call engineer pastes a CSV of metrics and immediately sees the
+outliers, with their z-score. No account, no database, no external API. The "aha"
+must be visible in under 20 seconds.
 
-**Challenge sponsor fictif — Acme Telemetry** : « Montrez une alerte explicable, pas une
-boîte noire. » Critère : le z-score et la ligne fautive sont visibles à l'écran.
+**Fictional sponsor challenge — Acme Telemetry**: "Show an explainable alert, not a
+black box." Criterion: the z-score and the offending line are visible on screen.
 
-## Contraintes
+## Constraints
 
-- 2 h 30 maximum, 3 humains, 2 comptes Ultra.
-- Pas de nouvelle dépendance au-delà du starter.
-- Une seule intégration : aucune (tout est local).
-- La démo doit tenir en 3 minutes, sans slides.
+- 2 h 30 maximum, 3 humans, 2 Ultra accounts.
+- No new dependency beyond the starter.
+- A single integration: none (everything is local).
+- The demo must fit in 3 minutes, without slides.
 
 ## Tickets
 
-### #01 — Le module d'analyse
+### #01 — The analysis module
 
-- **Comportement visible** : à partir d'un CSV `timestamp,value`, le module retourne les
-  lignes avec un z-score et un drapeau `isAnomaly`.
-- **Critères d'acceptation** :
-  - [ ] `parseCsv` accepte un CSV valide et rejette les colonnes manquantes.
-  - [ ] `parseCsv` rejette une valeur non numérique avec un message clair.
-  - [ ] `detectAnomalies` flague la valeur aberrante avec un seuil de 1,5.
-  - [ ] Un écart-type nul ne produit aucune anomalie.
-  - [ ] Tests dans `src/modules/anomaly/index.test.ts`.
-- **Fichiers autorisés** : `src/modules/anomaly/**`.
-- **Dépendances** : aucune.
-- **Risque** : bas.
-- **Critique démo** : oui.
+- **Visible behaviour**: from a `timestamp,value` CSV, the module returns the
+  lines with a z-score and an `isAnomaly` flag.
+- **Acceptance criteria**:
+  - [ ] `parseCsv` accepts a valid CSV and rejects missing columns.
+  - [ ] `parseCsv` rejects a non-numeric value with a clear message.
+  - [ ] `detectAnomalies` flags the outlier with a threshold of 1.5.
+  - [ ] A zero standard deviation produces no anomaly.
+  - [ ] Tests in `src/modules/anomaly/index.test.ts`.
+- **Allowed files**: `src/modules/anomaly/**`.
+- **Dependencies**: none.
+- **Risk**: low.
+- **Demo-critical**: yes.
 
-### #02 — L'écran de démo
+### #02 — The demo screen
 
-- **Comportement visible** : l'utilisateur colle un CSV, clique sur « Analyze » et voit le
-  nombre d'anomalies + un tableau avec les lignes surlignées.
-- **Critères d'acceptation** :
-  - [ ] Le sample est préchargé.
-  - [ ] « Analyze » affiche « 2 anomalies » sur le sample.
-  - [ ] Les deux lignes aberrantes sont surlignées.
-  - [ ] « Reset sample » réinitialise l'écran.
-  - [ ] Un CSV invalide affiche une erreur lisible.
-- **Fichiers autorisés** : `src/App.tsx`, `src/styles.css`.
-- **Dépendances** : #01.
-- **Risque** : bas.
-- **Critique démo** : oui.
+- **Visible behaviour**: the user pastes a CSV, clicks "Analyze" and sees the
+  number of anomalies + a table with the highlighted lines.
+- **Acceptance criteria**:
+  - [ ] The sample is preloaded.
+  - [ ] "Analyze" displays "2 anomalies" on the sample.
+  - [ ] Both outlier lines are highlighted.
+  - [ ] "Reset sample" resets the screen.
+  - [ ] An invalid CSV displays a readable error.
+- **Allowed files**: `src/App.tsx`, `src/styles.css`.
+- **Dependencies**: #01.
+- **Risk**: low.
+- **Demo-critical**: yes.
 
-### #03 — Le test de démo et le script
+### #03 — The demo test and the script
 
-- **Comportement visible** : le parcours de `docs/DEMO.md` est joué par Playwright ; le
-  script de 3 minutes est écrit et chronométré.
-- **Critères d'acceptation** :
-  - [ ] `pnpm e2e` passe sur le sample.
-  - [ ] Un CSV invalide affiche l'erreur dans le test.
-  - [ ] `docs/DEMO.md` contient la version 2:45 et la phrase de nouveauté.
-  - [ ] La démo a été répétée 2 fois.
-- **Fichiers autorisés** : `e2e/**`, `docs/DEMO.md`, `playwright.config.ts`.
-- **Dépendances** : #02.
-- **Risque** : bas.
-- **Critique démo** : oui.
+- **Visible behaviour**: the `docs/DEMO.md` walkthrough is played by Playwright; the
+  3-minute script is written and timed.
+- **Acceptance criteria**:
+  - [ ] `pnpm e2e` passes on the sample.
+  - [ ] An invalid CSV displays the error in the test.
+  - [ ] `docs/DEMO.md` contains the 2:45 version and the novelty line.
+  - [ ] The demo has been rehearsed 2 times.
+- **Allowed files**: `e2e/**`, `docs/DEMO.md`, `playwright.config.ts`.
+- **Dependencies**: #02.
+- **Risk**: low.
+- **Demo-critical**: yes.
 
-## Ordre conseillé
+## Recommended order
 
-1. H2 : `WT_FROM=dry-run/base ./scripts/new-worktree.sh 01-anomaly` → agent `implementer`.
-2. H3 : attend #01, puis `WT_FROM=dry-run/base ./scripts/new-worktree.sh 02-ui` → agent
+1. H2: `WT_FROM=dry-run/base ./scripts/new-worktree.sh 01-anomaly` → `implementer` agent.
+2. H3: waits for #01, then `WT_FROM=dry-run/base ./scripts/new-worktree.sh 02-ui` → agents
    `implementer` + `qa-demo`.
-3. H1 : écrit `docs/DEMO.md` en parallèle, puis #03 avec H3.
-4. H2 : `reviewer` sur chaque diff, merge après `./scripts/check.sh --demo`.
-5. Tous : démo de 3 minutes, puis `dry-run/REVIEW.md` (retour complet) et
-   `dry-run/RETRO.md` (rétro interne).
+3. H1: writes `docs/DEMO.md` in parallel, then #03 with H3.
+4. H2: `reviewer` on each diff, merge after `./scripts/check.sh --demo`.
+5. Everyone: 3-minute demo, then `dry-run/REVIEW.md` (full feedback) and
+   `dry-run/RETRO.md` (internal retro).
 
-## Brief agent (à coller)
+## Agent brief (to paste)
 
 ```text
-Tu es implementer. Lis CLAUDE.md, docs/PRD.md, docs/DEMO.md, docs/ARCHITECTURE.md
-et progress/<ticket>.md.
-Ticket : #01 — module d'analyse.
-But : parser un CSV timestamp,value et flaguer les anomalies par z-score.
-Fichiers autorisés : src/modules/anomaly/**.
-Critères d'acceptation : voir dry-run/TICKETS.md.
-Fini = check.sh vert + test + progress/<ticket>.md + commit atomique.
+You are implementer. Read CLAUDE.md, docs/PRD.md, docs/DEMO.md, docs/ARCHITECTURE.md
+and progress/<ticket>.md.
+Ticket: #01 — analysis module.
+Goal: parse a timestamp,value CSV and flag anomalies by z-score.
+Allowed files: src/modules/anomaly/**.
+Acceptance criteria: see dry-run/TICKETS.md.
+Done = check.sh green + test + progress/<ticket>.md + atomic commit.
 ```

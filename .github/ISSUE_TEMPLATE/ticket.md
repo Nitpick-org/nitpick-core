@@ -1,62 +1,62 @@
 ---
-name: Ticket (tranche verticale)
-about: Un comportement visible de bout en bout, faisable par un agent seul dans un worktree
+name: Ticket (vertical slice)
+about: A visible end-to-end behaviour, doable by a single agent in a worktree
 labels: ticket
 ---
 
-## Comportement visible
+## Visible behaviour
 
-<Ce que l'utilisateur peut faire une fois ce ticket fini. Une phrase.>
+<What the user can do once this ticket is done. One sentence.>
 
-## Critères d'acceptation
+## Acceptance criteria
 
 - [ ] …
 - [ ] …
 - [ ] …
 
-## Piste
+## Track
 
-A core partagé / B git + desktop / C Android + finitions (`docs/CONTEXT.md` §9)
+A shared core / B git + desktop / C Android + polish (`docs/CONTEXT.md` §9)
 
-## Fichiers autorisés
+## Allowed files
 
 - `shared/src/<sourceSet>/kotlin/dev/nitpick/app/<package>/...`
-- `shared/src/<sourceSet>Test/...` ou `androidApp/src/androidTest/...`
+- `shared/src/<sourceSet>Test/...` or `androidApp/src/androidTest/...`
 
-## Ne pas toucher
+## Do not touch
 
-- Les fichiers réservés aux humains (table « Fichiers partagés » d'`AGENTS.md`), `.env`
-- Les contrats du §6, sauf accord de H2
-- Autres packages : …
+- The files reserved for humans ("Shared files" table of `AGENTS.md`), `.env`
+- The contracts of §6, unless H2 agrees
+- Other packages: …
 
-## Dépendances
+## Dependencies
 
-Bloqué par : #
+Blocked by: #
 
-## Risque
+## Risk
 
-haut / moyen / bas
+high / medium / low
 
-## Critique pour la démo
+## Demo-critical
 
-oui / non — si oui, `./scripts/check.sh --demo` passe et le parcours est rejoué à la main
-sur desktop et Android.
+yes / no — if yes, `./scripts/check.sh --demo` passes and the walkthrough is replayed by hand
+on desktop and Android.
 
-## Challenge sponsor
+## Sponsor challenge
 
-aucun / <sponsor> — critère du sponsor : …
+none / <sponsor> — sponsor criterion: …
 
-## Propriétaire humain
+## Human owner
 
 @
 
-## Brief agent (8 lignes)
+## Agent brief (8 lines)
 
 ```text
-Tu es <rôle>. Lis AGENTS.md, docs/CONTEXT.md, docs/DECISIONS.md et progress/<ticket>.md.
-Ticket : #<n> — <titre>. Piste : <A|B|C>.
-But : <comportement visible>.
-Fichiers autorisés : <...>.
-Critères d'acceptation : <...>.
-Fini = check.sh vert + test + progress/<ticket>.md + commit atomique.
+You are <role>. Read AGENTS.md, docs/CONTEXT.md, docs/DECISIONS.md and progress/<ticket>.md.
+Ticket: #<n> — <title>. Track: <A|B|C>.
+Goal: <visible behaviour>.
+Allowed files: <...>.
+Acceptance criteria: <...>.
+Done = green check.sh + test + progress/<ticket>.md + atomic commit.
 ```

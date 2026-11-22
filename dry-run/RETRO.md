@@ -1,22 +1,22 @@
-# Dry run — rétro
+# Dry run — retro
 
-> Rétro interne de 5 minutes, à chaud, pour l'équipe. Pour le retour complet à envoyer aux
-> autres, utiliser `dry-run/REVIEW.md` (20 min). Le but n'est pas de noter les personnes,
-> c'est de corriger la base avant le vrai hackathon.
+> A 5-minute internal retro, right after the fact, for the team. For the full feedback to send
+> to the others, use `dry-run/REVIEW.md` (20 min). The goal is not to grade people,
+> it is to fix the basics before the real hackathon.
 
-## Ce qui a marché
+## What worked
 
 - …
 
-## Ce qui a cassé ou ralenti
+## What broke or slowed us down
 
-| Problème | Temps perdu | Cause | Correctif | Propriétaire |
+| Problem | Time lost | Cause | Fix | Owner |
 | --- | --- | --- | --- | --- |
 | | | | | |
 
 ## Agents
 
-| Agent | Utilisé ? | Verdict | Réglage à faire |
+| Agent | Used? | Verdict | Adjustment to make |
 | --- | --- | --- | --- |
 | `researcher` | | | |
 | `devils-advocate` | | | |
@@ -26,7 +26,7 @@
 | `qa-demo` | | | |
 | `pitch` | | | |
 
-## Les 3 correctifs avant H0
+## The 3 fixes before H0
 
 1. …
 2. …
@@ -34,10 +34,10 @@
 
 ## Go / no-go
 
-- [ ] `./scripts/check.sh` vert
-- [ ] `./scripts/check.sh --demo` vert
-- [ ] Les 3 savent créer un worktree et lancer un agent
-- [ ] La démo de 3 minutes tient debout
-- [ ] Le repo est partageable aux 2 autres
+- [ ] `./scripts/check.sh` green
+- [ ] `./scripts/check.sh --demo` green
+- [ ] All three know how to create a worktree and launch an agent
+- [ ] The 3-minute demo holds up
+- [ ] The repo can be shared with the other 2
 
-Décision : **GO / NO-GO** — raison :
+Decision: **GO / NO-GO** — reason:

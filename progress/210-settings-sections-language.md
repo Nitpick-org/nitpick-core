@@ -1,25 +1,25 @@
 # Ticket 210 — Settings: working sections, language, About
 
-- Statut : fait, à valider à l'écran
-- Propriétaire humain : @pepito2t (H3)
-- Piste : B desktop + C android (langue) 
-- Agent : Claude Code (Fable 5.1), session humaine
-- Model : fable
-- Fichiers autorisés : `ui/settings/{SettingsDialog,SettingsScreen}.kt`, `ui/App.kt`, `ui/AppLocale*.kt`
+- Status: done, to be validated on screen
+- Human owner: @pepito2t (H3)
+- Track: B desktop + C android (language) 
+- Agent: Claude Code (Fable 5.1), human session
+- Model: fable
+- Allowed files: `ui/settings/{SettingsDialog,SettingsScreen}.kt`, `ui/App.kt`, `ui/AppLocale*.kt`
   (commonMain + jvmMain + androidMain), `settings/Settings.kt` (`language`), strings EN/FR, `SettingsTest`
 
-## Fait
+## Done
 
-- Dialogue desktop : la navigation de gauche fonctionne (sélection, surlignage, filtre de recherche) ;
-  sections General (thème, langue), Review (fournisseur, modèle, clé), Git (compte), Sharing (URL
-  serveur), About (icône, tagline, lien du dépôt, les trois GitHub de l'équipe avec la marque GitHub,
-  cliquables). Keymap supprimé : aucune raccourci configurable.
-- Langue : `Settings.language` (System / English / Français), contrôle segmenté desktop et téléphone.
-  Mécanisme : `LocalAppLocale` (expect/actual, workaround documenté par JetBrains dans
-  « Manage local resource environment ») + `key(language)` autour du thème pour relire toutes les
-  chaînes. Desktop : `Locale.setDefault` ; Android : locale + configuration des ressources.
-- Tests : `SettingsTest` (défaut System, tag fr, aller-retour fichier avec la langue).
+- Desktop dialog: the left navigation works (selection, highlight, search filter);
+  sections General (theme, language), Review (provider, model, key), Git (account), Sharing (server
+  URL), About (icon, tagline, repository link, the team's three GitHub accounts with the GitHub brand,
+  clickable). Keymap removed: no configurable shortcut.
+- Language: `Settings.language` (System / English / Français), segmented control on desktop and phone.
+  Mechanism: `LocalAppLocale` (expect/actual, workaround documented by JetBrains in
+  "Manage local resource environment") + `key(language)` around the theme to re-read all the
+  strings. Desktop: `Locale.setDefault`; Android: locale + resource configuration.
+- Tests: `SettingsTest` (System default, fr tag, file round-trip with the language).
 
-## Journal
+## Log
 
-- 02:55 — worktree, modèle, locale par plateforme, dialogue, écran téléphone, check vert.
+- 02:55 — worktree, model, per-platform locale, dialog, phone screen, check green.

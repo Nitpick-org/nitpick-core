@@ -1,184 +1,184 @@
-# Nitpick — Contexte projet : LauzHack 2026, challenge JetBrains (Kotlin Multiplatform)
+# Nitpick — Project context: LauzHack 2026, JetBrains challenge (Kotlin Multiplatform)
 
-Ce document est le contexte maître du projet. Tout agent (orchestrateur ou subagent) le lit
-avant de produire quoi que ce soit. En cas de doute sur une décision de scope, ce document
-fait foi. Si une demande le contredit, l'agent le signale au lieu de trancher seul.
+This document is the project's master context. Every agent (orchestrator or subagent) reads
+it before producing anything. When in doubt about a scope decision, this document
+is authoritative. If a request contradicts it, the agent flags it instead of deciding alone.
 
 ## 1. Mission
 
-Construire en 24 heures (du samedi 21.11.2026 à 12h00 au dimanche 22.11.2026 à 12h00)
-Nitpick. C'est un client git visuel multiplateforme (dans l'esprit de Fork ou SourceGit)
-avec une review de code par IA intégrée sur la branche courante : commentaires ancrés sur
-les lignes, comme une review de pull request, et suggestions applicables en un clic.
+Build Nitpick in 24 hours (from Saturday 21.11.2026 at 12h00 to Sunday 22.11.2026 at 12h00).
+It is a cross-platform visual git client (in the spirit of Fork or SourceGit)
+with an integrated AI code review on the current branch: comments anchored to
+lines, like a pull request review, and suggestions applicable in one click.
 
-**Le problème** : avec les agents de code, plus personne ne lit vraiment ce qui part sur
-main. Les outils de review IA existants (CodeRabbit, Copilot review, Graphite…)
-interviennent après le push, sur la PR, côté serveur.
+**The problem**: with coding agents, nobody really reads what leaves for
+main anymore. Existing AI review tools (CodeRabbit, Copilot review, Graphite…)
+step in after the push, on the PR, server-side.
 
-**Notre différence** : une review en local, avant le push, avec le contexte du repo, et
-branchée sur le LLM choisi par l'utilisateur (Claude, OpenAI, Gemini, ou Ollama en local).
+**Our difference**: a review run locally, before the push, with the repo's context, and
+wired to the LLM chosen by the user (Claude, OpenAI, Gemini, or Ollama locally).
 
-### Identité
+### Identity
 
-- **Nom** : Nitpick. Dans le jargon de la review, un « nit » est un petit commentaire sur
-  une ligne précise. Le nom dit la feature phare : la review ligne par ligne.
-- **Tagline** : « Nitpick your branch before main does. » (FR : « Faites pinailler votre
-  branche avant qu'elle n'arrive sur main. »)
-- **Action principale** : le bouton « Nitpick this branch » (FR : « Nitpicker cette
-  branche »). Un commentaire de review s'appelle un nit dans l'UI (« 7 nits · 1 bug »).
-- **Identifiants techniques** : nom Gradle `nitpick`, package `dev.nitpick.app`,
-  applicationId Android `dev.nitpick.app`, fenêtre desktop titrée « Nitpick ».
-- **Ton visuel** : outil de dev sobre et précis, aligné sur la DA **JetBrains IDE /
-  New UI** (`docs/DESIGN-SYSTEM.md`). Accent unique **teal** (clair/sombre), chrome
-  graphite, contrôles 28 dp, code en JetBrains Mono. Icône d'app simple (loupe ou pince à
-  épiler stylisée, rien de générique).
+- **Name**: Nitpick. In review jargon, a "nit" is a small comment on
+  a specific line. The name states the flagship feature: line-by-line review.
+- **Tagline**: "Nitpick your branch before main does." (FR: "Faites pinailler votre
+  branche avant qu'elle n'arrive sur main.")
+- **Main action**: the "Nitpick this branch" button (FR: "Nitpicker cette
+  branche"). A review comment is called a nit in the UI ("7 nits · 1 bug").
+- **Technical identifiers**: Gradle name `nitpick`, package `dev.nitpick.app`,
+  Android applicationId `dev.nitpick.app`, desktop window titled "Nitpick".
+- **Visual tone**: a sober, precise dev tool, aligned with the **JetBrains IDE /
+  New UI** design language (`docs/DESIGN-SYSTEM.md`). Single **teal** accent (light/dark),
+  graphite chrome, 28 dp controls, code in JetBrains Mono. Simple app icon (magnifying
+  glass or stylized tweezers, nothing generic).
 
-## 2. Ce que le jury évalue (et donc ce qu'on optimise)
+## 2. What the judges evaluate (and therefore what we optimize)
 
-- **Implémentation / proof of concept** : l'app tourne réellement sur au moins 2
-  plateformes, et la fonctionnalité centrale marche.
-- **UX / UI** : un rendu soigné et natif sur chaque plateforme, pas seulement fonctionnel.
-- **Technique** : la part de logique réellement partagée dans commonMain par rapport au code
-  dupliqué par plateforme. Points bonus pour : Compose Multiplatform, localisation, logique
-  IA/agent partagée (Koog), backend Kotlin.
-- **Innovation / créativité** : l'originalité de l'idée.
-- **Process agentique (bonus)** : construire avec **JetBrains Air** dans l'IDE. Air
-  orchestre côte à côte les agents (Junie, Codex, Gemini, GitHub Copilot, Claude, autres via
-  ACP) ; les humains relisent, corrigent et pilotent au lieu de tout accepter. Air est un
-  **outil de développement**, pas un provider IA ni une dépendance runtime de Nitpick.
-  Bonus supplémentaire pour le multi-agent (agents différents sur le code partagé et sur le
-  code plateforme, ou comparaison de leurs résultats).
-- **Présentation** : une démo claire, qui explique ce qui est partagé et ce qui reste
-  spécifique à chaque plateforme.
+- **Implementation / proof of concept**: the app actually runs on at least 2
+  platforms, and the core feature works.
+- **UX / UI**: a polished, native-looking result on each platform, not merely functional.
+- **Technical**: the share of logic genuinely shared in commonMain versus code
+  duplicated per platform. Bonus points for: Compose Multiplatform, localization, shared
+  AI/agent logic (Koog), Kotlin backend.
+- **Innovation / creativity**: the originality of the idea.
+- **Agentic process (bonus)**: build with **JetBrains Air** in the IDE. Air
+  orchestrates agents side by side (Junie, Codex, Gemini, GitHub Copilot, Claude, others via
+  ACP); humans review, correct and steer instead of accepting everything. Air is a
+  **development tool**, not an AI provider nor a Nitpick runtime dependency.
+  Extra bonus for multi-agent work (different agents on shared code and on
+  platform code, or comparison of their results).
+- **Presentation**: a clear demo that explains what is shared and what remains
+  specific to each platform.
 
-Features bonus explicitement listées : dark/light mode, localisation, Compose
-Multiplatform, backend Kotlin, IA partagée via Koog. Nous visons **les cinq**, et elles
-sont obligatoires pour nous : dark/light, localisation, Compose MP, Koog, et un backend
-Kotlin (Ktor) pour partager les reviews (§7.1). Le critère 5 (Air, multi-agent) est
-traité comme obligatoire lui aussi.
+Explicitly listed bonus features: dark/light mode, localization, Compose
+Multiplatform, Kotlin backend, shared AI via Koog. We target **all five**, and they
+are mandatory for us: dark/light, localization, Compose MP, Koog, and a Kotlin
+backend (Ktor) to share reviews (§7.1). Criterion 5 (Air, multi-agent) is
+treated as mandatory as well.
 
-> Le challenge recommande Air pour **construire** le projet. Le moteur IA **du produit**
-> reste Koog : Air/Junie ne sont pas appelés par l'app. Le brief officiel est dans
+> The challenge recommends Air to **build** the project. The **product's** AI engine
+> remains Koog: Air/Junie are not called by the app. The official brief is in
 > [`docs/JETBRAINS-CHALLENGE.md`](JETBRAINS-CHALLENGE.md).
 
-## 3. Équipe et contraintes humaines
+## 3. Team and human constraints
 
-3 personnes, toutes débutantes en Kotlin. Elles sont développeurs par ailleurs (fullstack,
-TypeScript/React Native), donc les concepts généraux sont acquis, mais la syntaxe Kotlin,
-Gradle, KMP et Compose sont nouveaux.
+3 people, all Kotlin beginners. They are developers otherwise (fullstack,
+TypeScript/React Native), so the general concepts are established, but Kotlin syntax,
+Gradle, KMP and Compose are new.
 
-Conséquences pour les agents :
+Consequences for the agents:
 
-- Expliquer brièvement chaque choix non trivial (en commentaire de PR ou de commit, pas en
-  commentaire de code verbeux), pour que l'humain puisse relire et comprendre.
-- Privilégier du Kotlin simple et lisible à du Kotlin « malin ». Pas de DSL maison, pas de
-  génériques gratuits, pas de métaprogrammation.
-- Ne jamais livrer du code qui ne compile pas. Avant de rendre la main, lancer le build
-  desktop et Android.
-- Les humains relisent tout et rejettent ce qui ne va pas. C'est un critère de jugement
-  (voir §11).
-- Chaque humain installe le plugin **Air** dans son IDE et connecte un agent (Junie Lite en
-  free tier, ou Codex/Gemini/Copilot/Claude). Chaque piste travaille dans Air, avec un
-  humain qui relit les diffs.
-- Les preuves de process (agents lancés, corrections humaines) vont dans `AGENT_LOG.md` et
-  `REVIEW_LOG.md` ; garder 2–3 captures Air pour la démo.
+- Briefly explain each non-trivial choice (in a PR or commit comment, not in
+  verbose code comments), so the human can review and understand.
+- Prefer simple, readable Kotlin over "clever" Kotlin. No home-grown DSL, no
+  gratuitous generics, no metaprogramming.
+- Never deliver code that does not compile. Before handing back, run the
+  desktop and Android build.
+- Humans review everything and reject what is wrong. This is a judging criterion
+  (see §11).
+- Each human installs the **Air** plugin in their IDE and connects an agent (Junie Lite on
+  the free tier, or Codex/Gemini/Copilot/Claude). Each track works in Air, with a
+  human reviewing the diffs.
+- Process evidence (agents launched, human corrections) goes into `AGENT_LOG.md` and
+  `REVIEW_LOG.md`; keep 2–3 Air screenshots for the demo.
 
-## 4. Plateformes cibles
+## 4. Target platforms
 
-| Cible | Rôle | Priorité |
+| Target | Role | Priority |
 | --- | --- | --- |
-| Desktop JVM (macOS, Windows, Linux) | L'app principale : client git complet + review IA | P0 |
-| Android | Mode « review en déplacement » : cloner un repo en HTTPS avec un token, voir le graph, lancer la review IA ou ouvrir une review partagée, accepter des suggestions, commit et push | P0 |
-| Serveur Kotlin (Ktor, JVM) | Partage des reviews entre appareils et coéquipiers (§7.1). Pas une cible UI : un module `server/` | P0, après la boucle review |
-| iOS / Web | Hors scope. Pas de JGit sur ces cibles, il faudrait réécrire tout le backend git. | ✗ |
+| Desktop JVM (macOS, Windows, Linux) | The main app: full git client + AI review | P0 |
+| Android | "Review on the go" mode: clone a repo over HTTPS with a token, see the graph, launch the AI review or open a shared review, accept suggestions, commit and push | P0 |
+| Kotlin server (Ktor, JVM) | Sharing reviews between devices and teammates (§7.1). Not a UI target: a `server/` module | P0, after the review loop |
+| iOS / Web | Out of scope. No JGit on those targets, the whole git backend would have to be rewritten. | ✗ |
 
-macOS, Windows et Linux forment une seule cible KMP. Android est la deuxième plateforme
-obligatoire et ne doit pas être une coquille vide.
+macOS, Windows and Linux form a single KMP target. Android is the second mandatory
+platform and must not be an empty shell.
 
-## 5. Stack technique
+## 5. Technical stack
 
-Toujours prendre la dernière version stable de chaque lib. Ne pas inventer d'API : vérifier
-dans la doc officielle (liens §15) avant d'écrire du code Koog ou Compose. Si une API a
-changé, l'adapter et le signaler.
+Always take the latest stable version of each lib. Do not invent APIs: check
+the official docs (links §15) before writing Koog or Compose code. If an API has
+changed, adapt to it and flag it.
 
-- **Langage** : Kotlin (dernière stable), Kotlin Multiplatform.
-- **Projet** : généré depuis le wizard kmp.jetbrains.com (cibles Android + Desktop, UI
-  partagée en Compose).
-- **UI** : Compose Multiplatform + Material 3, toute l'UI dans commonMain, tokens et
-  composants dans `docs/DESIGN-SYSTEM.md` (DA JetBrains New UI, accent teal, shell IDE).
-- **Thème** : clair et sombre, qui suit le système par défaut, avec un toggle manuel dans
-  les réglages.
-- **Localisation** : Compose Multiplatform Resources
-  (`composeResources/values/strings.xml` et `values-fr/strings.xml`). Anglais par défaut,
-  français complet. Aucune string UI en dur.
-- **État** : ViewModel multiplateforme (lifecycle-viewmodel-compose de JetBrains) +
-  StateFlow. Architecture simple de type MVI/UDF : State immuable, Intent/actions,
+- **Language**: Kotlin (latest stable), Kotlin Multiplatform.
+- **Project**: generated from the kmp.jetbrains.com wizard (Android + Desktop targets,
+  UI shared in Compose).
+- **UI**: Compose Multiplatform + Material 3, all UI in commonMain, tokens and
+  components in `docs/DESIGN-SYSTEM.md` (JetBrains New UI design language, teal accent, IDE shell).
+- **Theme**: light and dark, following the system by default, with a manual toggle in
+  settings.
+- **Localization**: Compose Multiplatform Resources
+  (`composeResources/values/strings.xml` and `values-fr/strings.xml`). English by default,
+  complete French. No hard-coded UI string.
+- **State**: multiplatform ViewModel (JetBrains' lifecycle-viewmodel-compose) +
+  StateFlow. Simple MVI/UDF-style architecture: immutable State, Intent/actions,
   ViewModel.
-- **Navigation** : un simple état d'écran dans un ViewModel racine suffit. Ajouter une lib
-  de navigation seulement si c'est vraiment nécessaire.
-- **DI** : injection manuelle (un objet `AppContainer`). Pas de Koin ni de Hilt, pour
-  réduire la surface d'apprentissage.
-- **Concurrence** : Kotlin Coroutines. Les opérations git et LLM tournent toujours hors du
-  thread UI (`Dispatchers.IO` côté JVM).
-- **Sérialisation** : kotlinx.serialization.
-- **Git** : JGit (Eclipse), utilisé derrière une interface définie dans commonMain.
-- **IA produit** : Koog (framework d'agents Kotlin de JetBrains), dans commonMain. Koog
-  supporte JVM, Android, iOS, JS et Wasm, ainsi que plusieurs fournisseurs (Anthropic,
-  OpenAI, Google, Ollama…). C'est la pièce qui démontre le « shared AI logic » demandé par
-  le jury.
-- **Backend** : Ktor server (JVM) dans un module Gradle `server/`, qui réutilise les modèles
-  `@Serializable` de `domain`. Côté app, un client Ktor dans commonMain (moteur CIO dans
-  `jvmSharedMain`, commun desktop + Android).
-- **Développement** : JetBrains Air + agents (Junie, Codex, Gemini, Copilot, Claude) pour
-  produire le code. Ce sont des outils d'IDE, pas des dépendances de l'app.
-- **Stockage local** (réglages, clé API, repos récents) : un expect/actual minimal (fichier
-  de préférences côté desktop, SharedPreferences/DataStore côté Android). Ne jamais
-  commiter de clé API.
+- **Navigation**: a simple screen state in a root ViewModel is enough. Add a navigation
+  lib only if really necessary.
+- **DI**: manual injection (an `AppContainer` object). No Koin or Hilt, to
+  reduce the learning surface.
+- **Concurrency**: Kotlin Coroutines. Git and LLM operations always run off the
+  UI thread (`Dispatchers.IO` on the JVM side).
+- **Serialization**: kotlinx.serialization.
+- **Git**: JGit (Eclipse), used behind an interface defined in commonMain.
+- **Product AI**: Koog (JetBrains' Kotlin agent framework), in commonMain. Koog
+  supports JVM, Android, iOS, JS and Wasm, as well as several providers (Anthropic,
+  OpenAI, Google, Ollama…). It is the piece that demonstrates the "shared AI logic" requested by
+  the judges.
+- **Backend**: Ktor server (JVM) in a Gradle `server/` module, which reuses the
+  `@Serializable` models from `domain`. On the app side, a Ktor client in commonMain (CIO
+  engine in `jvmSharedMain`, shared by desktop + Android).
+- **Development**: JetBrains Air + agents (Junie, Codex, Gemini, Copilot, Claude) to
+  produce the code. These are IDE tools, not app dependencies.
+- **Local storage** (settings, API key, recent repos): a minimal expect/actual (preferences
+  file on desktop, SharedPreferences/DataStore on Android). Never commit an API
+  key.
 
-## 6. Architecture et répartition du code
+## 6. Architecture and code distribution
 
-Objectif : le maximum de code dans commonMain. Le code plateforme doit être mince et
-ennuyeux.
+Goal: as much code as possible in commonMain. Platform code must be thin and
+boring.
 
 ```text
 composeApp/src/
-├── commonMain/            ← TOUT ce qui peut l'être
-│   ├── domain/            modèles purs : Commit, Ref, Branch, FileDiff, Hunk, DiffLine,
+├── commonMain/            ← EVERYTHING that can be
+│   ├── domain/            pure models: Commit, Ref, Branch, FileDiff, Hunk, DiffLine,
 │   │                      ReviewComment, Suggestion, ReviewResult
-│   ├── git/               interface GitRepository (contrat), GitRepositoryFactory (expect)
-│   ├── graph/             algorithme de lanes du graph de commits (100 % pur Kotlin, testé)
-│   ├── diff/              parsing du diff unifié → modèle Hunk/DiffLine avec numéros de ligne
-│   ├── review/            agent Koog, construction du contexte repo, parsing/validation de
-│   │                      la sortie, application des suggestions (patch sur le texte)
-│   ├── settings/          modèle des réglages + interface SettingsStore (expect)
-│   ├── share/             client du backend : ReviewShareClient (Ktor client), §7.1
-│   ├── ui/                tous les écrans et composants Compose, thème, ViewModels
-│   └── composeResources/  strings EN/FR, icônes
-├── jvmShared/             ← source set intermédiaire partagé desktop + Android
-│   └── git/               JGitRepository : implémentation de GitRepository avec JGit
-├── desktopMain/           main(), fenêtre, sélecteur de dossier natif, SettingsStore desktop
-└── androidMain/           MainActivity, SettingsStore Android, emplacement de stockage des clones
+│   ├── git/               GitRepository interface (contract), GitRepositoryFactory (expect)
+│   ├── graph/             commit graph lane algorithm (100% pure Kotlin, tested)
+│   ├── diff/              unified diff parsing → Hunk/DiffLine model with line numbers
+│   ├── review/            Koog agent, repo context building, output parsing/validation,
+│   │                      applying suggestions (text patch)
+│   ├── settings/          settings model + SettingsStore interface (expect)
+│   ├── share/             backend client: ReviewShareClient (Ktor client), §7.1
+│   ├── ui/                all Compose screens and components, theme, ViewModels
+│   └── composeResources/  EN/FR strings, icons
+├── jvmShared/             ← intermediate source set shared by desktop + Android
+│   └── git/               JGitRepository: GitRepository implementation backed by JGit
+├── desktopMain/           main(), window, native folder picker, desktop SettingsStore
+└── androidMain/           MainActivity, Android SettingsStore, clone storage location
 
-server/                    ← module JVM séparé : Ktor server, dépend de shared pour domain
+server/                    ← separate JVM module: Ktor server, depends on shared for domain
 ```
 
-Le serveur n'importe ni Compose ni JGit : il ne voit que les modèles de `domain`.
+The server imports neither Compose nor JGit: it only sees the `domain` models.
 
-`jvmShared` est un source set intermédiaire dont dépendent desktopMain et androidMain (via
+`jvmShared` is an intermediate source set that desktopMain and androidMain depend on (via
 `applyDefaultHierarchyTemplate { common { group("jvmShared") { withJvm(); withAndroidTarget() } } }`
-ou un `dependsOn` explicite, selon ce que la version de Kotlin accepte). Ainsi,
-l'implémentation JGit n'est écrite qu'une fois.
+or an explicit `dependsOn`, depending on what the Kotlin version accepts). Thus,
+the JGit implementation is written only once.
 
-**Règle d'or** : aucun import `org.eclipse.jgit` hors de jvmShared. Aucun import Android ou
-AWT hors de son source set.
+**Golden rule**: no `org.eclipse.jgit` import outside jvmShared. No Android or
+AWT import outside its source set.
 
-Prévoir à la fin un script ou une tâche Gradle simple qui compte les lignes par source set,
-pour la slide « shared vs platform-specific ».
+Plan for a simple script or Gradle task at the end that counts lines per source set,
+for the "shared vs platform-specific" slide.
 
-### Contrats à figer EN PREMIER (heure 1)
+### Contracts to freeze FIRST (hour 1)
 
-Ces interfaces et modèles sont écrits et validés par un humain avant le travail en
-parallèle, pour que les pistes ne se bloquent pas entre elles :
+These interfaces and models are written and validated by a human before parallel
+work starts, so the tracks do not block each other:
 
 ```kotlin
 interface GitRepository {
@@ -186,7 +186,7 @@ interface GitRepository {
     suspend fun refs(): List<Ref>
     suspend fun currentBranch(): String
     suspend fun status(): WorkingTreeStatus
-    suspend fun diffAgainst(baseRef: String): List<FileDiff>   // branche courante vs base
+    suspend fun diffAgainst(baseRef: String): List<FileDiff>   // current branch vs base
     suspend fun readFile(path: String): String?
     suspend fun listFiles(): List<String>
     suspend fun writeFile(path: String, content: String)
@@ -199,29 +199,29 @@ interface GitRepository {
 }
 ```
 
-Modèle de review (à affiner, mais la forme doit rester celle-ci) :
+Review model (to refine, but the shape must stay like this):
 
 ```kotlin
 @Serializable data class ReviewResult(val summary: String, val comments: List<ReviewComment>)
 @Serializable data class ReviewComment(
     val id: String,
     val filePath: String,
-    val startLine: Int,            // numéro de ligne dans la NOUVELLE version du fichier
+    val startLine: Int,            // line number in the NEW version of the file
     val endLine: Int,
     val severity: Severity,        // INFO, SUGGESTION, WARNING, BUG
-    val category: String,          // ex. "security", "perf", "readability", "logic"
+    val category: String,          // e.g. "security", "perf", "readability", "logic"
     val message: String,
-    val originalSnippet: String,   // les lignes visées, recopiées : sert à vérifier l'ancrage
-    val suggestion: String? = null // code de remplacement pour startLine..endLine, ou null
+    val originalSnippet: String,   // the targeted lines, copied back: used to check anchoring
+    val suggestion: String? = null // replacement code for startLine..endLine, or null
 )
 ```
 
-Contrat du backend (§7.1), à figer avant d'écrire le serveur :
+Backend contract (§7.1), to freeze before writing the server:
 
 ```kotlin
 @Serializable data class SharedReview(
-    val id: String,                // attribué par le serveur
-    val repoUrl: String,           // URL du remote origin : identifie le repo sur tous les appareils
+    val id: String,                // assigned by the server
+    val repoUrl: String,           // origin remote URL: identifies the repo on every device
     val branch: String,
     val baseRef: String,
     val headCommit: String,
@@ -229,268 +229,268 @@ Contrat du backend (§7.1), à figer avant d'écrire le serveur :
 )
 
 interface ReviewShareClient {
-    suspend fun share(review: SharedReview): String          // renvoie l'id
+    suspend fun share(review: SharedReview): String          // returns the id
     suspend fun list(repoUrl: String): List<SharedReview>
     suspend fun get(id: String): SharedReview?
 }
 ```
 
-## 7. La review IA (cœur du projet)
+## 7. The AI review (heart of the project)
 
-### Flux
+### Flow
 
-1. L'utilisateur est sur une branche et choisit une base (main par défaut).
-2. On calcule `diffAgainst(base)`.
-3. On construit le contexte repo : arborescence des fichiers (tronquée), contenu complet des
-   fichiers modifiés, README, 10 derniers messages de commit, langage ou framework détecté.
-4. L'agent Koog produit un `ReviewResult` en sortie structurée (Koog sait le faire
-   nativement, avec des retries et une correction de sortie quand le modèle ne supporte pas
-   le JSON natif).
-   > Le moteur de review est Koog. Air/Junie servent à construire et relire le code pendant
-   > le hackathon ; ils ne font pas partie du runtime de Nitpick.
-5. **Validation de l'ancrage** : pour chaque commentaire, on vérifie que `originalSnippet`
-   correspond bien aux lignes `startLine..endLine` du fichier. Sinon, on recherche le
-   snippet dans le fichier pour recaler les numéros. Sinon, le commentaire est rattaché au
-   fichier entier. Un commentaire mal ancré ne doit jamais faire planter l'UI.
-6. L'UI affiche le diff avec les commentaires inline (style PR GitHub), triés par sévérité.
-7. **Appliquer une suggestion** : on revérifie que les lignes n'ont pas bougé, on remplace,
-   on écrit le fichier, on rafraîchit le diff, puis on propose de stage et commit. Il faut
-   aussi « Ignorer » et « Tout appliquer pour ce fichier ».
+1. The user is on a branch and picks a base (main by default).
+2. We compute `diffAgainst(base)`.
+3. We build the repo context: file tree (truncated), full content of the
+   modified files, README, last 10 commit messages, detected language or framework.
+4. The Koog agent produces a `ReviewResult` as structured output (Koog does this
+   natively, with retries and an output correction when the model does not support
+   native JSON).
+   > The review engine is Koog. Air/Junie are used to build and review the code during
+   > the hackathon; they are not part of the Nitpick runtime.
+5. **Anchor validation**: for each comment, we check that `originalSnippet`
+   matches the `startLine..endLine` lines of the file. Otherwise, we search for the
+   snippet in the file to realign the line numbers. Otherwise, the comment is attached to
+   the whole file. A badly anchored comment must never crash the UI.
+6. The UI shows the diff with inline comments (GitHub PR style), sorted by severity.
+7. **Apply a suggestion**: we re-check that the lines have not moved, replace them,
+   write the file, refresh the diff, then offer to stage and commit. We also need
+   "Ignore" and "Apply all for this file".
 
-### Ancrage fiable
+### Reliable anchoring
 
-- Dans le prompt envoyé au LLM, préfixer chaque ligne du diff par son numéro dans le nouveau
-  fichier (`  42 | code`), et exiger que le modèle cite ces numéros et recopie
+- In the prompt sent to the LLM, prefix each line of the diff with its number in the new
+  file (`  42 | code`), and require the model to quote these numbers and copy
   `originalSnippet`.
-- Limiter la taille : ignorer les lockfiles, les binaires et les fichiers générés, et ne
-  garder que les N fichiers modifiés les plus importants si le diff est énorme.
+- Limit the size: ignore lockfiles, binaries and generated files, and keep
+  only the N most important modified files if the diff is huge.
 
-### Agentique (bonus, si le temps le permet)
+### Agentic (bonus, if time permits)
 
-- Donner à l'agent Koog des outils `readFile(path)` et `listFiles()` pour qu'il aille
-  chercher du contexte lui-même (par exemple la définition d'une fonction appelée dans le
-  diff). C'est ce qui justifie le terme « avec le contexte du repo ».
-- Toujours garder un mode sans outils (un seul appel) comme fallback, plus rapide et plus
-  prévisible pour la démo.
+- Give the Koog agent `readFile(path)` and `listFiles()` tools so it can fetch
+  context itself (for example the definition of a function called in the
+  diff). This is what justifies the phrase "with the repo's context".
+- Always keep a tool-less mode (a single call) as a fallback, faster and more
+  predictable for the demo.
 
-### Fournisseurs
+### Providers
 
-- Réglages : choix du fournisseur (Anthropic / OpenAI / Google / Ollama), du modèle et de la
-  clé API.
-- Tout ce code est dans commonMain. Seul le stockage de la clé est un expect/actual.
+- Settings: choice of provider (Anthropic / OpenAI / Google / Ollama), of model and of
+  API key.
+- All this code is in commonMain. Only the key storage is an expect/actual.
 
-## 7.1 Partage des reviews (backend Kotlin)
+## 7.1 Sharing reviews (Kotlin backend)
 
-La review reste **locale** : le LLM est appelé depuis l'app, avec la clé de l'utilisateur.
-Le backend ne reçoit que ce qu'on choisit de partager, c'est-à-dire un `ReviewResult` déjà produit.
+The review stays **local**: the LLM is called from the app, with the user's key.
+The backend only receives what we choose to share, that is, an already produced `ReviewResult`.
 
-- **Bouton « Share review »** après une review : l'app envoie un `SharedReview` au serveur.
-- **Écran « Shared reviews »** : la liste des reviews partagées pour le repo ouvert
-  (filtrée par `repoUrl`). En ouvrir une affiche les nits inline comme une review locale.
-  L'ancrage par `originalSnippet` (§7) s'applique tel quel, donc une review faite sur un
-  autre commit ne casse rien : les nits se recalent ou passent au niveau du fichier.
-- **API** : `POST /reviews`, `GET /reviews?repoUrl=…`, `GET /reviews/{id}`, en JSON
+- **"Share review" button** after a review: the app sends a `SharedReview` to the server.
+- **"Shared reviews" screen**: the list of shared reviews for the open repo
+  (filtered by `repoUrl`). Opening one shows the nits inline like a local review.
+  Anchoring by `originalSnippet` (§7) applies as is, so a review made on
+  another commit breaks nothing: the nits realign or fall back to file level.
+- **API**: `POST /reviews`, `GET /reviews?repoUrl=…`, `GET /reviews/{id}`, in JSON
   (kotlinx.serialization, ContentNegotiation).
-- **Stockage** : en mémoire, plus un fichier JSON pour survivre à un redémarrage. Pas de
-  base de données, pas de comptes.
-- **URL du serveur** dans les réglages, `http://localhost:8080` par défaut. Sur Android :
-  `adb reverse tcp:8080 tcp:8080` en USB, ou l'IP LAN du laptop.
-- **Sans serveur, l'app marche** : le partage est grisé, avec un message d'erreur clair.
+- **Storage**: in memory, plus a JSON file to survive a restart. No
+  database, no accounts.
+- **Server URL** in settings, `http://localhost:8080` by default. On Android:
+  `adb reverse tcp:8080 tcp:8080` over USB, or the laptop's LAN IP.
+- **Without a server, the app still works**: sharing is greyed out, with a clear error message.
 
-Pour la démo, c'est aussi le plan B de la latence du LLM : Android ouvre la review partagée
-par le desktop, sans nouvel appel au LLM.
+For the demo, this is also the fallback for LLM latency: Android opens the review shared
+by the desktop, without a new LLM call.
 
 ## 8. Scope
 
-### MUST (sans ça, pas de démo)
+### MUST (without it, no demo)
 
-- Ouvrir un repo local (desktop) ou cloner un repo en HTTPS avec un token (Android et
+- Open a local repo (desktop) or clone a repo over HTTPS with a token (Android and
   desktop).
-- Graph des commits avec lanes et couleurs, branches et tags affichés, sélection d'un commit
-  avec ses détails.
-- Diff de la branche courante par rapport à la base, avec coloration ajout/suppression.
-- **Review IA → commentaires inline → appliquer une suggestion → commit.** C'est la boucle
-  qui gagne. Elle doit marcher en premier, même sur une UI moche.
-- Thème clair/sombre et localisation EN/FR.
-- Ça tourne sur desktop et Android.
-- Backend Ktor : partager une review depuis le desktop, l'ouvrir sur Android (§7.1). On ne
-  le commence **qu'après la porte de 21:00** : la boucle review passe avant.
+- Commit graph with lanes and colors, branches and tags displayed, selection of a commit
+  with its details.
+- Diff of the current branch against the base, with add/delete coloring.
+- **AI review → inline comments → apply a suggestion → commit.** This is the loop
+  that wins. It must work first, even on an ugly UI.
+- Light/dark theme and EN/FR localization.
+- It runs on desktop and Android.
+- Ktor backend: share a review from the desktop, open it on Android (§7.1). We only
+  start it **after the 21:00 gate**: the review loop comes first.
 
 ### SHOULD
 
-- Fetch, pull, push et checkout de branche.
-- Outils `readFile`/`listFiles` pour l'agent.
-- Résumé global de la review et score ou compteur par sévérité.
-- Streaming ou indicateur de progression pendant la review.
-- Layout adaptatif : panneaux côte à côte sur desktop, navigation par écrans sur Android.
+- Fetch, pull, push and branch checkout.
+- `readFile`/`listFiles` tools for the agent.
+- Global review summary and score or count per severity.
+- Streaming or progress indicator during the review.
+- Adaptive layout: side-by-side panes on desktop, screen navigation on Android.
 
-### WON'T (ne pas commencer, même si « c'est rapide »)
+### WON'T (do not start, even if "it's quick")
 
-- Résolution de conflits interactive (c'est seulement de la roadmap dans le pitch).
-- Rebase interactif, stash UI, submodules, LFS, SSH.
+- Interactive conflict resolution (roadmap only in the pitch).
+- Interactive rebase, stash UI, submodules, LFS, SSH.
 - iOS, web.
-- Au-delà du partage de reviews côté backend : comptes, authentification, base de
-  données, hébergement cloud, review exécutée côté serveur.
-- Authentification OAuth GitHub (un token personnel suffit).
-- Intégration runtime d'Air/Junie (appeler Air/Junie depuis l'app, en faire un provider de
-  review ou lancer la CLI dans le produit) : hors scope pour le hackathon. Air/Junie sont
-  les outils de **développement** ; le produit garde Koog.
+- Anything beyond backend review sharing: accounts, authentication,
+  database, cloud hosting, review executed server-side.
+- GitHub OAuth authentication (a personal token is enough).
+- Runtime integration of Air/Junie (calling Air/Junie from the app, making it a review
+  provider or launching the CLI inside the product): out of scope for the hackathon. Air/Junie are
+  the **development** tools; the product keeps Koog.
 
-## 9. Pistes de travail parallèles (multi-agent)
+## 9. Parallel work tracks (multi-agent)
 
-Chaque humain pilote une piste et son ou ses agents. Les pistes ne se touchent que via les
-contrats du §6.
+Each human drives a track and its agent(s). Tracks only touch each other via the
+§6 contracts.
 
-| Piste | Périmètre | Source sets |
+| Track | Scope | Source sets |
 | --- | --- | --- |
-| A : Core partagé | Modèles, algorithme de lanes du graph (+ tests), parsing du diff, agent Koog de review, validation de l'ancrage, application des suggestions | commonMain (domain, graph, diff, review) |
-| B : Git + desktop | JGitRepository, configuration Gradle des source sets, fenêtre desktop, sélecteur de dossier, écrans principaux en layout desktop | jvmShared, desktopMain, commonMain/ui |
-| C : Android + finitions | Cible Android (clone HTTPS, stockage), layout mobile, thème clair/sombre, strings EN/FR, réglages, script de comptage des lignes partagées, préparation de la démo | androidMain, commonMain/ui, composeResources |
-| D : Backend | Module `server/` (Ktor), `ReviewShareClient`, bouton Share, écran Shared reviews. Démarre après la porte de 21:00, quand l'écrivain de la boucle desktop se libère : on reste à 3 écrivains de code en parallèle | server/, commonMain/share, jvmSharedMain (moteur client) |
+| A: Shared core | Models, commit graph lane algorithm (+ tests), diff parsing, Koog review agent, anchor validation, suggestion application | commonMain (domain, graph, diff, review) |
+| B: Git + desktop | JGitRepository, Gradle configuration of source sets, desktop window, folder picker, main screens in desktop layout | jvmShared, desktopMain, commonMain/ui |
+| C: Android + finishing touches | Android target (HTTPS clone, storage), mobile layout, light/dark theme, EN/FR strings, settings, shared line-count script, demo preparation | androidMain, commonMain/ui, composeResources |
+| D: Backend | `server/` module (Ktor), `ReviewShareClient`, Share button, Shared reviews screen. Starts after the 21:00 gate, when the desktop loop writer frees up: we stay at 3 code writers in parallel | server/, commonMain/share, jvmSharedMain (client engine) |
 
-Pour coller au critère multi-agent : sur au moins une tâche (idéalement l'algorithme de
-lanes ou le prompt de review), faire produire deux agents différents sur le même problème,
-comparer leurs résultats, garder le meilleur, et documenter la comparaison.
+To match the multi-agent criterion: on at least one task (ideally the lane
+algorithm or the review prompt), have two different agents produce work on the same problem,
+compare their results, keep the best, and document the comparison.
 
-**Process** : chaque piste est pilotée dans **Air** (agent Junie/Codex/Gemini/Copilot/Claude),
-avec un humain qui relit chaque diff. Air/Junie ne sont pas une dépendance du produit : le
-code de Nitpick ne les importe pas. Le fallback est Claude Code/Codex CLI, documenté dans
+**Process**: each track is driven in **Air** (Junie/Codex/Gemini/Copilot/Claude agent),
+with a human reviewing each diff. Air/Junie are not a product dependency: Nitpick's
+code does not import them. The fallback is Claude Code/Codex CLI, documented in
 `AGENT_LOG.md`.
 
-### 9.1 Propriété des issues (à maintenir par H2)
+### 9.1 Issue ownership (maintained by H2)
 
-Mapping de travail (à corriger si un handle ne correspond pas) :
+Working mapping (to fix if a handle does not match):
 
-| Rôle | GitHub | Issues ouvertes | Air |
+| Role | GitHub | Open issues | Air |
 | --- | --- | --- | --- |
-| **H1 — Produit & Pitch** | `@dovatgabriel` | **#19 diff desktop (maintenant, avant 21:00)**, #39 démo/soumission/preuves Air ; après 21:00 : piste D #46 serveur, #48 partage, #44 repo de démo ; ensuite #33 états, #40 comptage des lignes, #45 clone desktop | Une comparaison Junie + un second agent, captures, `AGENT_LOG`/`REVIEW_LOG` |
-| **H2 — Architecte & Intégration** | `@zooldyyk` | **#20 agent Koog, puis #22 boucle review desktop (porte 21:00)** ; ensuite #36 toolbar sync, #37 filtres, #38 icônes, #43 outils Koog | Une session Air sur le prompt/le diff, comparaison, review humaine |
-| **H3 — Builder & Démo** | `@pepito2t` | **#21 clone Android, puis #23 boucle review Android (porte 02:00)** ; ensuite #34/#35 settings desktop/Android, #42 pull/checkout | Une session Air sur l'UI/Android, capture, review humaine |
+| **H1 — Product & Pitch** | `@dovatgabriel` | **#19 desktop diff (now, before 21:00)**, #39 demo/submission/Air evidence; after 21:00: track D #46 server, #48 sharing, #44 demo repo; then #33 states, #40 line count, #45 desktop clone | A Junie + second agent comparison, screenshots, `AGENT_LOG`/`REVIEW_LOG` |
+| **H2 — Architect & Integration** | `@zooldyyk` | **#20 Koog agent, then #22 desktop review loop (21:00 gate)**; then #36 sync toolbar, #37 filters, #38 icons, #43 Koog tools | One Air session on the prompt/diff, comparison, human review |
+| **H3 — Builder & Demo** | `@pepito2t` | **#21 Android clone, then #23 Android review loop (02:00 gate)**; then #34/#35 desktop/Android settings, #42 pull/checkout | One Air session on the UI/Android, screenshot, human review |
 
-Répartition par fenêtre de temps, pas par piste : #19 passe à H1 pour que H2 n'ait que
-#20 et #22 avant 21:00 (Q-018) ; #42 va avec le push de H3 ; #40 sert la démo de H1.
+Split by time window, not by track: #19 goes to H1 so that H2 has only
+#20 and #22 before 21:00 (Q-018); #42 goes with H3's push; #40 serves H1's demo.
 
-Règles :
+Rules:
 
-- Une issue = un owner = un worktree ; les tickets marqués `blocked` (#36–#38, #42, #43,
-  #45, #46, #48) attendent la porte de leur owner : 21:00 pour H2 et la piste D, 02:00
-  pour H3.
-- Chaque owner ajoute au moins une entrée `Agent via Air` dans `AGENT_LOG.md` et une
-  correction/rejet humain dans `REVIEW_LOG.md`.
-- Une seule comparaison multi-agent est nécessaire pour le bonus, mais elle doit être
-  **réelle** (même tâche, deux agents, résultat conservé, raison du choix).
+- One issue = one owner = one worktree; tickets marked `blocked` (#36–#38, #42, #43,
+  #45, #46, #48) wait for their owner's gate: 21:00 for H2 and track D, 02:00
+  for H3.
+- Each owner adds at least one `Agent via Air` entry in `AGENT_LOG.md` and one
+  human correction/rejection in `REVIEW_LOG.md`.
+- Only one multi-agent comparison is needed for the bonus, but it must be
+  **real** (same task, two agents, kept result, reason for the choice).
 
 
-## 10. Planning (les checkpoints sont des points de contrôle bloquants)
+## 10. Planning (checkpoints are blocking control points)
 
-| Heure | Objectif | Checkpoint |
+| Time | Goal | Checkpoint |
 | --- | --- | --- |
-| 12h–13h | Projet généré via le wizard, build OK sur desktop et Android, contrats du §6 écrits et validés, spike JGit sur Android | ✅ « Hello » sur les 2 cibles, JGit lit un log sur Android |
-| 13h–17h | A : lanes + diff + 1er appel Koog. B : JGitRepository + écran graph desktop. C : thème, strings, coquille Android. **Air installé sur les 3 laptops + premier agent loggé (17:30, #39)** | ✅ Graph réel affiché sur desktop, capture Air |
-| 17h–21h | Boucle review complète sur desktop (diff → Koog → commentaires inline → apply) | ✅ Boucle review de bout en bout qui marche (checkpoint critique) |
-| 21h–02h | Android branché sur le même core, clone HTTPS, fetch/pull/push, polish UI. Piste D : serveur Ktor + partage desktop → Android | ✅ Boucle review sur Android, review partagée ouverte sur Android |
-| 02h–07h | Dormir en rotation (au moins 3h chacun). Une personne au plus continue sur du polish non risqué. | |
-| 07h–09h30 | Bugfix, outils agentiques si stables, finitions UX | ✅ Feature freeze à 09h30 |
-| 09h30–11h | Repo de démo préparé, script de démo, images plein écran (partagé vs spécifique, process agentique : pas de slides, règlement LauzHack), vidéo de secours | |
-| 11h–12h | Répétition et soumission | ✅ Soumis avant 12h |
+| 12h–13h | Project generated via the wizard, build OK on desktop and Android, §6 contracts written and validated, JGit spike on Android | ✅ "Hello" on the 2 targets, JGit reads a log on Android |
+| 13h–17h | A: lanes + diff + 1st Koog call. B: JGitRepository + desktop graph screen. C: theme, strings, Android shell. **Air installed on the 3 laptops + first agent logged in (17:30, #39)** | ✅ Real graph displayed on desktop, Air screenshot |
+| 17h–21h | Full review loop on desktop (diff → Koog → inline comments → apply) | ✅ End-to-end review loop that works (critical checkpoint) |
+| 21h–02h | Android wired to the same core, HTTPS clone, fetch/pull/push, UI polish. Track D: Ktor server + desktop → Android sharing | ✅ Review loop on Android, shared review opened on Android |
+| 02h–07h | Sleep in rotation (at least 3h each). At most one person keeps going on non-risky polish. | |
+| 07h–09h30 | Bugfix, agentic tools if stable, UX finishing touches | ✅ Feature freeze at 09h30 |
+| 09h30–11h | Demo repo prepared, demo script, full-screen images (shared vs specific, agentic process: no slides, LauzHack rules), backup video | |
+| 11h–12h | Rehearsal and submission | ✅ Submitted before 12h |
 
-**Règle** : si un checkpoint est raté de plus d'une heure, on coupe du scope (SHOULD →
-WON'T). On ne repousse pas le checkpoint suivant.
+**Rule**: if a checkpoint is missed by more than an hour, we cut scope (SHOULD →
+WON'T). We do not push back the next checkpoint.
 
-## 11. Règles de travail pour les agents
+## 11. Working rules for the agents
 
-- Lire ce document en entier avant toute tâche. Respecter le scope du §8.
-- Petits incréments : une tâche = un commit ou une PR ciblée, avec un message clair en
-  anglais (`feat(graph): ...`, `fix(review): ...`).
-- Ça compile sur les deux cibles avant de rendre la main (`./scripts/check.sh` : tests
-  partagés, `:desktopApp:assemble`, `:androidApp:assembleDebug`).
-- Pas de nouvelle dépendance sans la justifier dans la PR.
-- Code et commentaires en anglais, strings UI dans les fichiers de ressources EN et FR.
-- Respecter les frontières de source sets (§6). Si une tâche semble exiger du code
-  plateforme, le dire et proposer un expect/actual minimal.
-- Ne pas halluciner d'API Koog, Compose ou JGit : vérifier dans la doc. En cas de doute,
-  l'écrire noir sur blanc dans la PR.
-- Aucun secret dans le repo (clés API, tokens). Utiliser un `.env` local ignoré par git ou
-  les réglages de l'app.
-- **Journal de l'agent** : l'agent écrit dans `progress/<ticket>.md` (agent, piste, tâche,
-  fichiers touchés, décisions, ce qui reste incertain). L'humain qui a lancé la session (Air
-  ou CLI) reporte une ligne dans `docs/AGENT_LOG.md` à la fin de la session (Q-017).
-- **Les humains relisent et rejettent** : chaque rejet ou correction humaine est noté dans
-  `docs/REVIEW_LOG.md` (quoi, pourquoi, ce qui a été changé). C'est la preuve du critère 5.
-  Ne pas sauter cette étape.
-- **Dogfooding** : dès que la review IA marche, s'en servir pour relire les branches
-  produites par les agents, et garder 2 ou 3 captures des cas où elle a trouvé un vrai
-  problème. C'est la chute de la présentation.
-- **Air/Junie** : lancer les tâches agentiques dans Air, avec un humain qui relit chaque
-  diff. Ne jamais importer Air/Junie dans le code de l'app : ce sont des outils de
-  développement, pas des dépendances runtime.
-- **Si Air est indisponible** : fallback Claude Code/Codex CLI, et le noter dans
-  `AGENT_LOG.md`. Le produit ne dépend pas d'Air.
+- Read this document in full before any task. Respect the scope of §8.
+- Small increments: one task = one commit or one targeted PR, with a clear English
+  message (`feat(graph): ...`, `fix(review): ...`).
+- It compiles on both targets before handing back (`./scripts/check.sh`: shared tests,
+  `:desktopApp:assemble`, `:androidApp:assembleDebug`).
+- No new dependency without justifying it in the PR.
+- Code and comments in English, UI strings in the EN and FR resource files.
+- Respect source set boundaries (§6). If a task seems to require platform code, say so
+  and propose a minimal expect/actual.
+- Do not hallucinate Koog, Compose or JGit APIs: check the docs. When in doubt,
+  spell it out in the PR.
+- No secrets in the repo (API keys, tokens). Use a local `.env` ignored by git or
+  the app settings.
+- **Agent log**: the agent writes to `progress/<ticket>.md` (agent, track, task,
+  files touched, decisions, what remains uncertain). The human who launched the session (Air
+  or CLI) reports one line in `docs/AGENT_LOG.md` at the end of the session (Q-017).
+- **Humans review and reject**: each human rejection or correction is recorded in
+  `docs/REVIEW_LOG.md` (what, why, what was changed). This is the evidence for criterion 5.
+  Do not skip this step.
+- **Dogfooding**: as soon as the AI review works, use it to review the branches
+  produced by the agents, and keep 2 or 3 screenshots of the cases where it found a real
+  problem. This is the presentation's punchline.
+- **Air/Junie**: launch agentic tasks in Air, with a human reviewing each
+  diff. Never import Air/Junie into the app code: they are development tools, not
+  runtime dependencies.
+- **If Air is unavailable**: fallback to Claude Code/Codex CLI, and note it in
+  `AGENT_LOG.md`. The product does not depend on Air.
 
-## 12. UX : exigences
+## 12. UX: requirements
 
-- **Desktop** : layout 3 panneaux (sidebar avec branches et refs | graph et liste des
-  commits | détails, diff et review). Raccourcis clavier pour les actions principales
-  (fetch, review, appliquer la suggestion).
-- **Android** : navigation par écrans (Repos → Graph → Diff + Review), gros boutons
-  d'action, bottom sheet pour un commentaire de review.
-- **Commentaires de review** : badge de sévérité coloré, message, bloc de diff « avant /
-  après » pour la suggestion, boutons Appliquer et Ignorer.
-- **Partage** : bouton « Share review » sur le résultat d'une review ; écran « Shared
-  reviews » (branche, commit, compteur de nits), accessible sur les 2 cibles.
-- États vides, chargement et erreur soignés partout. Ce sont les détails qui font paraître
-  l'app « native » et « polished » (critère 2).
-- Police mono pour le code, coloration ajout/suppression lisible dans les deux thèmes.
+- **Desktop**: 3-pane layout (sidebar with branches and refs | graph and commit
+  list | details, diff and review). Keyboard shortcuts for the main actions
+  (fetch, review, apply the suggestion).
+- **Android**: screen navigation (Repos → Graph → Diff + Review), large action
+  buttons, bottom sheet for a review comment.
+- **Review comments**: colored severity badge, message, "before /
+  after" diff block for the suggestion, Apply and Ignore buttons.
+- **Sharing**: "Share review" button on a review result; "Shared
+  reviews" screen (branch, commit, nit count), accessible on the 2 targets.
+- Empty, loading and error states polished everywhere. These are the details that make
+  the app look "native" and "polished" (criterion 2).
+- Mono font for code, add/delete coloring readable in both themes.
 
-## 13. Démo (la cible vers laquelle tout converge)
+## 13. Demo (the target everything converges toward)
 
-1. **Hook (20 s)** : « Qui ici a mergé du code écrit par une IA sans le lire en entier ?
-   Nitpick, c'est le collègue pinailleur qu'on n'a plus le temps d'être. »
-2. Ouvrir un repo sur desktop : le graph, les branches.
-3. Se placer sur une branche écrite par un agent pendant le hackathon et cliquer sur
-   « Nitpick this branch » : les nits apparaissent inline, dont un vrai bug.
-4. Appliquer la suggestion, puis commit. Cliquer sur « Share review ».
-5. Sur Android : même repo, et la review partagée arrive par le backend Ktor (mêmes nits,
-   sans rappeler le LLM). Accepter une suggestion depuis le téléphone, puis push.
-6. Partagé vs spécifique, sans slide (règlement LauzHack, Q-007/Q-016) : la sortie du script
-   de comptage des lignes par source set (#40) en live, ou une image plein écran avec le
-   schéma du §6. Message : les mêmes modèles `domain` tournent sur desktop, Android **et**
-   le serveur.
-7. Process agentique, sans slide : 2–3 captures Air en images plein écran (agents côte à
-   côte), les 3 pistes, la comparaison multi-agent, quelques entrées du REVIEW_LOG (« voici
-   ce qu'on a refusé à nos agents »). Le message : on a utilisé Air/Junie pour construire,
-   et notre propre outil pour relire nos agents.
-8. Roadmap en une phrase : résolution de conflits assistée par IA, iOS via l'API GitHub.
+1. **Hook (20 s)**: "Who here has merged AI-written code without reading it in full?
+   Nitpick is the nitpicking colleague we no longer have time to be."
+2. Open a repo on desktop: the graph, the branches.
+3. Switch to a branch written by an agent during the hackathon and click
+   "Nitpick this branch": the nits appear inline, including a real bug.
+4. Apply the suggestion, then commit. Click "Share review".
+5. On Android: same repo, and the shared review arrives through the Ktor backend (same nits,
+   without calling the LLM again). Accept a suggestion from the phone, then push.
+6. Shared vs specific, without slides (LauzHack rules, Q-007/Q-016): the output of the
+   line-count-per-source-set script (#40) live, or a full-screen image with the
+   §6 diagram. Message: the same `domain` models run on desktop, Android **and**
+   the server.
+7. Agentic process, without slides: 2–3 Air screenshots as full-screen images (agents side by
+   side), the 3 tracks, the multi-agent comparison, a few REVIEW_LOG entries ("here is
+   what we rejected from our agents"). The message: we used Air/Junie to build,
+   and our own tool to review our agents.
+8. Roadmap in one sentence: AI-assisted conflict resolution, iOS via the GitHub API.
 
-Préparer un repo de démo dédié, avec une branche contenant des défauts volontaires mais
-crédibles (bug off-by-one, injection SQL, ressource non fermée), plus une vidéo de secours
-au cas où le Wi-Fi ou le LLM lâcherait.
+Prepare a dedicated demo repo, with a branch containing deliberate but
+credible defects (off-by-one bug, SQL injection, unclosed resource), plus a backup video
+in case the Wi-Fi or the LLM gives out.
 
-## 14. Risques connus et fallbacks
+## 14. Known risks and fallbacks
 
-| Risque | Fallback |
+| Risk | Fallback |
 | --- | --- |
-| JGit récent incompatible avec Android | Spike dès l'heure 1. Essayer le core library desugaring (java.nio) avec minSdk 26, sinon une version plus ancienne de JGit, sinon un fork Android de JGit. En dernier recours, Android lit le repo via l'API REST GitHub, derrière la même interface GitRepository (ça reste une démonstration propre de l'abstraction). |
-| API Koog différente de ce qu'on croit | Doc officielle + exemples du repo GitHub de Koog. Commencer par l'appel le plus simple (un prompt, une sortie structurée), et n'ajouter les outils qu'ensuite. |
-| Le LLM renvoie des numéros de ligne faux | La validation par `originalSnippet` (§7) et le rattachement au fichier entier en dernier recours. |
-| Latence du LLM pendant la démo | Indicateur de progression, modèle rapide par défaut, et un résultat de review mis en cache pour le repo de démo (activable dans les réglages). |
-| Le téléphone n'atteint pas le serveur (Wi-Fi qui isole les clients) | `adb reverse tcp:8080 tcp:8080` en USB, ou l'émulateur (`10.0.2.2`). L'app reste utilisable sans serveur. |
-| Graph lent sur un gros repo | Limiter à 500 commits, LazyColumn, et calcul des lanes hors du thread UI. |
-| Gradle ou KMP qui bloque des débutants | Ne pas « optimiser » la config : rester au plus près du template du wizard. |
-| Air/Junie indisponible (EAP, compte, réseau) | Utiliser Claude Code/Codex CLI ; le produit ne dépend pas d'Air ; documenter le fallback dans `AGENT_LOG.md`. |
-| Air demande un trust projet / des permissions | Accepter le trust sur le repo, vérifier `.junie`/MCP, ne jamais exposer `.env` ; garder les agents dans le repo ouvert. |
+| Recent JGit incompatible with Android | Spike from hour 1. Try core library desugaring (java.nio) with minSdk 26, otherwise an older JGit version, otherwise an Android fork of JGit. As a last resort, Android reads the repo via the GitHub REST API, behind the same GitRepository interface (it remains a clean demonstration of the abstraction). |
+| Koog API different from what we think | Official docs + examples from the Koog GitHub repo. Start with the simplest call (one prompt, one structured output), and add tools only afterwards. |
+| The LLM returns wrong line numbers | Validation via `originalSnippet` (§7) and, as a last resort, attaching to the whole file. |
+| LLM latency during the demo | Progress indicator, fast model by default, and a cached review result for the demo repo (toggleable in settings). |
+| The phone cannot reach the server (Wi-Fi that isolates clients) | `adb reverse tcp:8080 tcp:8080` over USB, or the emulator (`10.0.2.2`). The app remains usable without a server. |
+| Slow graph on a large repo | Limit to 500 commits, LazyColumn, and lane computation off the UI thread. |
+| Gradle or KMP blocking beginners | Do not "optimize" the config: stay as close as possible to the wizard template. |
+| Air/Junie unavailable (EAP, account, network) | Use Claude Code/Codex CLI; the product does not depend on Air; document the fallback in `AGENT_LOG.md`. |
+| Air asks for project trust / permissions | Accept trust on the repo, check `.junie`/MCP, never expose `.env`; keep the agents inside the open repo. |
 
-## 15. Références
+## 15. References
 
-- Brief challenge JetBrains : [`docs/JETBRAINS-CHALLENGE.md`](JETBRAINS-CHALLENGE.md)
-- Handoff de review : [`docs/HANDOFF.md`](HANDOFF.md)
-- KMP templates / wizard : https://kmp.jetbrains.com
-- Doc KMP : https://kotlinlang.org/docs/multiplatform/multiplatform-create-first-app.html
-- Compose Multiplatform : https://www.jetbrains.com/compose-multiplatform/
-- Koog : https://docs.koog.ai et https://github.com/JetBrains/koog
-- Ktor (server et client) : https://ktor.io/docs/
-- Air in JetBrains IDEs (EAP) : https://blog.jetbrains.com/ai/2026/10/air-in-ides-eap/
-- Air docs : https://www.jetbrains.com/help/air/
-- Junie / Junie Lite : https://junie.jetbrains.com
-- JGit : https://github.com/eclipse-jgit/jgit (cookbook : https://github.com/centic9/jgit-cookbook)
-- Vidéo MVI + Compose MP : https://youtu.be/dveR4xWid4Q
+- JetBrains challenge brief: [`docs/JETBRAINS-CHALLENGE.md`](JETBRAINS-CHALLENGE.md)
+- Review handoff: [`docs/HANDOFF.md`](HANDOFF.md)
+- KMP templates / wizard: https://kmp.jetbrains.com
+- KMP docs: https://kotlinlang.org/docs/multiplatform/multiplatform-create-first-app.html
+- Compose Multiplatform: https://www.jetbrains.com/compose-multiplatform/
+- Koog: https://docs.koog.ai and https://github.com/JetBrains/koog
+- Ktor (server and client): https://ktor.io/docs/
+- Air in JetBrains IDEs (EAP): https://blog.jetbrains.com/ai/2026/10/air-in-ides-eap/
+- Air docs: https://www.jetbrains.com/help/air/
+- Junie / Junie Lite: https://junie.jetbrains.com
+- JGit: https://github.com/eclipse-jgit/jgit (cookbook: https://github.com/centic9/jgit-cookbook)
+- MVI + Compose MP video: https://youtu.be/dveR4xWid4Q

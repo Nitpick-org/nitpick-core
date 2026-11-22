@@ -1,77 +1,77 @@
-# Stack — choisir vite, déployer tôt, ne pas casser la démo
+# Stack — choose fast, deploy early, do not break the demo
 
-> La meilleure stack est celle que **vous savez déboguer à 3 h du matin**. Pas la plus
-> hype. Ce document aide à trancher en 15 minutes et à poser un contrat commun.
+> The best stack is the one **you know how to debug at 3 a.m.** Not the most
+> hyped. This document helps you decide in 15 minutes and lay down a common contract.
 
-## Décider en 15 minutes (J-4 ou H0)
+## Decide in 15 minutes (D-4 or H0)
 
-Chaque humain note de 1 à 5 :
+Each human scores from 1 to 5:
 
-| Critère | Question |
+| Criterion | Question |
 | --- | --- |
-| Maîtrise | Est-ce que je peux corriger un bug sans IA ? |
-| Déploiement | Preview par branche en < 5 min ? |
-| Écosystème | Auth, DB, stockage, IA, UI : tout existe ? |
-| Feedback | Typecheck + tests + e2e en < 60 s ? |
-| Risque | Quelle intégration peut nous coûter 4 h ? |
+| Mastery | Can I fix a bug without AI? |
+| Deployment | Preview per branch in < 5 min? |
+| Ecosystem | Auth, DB, storage, AI, UI: does everything exist? |
+| Feedback | Typecheck + tests + e2e in < 60 s? |
+| Risk | Which integration could cost us 4 h? |
 
-Prendre la stack avec la **somme la plus haute**, pas la plus populaire. Si égalité :
-prendre celle qui a le moins de dépendances externes.
+Take the stack with the **highest total**, not the most popular. In case of a tie:
+take the one with the fewest external dependencies.
 
-## Trois options raisonnables
+## Three reasonable options
 
-| Stack | Pour qui | Forces | Risques |
+| Stack | For whom | Strengths | Risks |
 | --- | --- | --- | --- |
-| **Next.js 15 + TS + Tailwind + shadcn/ui + Postgres (Supabase/Neon) + Vercel** | défaut si personne n'a de préférence forte | déploiement preview, écosystème IA, UI rapide, un seul repo | App Router/Server Actions à maîtriser ; Vercel peut coûter |
-| **SvelteKit + TS + Tailwind + Postgres + Vercel/Cloudflare** | équipe à l'aise avec Svelte | léger, rapide, peu de magie | moins de templates hackathon |
-| **Symfony 8 + Turbo/Stimulus + Postgres + Fly.io/Platform.sh** | équipe PHP forte | Turbo = UI rapide sans SPA, solide | bootstrap plus long, moins d'exemples IA |
+| **Next.js 15 + TS + Tailwind + shadcn/ui + Postgres (Supabase/Neon) + Vercel** | default if nobody has a strong preference | preview deployment, AI ecosystem, fast UI, a single repo | App Router/Server Actions to master; Vercel can get expensive |
+| **SvelteKit + TS + Tailwind + Postgres + Vercel/Cloudflare** | a team comfortable with Svelte | lightweight, fast, little magic | fewer hackathon templates |
+| **Symfony 8 + Turbo/Stimulus + Postgres + Fly.io/Platform.sh** | a strong PHP team | Turbo = fast UI without a SPA, solid | longer bootstrap, fewer AI examples |
 
-> Le repo est **agnostique** : `check.sh` ne connaît que les scripts de `package.json`.
-> Si vous choisissez Symfony, gardez les mêmes noms de scripts dans `package.json`
+> The repo is **agnostic**: `check.sh` only knows about the scripts in `package.json`.
+> If you choose Symfony, keep the same script names in `package.json`
 > (`typecheck` → PHPStan, `lint` → PHP-CS-Fixer, `test` → PHPUnit, `e2e` → Playwright).
-> `check.sh` reste identique : il appelle les scripts, pas la stack.
+> `check.sh` stays identical: it calls the scripts, not the stack.
 
-## Décision à H0 (11:40–12:00)
+## Decision at H0 (11:40–12:00)
 
-Si la stack n'est pas choisie avant, elle se décide **après l'idée**, pendant le team
-building, en 15 minutes. Ne pas laisser ce choix dépasser 12:00.
+If the stack is not chosen beforehand, it is decided **after the idea**, during team
+building, in 15 minutes. Do not let this choice slip past 12:00.
 
-| Type d'idée | Stack par défaut | Pourquoi |
+| Type of idea | Default stack | Why |
 | --- | --- | --- |
-| Web + UI + API/LLM | **Next.js 15 + TS** | UI + routes API dans un seul repo, preview Vercel |
-| Web simple, démo visuelle | **Vite + React + TS** (starter du dry run) | déjà testé : `check.sh`, e2e, build en quelques minutes |
-| CLI / backend / data | **Node/TS** ou **Python** | le moins de couches possible |
-| Hardware / capteur | **Python** | bibliothèques et scripts rapides |
-| Mobile | **Expo / React Native** | preview sur téléphone |
-| Équipe PHP forte | **Symfony 8 + Turbo** | la maîtrise prime sur la hype |
+| Web + UI + API/LLM | **Next.js 15 + TS** | UI + API routes in a single repo, Vercel preview |
+| Simple web, visual demo | **Vite + React + TS** (dry run starter) | already tested: `check.sh`, e2e, build in a few minutes |
+| CLI / backend / data | **Node/TS** or **Python** | as few layers as possible |
+| Hardware / sensor | **Python** | fast libraries and scripts |
+| Mobile | **Expo / React Native** | preview on a phone |
+| Strong PHP team | **Symfony 8 + Turbo** | mastery beats hype |
 
-Règles :
+Rules:
 
-- Prendre la stack que **2 des 3** savent déboguer sans IA.
-- Une seule intégration externe risquée maximum.
-- **Fallback connu** : le starter Vite/React du dry run (`dry-run/starter/`) a déjà
-  `check.sh`, `check.sh --demo`, build et e2e. En cas d'hésitation à 12:00, on part dessus
-  et on remplace Pulse par l'idée.
-- Si aucune décision à **12:00**, fallback Vite. On ne décale pas le squelette de 16:00.
+- Take the stack that **2 out of 3** can debug without AI.
+- One risky external integration maximum.
+- **Known fallback**: the Vite/React starter from the dry run (`dry-run/starter/`) already
+  has `check.sh`, `check.sh --demo`, build and e2e. If you hesitate at 12:00, go with it
+  and replace Pulse with the idea.
+- If no decision by **12:00**, Vite fallback. We do not push back the 16:00 skeleton.
 
-> Attendre l'idée pour choisir la stack est sain. Attendre l'idée pour **préparer** le
-> bootstrap ne l'est pas : la décision doit coûter 15 minutes, pas 2 heures.
+> Waiting for the idea to choose the stack is healthy. Waiting for the idea to **prepare**
+> the bootstrap is not: the decision must cost 15 minutes, not 2 hours.
 
-## Le contrat de scripts
+## The script contract
 
-`package.json` doit exposer :
+`package.json` must expose:
 
-| Script | Rôle | Obligatoire |
+| Script | Role | Mandatory |
 | --- | --- | --- |
-| `dev` | serveur local | oui |
-| `build` | build de production | oui |
-| `typecheck` | TypeScript/PHPStan, zéro erreur | oui |
-| `lint` | ESLint/PHP-CS-Fixer | oui |
-| `test` | tests unitaires/intégration | oui |
-| `e2e` | parcours de `docs/DEMO.md` | oui avant H6 |
-| `format` | Prettier/CS-Fixer | recommandé |
+| `dev` | local server | yes |
+| `build` | production build | yes |
+| `typecheck` | TypeScript/PHPStan, zero errors | yes |
+| `lint` | ESLint/PHP-CS-Fixer | yes |
+| `test` | unit/integration tests | yes |
+| `e2e` | the `docs/DEMO.md` walkthrough | yes before H6 |
+| `format` | Prettier/CS-Fixer | recommended |
 
-Exemple de `package.json` (Next.js) :
+Example of `package.json` (Next.js):
 
 ```json
 {
@@ -89,13 +89,13 @@ Exemple de `package.json` (Next.js) :
 }
 ```
 
-> `packageManager` est **obligatoire** si vous utilisez pnpm : la CI s'en sert pour installer
-> la bonne version. Sans lui, `pnpm/action-setup` échoue. Si vous utilisez npm, mettez
-> `"packageManager": "npm@11"` et pas de `pnpm-lock.yaml`.
+> `packageManager` is **mandatory** if you use pnpm: the CI relies on it to install
+> the right version. Without it, `pnpm/action-setup` fails. If you use npm, put
+> `"packageManager": "npm@11"` and no `pnpm-lock.yaml`.
 
-## Bootstrap Next.js (si c'est le choix)
+## Next.js bootstrap (if that is the choice)
 
-Le dossier contient déjà `docs/`, `.claude/`, `scripts/`, `README.md`. Ne les écrasez pas.
+The folder already contains `docs/`, `.claude/`, `scripts/`, `README.md`. Do not overwrite them.
 
 ```bash
 # 1. Generate the app in a temporary directory
@@ -118,26 +118,26 @@ pnpm install
 ./scripts/check.sh
 ```
 
-Si `pnpm create next-app` refuse un dossier non vide, gardez l'app dans un sous-dossier
-`app/` et adaptez les chemins. **Ne perdez pas 2 h sur le scaffold** : au pire, un
-`create-vite` + React fait très bien l'affaire pour une démo.
+If `pnpm create next-app` refuses a non-empty folder, keep the app in an `app/`
+subfolder and adapt the paths. **Do not lose 2 h on the scaffold**: at worst, a
+`create-vite` + React does the job very well for a demo.
 
-## Ce qu'il faut avoir avant H0
+## What you must have before H0
 
-- [ ] Un repo GitHub **public** (le lien de soumission doit être accessible sans login).
-- [ ] `main` accessible : merge direct autorisé ; PR et CI recommandées, pas bloquantes.
-- [ ] Une app « hello world » **déployée** avec preview par branche.
-- [ ] `./scripts/check.sh` vert en < 60 s.
-- [ ] `./scripts/check.sh --demo` avec un test Playwright qui suit `docs/DEMO.md`.
-- [ ] `.env.example` complet, `.env` local rempli, aucun secret commité.
-- [ ] Un endpoint `/api/health` qui répond 200.
-- [ ] Un mode `DEMO_MODE=mock` qui permet de faire la démo sans réseau.
-- [ ] Des données de démo seedées (`scripts/seed.ts` ou équivalent).
-- [ ] Une vidéo de secours de 2 minutes, enregistrée avant H20.
+- [ ] A **public** GitHub repo (the submission link must be reachable without login).
+- [ ] `main` reachable: direct merge allowed; PRs and CI recommended, not blocking.
+- [ ] A "hello world" app **deployed** with a preview per branch.
+- [ ] `./scripts/check.sh` green in < 60 s.
+- [ ] `./scripts/check.sh --demo` with a Playwright test that follows `docs/DEMO.md`.
+- [ ] A complete `.env.example`, a filled local `.env`, no committed secret.
+- [ ] A `/api/health` endpoint that answers 200.
+- [ ] A `DEMO_MODE=mock` mode that lets you run the demo without a network.
+- [ ] Seeded demo data (`scripts/seed.ts` or equivalent).
+- [ ] A 2-minute backup video, recorded before H20.
 
-## Variables d'environnement
+## Environment variables
 
-`.env.example` :
+`.env.example`:
 
 ```bash
 # App
@@ -162,48 +162,48 @@ AUTH_SECRET=
 SPONSOR_API_KEY=
 ```
 
-Règles :
+Rules:
 
-- `.env` n'est **jamais** commité, jamais lu par un agent, jamais mis dans un prompt.
-- Validez les variables au démarrage avec `zod` (ou équivalent) et un message clair.
-- En démo, si une clé manque : `DEMO_MODE=mock`, pas un crash.
+- `.env` is **never** committed, never read by an agent, never put in a prompt.
+- Validate the variables at startup with `zod` (or equivalent) and a clear message.
+- During the demo, if a key is missing: `DEMO_MODE=mock`, not a crash.
 
-## Déploiement
+## Deployment
 
-- **Déployer à H0+1**, pas à H22. Une preview qui marche vaut 10 features.
-- Choisir une plateforme avec **preview par branche** (Vercel, Netlify, Cloudflare Pages,
-  Fly.io). Le jury peut demander à voir le lien.
-- Protéger les previews par mot de passe si elles contiennent des données sensibles.
-- Garder un **domaine stable** pour la démo ; éviter les URLs qui changent à chaque deploy.
-- Vérifier le deploy **sur le Wi-Fi du lieu**, pas seulement à la maison.
+- **Deploy at H0+1**, not at H22. A working preview is worth 10 features.
+- Choose a platform with **preview per branch** (Vercel, Netlify, Cloudflare Pages,
+  Fly.io). The jury may ask to see the link.
+- Protect the previews with a password if they contain sensitive data.
+- Keep a **stable domain** for the demo; avoid URLs that change on every deploy.
+- Test the deploy **on the venue's Wi-Fi**, not only at home.
 
-## Résilience de démo
+## Demo resilience
 
-| Risque | Protection |
+| Risk | Protection |
 | --- | --- |
-| API sponsor down | mock + cache + fallback local |
-| Quota épuisé | clé de secours, réponses précalculées |
-| Réseau lent | précharger, afficher un état de chargement, éviter les appels bloquants |
-| Base vide | seed script, données de démo réalistes |
-| Merge cassé | tag `demo-v1`, branche `demo-freeze`, revert rapide |
-| Démo live qui casse | vidéo de secours + captures + mode mock |
-| Écran du jury | police lisible, zoom, contraste, pas de menu caché |
-| Petit écran | tester 1280×720 et mobile |
+| Sponsor API down | mock + cache + local fallback |
+| Quota exhausted | backup key, precomputed responses |
+| Slow network | preload, show a loading state, avoid blocking calls |
+| Empty database | seed script, realistic demo data |
+| Broken merge | `demo-v1` tag, `demo-freeze` branch, quick revert |
+| Live demo breaking | backup video + screenshots + mock mode |
+| Jury screen | readable font, zoom, contrast, no hidden menu |
+| Small screen | test 1280×720 and mobile |
 
-## Observabilité minimale
+## Minimal observability
 
-- Un log par étape du parcours de démo (`demo:step=...`).
-- Une page `/api/health` qui vérifie DB + clés.
-- Un error boundary qui affiche un message utile, pas une stack trace.
-- Un bouton « reset demo » qui remet les données seedées.
+- One log per step of the demo walkthrough (`demo:step=...`).
+- A `/api/health` page that checks DB + keys.
+- An error boundary that shows a useful message, not a stack trace.
+- A "reset demo" button that restores the seeded data.
 
-## Sécurité
+## Security
 
-- Aucun secret dans le repo, les prompts, les logs, les captures.
-- Valider les entrées utilisateur (même en hackathon).
-- Ne pas exposer de données personnelles réelles ; utiliser des données synthétiques.
-- Si vous utilisez un LLM : limiter les tokens, timeout, pas de clé côté client.
-- Lire `docs/AGENT-OPS.md` pour les permissions agents.
+- No secret in the repo, the prompts, the logs, the screenshots.
+- Validate user input (even at a hackathon).
+- Do not expose real personal data; use synthetic data.
+- If you use an LLM: limit tokens, set a timeout, no key on the client side.
+- Read `docs/AGENT-OPS.md` for agent permissions.
 
 ## Sources
 

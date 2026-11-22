@@ -1,55 +1,55 @@
 # Ticket 36-sync-toolbar
 
-- Statut : en review ; corrections après auto-review (PR #72)
-- Propriétaire humain : @zooldyyk
-- Piste : B + C (toolbar desktop, écran Graph Android)
-- Agent : lead
-- Model : session principale
-- Escalations : aucune
-- Fichiers : `shared/src/commonMain/.../domain/TrackingStatus.kt`,
+- Status: in review; fixes after self-review (PR #72)
+- Human owner: @zooldyyk
+- Track: B + C (desktop toolbar, Android Graph screen)
+- Agent: lead
+- Model: main session
+- Escalations: none
+- Files: `shared/src/commonMain/.../domain/TrackingStatus.kt`,
   `git/GitRepository.kt`, `ui/repository/{RepositoryViewModel,RepositoryScreen,SyncStatus}.kt`,
   `ui/phone/{PhoneFlow,PhoneGraphScreen}.kt`, `ui/App.kt`, `jvmSharedMain/.../JGitRepository.kt`,
   `jvmTest/.../JGitRepositoryTest.kt`, `composeResources/values{,-fr}`
 
-## Journal
+## Log
 
-- 20:55 — `TrackingStatus(ahead, behind, upstream)` dans le contrat git, implémenté avec
-  `BranchTrackingStatus` ; `upstream` raccourci en `origin/main`.
-- 21:00 — VM : `fetchBranch`, `isFetching`, `fetchError`, `tracking` rechargé après load,
-  commit, fetch, pull, push et checkout. `hasUnpushedCommits` utilise `ahead` quand il existe.
-- 21:05 — desktop : Fetch / Pull n / Push n dans la toolbar, `↑n` sur la branche courante,
-  `↑n ↓m` dans la status bar. Android : mêmes trois actions sur l'écran Graph.
-- 21:10 — test JGit : clone avec commit local (ahead 1), puis commit distant + fetch
-  (ahead 1, behind 1, upstream `origin/main`). **126 tests JVM, 0 échec**.
-- 21:20 — auto-review : tooltips ⌘⇧F/L/P, séparateur avant le CTA, Push masqué sans
-  upstream, `↑n` réellement lu dans l'arbre, compteurs Android, strings `sync_*` EN/FR,
-  fetchError effacé par un pull. Reste : carte branche Android 44 dp (les actions sont
-  encore dans la top bar), `DECISIONS.md` (fichier humain), `check.sh` avec SDK. **126 tests
-  JVM, 0 échec**.
+- 20:55 — `TrackingStatus(ahead, behind, upstream)` in the git contract, implemented with
+  `BranchTrackingStatus`; `upstream` shortened to `origin/main`.
+- 21:00 — VM: `fetchBranch`, `isFetching`, `fetchError`, `tracking` reloaded after load,
+  commit, fetch, pull, push and checkout. `hasUnpushedCommits` uses `ahead` when it exists.
+- 21:05 — desktop: Fetch / Pull n / Push n in the toolbar, `↑n` on the current branch,
+  `↑n ↓m` in the status bar. Android: same three actions on the Graph screen.
+- 21:10 — JGit test: clone with a local commit (ahead 1), then remote commit + fetch
+  (ahead 1, behind 1, upstream `origin/main`). **126 JVM tests, 0 failures**.
+- 21:20 — self-review: ⌘⇧F/L/P tooltips, separator before the CTA, Push hidden without
+  upstream, `↑n` actually read from the tree, Android counters, `sync_*` strings EN/FR,
+  fetchError cleared by a pull. Remaining: Android branch card 44 dp (the actions are
+  still in the top bar), `DECISIONS.md` (human file), `check.sh` with SDK. **126 JVM
+  tests, 0 failures**.
 
-## Décisions
+## Decisions
 
-- Sans upstream, les compteurs disparaissent et **Push n'est pas proposé** : publier une
-  branche est hors scope (l'utilisateur peut le faire avec git). Pull/Fetch restent visibles.
-- Fetch ne touche pas l'arbre de travail ; Pull garde la règle #42 (conflit annulé, review
-  réinitialisée si des commits arrivent).
-- Un seul `isSyncing` pour Fetch / Pull / Push / Checkout.
+- Without upstream, the counters disappear and **Push is not offered**: publishing a
+  branch is out of scope (the user can do it with git). Pull/Fetch stay visible.
+- Fetch does not touch the working tree; Pull keeps rule #42 (conflict cancelled, review
+  reset if commits arrive).
+- A single `isSyncing` for Fetch / Pull / Push / Checkout.
 
-## Vérifications
+## Verifications
 
-- `:shared:jvmTest --rerun-tasks` : **126 tests, 0 échec**.
-- `:shared:compileKotlinJvm` + `:desktopApp:compileKotlin` verts.
-- `./scripts/check.sh` complet non lancé (pas de SDK Android ici) : case DoD encore
-  ouverte, à ne pas merger avant la machine avec SDK.
-- Non rejoué à la main : toolbar desktop et boutons Android.
+- `:shared:jvmTest --rerun-tasks`: **126 tests, 0 failures**.
+- `:shared:compileKotlinJvm` + `:desktopApp:compileKotlin` green.
+- Full `./scripts/check.sh` not run (no Android SDK here): DoD item still
+  open, do not merge before the machine with the SDK.
+- Not replayed by hand: desktop toolbar and Android buttons.
 
-## Incertain
+## Uncertain
 
-- `BranchTrackingStatus.of` exige une branche avec upstream ; une branche locale sans
-  upstream renvoie `null` et n'affiche pas de compteurs.
-- Les boutons ne sont pas grisés, seulement neutralisés par `isSyncing` ; un état visuel
-  disabled peut suivre dans le polish.
-- Android : les trois actions sont dans la top bar, pas encore la carte branche 44 dp du
-  handoff §4.2 ; les compteurs sont affichés dans l'en-tête. Écart assumé vu l'heure.
-- Décision « Push masqué sans upstream » consignée ici, mais **pas encore dans
-  `docs/DECISIONS.md`** (fichier réservé aux humains).
+- `BranchTrackingStatus.of` requires a branch with an upstream; a local branch without
+  upstream returns `null` and shows no counters.
+- The buttons are not greyed out, only neutralised by `isSyncing`; a disabled visual
+  state may follow in the polish.
+- Android: the three actions are in the top bar, not yet the 44 dp branch card of
+  handoff §4.2; the counters are shown in the header. Deviation accepted given the time.
+- The "Push hidden without upstream" decision is recorded here, but **not yet in
+  `docs/DECISIONS.md`** (file reserved for humans).

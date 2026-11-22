@@ -1,58 +1,58 @@
-# Questions agents → humains
+# Questions agents → humans
 
-> Les agents écrivent ici quand personne n'est disponible. **Append-only** : on ajoute une
-> ligne, on ne réécrit pas celles des autres. Les humains répondent à chaque sync.
+> Agents write here when no one is available. **Append-only**: we add a line, we do not
+> rewrite other people's. Humans answer at each sync.
 
-## Priorités
+## Priorities
 
-- **P0** : bloque un ticket critique démo. Réponse attendue < 30 min.
-- **P1** : bloque un ticket non critique. Réponse au prochain sync.
-- **P2** : curiosité / amélioration. Réponse si le temps le permet.
+- **P0**: blocks a demo-critical ticket. Answer expected < 30 min.
+- **P1**: blocks a non-critical ticket. Answer at the next sync.
+- **P2**: curiosity / improvement. Answer if time allows.
 
-## File
+## Queue
 
-| Heure | Prio | Agent / ticket | Question | Options | Recommandation | Réponse humaine |
+| Time | Prio | Agent / ticket | Question | Options | Recommendation | Human answer |
 | --- | --- | --- | --- | --- | --- | --- |
 | | | | | | | |
-| 13:05 | P1 | 13-structure | `GitRepositoryFactory` et `SettingsStore` en interface plutôt qu en `expect` (§6) ? | expect/actual avec actual vide / interface injectée via AppContainer | interface : un expect sans actual ne compile pas, et la DI manuelle du §5 suffit | |
+| 13:05 | P1 | 13-structure | `GitRepositoryFactory` and `SettingsStore` as an interface rather than an `expect` (§6)? | expect/actual with empty actual / interface injected via AppContainer | interface: an expect without actual does not compile, and the manual DI of §5 suffices | |
 
-## À répondre avant H0
+## To answer before H0
 
-| # | Question | Options | Recommandation | Qui |
+| # | Question | Options | Recommendation | Who |
 | --- | --- | --- | --- | --- |
-| Q-001 | Quelle stack ? | Next.js / SvelteKit / Symfony+Turbo | celle que les 3 maîtrisent | H2 |
-| Q-002 | Quel challenge sponsor viser ? | aucun / 1 / 2 | 1 principal, annoncé aux tech talks | H1 |
-| Q-003 | Qui tient le formulaire de soumission ? | H1 / H2 | H1, backup H2 | H1 |
-| Q-004 | Usage payant après la limite hebdo Ultra ? | non / oui plafonné 50 $ / oui 100 $ | non, sauf si un compte est à sec avant 23:00 | H2 |
-| Q-005 | Repo public dès maintenant ? | oui/non | oui, pas de secret dans l'historique | H2 |
-| Q-006 | Clé API de l'app : crédits Ultra ou autre ? | crédits Ultra / clé perso / sponsor | crédits Ultra (`APP_ANTHROPIC_API_KEY`) | H2 |
+| Q-001 | Which stack? | Next.js / SvelteKit / Symfony+Turbo | the one all 3 master | H2 |
+| Q-002 | Which sponsor challenge to aim for? | none / 1 / 2 | 1 main one, announced at the tech talks | H1 |
+| Q-003 | Who owns the submission form? | H1 / H2 | H1, backup H2 | H1 |
+| Q-004 | Paid usage after the Ultra weekly limit? | no / yes capped at 50 $ / yes 100 $ | no, unless an account runs dry before 23:00 | H2 |
+| Q-005 | Public repo right now? | yes/no | yes, no secret in the history | H2 |
+| Q-006 | App API key: Ultra credits or something else? | Ultra credits / personal key / sponsor | Ultra credits (`APP_ANTHROPIC_API_KEY`) | H2 |
 
-## Écarts entre docs (relevés le 21/11 à H0+1, à trancher)
+## Discrepancies between docs (recorded on 21/11 at H0+1, to be settled)
 
-En attendant la réponse, les agents appliquent l'ordre d'autorité d'`AGENTS.md` :
-règlement LauzHack, puis `docs/CONTEXT.md`, puis le reste.
+While waiting for the answer, agents apply the order of authority of `AGENTS.md`:
+the LauzHack rules, then `docs/CONTEXT.md`, then the rest.
 
-| # | Écart | Options | Recommandation | Qui |
+| # | Discrepancy | Options | Recommendation | Who |
 | --- | --- | --- | --- | --- |
-| Q-007 | `CONTEXT.md` §13 prévoit deux slides (partagé vs spécifique, process agentique) ; le règlement LauzHack interdit les slides (images et vidéos de secours autorisées). | écran « About » dans l'app + sortie du script de comptage / images de secours plein écran / garder les slides | écran dans l'app + sortie du script en live ; aucune slide | H1 |
-| Q-008 | `CONTEXT.md` §2 parle d'agents dans « JetBrains Air » ; le talk JetBrains parle de JetBrains AI et de Junie (bonus ~10–15 %, à vérifier) ; l'équipe travaille avec Claude Code. | Claude Code seul / Claude Code + au moins une vraie tâche Junie loggée / tout dans Junie | Claude Code + une tâche Junie réelle dans `AGENT_LOG.md` ; confirmer le nom au stand | H1 |
-| Q-009 | Planning : `CONTEXT.md` §10 (portes 13/17/21 h, sommeil 02–07 h, ≥ 3 h chacun) contre `PLAYBOOK.md`/`STRATEGY.md` (squelette déployé à 16:00, shifts de 4 h à 22/02/06 h). | `CONTEXT.md` / `PLAYBOOK.md` / mélange | portes et fenêtre de sommeil de `CONTEXT.md` ; rotation à fixer en sync | tous |
-| Q-010 | JGit 6.10.1 au lieu de la dernière stable (`CONTEXT.md` §5) : JGit 7 ne se dexe pas sous l'API 34 (commit `df36830`). | valider / JGit 7 avec minSdk 34 | valider, l'inscrire dans `DECISIONS.md` | H2 |
-| Q-011 | Le wizard génère `shared/` + `desktopApp/` + `androidApp/`, pas le `composeApp/` du §6 ; le source set s'appelle `jvmSharedMain`. | valider et corriger le §6 / revenir à `composeApp` | valider, corriger le §6, l'inscrire dans `DECISIONS.md` | H2 |
-| Q-012 | `STACK.md`, `ARCHITECTURE.md` (arborescence), `PRD.md`, la toolchain d'`ONBOARDING.md`, `DRY-RUN.md` et `PRE-EVENT-CHECKLIST.md` décrivent encore la base TypeScript. | bandeau « obsolète » en tête / déplacer dans `docs/archive/` / laisser | bandeau en tête (`AGENTS.md` les marque déjà comme historiques) | H2 |
-| Q-013 | `DEMO.md` et `GLOSSARY.md` sont encore des templates. | les remplir depuis `CONTEXT.md` §13 et §1 / attendre le feature freeze | les remplir maintenant : DEMO par H1, glossaire (nit, base, lane, ancrage, suggestion) par H2 | H1, H2 |
-| Q-014 | `CONTEXT.md` §5 prévoit un expect/actual `SettingsStore` (fichier desktop, SharedPreferences/DataStore Android) ; #18 livre un seul `FileSettingsStore` JSON en `jvmSharedMain` (`java.io.File` existe sur les deux cibles). | valider et corriger le §5 / écrire l'actual Android en SharedPreferences | valider : zéro code plateforme, un seul test ; `DECISIONS.md` | H2 |
-| Q-015 | `CONTEXT.md` §10 ajoute « Air installé + premier agent loggé » à la porte 12h–13h, déjà passée ; `AGENT_LOG.md` est vide et #39 fixe la première capture Air à 17:30. | laisser la porte 12h–13h en échec / déplacer la preuve Air à 17:30 (#39) / la mettre à la porte 21:00 | 17:30 via #39, et corriger le tableau du §10 | H2 |
-| Q-016 | Slides : `LAUZHACK.md` et `DEMO.md` disent « sans slides » ; `CONTEXT.md` §10 (09h30–11h) et §13 (points 6 et 7) et #39 (« ajouter une slide ») en prévoient encore. Q-007 n'a pas été appliquée au texte. | écran About dans l'app / images plein écran (captures Air, sortie du script de comptage) / garder le mot « slide » | images plein écran + sortie du script en live ; remplacer « slide » dans §10, §13 et #39 | H1 |
-| Q-017 | `CONTEXT.md` §11 demande aux agents d'écrire dans `AGENT_LOG.md` à chaque tâche ; `AGENTS.md` et l'en-tête d'`AGENT_LOG.md` disent l'inverse (agents → `progress/<ticket>.md`, un humain compile). Avec Air, qui note les sessions « Junie via Air » ? | agents écrivent / humain compile aux syncs / l'humain qui lance la session Air note la ligne à la fin | l'humain qui lance la session Air, à la fin de la session ; aligner le §11 | H2 |
-| Q-018 | Porte 21:00 (boucle review desktop) : #19 (`diffAgainst` encore `TODO`), #20 (Koog : rien d'écrit, pas d'entrée dans `RESEARCH.md`, lib absente du catalogue Gradle) et #22 sont tous les trois sur la même personne à 16:45. | tout garder / répartir #19 à H3 maintenant / couper #34–#38 en WON'T ce soir | #19 à H3 (brief dans l'issue), #20 puis #22 par H2, #33 réduit à « clé manquante » + chargement, #34–#38 après la porte Android | H2 |
-| Q-019 | H1 (21/11) : on vise le maximum de points, donc les 5 features bonus. Le backend Kotlin passe de WON'T à MUST (`CONTEXT.md` §7.1 : serveur Ktor de partage de reviews, piste D après la porte de 21:00). Qui porte la piste D, et le contrat `SharedReview`/`ReviewShareClient` du §6 est-il validé ? | H1 via Air / H3 après la boucle Android / couper si la porte de 21:00 glisse | H1 via Air (module isolé, peu de couplage) ; H2 valide le contrat et l'inscrit dans `DECISIONS.md` ; mettre à jour l'arborescence d'`AGENTS.md` | H2 |
-| Q-020 | minSdk : #109 l'a passé de 26 à 33 parce que JGit 6.10 appelle des méthodes de l'API 33 (`InputStream.readNBytes`, `transferTo`, `Collectors.toUnmodifiableList`, vérifié dans le jar), mais `CONTEXT.md` §14 parle encore de minSdk 26 et seul un émulateur API 36 a tourné. Le téléphone de démo est-il en Android 13 ou plus (`adb shell getprop ro.build.version.sdk` ≥ 33) ? Sinon l'app ne s'installe plus. | garder 33 / revenir à 26 avec desugaring, à prouver sur un émulateur API ≤ 32 | garder 33 ; vérifier le téléphone, corriger le §14 et l'inscrire dans `DECISIONS.md` | H2 + H3 |
-| Q-021 | JetBrains (22/11, réponse au stand) : pas de clés API fournies aux équipes ; Junie Lite est gratuit avec un compte JetBrains jusqu'à fin d'année. La clé Anthropic de l'app reste la nôtre (Q-006). | rien à changer / passer la preuve Junie de #39 par Junie Lite / le dire dans `DEMO.md` « réutilisé » | Junie Lite pour la preuve #39, une ligne dans `DEMO.md` ; scope inchangé | H1 |
+| Q-007 | `CONTEXT.md` §13 plans two slides (shared vs specific, agentic process); the LauzHack rules forbid slides (backup images and videos allowed). | "About" screen in the app + output of the counting script / full-screen backup images / keep the slides | screen in the app + live script output; no slide | H1 |
+| Q-008 | `CONTEXT.md` §2 talks about agents in "JetBrains Air"; the JetBrains talk talks about JetBrains AI and Junie (bonus ~10–15 %, to be verified); the team works with Claude Code. | Claude Code alone / Claude Code + at least one real Junie task logged / everything in Junie | Claude Code + one real Junie task in `AGENT_LOG.md`; confirm the name at the booth | H1 |
+| Q-009 | Schedule: `CONTEXT.md` §10 (gates 13/17/21 h, sleep 02–07 h, ≥ 3 h each) versus `PLAYBOOK.md`/`STRATEGY.md` (skeleton deployed at 16:00, 4 h shifts at 22/02/06 h). | `CONTEXT.md` / `PLAYBOOK.md` / mix | gates and sleep window from `CONTEXT.md`; rotation to be set at sync | all |
+| Q-010 | JGit 6.10.1 instead of the latest stable (`CONTEXT.md` §5): JGit 7 does not dex under API 34 (commit `df36830`). | approve / JGit 7 with minSdk 34 | approve, record it in `DECISIONS.md` | H2 |
+| Q-011 | The wizard generates `shared/` + `desktopApp/` + `androidApp/`, not the `composeApp/` of §6; the source set is called `jvmSharedMain`. | approve and fix §6 / go back to `composeApp` | approve, fix §6, record it in `DECISIONS.md` | H2 |
+| Q-012 | `STACK.md`, `ARCHITECTURE.md` (tree), `PRD.md`, the toolchain of `ONBOARDING.md`, `DRY-RUN.md` and `PRE-EVENT-CHECKLIST.md` still describe the TypeScript base. | "obsolete" banner at the top / move to `docs/archive/` / leave them | banner at the top (`AGENTS.md` already marks them as historical) | H2 |
+| Q-013 | `DEMO.md` and `GLOSSARY.md` are still templates. | fill them from `CONTEXT.md` §13 and §1 / wait for the feature freeze | fill them now: DEMO by H1, glossary (nit, base, lane, anchor, suggestion) by H2 | H1, H2 |
+| Q-014 | `CONTEXT.md` §5 plans an expect/actual `SettingsStore` (desktop file, Android SharedPreferences/DataStore); #18 ships a single JSON `FileSettingsStore` in `jvmSharedMain` (`java.io.File` exists on both targets). | approve and fix §5 / write the Android actual in SharedPreferences | approve: zero platform code, a single test; `DECISIONS.md` | H2 |
+| Q-015 | `CONTEXT.md` §10 adds "Air installed + first agent logged" to the 12h–13h gate, already past; `AGENT_LOG.md` is empty and #39 sets the first Air screenshot at 17:30. | leave the 12h–13h gate failed / move the Air proof to 17:30 (#39) / put it at the 21:00 gate | 17:30 via #39, and fix the table in §10 | H2 |
+| Q-016 | Slides: `LAUZHACK.md` and `DEMO.md` say "no slides"; `CONTEXT.md` §10 (09h30–11h) and §13 (points 6 and 7) and #39 ("add a slide") still plan some. Q-007 was not applied to the text. | About screen in the app / full-screen images (Air screenshots, output of the counting script) / keep the word "slide" | full-screen images + live script output; replace "slide" in §10, §13 and #39 | H1 |
+| Q-017 | `CONTEXT.md` §11 asks agents to write in `AGENT_LOG.md` on each task; `AGENTS.md` and the header of `AGENT_LOG.md` say the opposite (agents → `progress/<ticket>.md`, a human compiles). With Air, who records the "Junie via Air" sessions? | agents write / human compiles at syncs / the human who launches the Air session records the line at the end | the human who launches the Air session, at the end of the session; align §11 | H2 |
+| Q-018 | 21:00 gate (desktop review loop): #19 (`diffAgainst` still `TODO`), #20 (Koog: nothing written, no entry in `RESEARCH.md`, lib missing from the Gradle catalog) and #22 are all three on the same person at 16:45. | keep everything / hand #19 to H3 now / cut #34–#38 as WON'T tonight | #19 to H3 (brief in the issue), #20 then #22 by H2, #33 reduced to "missing key" + loading, #34–#38 after the Android gate | H2 |
+| Q-019 | H1 (21/11): we aim for the maximum points, so the 5 bonus features. The Kotlin backend goes from WON'T to MUST (`CONTEXT.md` §7.1: Ktor review-sharing server, track D after the 21:00 gate). Who carries track D, and is the `SharedReview`/`ReviewShareClient` contract of §6 approved? | H1 via Air / H3 after the Android loop / cut if the 21:00 gate slips | H1 via Air (isolated module, little coupling); H2 approves the contract and records it in `DECISIONS.md`; update the tree in `AGENTS.md` | H2 |
+| Q-020 | minSdk: #109 moved it from 26 to 33 because JGit 6.10 calls API 33 methods (`InputStream.readNBytes`, `transferTo`, `Collectors.toUnmodifiableList`, verified in the jar), but `CONTEXT.md` §14 still mentions minSdk 26 and only an API 36 emulator ran. Is the demo phone on Android 13 or newer (`adb shell getprop ro.build.version.sdk` ≥ 33)? Otherwise the app no longer installs. | keep 33 / go back to 26 with desugaring, to be proven on an API ≤ 32 emulator | keep 33; check the phone, fix §14 and record it in `DECISIONS.md` | H2 + H3 |
+| Q-021 | JetBrains (22/11, booth answer): no API keys provided to the teams; Junie Lite is free with a JetBrains account until the end of the year. The app's Anthropic key remains ours (Q-006). | nothing to change / run the Junie proof of #39 through Junie Lite / say it in `DEMO.md` "reused" | Junie Lite for the #39 proof, one line in `DEMO.md`; scope unchanged | H1 |
 
-## Règles
+## Rules
 
-- Une question = une décision à prendre, pas un sujet de discussion.
-- Toujours proposer 2–3 options et **ta** recommandation.
-- Si la réponse ne change pas le résultat, choisis et note l'hypothèse dans le commit.
-- Ne jamais mettre un secret dans une question.
+- A question = a decision to make, not a topic for discussion.
+- Always offer 2–3 options and **your** recommendation.
+- If the answer does not change the outcome, choose and note the assumption in the commit.
+- Never put a secret in a question.

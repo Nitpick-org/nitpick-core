@@ -1,156 +1,156 @@
-# Handoff — état du projet au 21/11/2026 16:45
+# Handoff — project status at 21/11/2026 16:45
 
-> Pour la review à 3. Objectif : comprendre **ce qui a changé**, **pourquoi**, **ce qui
-> reste ouvert**, et **ce qu'il faut décider** avant de repartir.
+> For the review with 3. Objective: understand **what changed**, **why**, **what
+> remains open**, and **what needs to be decided** before starting again.
 >
-> Référence produit : [`docs/CONTEXT.md`](CONTEXT.md). Référence challenge :
+> Product reference: [`docs/CONTEXT.md`](CONTEXT.md). Challenge reference:
 > [`docs/JETBRAINS-CHALLENGE.md`](JETBRAINS-CHALLENGE.md).
 
 ## 0. Snapshot
 
-| Champ | Valeur |
+| Field | Value |
 | --- | --- |
-| Branche | `main` |
-| Dernier commit | `b58832b` |
-| État | pas de PR ouverte ; `main` non protégée ; travail par worktree/issue |
-| Phase | H0 + ~6 h ; gates 21:00 (review desktop), 02:00 (Android) |
-| Démo | 3 min, sans slides ; desktop + Android ; repo de démo à préparer |
-| Challenge | JetBrains / KMP — voir `docs/JETBRAINS-CHALLENGE.md` |
+| Branch | `main` |
+| Last commit | `b58832b` |
+| State | no open PR; `main` unprotected; work by worktree/issue |
+| Phase | H0 + ~6 h; gates 21:00 (desktop review), 02:00 (Android) |
+| Demo | 3 min, no slides; desktop + Android; demo repo to prepare |
+| Challenge | JetBrains / KMP — see `docs/JETBRAINS-CHALLENGE.md` |
 
-## 1. Pourquoi ces changements
+## 1. Why these changes
 
-Deux choses ont bougé depuis la première spec :
+Two things have moved since the first spec:
 
-1. **Le design** : pepito a produit un design system JetBrains New UI puis un handoff UI
-   (PR #32) ; l'accent est passé du bleu au **teal**, le shell desktop est en place.
-2. **Le challenge officiel** : le brief demande de **construire avec JetBrains Air** pour
-   le bonus *Agentic Development Process*. Air est un orchestre d'agents dans l'IDE, pas
-   une API/provider. La spec devait donc distinguer **Air/Junie = process** et
-   **Koog = IA produit**.
+1. **The design**: pepito produced a JetBrains New UI design system and then a UI handoff
+   (PR #32); the accent moved from blue to **teal**, the desktop shell is in place.
+2. **The official challenge**: the brief asks to **build with JetBrains Air** for the
+   *Agentic Development Process* bonus. Air is an orchestra of agents in the IDE, not
+   an API/provider. The spec therefore had to distinguish **Air/Junie = process** and
+   **Koog = product AI**.
 
-## 2. Changements spec
+## 2. Spec changes
 
-Commit `175121a`, `5d63ce5`, `fdaab6c` :
+Commit `175121a`, `5d63ce5`, `fdaab6c`:
 
-| Section | Changement |
+| Section | Change |
 | --- | --- |
-| §1 Identité | DA JetBrains IDE New UI, accent teal, JetBrains Mono |
-| §2 Jury | Air/Junie = process de développement, **pas** provider runtime ; bonus multi-agent |
-| §3 Équipe | chaque humain installe Air + un agent (Junie Lite/Codex/Gemini/Copilot/Claude) ; logs/captures |
-| §5 Stack | **IA produit = Koog** ; **développement = Air + agents** |
-| §7 Review | le moteur de review reste Koog ; Air/Junie ne sont pas appelés par l'app |
-| §8 WON'T | pas d'intégration runtime Air/Junie (provider/CLI dans l'app) |
-| §9 Process | chaque piste pilotée dans Air, fallback Claude Code/Codex CLI |
-| §9.1 | ownership des issues H1/H2/H3 |
-| §10 | Air installé + premier agent loggé dans la première heure |
-| §11 | règles Air/Junie + fallback |
-| §13 | la démo montre des captures Air + le `REVIEW_LOG` |
-| §14 | risques Air/Junie indisponible, trust/permissions |
-| §15 | liens Air, Junie, Koog |
+| §1 Identity | JetBrains IDE New UI DA, teal accent, JetBrains Mono |
+| §2 Jury | Air/Junie = development process, **not** a runtime provider; multi-agent bonus |
+| §3 Team | each human installs Air + an agent (Junie Lite/Codex/Gemini/Copilot/Claude); logs/screenshots |
+| §5 Stack | **product AI = Koog**; **development = Air + agents** |
+| §7 Review | the review engine stays Koog; Air/Junie are not called by the app |
+| §8 WON'T | no Air/Junie runtime integration (provider/CLI in the app) |
+| §9 Process | each track driven in Air, fallback Claude Code/Codex CLI |
+| §9.1 | ownership of the H1/H2/H3 issues |
+| §10 | Air installed + first agent logged in within the first hour |
+| §11 | Air/Junie rules + fallback |
+| §13 | the demo shows Air screenshots + the `REVIEW_LOG` |
+| §14 | risks Air/Junie unavailable, trust/permissions |
+| §15 | Air, Junie, Koog links |
 
-**Décision clé** : on ne branche **pas** Air/Junie dans Nitpick. Le produit garde Koog et
-les providers LLM ; Air/Junie servent à construire et à prouver le process.
+**Key decision**: we do **not** wire Air/Junie into Nitpick. The product keeps Koog and
+the LLM providers; Air/Junie serve to build and to prove the process.
 
-## 2.1 Audit du 21/11 — findings et suite
+## 2.1 Audit of 21/11 — findings and follow-up
 
-L’audit a confirmé que la boucle review réelle a été lancée depuis le desktop (2 nits), puis
-a trouvé quatre problèmes corrigés ou à corriger :
+The audit confirmed that the real review loop was launched from the desktop (2 nits), then
+found four problems fixed or to be fixed:
 
-| Finding | Statut |
+| Finding | Status |
 | --- | --- |
-| Le diff comparait le tip de `main`, pas le **fork point** ; des fichiers de main apparaissaient supprimés | corrigé par #53 (merge-base + working tree, non-suivis exclus) |
-| La review prenait les 20 premiers fichiers **alphabétiques** ; deux sidecars Godot `.import` ont été relus à la place du code | corrigé par #54/#55 (tri par lignes changées, assets ignorés) |
-| Koog refusait `claude-opus-5-5` (« does not support tools ») | corrigé par #52 (capabilities du modèle) |
-| L’UI affiche `:0` pour un nit de fichier entier | **reste** : à traiter avec #33 (états/affichage review) |
-| La boucle complète n’a pas encore été rejouée à la main avec une clé | **reste** : #22 |
+| The diff compared the tip of `main`, not the **fork point**; main files appeared as deleted | fixed by #53 (merge-base + working tree, untracked excluded) |
+| The review took the first 20 **alphabetical** files; two Godot `.import` sidecars were re-read instead of the code | fixed by #54/#55 (sort by changed lines, assets ignored) |
+| Koog rejected `claude-opus-5-5` ("does not support tools") | fixed by #52 (model capabilities) |
+| The UI shows `:0` for a whole-file nit | **remains**: to handle with #33 (review states/display) |
+| The full loop has not yet been replayed by hand with a key | **remains**: #22 |
 
-## 3. Changements design / UI
+## 3. Design / UI changes
 
-| Commit | Quoi |
+| Commit | What |
 | --- | --- |
-| `1c7e2d1` | design system JetBrains New UI (tokens, composants, catalogue, docs) |
-| `1ede34c` | accent **teal** (`#0F766E` / `#5EEAD4`), bleu en lane 5 |
-| `a60b12b` | shell desktop : toolbar, CTA « Nitpick branch », branche, inspector à onglets, provider dans la status bar |
-| `b10184e` | merge du handoff UI #32 |
+| `1c7e2d1` | JetBrains New UI design system (tokens, components, catalogue, docs) |
+| `1ede34c` | **teal** accent (`#0F766E` / `#5EEAD4`), blue in lane 5 |
+| `a60b12b` | desktop shell: toolbar, "Nitpick branch" CTA, branch, tabbed inspector, provider in the status bar |
+| `b10184e` | merge of the UI handoff #32 |
 
-À lire :
-- [`docs/DESIGN-SYSTEM.md`](DESIGN-SYSTEM.md) — tokens, composants, règles ;
-- [`docs/design/UI-HANDOFF.md`](design/UI-HANDOFF.md) — écrans, états, textes ;
-- `docs/design/mockups/` — maquettes HTML de référence (pas du code à porter).
+To read:
+- [`docs/DESIGN-SYSTEM.md`](DESIGN-SYSTEM.md) — tokens, components, rules;
+- [`docs/design/UI-HANDOFF.md`](design/UI-HANDOFF.md) — screens, states, copy;
+- `docs/design/mockups/` — reference HTML mockups (not code to port).
 
-## 4. État du code
+## 4. Code status
 
-Déjà là :
+Already there:
 
-- projet KMP `shared` + `desktopApp` + `androidApp` ;
-- contrats du §6 (`domain`, `git`, `review`, `settings`) ;
-- graphe de commits avec lanes (`graph`) ;
-- parseur de diff unifié (`diff`), diff fork-point (#53) ;
-- ouverture d'un repo local + branches + commits + détails (desktop) ;
-- thème clair/sombre + settings persistés ;
-- design system et shell desktop ;
-- agent Koog réel (#51), capabilities corrigées (#52), review réelle lancée (2 nits) ;
-- boucle UI Diff/Review/Apply/Commit (#50) et contexte review trié (#54/#55).
+- KMP project `shared` + `desktopApp` + `androidApp`;
+- contracts from §6 (`domain`, `git`, `review`, `settings`);
+- commit graph with lanes (`graph`);
+- unified diff parser (`diff`), fork-point diff (#53);
+- opening a local repo + branches + commits + details (desktop);
+- light/dark theme + persisted settings;
+- design system and desktop shell;
+- real Koog agent (#51), fixed capabilities (#52), real review launched (2 nits);
+- Diff/Review/Apply/Commit UI loop (#50) and sorted review context (#54/#55).
 
-Pas encore fait :
+Not done yet:
 
-| Issue | Owner | Quoi |
+| Issue | Owner | What |
 | --- | --- | --- |
-| #22 | H2 | **reste** : passe manuelle de la boucle desktop avec une clé, capture, fermeture |
-| #21 | H3 | Android clone + Repos/Graph (en cours) |
-| #23 | H3 | boucle review Android |
-| #33 | H1 | états de review + affichage `whole file` (le `:0` de l’audit) |
-| #34/#35 | H3 | settings desktop/Android selon handoff |
-| #39/#44 | H1 | démo, soumission, repo de démo, preuves Air |
-| #40 | H1 | comptage des lignes shared |
-| #46/#48 | H1 | backend de partage, après 21:00 |
-| #36–#38/#42/#43/#45 | — | P2 bloquées, après chemin critique |
+| #22 | H2 | **remains**: manual pass of the desktop loop with a key, screenshot, closing |
+| #21 | H3 | Android clone + Repos/Graph (in progress) |
+| #23 | H3 | Android review loop |
+| #33 | H1 | review states + `whole file` display (the `:0` from the audit) |
+| #34/#35 | H3 | desktop/Android settings per handoff |
+| #39/#44 | H1 | demo, submission, demo repo, Air evidence |
+| #40 | H1 | shared line count |
+| #46/#48 | H1 | share backend, after 21:00 |
+| #36–#38/#42/#43/#45 | — | P2 blocked, after the critical path |
 
-## 5. Ownership après inversion
+## 5. Ownership after inversion
 
-| Rôle | GitHub | Issues | Gate |
+| Role | GitHub | Issues | Gate |
 | --- | --- | --- | --- |
-| **H1 — Produit & Pitch** | `@dovatgabriel` | #39 démo/soumission/Air, #33 états | 17:30 première preuve Air ; 09:30 freeze ; 11:30 soumission |
-| **H2 — Architecture & Intégration** | `@zooldyyk` | #19, #20, #22 | **21:00** review desktop |
-| **H3 — Builder & Démo** | `@pepito2t` | #21, #23, #34, #35 | **02:00** review Android |
+| **H1 — Product & Pitch** | `@dovatgabriel` | #39 demo/submission/Air, #33 states | 17:30 first Air evidence; 09:30 freeze; 11:30 submission |
+| **H2 — Architecture & Integration** | `@zooldyyk` | #19, #20, #22 | **21:00** desktop review |
+| **H3 — Builder & Demo** | `@pepito2t` | #21, #23, #34, #35 | **02:00** Android review |
 
-P2 #36–#38 : non assignées, à ne pas commencer avant le chemin critique.
+P2 #36–#38: unassigned, not to be started before the critical path.
 
-## 6. Preuves Air attendues
+## 6. Expected Air evidence
 
-Pour le bonus, il faut **des artefacts**, pas juste une déclaration :
+For the bonus, **artifacts** are needed, not just a declaration:
 
-- 1 session Air réelle par owner (Junie/Codex/Gemini/Copilot/Claude) ;
-- 1 comparaison de **deux agents** sur la même tâche (ex. Junie vs Claude/DeepSeek) ;
-- captures : agents côte à côte, diff/résultat, correction humaine ;
-- `docs/AGENT_LOG.md` : `Junie via Air`, `Claude via Air`, piste, tâche, décisions ;
-- `docs/REVIEW_LOG.md` : ce qui a été rejeté/corrigé et pourquoi ;
-- une slide de démo « Agentic Development Process ».
+- 1 real Air session per owner (Junie/Codex/Gemini/Copilot/Claude);
+- 1 **two-agent** comparison on the same task (e.g. Junie vs Claude/DeepSeek);
+- screenshots: agents side by side, diff/result, human correction;
+- `docs/AGENT_LOG.md`: `Junie via Air`, `Claude via Air`, track, task, decisions;
+- `docs/REVIEW_LOG.md`: what was rejected/fixed and why;
+- a "Agentic Development Process" demo slide.
 
-## 7. Review à 3 — checklist 20 min
+## 7. Review with 3 — 20 min checklist
 
-1. **Challenge** : lire `docs/JETBRAINS-CHALLENGE.md` (Air = process, Koog = produit).
-2. **Spec** : lire les sections modifiées de `docs/CONTEXT.md` (§2, §3, §5, §7, §8, §9.1,
+1. **Challenge**: read `docs/JETBRAINS-CHALLENGE.md` (Air = process, Koog = product).
+2. **Spec**: read the modified sections of `docs/CONTEXT.md` (§2, §3, §5, §7, §8, §9.1,
    §10, §11, §13, §14).
-3. **Design** : lire `docs/DESIGN-SYSTEM.md` + `docs/design/UI-HANDOFF.md` ; vérifier que
-   le shell/teal est cohérent.
-4. **Issues** : vérifier le mapping H1/H2/H3 et l'ordre #19 → #20 → #22 / #21 → #23.
-5. **Code** : `git pull`, `./gradlew :desktopApp:run`, ouvrir un repo, vérifier le shell.
-6. **Air** : confirmer que les 3 ont accès à Air/Junie Lite et choisir le second agent
-   (Claude, Codex, Gemini, DeepSeek si ACP/BYOK).
-7. **Décisions** : confirmer que Junie CLI dans le produit est **hors scope** (stretch
-   après 21:00 seulement si la boucle est verte).
+3. **Design**: read `docs/DESIGN-SYSTEM.md` + `docs/design/UI-HANDOFF.md`; check that
+   the shell/teal is consistent.
+4. **Issues**: check the H1/H2/H3 mapping and the order #19 → #20 → #22 / #21 → #23.
+5. **Code**: `git pull`, `./gradlew :desktopApp:run`, open a repo, check the shell.
+6. **Air**: confirm that the 3 have access to Air/Junie Lite and choose the second agent
+   (Claude, Codex, Gemini, DeepSeek if ACP/BYOK).
+7. **Decisions**: confirm that Junie CLI in the product is **out of scope** (stretch
+   after 21:00 only if the loop is green).
 
-## 8. Questions à trancher en review
+## 8. Questions to settle in review
 
-- [ ] Le mapping H1 = dovat, H2 = zooldyyk, H3 = pepito est-il correct ?
-- [ ] Les 3 laptops ont-ils Air + un agent connecté ? Qui utilise Junie Lite ?
-- [ ] Quel second agent pour la comparaison ? Claude, Codex, Gemini, DeepSeek ?
-- [ ] Confirme-t-on **pas d'intégration runtime Air/Junie** dans l'app ?
-- [ ] Le gate 21:00 est-il tenable avec #19/#20/#22 ? Sinon, que coupe-t-on ?
-- [ ] Le handoff UI (teal, shell) est-il validé comme DA finale ?
+- [ ] Is the mapping H1 = dovat, H2 = zooldyyk, H3 = pepito correct?
+- [ ] Do the 3 laptops have Air + a connected agent? Who uses Junie Lite?
+- [ ] Which second agent for the comparison? Claude, Codex, Gemini, DeepSeek?
+- [ ] Do we confirm **no Air/Junie runtime integration** in the app?
+- [ ] Is the 21:00 gate achievable with #19/#20/#22? If not, what do we cut?
+- [ ] Is the UI handoff (teal, shell) validated as the final DA?
 
-## 9. Commandes utiles
+## 9. Useful commands
 
 ```bash
 git pull origin main
@@ -161,12 +161,12 @@ GRADLE_USER_HOME=/tmp/nitpick-gradle ANDROID_USER_HOME=/tmp/nitpick-android \
   ./gradlew :shared:jvmTest :desktopApp:compileKotlin
 ```
 
-Le check complet `./scripts/check.sh` demande le SDK Android ; sur une machine sans SDK,
-valider au moins `:shared:jvmTest` + `:desktopApp:compileKotlin` et le noter.
+The full `./scripts/check.sh` check requires the Android SDK; on a machine without the SDK,
+validate at least `:shared:jvmTest` + `:desktopApp:compileKotlin` and note it.
 
-## 10. Prochaine action
+## 10. Next action
 
-- **H1** : installe Air, lance la première review Junie + second agent, capture, `#39`.
-- **H2** : worktree #19, puis #20, puis #22 ; log Air et review humaine.
-- **H3** : worktree #21, puis #23 ; log Air et capture Android.
-- **Tous** : sync 17:30 avec une capture Air et l'état de l'issue en cours.
+- **H1**: install Air, launch the first Junie review + second agent, screenshot, `#39`.
+- **H2**: worktree #19, then #20, then #22; Air log and human review.
+- **H3**: worktree #21, then #23; Air log and Android screenshot.
+- **All**: 17:30 sync with an Air screenshot and the status of the current issue.

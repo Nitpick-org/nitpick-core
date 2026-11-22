@@ -1,27 +1,27 @@
 # Audit 105-visible-errors
 
-- Statut : prêt pour PR
-- Propriétaire humain : @zooldyyk
-- Piste : B/C
-- Agent : lead
-- Fichiers : `ui/repository/RepositoryViewModel.kt`, `ui/phone/PhoneReviewScreen.kt`,
+- Status: ready for PR
+- Human owner: @zooldyyk
+- Track: B/C
+- Agent: lead
+- Files: `ui/repository/RepositoryViewModel.kt`, `ui/phone/PhoneReviewScreen.kt`,
   `commonTest/.../RepositoryViewModelTest.kt`
 
-## Journal
+## Log
 
-- 00:40 — `actionError` est rendu sur le téléphone entre les nits et la barre commit ;
-  il est effacé au début d’une review ou d’un checkout.
-- 00:42 — Apply : le `writeLock` couvre la mise à jour d’état et vérifie `appliedIds`.
-  Commit : le lock couvre stage/commit/log/état et vérifie `appliedFiles` ; un second clic
-  ne crée plus de commit vide.
-- 00:44 — `pushError` effacé au début d’un pull/fetch ; `refs()`/`trackingStatus()` du commit
-  lus hors du bloc `_state.update`.
+- 00:40 — `actionError` is rendered on the phone between the nits and the commit bar;
+  it is cleared at the start of a review or a checkout.
+- 00:42 — Apply: the `writeLock` covers the state update and checks `appliedIds`.
+  Commit: the lock covers stage/commit/log/state and checks `appliedFiles`; a second click
+  no longer creates an empty commit.
+- 00:44 — `pushError` cleared at the start of a pull/fetch; the commit's `refs()`/`trackingStatus()`
+  read outside the `_state.update` block.
 
-## Vérifications
+## Checks
 
-- `:shared:jvmTest` + `:desktopApp:compileKotlin` verts.
-- Tests ajoutés : apply deux fois = un patch, commit deux fois = un commit.
+- `:shared:jvmTest` + `:desktopApp:compileKotlin` green.
+- Tests added: apply twice = one patch, commit twice = one commit.
 
-## Incertain
+## Uncertain
 
-- Le rendu `actionError` téléphone n’est pas couvert par un test Compose.
+- The phone `actionError` rendering is not covered by a Compose test.

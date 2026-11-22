@@ -1,54 +1,54 @@
 # Ticket 22-review-loop
 
-- Statut : prêt pour PR, branché sur l’agent Koog mergé dans #51
-- Propriétaire humain : @zooldyyk
-- Piste : B + A (desktop + core)
-- Agent : lead, sans session Air (à compléter pour le bonus)
-- Model : session principale
-- Escalations : aucune
-- Fichiers : `shared/src/jvmSharedMain/.../JGitRepository.kt`, `commonMain/review/*`, `commonMain/ui/repository/*`, `commonMain/composeResources/values*`, tests jvm/common
+- Status: ready for PR, wired to the Koog agent merged in #51
+- Human owner: @zooldyyk
+- Track: B + A (desktop + core)
+- Agent: lead, without Air session (to be completed for the bonus)
+- Model: main session
+- Escalations: none
+- Files: `shared/src/jvmSharedMain/.../JGitRepository.kt`, `commonMain/review/*`, `commonMain/ui/repository/*`, `commonMain/composeResources/values*`, jvm/common tests
 
-## Journal
+## Log
 
-- 17:30 — JGit : `diffAgainst` (base → working tree), `writeFile`, `stage` (add/rm),
-  `commit`. Tests sur dépôt temporaire, y compris une modification non commitée.
-- 17:45 — `ReviewAnchoring` : applique une suggestion en vérifiant `originalSnippet`,
-  recale si les lignes ont bougé, refuse si le snippet a disparu. Tests.
-- 18:00 — `LocalReviewAgent` : fallback déterministe (println, TODO/FIXME, `!!`, lignes
-  > 120) derrière `ReviewAgent`. Ce n'est pas le modèle final : il permet de construire et
-  démontrer la boucle sans clé API.
-- 18:15 — UI : onglets Diff et Review, liste des fichiers/hunks/lignes, cartes de nits,
-  Apply/Dismiss, barre de commit. Le CTA lance la review.
-- 18:25 — `RepositoryViewModel` : diff au chargement, review, apply, dismiss, commit,
-  rechargement du graph/diff.
-- 18:35 — rebase sur #51 : `AppContainer.reviewAgent` (LlmReviewAgent + KoogLlmClient) est
-  passé au ViewModel. Le vrai agent Koog est donc le chemin de production ; `LocalReviewAgent`
-  ne reste qu’un fallback de test/dev.
+- 17:30 — JGit: `diffAgainst` (base → working tree), `writeFile`, `stage` (add/rm),
+  `commit`. Tests on a temporary repo, including an uncommitted change.
+- 17:45 — `ReviewAnchoring`: applies a suggestion while checking `originalSnippet`,
+  re-anchors if the lines have moved, refuses if the snippet has disappeared. Tests.
+- 18:00 — `LocalReviewAgent`: deterministic fallback (println, TODO/FIXME, `!!`, lines
+  > 120) behind `ReviewAgent`. This is not the final model: it allows building and
+  demonstrating the loop without an API key.
+- 18:15 — UI: Diff and Review tabs, file/hunk/line list, nit cards,
+  Apply/Dismiss, commit bar. The CTA starts the review.
+- 18:25 — `RepositoryViewModel`: diff on load, review, apply, dismiss, commit,
+  reload of the graph/diff.
+- 18:35 — rebase on #51: `AppContainer.reviewAgent` (LlmReviewAgent + KoogLlmClient) is
+  passed to the ViewModel. The real Koog agent is therefore the production path; `LocalReviewAgent`
+  remains only a test/dev fallback.
 
-## Décisions
+## Decisions
 
-- `diffAgainst` compare la base au **working tree** (pas seulement HEAD), pour que le diff
-  se rafraîchisse après Apply.
-- L'agent local est explicitement un **fallback** ; le contrat `ReviewAgent` ne change pas
-  quand Koog arrive.
-- Un chemin de suggestion reste validé par snippet avant écriture.
+- `diffAgainst` compares the base to the **working tree** (not just HEAD), so that the diff
+  refreshes after Apply.
+- The local agent is explicitly a **fallback**; the `ReviewAgent` contract does not change
+  when Koog arrives.
+- A suggestion path stays validated by snippet before writing.
 
-## Vérifications
+## Verifications
 
-- `:shared:jvmTest --rerun-tasks` : **71 tests, 0 échec** (JGit, anchoring, prompt,
+- `:shared:jvmTest --rerun-tasks`: **71 tests, 0 failures** (JGit, anchoring, prompt,
   parser, local review, diff, graph, settings, VM).
-- `:shared:compileKotlinJvm` et `:desktopApp:compileKotlin` verts.
-- Check complet non lancé : pas de SDK Android dans cet environnement.
+- `:shared:compileKotlinJvm` and `:desktopApp:compileKotlin` green.
+- Full check not run: no Android SDK in this environment.
 
-## Incertain / blocage
+## Uncertain / blocking
 
-- #20 est mergé (#51) : le prompt, le parseur, l’ancrage et `KoogLlmClient` sont dans main.
-  La PR #50 ne fait que les brancher à l’UI ; il reste à faire un appel réel avec une clé.
-- Pas de preuve Air pour ce ticket ; à faire par H2/H1 avant la démo.
-- L'UI Apply/Commit n'a pas été rejouée à la main sur un écran (pas de GUI ici).
+- #20 is merged (#51): the prompt, the parser, the anchoring and `KoogLlmClient` are in main.
+  PR #50 only wires them to the UI; a real call with a key remains to be made.
+- No Air proof for this ticket; to be done by H2/H1 before the demo.
+- The Apply/Commit UI has not been replayed by hand on a screen (no GUI here).
 
-## Suivant
+## Next
 
-1. Faire un appel réel avec une clé (Anthropic/OpenAI) et capturer la boucle.
-2. Rejouer la boucle sur le repo de démo et capturer (Air + desktop).
-3. Ajouter le mode « Review en cours » / erreurs du handoff (#33).
+1. Make a real call with a key (Anthropic/OpenAI) and capture the loop.
+2. Replay the loop on the demo repo and capture (Air + desktop).
+3. Add the "Review in progress" mode / errors from the handoff (#33).

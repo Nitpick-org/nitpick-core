@@ -1,38 +1,38 @@
 # Ticket 82-provider-paths
 
-- Statut : prêt pour PR
-- Propriétaire humain : @dovatgabriel
-- Piste : A core
-- Agent : lead (Claude Code), Opus 5.5
-- Fichiers : `jvmTest/.../review/RealReviewCallTest.kt`,
+- Status: ready for PR
+- Human owner: @dovatgabriel
+- Track: A core
+- Agent: lead (Claude Code), Opus 5.5
+- Files: `jvmTest/.../review/RealReviewCallTest.kt`,
   `commonTest/.../review/KoogLlmClientTest.kt`, `docs/RESEARCH.md`
 
-## Journal
+## Log
 
-- 01:05 — `RealReviewCallTest` passe d'Anthropic seul à un test par provider (Anthropic,
-  OpenAI, Google, Ollama), même diff bogué, même assertion : au moins un nit ancré.
-- 01:08 — `refusesToCallAProviderWithoutAKey` couvre Anthropic, OpenAI et Google.
-- 01:10 — variables d'environnement documentées dans `docs/RESEARCH.md` (#82).
+- 01:05 — `RealReviewCallTest` moves from Anthropic alone to one test per provider (Anthropic,
+  OpenAI, Google, Ollama), same buggy diff, same assertion: at least one anchored nit.
+- 01:08 — `refusesToCallAProviderWithoutAKey` covers Anthropic, OpenAI and Google.
+- 01:10 — environment variables documented in `docs/RESEARCH.md` (#82).
 
-## Décisions
+## Decisions
 
-- Skip = JUnit `assumeTrue` : le rapport compte `skipped`, pas un faux test vert.
-- Ollama est opt-in par `APP_OLLAMA_MODEL` : un serveur local lancé pour autre chose ne
-  doit pas transformer check.sh en vraie review lente.
-- Pas de nouveau code de repli : `KoogLlmClient` en a déjà un (outils → sans outils).
+- Skip = JUnit `assumeTrue`: the report counts `skipped`, not a fake green test.
+- Ollama is opt-in through `APP_OLLAMA_MODEL`: a local server started for something else must
+  not turn check.sh into a real slow review.
+- No new fallback code: `KoogLlmClient` already has one (tools → without tools).
 
-## Vérifications
+## Checks
 
-- `:shared:jvmTest` ciblé : KoogLlmClientTest 2 tests, 0 échec ; RealReviewCallTest 4 tests,
-  **4 skipped** dans le rapport JUnit (aucune clé ni `APP_OLLAMA_MODEL` sur cette machine).
+- Targeted `:shared:jvmTest`: KoogLlmClientTest 2 tests, 0 failure; RealReviewCallTest 4 tests,
+  **4 skipped** in the JUnit report (no key and no `APP_OLLAMA_MODEL` on this machine).
 
-## Incertain
+## Uncertain
 
-- **Aucun appel réel rejoué ici** : OpenAI, Google et Ollama restent à lancer avec une clé
-  ou un serveur. Les petits modèles Ollama (`llama3.2`) peuvent ne pas ancrer de nit.
-- Koog #2308 pourrait casser le repli sans outils chez Google.
+- **No real call replayed here**: OpenAI, Google and Ollama remain to be run with a key
+  or a server. Small Ollama models (`llama3.2`) may not anchor a nit.
+- Koog #2308 could break the no-tools fallback on Google.
 
-## Suivant
+## Next
 
-- Quelqu'un avec les clés lance la commande de `docs/RESEARCH.md` (#82) et colle le
-  résultat ici.
+- Someone with the keys runs the command in `docs/RESEARCH.md` (#82) and pastes the
+  result here.

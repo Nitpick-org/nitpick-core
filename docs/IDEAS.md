@@ -1,29 +1,29 @@
-# Idées hors périmètre
+# Out-of-scope ideas
 
-> Bonnes idées qui ne sont pas dans le PRD. On les relit à H12 ; sinon elles vont dans le
-> pitch « et après ». **Les agents peuvent ajouter une idée ici, mais ne l'implémentent jamais
-> sans validation humaine.**
+> Good ideas that are not in the PRD. We re-read them at H12; otherwise they go into the
+> "and after" pitch. **Agents may add an idea here, but never implement it
+> without human validation.**
 
 ## Format
 
 ```md
-## <titre>
+## <title>
 
-- **Pour** : <personne / problème>
-- **Ce que ça ferait** : <une phrase>
-- **Pourquoi c'est intéressant** : <nouveauté / impact>
-- **Coût estimé** : <heures>
-- **Verdict** : à garder pour le pitch / à oublier
+- **For**: <person / problem>
+- **What it would do**: <one sentence>
+- **Why it is interesting**: <novelty / impact>
+- **Estimated cost**: <hours>
+- **Verdict**: keep for the pitch / forget it
 ```
 
-## Idées
+## Ideas
 
 - …
 
-## « Sign in with GitHub » sur le téléphone (OAuth device flow)
+## "Sign in with GitHub" on the phone (OAuth device flow)
 
-- **Pour** : l'utilisateur mobile, qui tape aujourd'hui un token d'accès dans l'écran Connect.
-- **Ce que ça ferait** : un bouton « Se connecter avec GitHub / GitLab » ouvre le navigateur, l'app récupère le token par le device flow et le range dans les réglages ; plus rien à copier-coller.
-- **Pourquoi c'est intéressant** : même modèle qu'Air Teams (l'accès au dépôt passe par ton compte forge), sans saisie manuelle ; démo plus fluide.
-- **Coût estimé** : 2 h (OAuth App GitHub + device flow Ktor client + écran), GitLab 1 h de plus.
-- **Verdict** : après la démo ; le token saisi suffit pour LauzHack.
+- **For**: the mobile user, who today types an access token on the Connect screen.
+- **What it would do**: a "Sign in with GitHub / GitLab" button opens the browser, the app gets the token through the device flow and stores it in settings; nothing left to copy-paste.
+- **Why it is interesting**: same model as Air Teams (repo access goes through your forge account), with no manual input; a smoother demo.
+- **Estimated cost**: 2 h (GitHub OAuth App + Ktor client device flow + screen), GitLab 1 h more.
+- **Verdict**: after the demo; the typed token is enough for LauzHack.

@@ -1,63 +1,63 @@
 ---
 name: route-task
-description: Choisit l'agent et le modèle le moins cher pour une tâche, avec escalade sur preuve. À utiliser avant de déléguer à un subagent, quand une tâche bloque, ou pour trancher entre Haiku, Sonnet, Opus et Fable.
+description: Picks the cheapest agent and model for a task, with escalation on evidence. Use before delegating to a subagent, when a task is stuck, or to settle between Haiku, Sonnet, Opus and Fable.
 ---
-# Router une tâche
+# Routing a task
 
-Tu reçois une tâche (ticket, doc, bug, recherche, review, QA). Tu choisis **le modèle le
-moins cher qui peut la finir**, pas le plus puissant.
+You receive a task (ticket, doc, bug, research, review, QA). You pick **the cheapest
+model that can finish it**, not the most powerful one.
 
-## Sortie attendue
+## Expected output
 
 ```text
 Route: <agent> / <model> / maxTurns <n>
-Pourquoi: <1 phrase>
-Escalader si: <2 conditions concrètes>
-Budget: <tokens ou $ indicatif>
+Why: <1 sentence>
+Escalate if: <2 concrete conditions>
+Budget: <tokens or $ indicative>
 ```
 
-## Table de routage
+## Routing table
 
-| Tâche | Agent | Modèle | maxTurns |
+| Task | Agent | Model | maxTurns |
 | --- | --- | --- | --- |
-| Doc, README, progress, résumé, changelog | `scribe` | `haiku` | 10–15 |
-| Petit code, test, UI simple, fix local | `implementer` | `sonnet` | 20–30 |
-| Code complexe/cross-module, auth/sécurité, ou critique démo **avec risque ≥ moyen** | `implementer` | `opus` | 40–50 |
-| Recherche standard (API, pricing, concurrent) | `researcher` | `sonnet` | 20–30 |
-| Recherche ambiguë, décision structurante | `researcher` | `opus` | 30 |
-| Revue de code | `reviewer` | `opus` | 25 |
-| Revue docs-only / diff trivial | `scribe` ou humain | `haiku` | 10 |
-| QA standard, parcours de démo | `qa-demo` | `sonnet` | 25–30 |
-| Bug bloquant, non reproductible, flaky | `qa-demo` | `opus` | 30 |
+| Doc, README, progress, summary, changelog | `scribe` | `haiku` | 10–15 |
+| Small code, test, simple UI, local fix | `implementer` | `sonnet` | 20–30 |
+| Complex/cross-module code, auth/security, or demo-critical **with risk ≥ medium** | `implementer` | `opus` | 40–50 |
+| Standard research (API, pricing, competitor) | `researcher` | `sonnet` | 20–30 |
+| Ambiguous research, structural decision | `researcher` | `opus` | 30 |
+| Code review | `reviewer` | `opus` | 25 |
+| Docs-only review / trivial diff | `scribe` or human | `haiku` | 10 |
+| Standard QA, demo walkthrough | `qa-demo` | `sonnet` | 25–30 |
+| Blocking bug, not reproducible, flaky | `qa-demo` | `opus` | 30 |
 | Architecture, interfaces, tickets | `architect` | `opus` | 20 |
-| Challenge du PRD / du plan | `devils-advocate` | `opus` | 20 |
-| PRD, pitch, README de soumission | `pitch` (H1 décide) | `opus` | 20 |
-| Décision à très fort enjeu (idée, modules, pitch final) | humain | `fable` manuel | — |
+| Challenge of the PRD / the plan | `devils-advocate` | `opus` | 20 |
+| PRD, pitch, submission README | `pitch` (H1 decides) | `opus` | 20 |
+| Very high-stakes decision (idea, modules, final pitch) | human | manual `fable` | — |
 
-## Escalade
+## Escalation
 
-Escalade d'un tier (Haiku → Sonnet → Opus) si :
+Escalate one tier (Haiku → Sonnet → Opus) if:
 
-- 2 tentatives échouées sur le même point ;
-- `./scripts/check.sh` rouge après 2 corrections ;
-- ticket `critique démo` **et** risque `moyen`/`haut` (un critique démo à risque bas reste Sonnet) ;
-- changement cross-module, auth, sécurité, données, contrat d'API ;
-- l'agent dit explicitement « bloqué » ou « incertain » deux fois.
+- 2 attempts failed on the same point;
+- `./scripts/check.sh` red after 2 fixes;
+- `demo-critical` ticket **and** `medium`/`high` risk (a demo-critical ticket at low risk stays Sonnet);
+- cross-module change, auth, security, data, API contract;
+- the agent explicitly says "blocked" or "uncertain" twice.
 
-Journalise dans `progress/<ticket>.md` : `Model:`, `Escalations:`, `Why:`.
+Log in `progress/<ticket>.md`: `Model:`, `Escalations:`, `Why:`.
 
-## Dé-escalade
+## De-escalation
 
-Redescends si :
+Go back down if:
 
-- la tâche est docs-only, du formatage, un renommage, des données de test, un résumé ;
-- le diff fait < 50 lignes, un seul fichier, déjà couvert par un test.
+- the task is docs-only, formatting, a rename, test data, a summary;
+- the diff is < 50 lines, a single file, already covered by a test.
 
-## Règles dures
+## Hard rules
 
-- **Fable n'est jamais automatique.** Un humain le choisit, hors AFK.
-- **Un agent ne change pas son propre modèle en cours de run.** C'est l'orchestrateur qui
-  le relance avec un modèle supérieur.
-- **Pas de sous-agent pour une décision produit.** Les idées viennent des humains.
-- **Pas de relecture du repo entier.** Cible les fichiers du ticket et `progress/<ticket>.md`.
-- **Pas de boucle infinie.** Si le budget est dépassé, arrête et demande.
+- **Fable is never automatic.** A human picks it, outside AFK.
+- **An agent does not change its own model mid-run.** The orchestrator
+  relaunches it with a higher model.
+- **No subagent for a product decision.** Ideas come from humans.
+- **No re-reading of the whole repo.** Target the ticket's files and `progress/<ticket>.md`.
+- **No infinite loop.** If the budget is exceeded, stop and ask.

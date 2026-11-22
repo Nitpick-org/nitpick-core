@@ -1,13 +1,13 @@
 # Ticket 223-mac-app-name
 
-- Statut : en cours
-- Propriétaire humain : @
-- Piste : <A core | B git+desktop | C android+finitions>
-- Agent : @implementer
-- Model : <haiku|sonnet|opus>
-- Escalations :
-- Fichiers autorisés : shared/src/<sourceSet>/<...>
+- Status: in progress
+- Human owner: @
+- Track: <A core | B git+desktop | C android+polish>
+- Agent: @implementer
+- Model: <haiku|sonnet|opus>
+- Escalations:
+- Allowed files: shared/src/<sourceSet>/<...>
 
-## Journal
+## Log
 
-- 03:31 — worktree créé.
+- 03:31 — worktree created.

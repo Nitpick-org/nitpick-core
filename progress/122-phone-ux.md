@@ -1,50 +1,50 @@
 # Ticket 122 — Phone UI/UX pass
 
-- Statut : fait, à merger
-- Propriétaire humain : @pepito2t (H3)
-- Piste : C android + finitions
-- Agent : Claude Code (Fable 5.1), session humaine
-- Model : fable
-- Fichiers autorisés : `ui/phone/*`, `ui/components/NitBottomSheet.kt`, `ui/repository/CommitGraph.kt`
-  (paramètre `compactTime`), `ui/repository/CommitTimeFormat*.kt`, `composeResources/drawable/ic_github.xml`,
+- Status: done, to merge
+- Human owner: @pepito2t (H3)
+- Track: C android + polish
+- Agent: Claude Code (Fable 5.1), human session
+- Model: fable
+- Allowed files: `ui/phone/*`, `ui/components/NitBottomSheet.kt`, `ui/repository/CommitGraph.kt`
+  (`compactTime` parameter), `ui/repository/CommitTimeFormat*.kt`, `composeResources/drawable/ic_github.xml`,
   `ic_gitlab.xml`
 
-## Fait
+## Done
 
-- Bottom sheet d'un nit : le corps défile, Dismiss / Apply restent sous le pouce (sur une longue
-  suggestion ils partaient hors écran, vu au dogfooding).
-- Lignes de commits : date compacte sur le téléphone (`HH:mm` aujourd'hui, `d MMM` cette année,
-  `MMM yyyy` avant) ; la date pleine mangeait le sujet sur 393 dp.
-- Barre du haut : actions en icônes 44 dp (engrenage Settings, nuage Shared) au lieu de texte ;
-  titre + sous-titre sur Review (« Review » / « branche vs main ») au lieu d'un titre tronqué.
-- Icônes sur les boutons : fetch / pull / push sur la carte de branche, pince sur « Nitpick
-  branch », check sur « Stage & commit », push sur « Push », nuage sur « Clone repo ».
-- Marques GitHub / GitLab (Simple Icons, CC0, en vector XML) sur le choix de forge, le bouton
-  « Se connecter avec… » et à côté de `@login` dans la barre Repositories.
-- Graph : la ligne de statut sync a un séparateur et de l'air, elle ne colle plus à la liste.
-- Carte repo : le chemin interne `/data/user/0/…` est retiré, nom + chevron.
-- Résumé de review en `body` au lieu de `section` (4 lignes grasses pesaient).
-- Sensation : glissement entre écrans (220 ms, avant/arrière comme une pile native), « À jour »
-  en vert à la place de « ↑0 ↓0 », retour haptique à l'Apply, écran « Clean branch » avec un
-  check qui pop quand la review ne trouve rien, et la même carte de chargement que le desktop
-  (badge AI, « Reviewing… », pince animée, phrases).
+- Nit bottom sheet: the body scrolls, Dismiss / Apply stay under the thumb (on a long
+  suggestion they went off screen, seen during dogfooding).
+- Commit lines: compact date on the phone (`HH:mm` today, `d MMM` this year,
+  `MMM yyyy` before); the full date ate the subject at 393 dp.
+- Top bar: actions as 44 dp icons (Settings gear, Shared cloud) instead of text;
+  title + subtitle on Review ("Review" / "branch vs main") instead of a truncated title.
+- Icons on the buttons: fetch / pull / push on the branch card, pin on "Nitpick
+  branch", check on "Stage & commit", push on "Push", cloud on "Clone repo".
+- GitHub / GitLab marks (Simple Icons, CC0, as vector XML) on the forge choice, the
+  "Sign in with…" button and next to `@login` in the Repositories bar.
+- Graph: the sync status line has a separator and some air, it no longer sticks to the list.
+- Repo card: the internal path `/data/user/0/…` is removed, name + chevron.
+- Review summary in `body` instead of `section` (4 bold lines were heavy).
+- Feel: slide between screens (220 ms, forward/back like a native stack), "Up to date"
+  in green instead of "↑0 ↓0", haptic feedback on Apply, a "Clean branch" screen with a
+  check that pops when the review finds nothing, and the same loading card as desktop
+  (AI badge, "Reviewing…", animated pin, phrases).
 
-## Non fait
+## Not done
 
-- Icône « merge » : aucune action de merge dans l'app, rien à illustrer.
-- Carte repo avec branche, dernière review et badge (handoff §4.1) : il faudrait stocker plus
-  qu'un chemin dans `Settings.recentRepositories` (contrat), à part.
-- Settings et Diff téléphone non revus.
+- "merge" icon: no merge action in the app, nothing to illustrate.
+- Repo card with branch, last review and badge (handoff §4.1): it would need storing more
+  than a path in `Settings.recentRepositories` (contract), separately.
+- Settings and phone Diff not reviewed.
 
-## Preuves
+## Evidence
 
-- `check.sh` vert (UI seulement, pas de test ajouté : pas d'infra de test Compose).
-- Émulateur : Repos, Connect, Graph (dates compactes, « À jour »), Review (titre + sous-titre), sheet
-  pleine hauteur avec actions épinglées, transition capturée à mi-course ; commit `93089d1` poussé
-  depuis le téléphone. Non vu : l'écran « Clean branch » (le modèle a toujours trouvé un nit).
+- `check.sh` green (UI only, no test added: no Compose test infra).
+- Emulator: Repos, Connect, Graph (compact dates, "Up to date"), Review (title + subtitle), sheet
+  full height with pinned actions, transition captured mid-course; commit `93089d1` pushed
+  from the phone. Not seen: the "Clean branch" screen (the model always found a nit).
 
-## Journal
+## Log
 
-- 01:20 — ticket, worktree, relecture des écrans et du handoff §4.
-- 01:40 — changements, check vert.
-- 01:30 — captures émulateur, sheet pleine hauteur, transitions, loader desktop réutilisé.
+- 01:20 — ticket, worktree, re-reading of the screens and of handoff §4.
+- 01:40 — changes, check green.
+- 01:30 — emulator captures, full-height sheet, transitions, desktop loader reused.

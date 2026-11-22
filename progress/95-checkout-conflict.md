@@ -1,26 +1,26 @@
 # Ticket 95-checkout-conflict
 
-- Statut : prêt pour PR
-- Propriétaire humain : @zooldyyk
-- Piste : B desktop
-- Agent : lead
-- Fichiers : `ui/repository/RepositoryViewModel.kt`,
+- Status: ready for PR
+- Human owner: @zooldyyk
+- Track: B desktop
+- Agent: lead
+- Files: `ui/repository/RepositoryViewModel.kt`,
   `commonTest/.../{RepositoryViewModelTest,FakeGitRepository}.kt`
 
-## Journal
+## Log
 
-- 23:45 — JGit met les chemins en conflit après un `\n`; la status bar est sur une ligne
-  et n'affichait que « Checkout conflict with files: ». Le message est aplati
-  (`lineSequence().joinToString(" ")`) avant d'être stocké.
-- Test ViewModel : `FakeGitRepository.checkoutError` jette un conflit multi-ligne et on
-  vérifie `Checkout conflict with files: src/Graph.kt`.
+- 23:45 — JGit puts conflicting paths after a `\n`; the status bar is on one line
+  and only showed "Checkout conflict with files: ". The message is flattened
+  (`lineSequence().joinToString(" ")`) before being stored.
+- ViewModel test: `FakeGitRepository.checkoutError` throws a multi-line conflict and we
+  check `Checkout conflict with files: src/Graph.kt`.
 
-## Décisions
+## Decisions
 
-- Pas de nouveau type d'erreur : le contrat `GitRepository` reste inchangé, le VM normalise
-  le message JGit existant.
-- Les autres erreurs de checkout gardent leur message.
+- No new error type: the `GitRepository` contract stays unchanged, the VM normalizes
+  the existing JGit message.
+- Other checkout errors keep their message.
 
-## Vérifications
+## Checks
 
-- `:shared:jvmTest --rerun-tasks` + `:desktopApp:compileKotlin` verts.
+- `:shared:jvmTest --rerun-tasks` + `:desktopApp:compileKotlin` green.

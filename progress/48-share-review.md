@@ -1,77 +1,77 @@
 # Ticket 48-share-review
 
-- Statut : prêt pour PR (démo à rejouer à la main avec le serveur lancé)
-- Propriétaire humain : @dovatgabriel
-- Piste : D (partage des reviews)
-- Agent : Claude Code (lead)
-- Model : opus
-- Escalations : aucune
-- Fichiers : `commonMain/share/*` (nouveau), `git/GitRepository.kt` + `JGitRepository.kt`
+- Status: ready for PR (demo to replay by hand with the server running)
+- Human owner: @dovatgabriel
+- Track: D (review sharing)
+- Agent: Claude Code (lead)
+- Model: opus
+- Escalations: none
+- Files: `commonMain/share/*` (new), `git/GitRepository.kt` + `JGitRepository.kt`
   (`remoteUrl`), `settings/Settings.kt`, `ui/repository/{RepositoryViewModel,ReviewPanel,
   RepositoryScreen,ShareReview}.kt`, `ui/phone/{PhoneFlow,PhoneGraphScreen,PhoneReviewScreen,
-  PhoneSharedReviewsScreen}.kt`, `ui/settings/*`, `ui/App.kt`, `AppContainer.kt`, strings EN/FR,
-  `androidApp` (manifest + test sur ART), Gradle.
+  PhoneSharedReviewsScreen}.kt`, `ui/settings/*`, `ui/App.kt`, `AppContainer.kt`, EN/FR strings,
+  `androidApp` (manifest + test on ART), Gradle.
 
-## Journal
+## Log
 
-- 19:38 — worktree créé.
-- 19:45 — `ReviewShareClient` (§6) + `KtorReviewShareClient` (commonMain, `HttpClient()` trouve
-  le CIO de jvmSharedMain), 5 tests MockEngine.
-- 19:55 — `GitRepository.remoteUrl()`, `Settings.serverUrl` ; ViewModel : `shareReview`,
-  `loadSharedReviews`, `openSharedReview` ; 4 tests.
-- 20:10 — UI : bouton « Share review » sur le résultat (desktop + téléphone), liste « Shared
-  reviews » dans l'état vide de l'onglet Review (desktop) et écran « Shared » depuis le Graph
-  (téléphone), champ « Review server URL » dans les deux réglages.
-- 20:20 — tests du vrai moteur : port fermé → `ReviewShareException`, sur JVM et sur ART.
+- 19:38 — worktree created.
+- 19:45 — `ReviewShareClient` (§6) + `KtorReviewShareClient` (commonMain, `HttpClient()` finds
+  the CIO of jvmSharedMain), 5 MockEngine tests.
+- 19:55 — `GitRepository.remoteUrl()`, `Settings.serverUrl`; ViewModel: `shareReview`,
+  `loadSharedReviews`, `openSharedReview`; 4 tests.
+- 20:10 — UI: "Share review" button on the result (desktop + phone), "Shared
+  reviews" list in the empty state of the Review tab (desktop) and "Shared" screen from the Graph
+  (phone), "Review server URL" field in both settings.
+- 20:20 — real engine tests: closed port → `ReviewShareException`, on JVM and on ART.
 
-## Décisions
+## Decisions
 
-- Ouvrir une review partagée remplit `state.review` : mêmes nits, même apply, même ancrage par
-  `originalSnippet` qu'une review locale, et aucun appel au LLM.
-- Le token d'une URL de remote (`https://token@host/…`) est retiré avant l'envoi ; le serveur
-  normalise SSH/HTTPS (#46).
-- Une seule erreur côté client, `ReviewShareException` ; le ViewModel la type en
-  `ShareFailure.NoRemote` / `Unreachable`, l'UI affiche un message qui dit comment lancer le
-  serveur. Le reste de l'app ne change pas sans serveur.
-- Timeouts courts (connexion 3 s, requête 10 s) : une IP LAN fausse échoue vite.
-- `usesCleartextTraffic` sur Android : le serveur de démo parle HTTP sur le LAN.
-- `ReviewShareClient` dans `AppContainer`, l'URL lue dans les réglages à chaque appel.
+- Opening a shared review fills `state.review`: same nits, same apply, same anchoring by
+  `originalSnippet` as a local review, and no call to the LLM.
+- The token of a remote URL (`https://token@host/…`) is stripped before sending; the server
+  normalizes SSH/HTTPS (#46).
+- A single client-side error, `ReviewShareException`; the ViewModel types it as
+  `ShareFailure.NoRemote` / `Unreachable`, the UI shows a message that says how to start the
+  server. The rest of the app does not change without a server.
+- Short timeouts (connect 3 s, request 10 s): a wrong LAN IP fails fast.
+- `usesCleartextTraffic` on Android: the demo server speaks HTTP on the LAN.
+- `ReviewShareClient` in `AppContainer`, the URL read from the settings on every call.
 
-## Review ponytail (corrigée)
+## Ponytail review (fixed)
 
-- Ouvrir une review partagée **recale** chaque nit sur les fichiers de l'appareil
-  (`ReviewAnchoring.anchorOrFileLevel`) : un snippet déplacé change de ligne, un snippet disparu
-  passe au fichier entier. Avant, les lignes du desktop étaient recopiées telles quelles.
-- Elle **checkout d'abord la branche** de la review si l'appareil est sur une autre (le clone du
-  téléphone est sur `main`) ; un checkout raté affiche son erreur et recale sur les fichiers
-  courants. Le téléphone montre le spinner pendant ce checkout.
-- **Le commit garde les nits non appliqués**, recalés, au lieu d'effacer la review : le script
-  §13 (« apply, commit, puis Share review », puis « accepter une suggestion depuis le
-  téléphone ») se joue tel quel. Changement de comportement du #22, voulu.
-- `loadSharedReviews` annule la requête précédente : une réponse lente n'écrase plus une liste
-  plus récente.
-- Tests : recalage (ligne déplacée + snippet disparu), checkout de la branche partagée, nits
-  restants après commit puis re-partage. `ShareReviewViewModelTest` 7/7.
+- Opening a shared review **re-anchors** each nit on the device's files
+  (`ReviewAnchoring.anchorOrFileLevel`): a moved snippet changes line, a missing snippet
+  falls back to the whole file. Before, the desktop's lines were copied as-is.
+- It **checks out the review's branch first** if the device is on another one (the phone
+  clone is on `main`); a failed checkout shows its error and re-anchors on the current
+  files. The phone shows the spinner during that checkout.
+- **The commit keeps the unapplied nits**, re-anchored, instead of erasing the review: the
+  §13 script ("apply, commit, then Share review", then "accept a suggestion from the
+  phone") plays as-is. Behaviour change of #22, intended.
+- `loadSharedReviews` cancels the previous request: a slow response no longer overwrites a
+  more recent list.
+- Tests: re-anchoring (moved line + missing snippet), checkout of the shared branch, remaining
+  nits after commit then re-share. `ShareReviewViewModelTest` 7/7.
 
-## Écarts au ticket
+## Deviations from the ticket
 
-- **Pas de date** dans la liste : `SharedReview` n'a pas de champ date ; l'ordre (le plus récent
-  d'abord) est celui du serveur. Ajouter `sharedAt` = changement de contrat + serveur.
-- **« Grisé sans serveur »** : le bouton reste actif (pour réessayer une fois le serveur lancé)
-  et un message rouge explique quoi faire ; il est grisé pendant l'envoi.
+- **No date** in the list: `SharedReview` has no date field; the order (most recent
+  first) is the server's. Adding `sharedAt` = contract change + server.
+- **"Greyed out without a server"**: the button stays active (to retry once the server is
+  running) and a red message explains what to do; it is greyed out while sending.
 
-## Vérifications
+## Checks
 
-- `:shared:jvmTest` : `KtorReviewShareClientTest` 5/5, `KtorReviewShareClientEngineTest` 1/1,
+- `:shared:jvmTest`: `KtorReviewShareClientTest` 5/5, `KtorReviewShareClientEngineTest` 1/1,
   `ShareReviewViewModelTest` 4/4, `RepositoryViewModelTest` 19/19.
-- `ReviewShareOnDeviceTest` sur l'émulateur API 36 : 1/1.
-- `./scripts/check.sh` vert.
+- `ReviewShareOnDeviceTest` on the API 36 emulator: 1/1.
+- `./scripts/check.sh` green.
 
-## Incertain
+## Uncertain
 
-- Pas rejoué à la main : Share sur desktop → liste sur le téléphone avec le serveur lancé.
+- Not replayed by hand: Share on desktop → list on the phone with the server running.
 
-## Suivant
+## Next
 
-- Rejouer le point 5 de la démo : `./gradlew :server:run`, `adb reverse tcp:8080 tcp:8080`,
-  Share sur desktop, « Shared » sur le téléphone.
+- Replay point 5 of the demo: `./gradlew :server:run`, `adb reverse tcp:8080 tcp:8080`,
+  Share on desktop, "Shared" on the phone.

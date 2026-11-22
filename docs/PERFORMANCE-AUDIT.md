@@ -1,186 +1,186 @@
-# Audit de performance — 21 novembre 2026
+# Performance audit — November 21, 2026
 
-> Périmètre : desktop JVM et Android, cœur partagé (`shared/`). Mesures faites sur la machine
-> de développement (macOS, JDK 22, JVM chaude), avant/après les corrections de cette passe.
-> Seconde passe (relecture + volet Android) : 21 novembre, soir — voir « Relecture » et
-> « Android » plus bas.
+> Scope: desktop JVM and Android, shared core (`shared/`). Measurements taken on the
+> development machine (macOS, JDK 22, warm JVM), before/after the fixes in this pass.
+> Second pass (review + Android part): November 21, evening — see "Review" and
+> "Android" below.
 
-## Résumé
+## Summary
 
-Le travail **local** était le vrai goulot sur les dépôts de taille réelle, pas l'UI :
+The **local** work was the real bottleneck on real-sized repositories, not the UI:
 
-- `log(500)` reparcourait **tout l'historique** à cause du tri topologique JGit : **449 ms**
-  sur un dépôt de 100 000 commits, et `buildReviewContext` repayait ce coût pour afficher
-  10 messages de commit.
-- `diffAgainst` hachait **tous les fichiers suivis** du working tree à chaque refresh :
-  **234 ms** sur 3 000 fichiers, même quand seuls 4 fichiers avaient changé.
-- Un refresh de diff annulé puis relancé (clic sur l'onglet Diff, apply d'une suggestion)
-  empilait plusieurs walks JGit non annulables.
+- `log(500)` re-walked **the entire history** because of JGit's topological sort: **449 ms**
+  on a repository with 100 000 commits, and `buildReviewContext` paid that cost again to
+  display 10 commit messages.
+- `diffAgainst` hashed **every tracked file** of the working tree on each refresh:
+  **234 ms** on 3 000 files, even when only 4 files had changed.
+- A diff refresh cancelled then restarted (clicking the Diff tab, applying a suggestion)
+  stacked several non-cancellable JGit walks.
 
-Après correction, sur les mêmes dépôts :
+After the fix, on the same repositories:
 
-| Opération | Avant | Après | Gain |
+| Operation | Before | After | Gain |
 | --- | ---: | ---: | ---: |
 | `log(500)`, 100 000 commits | 449 ms | **5 ms** | **90×** |
 | `buildReviewContext`, 100 000 commits | 458 ms | **19 ms** | **24×** |
-| Ouverture complète, 100 000 commits | 894 ms* | **31 ms*** | **~29×** |
-| `diffAgainst`, 3 000 fichiers, arbre propre | 234 ms | **28 ms** | **8,4×** |
-| `diffAgainst`, 3 000 fichiers, 4 fichiers modifiés | 234 ms | **107 ms** | **2,2×** |
-| `diffAgainst`, ce dépôt (147 commits) | 41 ms | 41 ms | — (plancher `git status`) |
+| Full open, 100 000 commits | 894 ms* | **31 ms*** | **~29×** |
+| `diffAgainst`, 3 000 files, clean tree | 234 ms | **28 ms** | **8,4×** |
+| `diffAgainst`, 3 000 files, 4 modified files | 234 ms | **107 ms** | **2,2×** |
+| `diffAgainst`, this repository (147 commits) | 41 ms | 41 ms | — (`git status` floor) |
 
-\* La sonde « ouverture complète » appelait `log()` deux fois, avant comme après : le rapport
-reste comparable, la valeur réelle est plus basse des deux côtés.
+\* The "full open" probe called `log()` twice, before as well as after: the ratio
+stays comparable, the real value is lower on both sides.
 
-La latence restante de la **review** est dominée par le LLM, pas par le code local. Le modèle
-par défaut était le modèle phare (Opus) alors que `CONTEXT.md` §14 demande un « modèle rapide
-par défaut » : c'est corrigé (Sonnet en premier), mais un réglage existant garde Opus.
+The remaining **review** latency is dominated by the LLM, not by local code. The default
+model used to be the flagship model (Opus) while `CONTEXT.md` §14 asks for a "fast model
+by default": this is fixed (Sonnet first), but an existing setting keeps Opus.
 
-## Protocole
+## Protocol
 
-Quatre dépôts, pour séparer taille d'historique et taille d'arbre :
+Four repositories, to separate history size from tree size:
 
-| Dépôt | Commits | Fichiers suivis | Usage |
+| Repository | Commits | Tracked files | Use |
 | --- | ---: | ---: | --- |
-| ce dépôt | 147 | ~150 | cas réel de l'équipe |
-| `/tmp/bigrepo` | 5 000 | 3 000 | arbre large, working tree sale |
-| clone propre de `bigrepo` | 5 000 | 3 000 | arbre large, working tree propre |
-| `/tmp/hugerepo` | 100 000 | 2 000 | historique profond |
+| this repository | 147 | ~150 | the team's real case |
+| `/tmp/bigrepo` | 5 000 | 3 000 | wide tree, dirty working tree |
+| clean clone of `bigrepo` | 5 000 | 3 000 | wide tree, clean working tree |
+| `/tmp/hugerepo` | 100 000 | 2 000 | deep history |
 
-Mesures : médiane de 3 exécutions après un warm-up, `System.nanoTime()`, JVM chaude. Les
-valeurs Compose viennent d'un test `ui-test-junit4` temporaire (scène 1024×768, 500 lignes de
-graphe, diff de 100 fichiers) : elles sont indicatives, pas des profils GPU.
+Measurements: median of 3 runs after a warm-up, `System.nanoTime()`, warm JVM. The Compose
+values come from a temporary `ui-test-junit4` test (1024×768 scene, 500 graph rows,
+100-file diff): they are indicative, not GPU profiles.
 
-## Corrections livrées
+## Fixes delivered
 
-1. **`log()` borné par la fenêtre demandée** — `JGitRepository.kt:44`
-   Le walk passe en `COMMIT_TIME_DESC`, s'arrête à `limit`, puis un tri de Kahn en mémoire
-   remet les enfants avant les parents (le contrat des lanes). Coût borné par `limit`, plus par
-   la taille du dépôt. Un test couvre le cas d'horloge inversée (merge plus vieux que son
+1. **`log()` bounded by the requested window** — `JGitRepository.kt:44`
+   The walk switches to `COMMIT_TIME_DESC`, stops at `limit`, then an in-memory Kahn sort
+   puts children back before parents (the lanes contract). Cost bounded by `limit`, not by
+   the repository size. A test covers the reversed-clock case (a merge older than its
    parent).
 
-2. **`diffAgainst()` filtré sur les chemins réellement modifiés** — `JGitRepository.kt:133`
-   `git status()` donne les chemins changés (index + working tree) ; on y ajoute les chemins
-   modifiés entre le fork point et HEAD. Le `DiffFormatter` ne visite plus que ces chemins.
-   Arbre propre : diff arbre→arbre, aucun fichier haché. Le `TrackedFilter` maison disparaît
-   (les fichiers non suivis sont déjà exclus).
+2. **`diffAgainst()` filtered to the paths that actually changed** — `JGitRepository.kt:133`
+   `git status()` returns the changed paths (index + working tree); the paths changed
+   between the fork point and HEAD are added to them. The `DiffFormatter` now only visits
+   those paths. Clean tree: tree→tree diff, no file hashed. The home-grown `TrackedFilter`
+   goes away (untracked files are already excluded).
 
-3. **Refresh de diff single-flight** — `RepositoryViewModel.kt:211`
-   Un seul walk à la fois ; une demande arrivée pendant le walk mémorise la base la plus
-   récente et le job reboucle une fois. Fini les diff concurrents quand on clique sur Diff
-   ou qu'on applique plusieurs suggestions.
+3. **Single-flight diff refresh** — `RepositoryViewModel.kt:211`
+   One walk at a time; a request arriving during the walk remembers the most recent base
+   and the job loops once more. No more concurrent diffs when clicking Diff or applying
+   several suggestions.
 
-4. **Compteurs de lignes précalculés** — `Diff.kt:14`, `DiffPanel.kt:58`
-   `FileDiff.addedLines/removedLines` sont calculés une fois au parsing. Le panneau ne
-   rescanne plus toutes les lignes à chaque recomposition (et `selectReviewDiffs` non plus).
+4. **Precomputed line counters** — `Diff.kt:14`, `DiffPanel.kt:58`
+   `FileDiff.addedLines/removedLines` are computed once at parse time. The panel no longer
+   rescans every line on each recomposition (and neither does `selectReviewDiffs`).
 
-5. **`stage()` en une écriture d'index** — `JGitRepository.kt:209`
-   Un `add()` et un `rm()` groupés au lieu d'un `call()` par fichier. Le coût ne dépend plus
-   du nombre de suggestions appliquées.
+5. **`stage()` in a single index write** — `JGitRepository.kt:209`
+   One grouped `add()` and `rm()` instead of one `call()` per file. The cost no longer
+   depends on the number of applied suggestions.
 
-6. **Re-anchoring : un fichier lu une fois** — `RepositoryViewModel.kt:570`
-   Les nits d'un même fichier partagent la lecture au lieu de relire le fichier par nit.
+6. **Re-anchoring: one read per file** — `RepositoryViewModel.kt:570`
+   Nits from the same file share the read instead of re-reading the file for each nit.
 
-7. **Pas d'écriture settings inutile** — `Settings.kt`, `SettingsViewModel.kt:34`
-   Rouvrir le dépôt déjà en tête de liste ne réécrit plus le fichier (et ne réémet plus
-   l'état).
+7. **No useless settings write** — `Settings.kt`, `SettingsViewModel.kt:34`
+   Reopening the repository already at the top of the list no longer rewrites the file (and
+   no longer re-emits the state).
 
-8. **Tokens de thème stables** — `NitpickTheme.kt:64`
-   Typographie, formes, espacements et `ColorScheme` sont `remember`és. C'était une
-   invalidation de sous-arbre à chaque ré-exécution du thème (bascule de thème, previews) ;
-   ce n'était pas la cause principale de la lenteur, mais c'était gratuit à corriger.
+8. **Stable theme tokens** — `NitpickTheme.kt:64`
+   Typography, shapes, spacings and `ColorScheme` are `remember`ed. It was a subtree
+   invalidation on every theme re-execution (theme toggle, previews); it was not the main
+   cause of the slowness, but it was free to fix.
 
-9. **Modèle rapide par défaut** — `LlmModels.kt:10`
-   Sonnet passe devant Opus pour Anthropic, conformément au fallback de `CONTEXT.md` §14.
-   Un fichier `settings.json` existant garde son modèle : il faut le changer dans les
-   réglages pour une machine de démo déjà configurée.
+9. **Fast model by default** — `LlmModels.kt:10`
+   Sonnet now comes before Opus for Anthropic, in line with the `CONTEXT.md` §14 fallback.
+   An existing `settings.json` file keeps its model: it must be changed in the settings for
+   an already-configured demo machine.
 
-10. **Micro-allocations UI** — `RefsSidebar` (filtre mémorisé, sections hoistées),
-    `DiffPanel` (sélection et bases mémorisées), `CommitGraphLane` (lanes passantes calculées
-    une fois par ligne), `PhoneReviewScreen` (`groupBy` mémorisé).
+10. **UI micro-allocations** — `RefsSidebar` (memoized filter, hoisted sections),
+    `DiffPanel` (memoized selection and bases), `CommitGraphLane` (passing lanes computed
+    once per row), `PhoneReviewScreen` (memoized `groupBy`).
 
-## Relecture (seconde passe)
+## Review (second pass)
 
-Les quatre points prioritaires du handoff (`progress/perf-audit.md`), relus sur le code :
+The four priority points of the handoff (`progress/perf-audit.md`), re-read against the code:
 
-1. **`diffAgainst` + `changedPathsBetween` : conforme**, avec un cas limite hérité de la
-   suppression du `TrackedFilter`. Renommage (les deux chemins entrent dans le filtre),
-   suppression, fichier staged et arbre propre sont corrects et testés. Le cas limite :
-   un fichier **supprimé entre le fork point et HEAD** mais recréé **non suivi** dans le
-   working tree. Son chemin est dans le filtre, et `FileTreeIterator` voit le fichier du
-   disque : la suppression s'affiche comme une modification (ou disparaît si le contenu est
-   identique), et le contenu non suivi part au LLM alors que la doc promet le contraire.
-   Niche (fichier régénéré par un outil au chemin qu'une branche supprime) ; non corrigé,
-   à décider par H2 — le fix propre repasse par un filtrage sur l'index.
-2. **`log` + `childrenBeforeParents` : conforme.** Kahn est correct et déterministe, la
-   garde sur fenêtre tronquée aussi. Limite assumée : avec une horloge très inversée, la
-   fenêtre `COMMIT_TIME_DESC` de 500 peut contenir un ensemble de commits différent de
-   celui qu'un TOPO aurait donné — l'ordre, lui, reste enfants-avant-parents (testé).
-3. **`refreshDiff` single-flight : conforme.** Toutes les mutations se font sur le
-   dispatcher principal ; `load()` annule le job et vide `pendingDiffBase`, et le résultat
-   d'un dépôt fermé est jeté (`repository !== git`).
-4. **`LlmModels` : conforme au §14.** Choix produit confirmé à faire valider par H1 ; un
-   `settings.json` existant garde son modèle.
+1. **`diffAgainst` + `changedPathsBetween`: compliant**, with one edge case inherited from
+   removing `TrackedFilter`. Rename (both paths enter the filter), deletion, staged file
+   and clean tree are correct and tested. The edge case: a file **deleted between the fork
+   point and HEAD** but recreated **untracked** in the working tree. Its path is in the
+   filter, and `FileTreeIterator` sees the file on disk: the deletion shows up as a
+   modification (or disappears if the content is identical), and the untracked content is
+   sent to the LLM even though the doc promises the opposite. Niche (a file regenerated by
+   a tool at a path that a branch deletes); not fixed, to be decided by H2 — the clean fix
+   goes back through filtering on the index.
+2. **`log` + `childrenBeforeParents`: compliant.** Kahn is correct and deterministic, and
+   so is the guard on a truncated window. Accepted limitation: with a heavily reversed
+   clock, the 500-commit `COMMIT_TIME_DESC` window may contain a different set of commits
+   than a TOPO would have given — the order itself remains children-before-parents (tested).
+3. **`refreshDiff` single-flight: compliant.** All mutations happen on the main dispatcher;
+   `load()` cancels the job and clears `pendingDiffBase`, and the result of a closed
+   repository is dropped (`repository !== git`).
+4. **`LlmModels`: compliant with §14.** Product choice confirmed, to be validated by H1; an
+   existing `settings.json` keeps its model.
 
-## Ce qui reste lent, et pourquoi
+## What is still slow, and why
 
-- **La review LLM (dizaines de secondes ; timeout à 90 s).** Le prompt peut atteindre
-  120 000 caractères de contenu de fichiers en plus du diff, avec jusqu'à 4 rounds d'outils,
-  sans streaming. Leviers, par ordre de sécurité :
-  1. modèle rapide (fait pour les nouvelles installations) ;
-  2. budget `MAX_PROMPT_TOTAL_CHARS` à 60 000 (moins de tokens d'entrée, donc moins de
-     latence ; perte de contexte à valider sur la qualité) ;
-  3. streaming ou affichage des nits au fil de l'eau (gros changement UI) ;
-  4. cache d'une review pour le dépôt de démo (déjà prévu par `CONTEXT.md` §14).
-- **`git status()` à chaque diff (~20–30 ms).** C'est le plancher du diff filtré. Un cache
-  indexé sur `HEAD` + mtime de l'index éviterait la plupart des refreshes d'onglet, au prix
-  d'un risque de diff périmé après une édition externe. Non fait : le gain ne valait pas le
-  risque de correctness.
-- **Démarrage desktop (~1,4 s jusqu'à la première composition).** Surtout du chargement
-  Compose/Skiko et des ressources ; pas de levier simple sans dégrader le premier écran.
-- **Graphe.** 500 lignes, `LazyColumn`, lanes hors thread UI : déjà conforme au fallback de
-  `CONTEXT.md`. Le dessin alloue encore un `Path` par courbe et par frame ; négligeable au
-  regard du reste.
+- **The LLM review (tens of seconds; 90 s timeout).** The prompt can reach 120 000
+  characters of file content on top of the diff, with up to 4 tool rounds, without
+  streaming. Levers, in order of safety:
+  1. fast model (done for new installs);
+  2. `MAX_PROMPT_TOTAL_CHARS` budget at 60 000 (fewer input tokens, hence less latency;
+     context loss to be validated on quality);
+  3. streaming or showing nits as they arrive (large UI change);
+  4. caching one review for the demo repository (already planned by `CONTEXT.md` §14).
+- **`git status()` on every diff (~20–30 ms).** This is the floor of the filtered diff. A
+  cache keyed on `HEAD` + index mtime would avoid most tab refreshes, at the cost of a risk
+  of a stale diff after an external edit. Not done: the gain was not worth the correctness
+  risk.
+- **Desktop startup (~1,4 s to first composition).** Mostly Compose/Skiko and resource
+  loading; no simple lever without degrading the first screen.
+- **Graph.** 500 rows, `LazyColumn`, lanes off the UI thread: already compliant with the
+  `CONTEXT.md` fallback. The drawing still allocates one `Path` per curve and per frame;
+  negligible compared with the rest.
 
 ## Android
 
-Pas encore de mesures sur ART : aucun appareil ni émulateur branché pendant la seconde
-passe (`adb devices` vide). Ce qui est établi sans appareil :
+No measurements on ART yet: no device or emulator connected during the second pass
+(`adb devices` empty). What is established without a device:
 
-- **Les corrections partagées sont les gains Android.** Le téléphone passe par le même
-  `RepositoryViewModel` et le même `JGitRepository` : `log()` borné et le diff filtré
-  comptent **plus** sur ART que sur desktop — un clone vit dans `filesDir/repos` sur du
-  stockage flash, où hacher tous les fichiers suivis à chaque refresh coûtait le plus
-  cher. Tout JGit est sur `Dispatchers.IO`, le layout des lanes sur `Default` : rien ne
-  bloque le thread UI (vérifié dans le code, à confirmer à l'œil sur appareil).
-- **`MainActivity.onCreate` est mince** : construction du conteneur (constructeurs purs)
-  et `setContent` ; la lecture de `settings.json` part sur IO et l'UI attend
-  `settingsLoaded` sans bloquer. Pas de levier cold start côté code applicatif.
-- **La démo tourne en debug** (`installDebug`) : build debuggable, donc pas d'AOT et un
-  Compose nettement plus lent qu'en release. Levier le moins cher pour la démo :
-  installer la variante release — `isMinifyEnabled = false` fait qu'aucune règle R8 n'est
-  en jeu, il ne manque qu'une `signingConfig` (debug) sur le build type release, une
-  ligne. Non fait : décision démo H3.
-- **Après le freeze** (inchangé depuis la première passe) : R8 + baseline profile, avec
-  des règles testées sur ART (Compose, Koog, JGit).
-- **À rejouer sur appareil** (handoff) : clone d'un dépôt réel, graph, review, apply —
-  comparer le ressenti avant/après `a15abff` et noter la cold start
+- **The shared fixes are the Android gains.** The phone goes through the same
+  `RepositoryViewModel` and the same `JGitRepository`: the bounded `log()` and the filtered
+  diff count **more** on ART than on desktop — a clone lives in `filesDir/repos` on flash
+  storage, where hashing every tracked file on each refresh was the most expensive. All
+  JGit is on `Dispatchers.IO`, the lanes layout on `Default`: nothing blocks the UI thread
+  (checked in the code, to be confirmed visually on device).
+- **`MainActivity.onCreate` is thin**: building the container (pure constructors) and
+  `setContent`; reading `settings.json` runs on IO and the UI waits for `settingsLoaded`
+  without blocking. No cold start lever in application code.
+- **The demo runs in debug** (`installDebug`): debuggable build, hence no AOT and a
+  noticeably slower Compose than in release. The cheapest lever for the demo: install the
+  release variant — `isMinifyEnabled = false` means no R8 rule is involved, only a
+  `signingConfig` (debug) is missing on the release build type, one line. Not done: H3 demo
+  decision.
+- **After the freeze** (unchanged since the first pass): R8 + baseline profile, with rules
+  tested on ART (Compose, Koog, JGit).
+- **To replay on device** (handoff): clone of a real repository, graph, review, apply —
+  compare the feel before/after `a15abff` and note the cold start
   (`am start -W dev.nitpick.app/.MainActivity`).
 
-## Vérification
+## Verification
 
-- Première passe : `./gradlew :shared:jvmTest :server:test :desktopApp:assemble` **vert**,
-  avec les nouveaux tests (tri topologique sous horloge inversée, diff sur arbre propre,
-  `stage()` groupé, compteurs de diff, settings sans écriture inutile). `check.sh` n'avait
-  pas pu finir : SDK Android absent de cette machine-là.
-- Seconde passe, machine avec SDK : `./scripts/check.sh` **vert** (tests partagés, build
-  desktop et `:androidApp:assembleDebug`). Comptes relus dans les rapports :
-  `jvmTest` **147 tests**, `testAndroidHostTest` **107 tests**, 0 échec, 0 ignoré.
-  Toujours rien sur ART (pas d'appareil) : la preuve Android reste
-  `androidApp/src/androidTest` à rejouer branché.
+- First pass: `./gradlew :shared:jvmTest :server:test :desktopApp:assemble` **green**, with
+  the new tests (topological sort under a reversed clock, diff on a clean tree, grouped
+  `stage()`, diff counters, settings with no useless write). `check.sh` had not been able to
+  finish: Android SDK missing on that machine.
+- Second pass, machine with the SDK: `./scripts/check.sh` **green** (shared tests, desktop
+  build and `:androidApp:assembleDebug`). Counts re-read in the reports: `jvmTest` **147
+  tests**, `testAndroidHostTest` **107 tests**, 0 failures, 0 skipped. Still nothing on ART
+  (no device): the Android proof remains `androidApp/src/androidTest` to be replayed with a
+  device connected.
 
-## Note de travail
+## Work note
 
-Le diff non commité déjà présent au début de la passe (`AppContainer`, `LlmReviewAgent`,
-`ReviewToolbox` : trace des appels d'outils) n'est **pas** inclus dans ce commit : il est
-resté dans le working tree. Les mesures et cette passe n'ont pas touché au contrat
-`GitRepository` ni au format des reviews partagées.
+The uncommitted diff already present at the start of the pass (`AppContainer`,
+`LlmReviewAgent`, `ReviewToolbox`: tool call tracing) is **not** included in this commit: it
+stayed in the working tree. The measurements and this pass did not touch the `GitRepository`
+contract or the shared review format.

@@ -1,42 +1,42 @@
-# progress/ — journaux par ticket (sans conflit)
+# progress/ — per-ticket logs (no conflicts)
 
-## Pourquoi ce dossier
+## Why this folder
 
-Plusieurs agents travaillent en parallèle dans des worktrees différents. S'ils écrivent
-tous dans `progress.txt`, chaque merge crée un conflit. Un fichier par ticket supprime
-le problème : deux agents ne touchent jamais le même fichier.
+Several agents work in parallel in different worktrees. If they all write to `progress.txt`,
+every merge creates a conflict. One file per ticket removes the problem: two agents never
+touch the same file.
 
-## Règle
+## Rule
 
-- Un agent écrit **uniquement** dans `progress/<ticket>.md` (créé par `scripts/new-worktree.sh`).
-- `progress.txt` est le **journal de synthèse** : seuls les humains (idéalement
-  l'intégrateur·rice) l'écrivent, à chaque sync, en 3 à 5 lignes.
-- `docs/DECISIONS.md`, `docs/PRD.md` et `CLAUDE.md` ne sont jamais édités par un agent
-  sans demande humaine explicite.
-- `docs/QUESTIONS.md` est append-only : chaque agent ajoute une ligne, ne réécrit pas
-  les lignes des autres.
+- An agent writes **only** to `progress/<ticket>.md` (created by `scripts/new-worktree.sh`).
+- `progress.txt` is the **summary log**: only humans (ideally the integrator) write it,
+  at every sync, in 3 to 5 lines.
+- `docs/DECISIONS.md`, `docs/PRD.md` and `CLAUDE.md` are never edited by an agent
+  without an explicit human request.
+- `docs/QUESTIONS.md` is append-only: each agent adds one line, does not rewrite
+  other people's lines.
 
-## Format d'une entrée
+## Entry format
 
 ```md
-## 14:32 — ticket 12-graph-lanes (piste A)
+## 14:32 — ticket 12-graph-lanes (track A)
 
-- Fait : algorithme de lanes + 6 tests (merge, branche orpheline, octopus).
-- Décisions : une lane par parent non encore placé, réutilisée dès qu'elle se libère.
-- Modèle : sonnet.
-- Escalades : sonnet → opus (2 échecs sur la validation).
-- Fichiers : shared/src/commonMain/kotlin/dev/nitpick/app/graph/*, shared/src/commonTest/.../graph/*.
-- Incertain : couleurs des lanes non testées en thème sombre.
-- Blocage : aucun.
-- Suivant : brancher sur `GitRepository.log()` réel (piste B).
+- Done: lane algorithm + 6 tests (merge, orphan branch, octopus).
+- Decisions: one lane per parent not yet placed, reused as soon as it frees up.
+- Model: sonnet.
+- Escalations: sonnet → opus (2 failures on validation).
+- Files: shared/src/commonMain/kotlin/dev/nitpick/app/graph/*, shared/src/commonTest/.../graph/*.
+- Uncertain: lane colours not tested in dark theme.
+- Blocker: none.
+- Next: plug into the real `GitRepository.log()` (track B).
 ```
 
-Ce journal par ticket **est** le journal d'agent du §11 de `docs/CONTEXT.md` : les champs
-agent, piste, tâche, fichiers, décisions et incertain y figurent. `docs/AGENT_LOG.md` n'en est
-que la compilation, faite par un humain aux syncs.
+This per-ticket log **is** the agent log of §11 of `docs/CONTEXT.md`: the agent, track, task,
+files, decisions and uncertain fields appear in it. `docs/AGENT_LOG.md` is only the
+compilation of it, done by a human at syncs.
 
-## À la fin
+## At the end
 
-- Fusionner les informations utiles dans `progress.txt` (synthèse) et `docs/DECISIONS.md`
-  (décisions durables).
-- Supprimer `progress/` et `progress.txt` après l'événement : ce sont des artefacts de session.
+- Merge the useful information into `progress.txt` (summary) and `docs/DECISIONS.md`
+  (durable decisions).
+- Delete `progress/` and `progress.txt` after the event: they are session artefacts.

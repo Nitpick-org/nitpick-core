@@ -1,42 +1,42 @@
 # Ticket 35-settings-android
 
-- Statut : prêt pour review (PR)
-- Propriétaire humain : @pepito2t (H3)
-- Piste : C android+finitions
-- Agent : Claude Fable 5.1 (session interactive)
-- Model : fable
-- Escalations : aucune
-- Fichiers autorisés : shared/src/commonMain/kotlin/dev/nitpick/app/ui/settings/**,
+- Status: ready for review (PR)
+- Human owner: @pepito2t (H3)
+- Track: C android+polish
+- Agent: Claude Fable 5.1 (interactive session)
+- Model: fable
+- Escalations: none
+- Allowed files: shared/src/commonMain/kotlin/dev/nitpick/app/ui/settings/**,
   shared/src/commonMain/kotlin/dev/nitpick/app/ui/components/**,
   shared/src/commonMain/composeResources/**
 
-## Fait
+## Done
 
-- `SettingsScreen` (téléphone) refait selon le handoff §4.4 : `PhoneTopBar`, fond `canvas`,
-  cartes `surface` ; Thème en `NitpickSegmentedControl` 48 dp ; fournisseur en
-  `NitpickRadioGroup` vertical 52 dp avec sous-titre ; modèle en select pleine largeur ; clé
-  API 48 dp avec Show/Hide et aide ; la clé est masquée quand Ollama est choisi (pas de clé).
-  Chaque changement est sauvegardé immédiatement, pas de Save sur téléphone.
-- `ModelSelector` et `ApiKeyField` extraits de `SettingsDialog` dans `SettingsFields.kt`,
-  partagés desktop / téléphone.
+- `SettingsScreen` (phone) rebuilt per handoff §4.4: `PhoneTopBar`, `canvas` background,
+  `surface` cards; Theme as a 48 dp `NitpickSegmentedControl`; provider as a vertical
+  52 dp `NitpickRadioGroup` with a subtitle; model as a full-width select; API key 48 dp
+  with Show/Hide and help; the key is hidden when Ollama is selected (no key).
+  Every change is saved immediately, no Save on phone.
+- `ModelSelector` and `ApiKeyField` extracted from `SettingsDialog` into `SettingsFields.kt`,
+  shared desktop / phone.
 - `NitpickSegmentedControl(height)`, `NitpickRadioGroup(vertical, subtitle, rowHeight)`,
   `NitpickTextField(minHeight)`.
 
-## Décisions
+## Decisions
 
-- Aide de la clé : même texte que le desktop (« fichier de réglages de l'app »), pas
-  « Android Keystore » : c'est la vérité du stockage.
-- Sous-titre Ollama : « auto-hébergé sur cette machine, sans clé », le handoff disait
-  « demande l'URL d'un serveur » mais aucun champ d'URL n'existe.
-- États Android (vide, erreurs) : déjà livrés par #23 (Repos) et #60 (review) ; rien ici.
-- Pas de champ « Review server URL » : son comportement arrive avec #48.
+- Key help: same text as desktop ("app settings file"), not "Android Keystore": it is the
+  truth of the storage.
+- Ollama subtitle: "self-hosted on this machine, no key"; the handoff said "asks for a
+  server URL" but no URL field exists.
+- Android states (empty, errors): already delivered by #23 (Repos) and #60 (review); nothing here.
+- No "Review server URL" field: its behaviour arrives with #48.
 
-## Incertain
+## Uncertain
 
-- Comparaison visuelle avec `Phone.dc.html` faite sur capture d'émulateur, pas sur appareil.
+- Visual comparison with `Phone.dc.html` done on an emulator screenshot, not on a device.
 
-## Journal
+## Log
 
-- 19:19 — worktree créé.
-- 19:35 — lecture du ticket et du flux téléphone.
-- 19:50 — écran, composants, strings ; compile et `check.sh` verts.
+- 19:19 — worktree created.
+- 19:35 — read the ticket and the phone flow.
+- 19:50 — screen, components, strings; compiles and `check.sh` green.
