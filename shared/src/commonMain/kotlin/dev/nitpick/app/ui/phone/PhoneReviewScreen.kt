@@ -14,6 +14,8 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.material3.Text
+import nitpick.shared.generated.resources.ic_check
+import nitpick.shared.generated.resources.ic_push
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -87,7 +89,8 @@ fun PhoneReviewScreen(
 
     Column(modifier.fillMaxSize().background(NitpickTheme.colors.canvas)) {
         PhoneTopBar(
-            title = stringResource(Res.string.review_title) + " · " + stringResource(Res.string.review_vs, branchLabel(state.currentBranch), state.baseRef),
+            title = stringResource(Res.string.review_title),
+            subtitle = stringResource(Res.string.review_vs, branchLabel(state.currentBranch), state.baseRef),
             onBack = onBack,
         ) {
             if (review != null && !state.isReviewing) {
@@ -158,7 +161,7 @@ private fun NitList(
                         stringResource(if (state.openedSharedReview != null) Res.string.shared_badge else Res.string.review_local),
                         tone = NitpickTone.Info,
                     )
-                    Text(summary, style = NitpickTheme.typography.section, modifier = Modifier.weight(1f))
+                    Text(summary, style = NitpickTheme.typography.body, modifier = Modifier.weight(1f))
                 }
                 Text(
                     text = if (comments.isEmpty()) stringResource(Res.string.review_clean_title) else stringResource(Res.string.review_files_with_nits, byFile.size),
@@ -220,7 +223,7 @@ private fun CommitAndPushBar(
             state.appliedFiles.isNotEmpty() -> {
                 Text(pluralStringResource(Res.plurals.commit_bar_applied, state.appliedIds.size, state.appliedIds.size), style = NitpickTheme.typography.small, color = NitpickTheme.colors.success)
                 NitpickTextField(value = state.commitMessage, onValueChange = onCommitMessage, placeholder = stringResource(Res.string.commit_message))
-                PhoneBottomButton(text = stringResource(Res.string.commit_stage), onClick = onCommit, enabled = state.commitMessage.isNotBlank() && !state.isRewritingWorkingTree)
+                PhoneBottomButton(text = stringResource(Res.string.commit_stage), onClick = onCommit, enabled = state.commitMessage.isNotBlank() && !state.isRewritingWorkingTree, icon = Res.drawable.ic_check)
             }
             state.isPushing -> PhoneBottomButton(text = stringResource(Res.string.push_in_progress), onClick = {}, enabled = false)
             state.lastPushedBranch != null -> PushedBanner(state.lastPushedBranch)
@@ -228,7 +231,7 @@ private fun CommitAndPushBar(
                 if (state.pushError != null) {
                     Text(stringResource(Res.string.push_error) + ": " + state.pushError, style = NitpickTheme.typography.small, color = NitpickTheme.colors.danger)
                 }
-                PhoneBottomButton(text = stringResource(Res.string.push_action), onClick = onPush)
+                PhoneBottomButton(text = stringResource(Res.string.push_action), onClick = onPush, icon = Res.drawable.ic_push)
             }
         }
     }
