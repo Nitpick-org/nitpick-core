@@ -9,13 +9,17 @@ import dev.nitpick.app.git.FakeGitRepository
 import dev.nitpick.app.settings.LlmProvider
 import dev.nitpick.app.settings.Settings
 import dev.nitpick.app.settings.SettingsStore
+import dev.nitpick.app.settings.knownModels
 import kotlinx.coroutines.runBlocking
+import org.junit.Assume.assumeTrue
 import kotlin.test.Test
 import kotlin.test.assertTrue
 
 /**
- * Acceptance proof of #20: one real call against Anthropic. Opt-in, so check.sh never spends
- * money: run with APP_ANTHROPIC_API_KEY set (the app key, never ANTHROPIC_API_KEY).
+ * Acceptance proof of #20 and #82: one real review per provider. Opt-in, so check.sh never
+ * spends money: each test is skipped unless APP_<PROVIDER>_API_KEY is set (the app keys,
+ * never ANTHROPIC_API_KEY), or, for Ollama, unless APP_OLLAMA_MODEL is set.
+ * APP_<PROVIDER>_MODEL overrides the first known model. Keys are never printed.
  */
 class RealReviewCallTest {
 
@@ -29,15 +33,26 @@ class RealReviewCallTest {
     """.trimIndent() + "\n"
 
     @Test
-    fun aRealCallReturnsAtLeastOneAnchoredNit() = runBlocking {
-        val apiKey = System.getenv("APP_ANTHROPIC_API_KEY")
-        if (apiKey.isNullOrBlank()) {
-            println("RealReviewCallTest skipped: APP_ANTHROPIC_API_KEY is not set")
-            return@runBlocking
-        }
-        val model = System.getenv("APP_ANTHROPIC_MODEL") ?: Settings().model
+    fun anthropic() = reviewWith(LlmProvider.ANTHROPIC)
+
+    @Test
+    fun openAi() = reviewWith(LlmProvider.OPENAI)
+
+    @Test
+    fun google() = reviewWith(LlmProvider.GOOGLE)
+
+    @Test
+    fun ollama() = reviewWith(LlmProvider.OLLAMA)
+
+    private fun reviewWith(provider: LlmProvider) = runBlocking {
+        val apiKey = System.getenv("APP_${provider.name}_API_KEY").orEmpty()
+        // Ollama has no key: an explicit model is its opt-in, so a running local server never
+        // turns check.sh into a slow real call.
+        val optIn = if (provider == LlmProvider.OLLAMA) "APP_OLLAMA_MODEL" else "APP_${provider.name}_API_KEY"
+        assumeTrue("$optIn is not set", !System.getenv(optIn).isNullOrBlank())
+        val model = System.getenv("APP_${provider.name}_MODEL") ?: provider.knownModels.first()
         val store = object : SettingsStore {
-            override suspend fun load() = Settings(provider = LlmProvider.ANTHROPIC, model = model, apiKey = apiKey)
+            override suspend fun load() = Settings(provider = provider, model = model, apiKey = apiKey)
             override suspend fun save(settings: Settings) = Unit
         }
         val lines = buggy.trimEnd().lines().mapIndexed { i, l -> DiffLine(DiffLineType.ADDED, l, null, i + 1) }
@@ -46,8 +61,9 @@ class RealReviewCallTest {
 
         val result = LlmReviewAgent(KoogLlmClient(store)).review(repository, "main")
 
-        println("summary: ${result.summary}")
+        println("${provider.name} $model summary: ${result.summary}")
         result.comments.forEach { println("${it.severity} ${it.filePath}:${it.startLine}-${it.endLine} ${it.message}") }
-        assertTrue(result.comments.any { !it.isFileLevel }, "expected at least one nit anchored on a line")
+        println("tools used: ${result.toolUses.size}")
+        assertTrue(result.comments.any { !it.isFileLevel }, "expected at least one nit anchored on a line from ${provider.name}")
     }
 }
