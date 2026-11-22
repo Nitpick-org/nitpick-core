@@ -48,7 +48,6 @@ fun NitpickToolbarAction(
     onClick: () -> Unit,
     modifier: Modifier = Modifier,
     selected: Boolean = false,
-    enabled: Boolean = true,
     icon: DrawableResource? = null,
     leading: (@Composable () -> Unit)? = null,
 ) {
@@ -57,7 +56,6 @@ fun NitpickToolbarAction(
     val pop = rememberIconPop()
     Surface(
         onClick = { pop.play(); onClick() },
-        enabled = enabled,
         modifier = modifier.height(NitpickTheme.sizes.control),
         shape = RoundedCornerShape(NitpickTheme.radii.xs),
         color = if (selected) colors.primary else Color.Transparent,
