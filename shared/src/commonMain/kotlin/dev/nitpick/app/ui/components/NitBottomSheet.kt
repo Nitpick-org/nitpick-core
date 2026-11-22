@@ -25,6 +25,8 @@ import androidx.compose.ui.graphics.Color
 import nitpick.shared.generated.resources.ic_check
 import nitpick.shared.generated.resources.ic_x
 import org.jetbrains.compose.resources.DrawableResource
+import androidx.compose.foundation.gestures.detectHorizontalDragGestures
+import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
@@ -35,6 +37,7 @@ import nitpick.shared.generated.resources.review_nit_position
 import org.jetbrains.compose.resources.stringResource
 
 private val SheetActionHeight = 56.dp
+private const val SwipeThresholdPx = 120f
 private val SheetIconSize = 24.dp
 
 /**
@@ -49,8 +52,24 @@ fun NitSheetContent(
     onApply: (() -> Unit)?,
     onDismiss: () -> Unit,
     modifier: Modifier = Modifier,
+    onPrevious: (() -> Unit)? = null,
+    onNext: (() -> Unit)? = null,
 ) {
-    Column(modifier.fillMaxWidth().padding(16.dp), verticalArrangement = Arrangement.spacedBy(16.dp)) {
+    // A horizontal swipe moves to the neighbouring nit; a short one is ignored, so a scroll never jumps.
+    val swipe = Modifier.pointerInput(onPrevious, onNext) {
+        var dragged = 0f
+        detectHorizontalDragGestures(
+            onDragStart = { dragged = 0f },
+            onHorizontalDrag = { _, delta -> dragged += delta },
+            onDragEnd = {
+                when {
+                    dragged < -SwipeThresholdPx -> onNext?.invoke()
+                    dragged > SwipeThresholdPx -> onPrevious?.invoke()
+                }
+            },
+        )
+    }
+    Column(modifier.fillMaxWidth().then(swipe).padding(16.dp), verticalArrangement = Arrangement.spacedBy(16.dp)) {
         // A long suggestion scrolls inside the sheet.
         Column(Modifier.weight(1f, fill = false).verticalScroll(rememberScrollState()), verticalArrangement = Arrangement.spacedBy(16.dp)) {
             Text(
@@ -99,6 +118,8 @@ fun NitBottomSheet(
     onApply: (() -> Unit)?,
     onDismiss: () -> Unit,
     onClose: () -> Unit,
+    onPrevious: (() -> Unit)? = null,
+    onNext: (() -> Unit)? = null,
 ) {
     ModalBottomSheet(
         onDismissRequest = onClose,
@@ -107,6 +128,6 @@ fun NitBottomSheet(
         containerColor = NitpickTheme.colors.surface,
         contentColor = NitpickTheme.colors.text,
     ) {
-        NitSheetContent(comment, position, total, onApply, onDismiss)
+        NitSheetContent(comment, position, total, onApply, onDismiss, onPrevious = onPrevious, onNext = onNext)
     }
 }

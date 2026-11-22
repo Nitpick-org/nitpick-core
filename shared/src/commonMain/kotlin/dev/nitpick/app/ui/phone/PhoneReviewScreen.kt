@@ -151,6 +151,8 @@ fun PhoneReviewScreen(
             onApply = if (applied || open.suggestion == null || open.isFileLevel || state.isRewritingWorkingTree) null else ({ haptics.performHapticFeedback(HapticFeedbackType.LongPress); onApply(open); openNitId = null }),
             onDismiss = { onDismiss(open.id); openNitId = null },
             onClose = { openNitId = null },
+            onPrevious = review.comments.getOrNull(review.comments.indexOf(open) - 1)?.let { previous -> { openNitId = previous.id } },
+            onNext = review.comments.getOrNull(review.comments.indexOf(open) + 1)?.let { next -> { openNitId = next.id } },
         )
     }
 }

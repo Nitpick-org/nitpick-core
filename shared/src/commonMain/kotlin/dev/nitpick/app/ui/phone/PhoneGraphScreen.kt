@@ -20,6 +20,8 @@ import org.jetbrains.compose.resources.DrawableResource
 import nitpick.shared.generated.resources.sync_up_to_date
 import dev.nitpick.app.ui.components.SyncIcon
 import dev.nitpick.app.ui.components.SyncMotion
+import androidx.compose.material3.ExperimentalMaterial3Api
+import androidx.compose.material3.pulltorefresh.PullToRefreshBox
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -109,7 +111,7 @@ fun PhoneGraphScreen(
             )
             else -> {
                 BranchCard(state, onFetch, onPull, onPush, onPublish, Modifier.fillMaxWidth().padding(16.dp))
-                GraphContent(state, onSelectCommit, onCheckoutBranch, Modifier.weight(1f))
+                GraphContent(state, onSelectCommit, onCheckoutBranch, onFetch, Modifier.weight(1f))
                 syncStatusMessage(state)?.let { message ->
                     NitpickDivider()
                     Text(
@@ -227,8 +229,9 @@ private fun SyncButton(text: String, icon: DrawableResource, motion: SyncMotion,
     )
 }
 
+@OptIn(ExperimentalMaterial3Api::class)
 @Composable
-private fun GraphContent(state: RepositoryUiState, onSelectCommit: (String) -> Unit, onCheckoutBranch: (String) -> Unit, modifier: Modifier) {
+private fun GraphContent(state: RepositoryUiState, onSelectCommit: (String) -> Unit, onCheckoutBranch: (String) -> Unit, onFetch: () -> Unit, modifier: Modifier) {
     var tab by rememberSaveable { mutableStateOf(GraphTab.Commits) }
     Column(modifier) {
     Row(Modifier.fillMaxWidth().background(NitpickTheme.colors.panelHeader).padding(horizontal = 4.dp), verticalAlignment = Alignment.Bottom) {
@@ -252,7 +255,10 @@ private fun GraphContent(state: RepositoryUiState, onSelectCommit: (String) -> U
             style = NitpickTheme.typography.small,
             color = NitpickTheme.colors.textMuted,
         )
-        else -> CommitGraphList(state.graph, state.selectedCommitId, onSelectCommit, Modifier.fillMaxSize(), compactTime = true)
+        // Pulling the list down is the phone way to ask for a fetch; the card button stays for the thumb.
+        else -> PullToRefreshBox(isRefreshing = state.isFetching, onRefresh = { if (!state.isSyncing) onFetch() }, modifier = Modifier.fillMaxSize()) {
+            CommitGraphList(state.graph, state.selectedCommitId, onSelectCommit, Modifier.fillMaxSize(), compactTime = true)
+        }
     }
     }
 }
