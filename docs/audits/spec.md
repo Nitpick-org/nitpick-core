@@ -267,7 +267,7 @@ Credential scrubbing before upload is a real safeguard: `withoutCredentials` `Re
     {
       "severity": "P2",
       "title": "Share button is not greyed out without a server",
-      "evidence": "ShareReview.kt:48 enabled = !state.isSharing; failure only after click (RepositoryViewModel.kt:463-476, strings.xml:182) while CONTEXT §7.1 promises 'le partage est grisé'",
+      "evidence": "ShareReview.kt:48 enabled = !state.isSharing; failure only after click (RepositoryViewModel.kt:463-476, strings.xml:182) while CONTEXT §7.1 promises 'sharing is greyed out'",
       "impact": "demo",
       "fix": "Disable the button when no server URL is configured, or on the last Unreachable failure, with the existing message as the reason",
       "cost": "15m",

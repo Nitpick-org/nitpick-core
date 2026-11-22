@@ -8,7 +8,7 @@ Sources: `progress/<ticket>.md`, `progress/16-graph.md:37-52`,
 
 ## AGENT_LOG candidates
 
-| Heure | Agent (modèle) | Piste | Tâche | Fichiers | Décisions | Incertain |
+| Time | Agent (model) | Track | Task | Files | Decisions | Uncertain |
 | --- | --- | --- | --- | --- | --- | --- |
 | 14:20 | lead + two subagents (Sonnet) | A | Commit graph lanes; two independent algorithms compared, one-pass kept | `graph/`, `ui/repository/CommitGraph.kt` | one-pass with `active[lane]` table; snapshot lanes untrimmed | dark palette not captured yet |
 | 17:30 | lead | B+A | Review loop: diff, apply with snippet re-check, commit; LocalReviewAgent fallback | `review/`, `JGitRepository.kt`, `RepositoryViewModel.kt` | diff against working tree; fallback is not the product AI | no Air session; real key call still to do |
@@ -25,7 +25,7 @@ Sources: `progress/<ticket>.md`, `progress/16-graph.md:37-52`,
 
 ## REVIEW_LOG candidates — real human corrections
 
-| Quand | Qui | Ticket / PR | Agent | Quoi | Pourquoi | Ce qui a changé |
+| When | Who | Ticket / PR | Agent | What | Why | What changed |
 | --- | --- | --- | --- | --- | --- | --- |
 | 15:10 | H2 | #16 | subagents | First octopus test expected `[0,0,1,2,0]` | Lanes 1/2 carry branches and converge at the root | Test corrected to `[0,0,0,0,0]` |
 | 18:45 | H2 | #22 | lead | `LocalReviewAgent` was the default in the ViewModel | Product review must use Koog | `AppContainer` wires `LlmReviewAgent(KoogLlmClient)`; local agent stays a test fallback |

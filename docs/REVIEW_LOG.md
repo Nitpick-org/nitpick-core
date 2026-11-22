@@ -1,10 +1,11 @@
-# Journal des reviews humaines
+# Human review log
 
-> Chaque rejet ou correction humaine du travail d'un agent, en une ligne. C'est la preuve
-> du critère « process agentique » (§11 de `docs/CONTEXT.md`) et la matière de la slide
-> « voici ce qu'on a refusé à nos agents ». Écrit par les humains, jamais par un agent.
+> Every human rejection or correction of an agent's work, one line each. This is the
+> evidence for the "agentic process" criterion (§11 of `docs/CONTEXT.md`) and the material
+> for the "here is what we refused from our agents" slide. Written by humans, never by an
+> agent.
 
-| Heure | Qui | Ticket / PR | Agent (modèle) | Quoi | Pourquoi | Ce qui a changé |
+| Time | Who | Ticket / PR | Agent (model) | What | Why | What changed |
 | --- | --- | --- | --- | --- | --- | --- |
 | 15:10 | H2 | #16 | subagents | First octopus test expected `[0,0,1,2,0]` | Lanes 1/2 carry branches and converge at the root | Test corrected to `[0,0,0,0,0]` |
 | 18:45 | H2 | #22 | lead | `LocalReviewAgent` was the default in the ViewModel | Product review must use Koog | `AppContainer` wires `LlmReviewAgent(KoogLlmClient)`; local agent stays a test fallback |
