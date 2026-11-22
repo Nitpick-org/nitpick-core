@@ -36,7 +36,7 @@ import nitpick.shared.generated.resources.Res
 import nitpick.shared.generated.resources.review_phrases
 import org.jetbrains.compose.resources.stringArrayResource
 
-// Geometry and keyframes of docs/design/loader/nitpick-symbol-loader.svg (viewBox 86 56 340 352).
+// Geometry and keyframes of docs/design/icon/nitpick-symbol-loader.svg (viewBox 86 56 340 352).
 private const val VIEW_X = 86f
 private const val VIEW_Y = 56f
 private const val VIEW_W = 340f
@@ -62,7 +62,9 @@ fun NitpickReviewLoader(modifier: Modifier = Modifier, symbolSize: Dp = 72.dp) {
     // Keyed on the size, not the list: the resource lookup hands out a new list on every frame of the animation.
     val order = remember(phrases.size) { phrases.shuffled() }
     var index by remember { mutableIntStateOf(0) }
+    // Resources load asynchronously: the list is empty on the first frame.
     LaunchedEffect(order) {
+        if (order.isEmpty()) return@LaunchedEffect
         while (true) {
             delay(PHRASE_MS)
             index = (index + 1) % order.size
@@ -70,8 +72,10 @@ fun NitpickReviewLoader(modifier: Modifier = Modifier, symbolSize: Dp = 72.dp) {
     }
     Column(modifier, horizontalAlignment = Alignment.CenterHorizontally, verticalArrangement = Arrangement.spacedBy(8.dp)) {
         NitpickTweezersSpinner(symbolSize)
-        Crossfade(order[index]) { phrase ->
-            Text(phrase, style = NitpickTheme.typography.small, color = NitpickTheme.colors.textSecondary)
+        if (order.isNotEmpty()) {
+            Crossfade(order[index % order.size]) { phrase ->
+                Text(phrase, style = NitpickTheme.typography.small, color = NitpickTheme.colors.textSecondary)
+            }
         }
     }
 }
