@@ -78,6 +78,13 @@ class JunieCliLlmClientTest {
     }
 
     @Test
+    fun anAnswerWinsOverAFailedUserHook() {
+        val envelope = """{"result":"{\"summary\":\"ok\",\"comments\":[]}","errors":["Session end hook failed: python3 session-end-llma.py: No such file"]}"""
+
+        assertEquals("""{"summary":"ok","comments":[]}""", parseJunieOutput(envelope))
+    }
+
+    @Test
     fun anyOtherJunieErrorIsAProviderFailure() {
         assertFailsWith<ReviewProviderException> { parseJunieOutput("""{"errors":["model quota exceeded"]}""") }
         assertFailsWith<ReviewProviderException> { parseJunieOutput("not json") }
