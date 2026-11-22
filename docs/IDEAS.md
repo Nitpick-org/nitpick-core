@@ -44,3 +44,11 @@
 - **Why it is interesting**: no HTTPS remote or token to set up for a repo you already have.
 - **Estimated cost**: 1 h on desktop (host-key prompt, passphrase prompt, known_hosts), unknown on Android (dexing of the module, no ssh-agent).
 - **Verdict**: after the demo; the demo repos are HTTPS clones.
+
+## JetBrains AI (Junie) as a review provider
+
+- **For**: a JetBrains user who wants the review to run through the account they already pay for, and the jury reading criterion 5 of the JetBrains brief (#227, reading B).
+- **What it would do**: a fifth entry in the Settings provider list, "JetBrains AI (Junie)", greyed with a "coming" tooltip until a public API exists; never a fake call.
+- **Why it is interesting**: shows the JetBrains ecosystem inside the product, not only in the process.
+- **Estimated cost**: 20 min for the greyed entry (enum value, 2 strings EN/FR, disabled state in `NitpickRadioGroup`); unknown for a real integration, no public Junie API known (`docs/RESEARCH.md` has nothing).
+- **Verdict**: parked; `docs/CONTEXT.md` puts a runtime Junie integration in WON'T, and a greyed entry in a 3-minute demo reads as unfinished. Reading A (a real Junie Lite ticket, `docs/demo/junie-lite-brief.md`) is the criterion as written.
