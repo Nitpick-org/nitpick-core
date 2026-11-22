@@ -97,10 +97,16 @@
     <string name="error_network_body">La requête a échoué avant la réponse du modèle. Vérifiez la connexion puis réessayez. Rien n’a été envoyé.</string>
     <string name="error_timeout_title">Le modèle a mis trop de temps</string>
     <string name="error_timeout_body">Le fournisseur n’a pas répondu à temps. Les gros diffs peuvent être plus longs ; réessayez.</string>
-    <string name="review_step_diff">Collecte du diff</string>
-    <string name="review_step_read">Lecture des fichiers modifiés</string>
-    <string name="review_step_model">Interrogation du modèle</string>
-    <string name="review_step_place">Placement des nits</string>
+    <string-array name="review_phrases">
+        <item>Lecture du diff…</item>
+        <item>Affûtage des pincettes…</item>
+        <item>Comptage des nits…</item>
+        <item>Chasse aux off-by-one…</item>
+        <item>Interrogation du modèle…</item>
+        <item>On mesure deux fois, on coupe une fois…</item>
+        <item>Placement des nits sur leurs lignes…</item>
+        <item>Vérification de ce que les tests ont oublié…</item>
+    </string-array>
     <string name="review_ai_badge">IA</string>
     <string name="review_clean_badge">PROPRE</string>
     <string name="review_title">Review</string>

@@ -10,7 +10,6 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
-import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
@@ -23,6 +22,7 @@ import dev.nitpick.app.ui.components.NitpickButton
 import dev.nitpick.app.ui.components.NitpickButtonSize
 import dev.nitpick.app.ui.components.NitpickButtonVariant
 import dev.nitpick.app.ui.components.NitpickCard
+import dev.nitpick.app.ui.components.NitpickReviewLoader
 import dev.nitpick.app.ui.components.NitpickEmptyState
 import dev.nitpick.app.ui.components.NitpickTextField
 import dev.nitpick.app.ui.components.ReviewCommentCard
@@ -54,10 +54,6 @@ import nitpick.shared.generated.resources.review_retry
 import nitpick.shared.generated.resources.review_run
 import nitpick.shared.generated.resources.review_running
 import nitpick.shared.generated.resources.shared_badge
-import nitpick.shared.generated.resources.review_step_diff
-import nitpick.shared.generated.resources.review_step_model
-import nitpick.shared.generated.resources.review_step_place
-import nitpick.shared.generated.resources.review_step_read
 import org.jetbrains.compose.resources.pluralStringResource
 import org.jetbrains.compose.resources.stringResource
 
@@ -182,15 +178,7 @@ private fun ReviewProgress() {
                 NitpickBadge(stringResource(Res.string.review_ai_badge), tone = NitpickTone.Ai)
                 Text(stringResource(Res.string.review_running), style = NitpickTheme.typography.section)
             }
-            CircularProgressIndicator(color = NitpickTheme.colors.primary, modifier = Modifier.padding(start = 2.dp))
-            listOf(
-                Res.string.review_step_diff,
-                Res.string.review_step_read,
-                Res.string.review_step_model,
-                Res.string.review_step_place,
-            ).forEach { step ->
-                Text(stringResource(step), style = NitpickTheme.typography.small, color = NitpickTheme.colors.textSecondary)
-            }
+            NitpickReviewLoader(Modifier.fillMaxWidth().padding(top = 8.dp))
         }
     }
 }

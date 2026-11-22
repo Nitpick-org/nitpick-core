@@ -40,6 +40,7 @@ import dev.nitpick.app.ui.components.NitpickButtonVariant
 import dev.nitpick.app.ui.components.NitpickCard
 import dev.nitpick.app.ui.components.NitpickKbd
 import dev.nitpick.app.ui.components.NitpickRadioGroup
+import dev.nitpick.app.ui.components.NitpickReviewLoader
 import dev.nitpick.app.ui.components.NitpickSegmentedControl
 import dev.nitpick.app.ui.components.NitpickSectionHeader
 import dev.nitpick.app.ui.components.NitpickStatusBar
@@ -177,6 +178,7 @@ private fun ControlsSection() {
             NitpickTab("Diff", selected = false, onClick = {})
             NitpickTab("Review", selected = false, onClick = {})
         }
+        NitpickReviewLoader()
     }
 }
 

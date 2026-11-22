@@ -13,7 +13,6 @@ import androidx.compose.foundation.layout.heightIn
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
-import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
@@ -29,6 +28,7 @@ import dev.nitpick.app.domain.ReviewComment
 import dev.nitpick.app.ui.components.NitBottomSheet
 import dev.nitpick.app.ui.components.NitpickBadge
 import dev.nitpick.app.ui.components.NitpickCard
+import dev.nitpick.app.ui.components.NitpickReviewLoader
 import dev.nitpick.app.ui.components.NitpickDivider
 import dev.nitpick.app.ui.components.NitpickEmptyState
 import dev.nitpick.app.ui.components.NitpickTextField
@@ -98,10 +98,7 @@ fun PhoneReviewScreen(
             when {
                 // Opening a shared review may check its branch out first.
                 state.isReviewing || state.isCheckingOut -> Box(Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
-                    Column(horizontalAlignment = Alignment.CenterHorizontally, verticalArrangement = Arrangement.spacedBy(8.dp)) {
-                        CircularProgressIndicator(color = NitpickTheme.colors.primary)
-                        Text(stringResource(Res.string.review_running), style = NitpickTheme.typography.small)
-                    }
+                    NitpickReviewLoader(symbolSize = 72.dp)
                 }
                 state.reviewError != null -> ReviewFailureState(
                     failure = state.reviewError,

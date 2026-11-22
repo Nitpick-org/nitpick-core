@@ -97,10 +97,16 @@
     <string name="error_network_body">The review request failed before the model answered. Check your connection, then retry. Nothing was sent.</string>
     <string name="error_timeout_title">The model took too long</string>
     <string name="error_timeout_body">The provider did not answer in time. Large diffs can take longer; try again.</string>
-    <string name="review_step_diff">Collecting the diff</string>
-    <string name="review_step_read">Reading changed files</string>
-    <string name="review_step_model">Asking the model</string>
-    <string name="review_step_place">Placing nits on lines</string>
+    <string-array name="review_phrases">
+        <item>Reading the diff…</item>
+        <item>Sharpening the tweezers…</item>
+        <item>Counting the nits…</item>
+        <item>Looking for off-by-ones…</item>
+        <item>Asking the model…</item>
+        <item>Measuring twice, cutting once…</item>
+        <item>Placing nits on their lines…</item>
+        <item>Checking what the tests forgot…</item>
+    </string-array>
     <string name="review_ai_badge">AI</string>
     <string name="review_clean_badge">CLEAN</string>
     <string name="review_title">Review</string>
