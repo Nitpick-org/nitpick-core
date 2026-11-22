@@ -166,6 +166,7 @@
     <string name="about_tagline">Nitpick your branch before main does.</string>
     <string name="about_repository">Source sur GitHub</string>
     <string name="about_team">Équipe</string>
+    <string name="about_made_by">Développé avec passion par</string>
     <string name="settings_kicker_appearance">Apparence</string>
     <string name="settings_kicker_ai_review">Review IA</string>
     <string name="settings_api_key_help">Stockée dans le fichier de réglages de l’app. Envoyée uniquement à %1$s.</string>
