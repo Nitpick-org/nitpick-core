@@ -136,6 +136,9 @@ data class RepositoryUiState(
             return remote?.commitId != local.commitId
         }
 
+    /** A pull would merge over the applied suggestions, or land under a running review: it waits for the commit. */
+    val isPullBlocked: Boolean get() = appliedFiles.isNotEmpty() || isReviewing
+
     /** A remote named origin, even when the current branch has no upstream yet. */
     val hasOrigin: Boolean
         get() = refs.any { it.type == RefType.REMOTE_BRANCH && it.name.startsWith("origin/") }
@@ -548,7 +551,7 @@ class RepositoryViewModel(
     fun pullBranch(credentials: Credentials?) {
         val git = repository ?: return
         // Applied but uncommitted suggestions would be merged over; commit them first.
-        if (_state.value.isSyncing || _state.value.isReviewing || _state.value.appliedFiles.isNotEmpty()) return
+        if (_state.value.isSyncing || _state.value.isPullBlocked) return
         _state.update { it.copy(isPulling = true, pullError = null, fetchError = null, pushError = null, lastPull = null, lastPushedBranch = null) }
         viewModelScope.launch {
             try {

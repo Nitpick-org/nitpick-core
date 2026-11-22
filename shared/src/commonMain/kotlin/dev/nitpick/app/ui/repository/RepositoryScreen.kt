@@ -29,6 +29,7 @@ import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.alpha
 import androidx.compose.ui.draw.rotate
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontWeight
@@ -75,6 +76,8 @@ enum class InspectorTab { Details, Diff, Review }
  *
  * [onOpenRepository] and [onCloneRepository] are null on platforms without a folder picker.
  */
+private const val BlockedActionAlpha = 0.5f
+
 @Composable
 fun RepositoryScreen(
     state: RepositoryUiState,
@@ -230,14 +233,15 @@ private fun RepositoryToolbar(
                     onClick = { if (!syncing) onFetch() },
                 )
             }
-            NitpickTooltip(text = stringResource(Res.string.pull_action)) {
+            NitpickTooltip(text = stringResource(if (state.isPullBlocked) Res.string.sync_commit_first else Res.string.pull_action)) {
                 NitpickToolbarAction(
                     text = when {
                         state.isPulling -> stringResource(Res.string.pull_in_progress)
                         (state.tracking?.behind ?: 0) > 0 -> stringResource(Res.string.sync_pull_count, state.tracking!!.behind)
                         else -> stringResource(Res.string.pull_action)
                     },
-                    onClick = { if (!syncing) onPull() },
+                    onClick = { if (!syncing && !state.isPullBlocked) onPull() },
+                    modifier = Modifier.alpha(if (state.isPullBlocked) BlockedActionAlpha else 1f),
                 )
             }
             if (state.tracking != null || state.hasOrigin) {
