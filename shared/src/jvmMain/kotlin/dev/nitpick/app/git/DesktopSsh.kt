@@ -27,13 +27,41 @@ object DesktopSsh {
 }
 
 private class LenientConnectorFactory(private val delegate: ConnectorFactory) : ConnectorFactory by delegate {
-    override fun create(identityAgent: String?, homeDir: File?): Connector = LenientConnector(delegate.create(identityAgent, homeDir))
+    override fun create(identityAgent: String?, homeDir: File?): Connector = LenientConnector(delegate, identityAgent, homeDir)
 }
 
-private class LenientConnector(private val delegate: Connector) : Connector by delegate {
-    override fun connect(): Boolean = try {
-        delegate.connect()
-    } catch (e: IOException) {
-        false
+/**
+ * Tries the agent named by `IdentityAgent`, then the default one (`SSH_AUTH_SOCK`), then gives
+ * up without an error: the key files are the next step, as with OpenSSH.
+ */
+private class LenientConnector(
+    private val factory: ConnectorFactory,
+    private val identityAgent: String?,
+    private val homeDir: File?,
+) : Connector {
+    private var connected: Connector? = null
+
+    override fun connect(): Boolean {
+        val candidates = if (identityAgent == null) listOf(null) else listOf(identityAgent, null)
+        for (agent in candidates) {
+            val connector = try {
+                factory.create(agent, homeDir).takeIf { it.connect() }
+            } catch (e: IOException) {
+                null
+            }
+            if (connector != null) {
+                connected = connector
+                return true
+            }
+        }
+        return false
+    }
+
+    override fun rpc(command: Byte, message: ByteArray): ByteArray =
+        checkNotNull(connected) { "SSH agent not connected" }.rpc(command, message)
+
+    override fun close() {
+        connected?.close()
+        connected = null
     }
 }
