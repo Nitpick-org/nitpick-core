@@ -96,6 +96,7 @@ fun RepositoryScreen(
     onOpenSettings: () -> Unit,
     onRunReview: () -> Unit,
     onApplySuggestion: (ReviewComment) -> Unit,
+    onApplyAll: (String) -> Unit,
     onDismissSuggestion: (String) -> Unit,
     onCommitMessage: (String) -> Unit,
     onCommit: () -> Unit,
@@ -164,6 +165,7 @@ fun RepositoryScreen(
                         onSelectDiffFile = onSelectDiffFile,
                         onRunReview = onRunReview,
                         onApplySuggestion = onApplySuggestion,
+                        onApplyAll = onApplyAll,
                         onDismissSuggestion = onDismissSuggestion,
                         onCommitMessage = onCommitMessage,
                         onCommit = onCommit,
@@ -552,6 +554,7 @@ private fun Inspector(
     onSelectTab: (InspectorTab) -> Unit,
     onRunReview: () -> Unit,
     onApplySuggestion: (ReviewComment) -> Unit,
+    onApplyAll: (String) -> Unit,
     onDismissSuggestion: (String) -> Unit,
     onCommitMessage: (String) -> Unit,
     onCommit: () -> Unit,
@@ -596,6 +599,7 @@ private fun Inspector(
                 modifier = Modifier.weight(1f),
                 onApply = onApplySuggestion,
                 onDismiss = onDismissSuggestion,
+                onApplyAll = onApplyAll,
             )
             InspectorTab.Review -> ReviewPanel(
                 state = state,

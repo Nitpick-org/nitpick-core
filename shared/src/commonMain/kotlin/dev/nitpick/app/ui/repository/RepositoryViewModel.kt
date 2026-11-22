@@ -343,6 +343,54 @@ class RepositoryViewModel(
         }
     }
 
+    /** Applies every remaining suggestion of [filePath], bottom-up so earlier lines do not shift. */
+    fun applyAllSuggestions(filePath: String) {
+        val git = repository ?: return
+        if (_state.value.isRewritingWorkingTree) return
+        _state.update { it.copy(actionError = null) }
+        viewModelScope.launch {
+            try {
+                writeLock.withLock {
+                    val state = _state.value
+                    val review = state.review ?: return@withLock
+                    val targets = review.comments
+                        .filter { it.filePath == filePath && !it.isFileLevel && it.suggestion != null && it.id !in state.appliedIds }
+                        .sortedByDescending { it.startLine }
+                    if (targets.isEmpty()) return@withLock
+                    var content = git.readFile(filePath) ?: error("File not found: $filePath")
+                    val applied = state.appliedIds.toMutableSet()
+                    targets.forEach { comment ->
+                        content = ReviewAnchoring.apply(content, ReviewAnchoring.anchorOrFileLevel(content, comment))
+                        applied += comment.id
+                    }
+                    git.writeFile(filePath, content)
+                    if (repository !== git) return@withLock
+                    _state.update {
+                        val comments = it.review?.comments.orEmpty().map { other ->
+                            if (other.filePath == filePath && other.id !in applied) {
+                                ReviewAnchoring.anchorOrFileLevel(content, other)
+                            } else {
+                                other
+                            }
+                        }
+                        val appliedComments = it.review?.comments.orEmpty().filter { comment -> comment.id in applied }
+                        it.copy(
+                            review = it.review?.copy(comments = comments),
+                            appliedIds = applied,
+                            appliedFiles = it.appliedFiles + filePath,
+                            commitMessage = if (it.commitMessage.isBlank()) commitMessageFor(appliedComments) else it.commitMessage,
+                        )
+                    }
+                }
+                if (repository === git) refreshDiff()
+            } catch (e: CancellationException) {
+                throw e
+            } catch (e: Exception) {
+                if (repository === git) _state.update { it.copy(actionError = e.message ?: e.toString()) }
+            }
+        }
+    }
+
     fun dismissSuggestion(commentId: String) {
         _state.update { state ->
             state.copy(review = state.review?.copy(comments = state.review.comments.filterNot { it.id == commentId }))
