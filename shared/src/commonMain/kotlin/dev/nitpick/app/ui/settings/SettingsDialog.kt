@@ -235,6 +235,7 @@ private fun SharingSection(draft: Settings, onEdit: ((Settings) -> Settings) -> 
     Column(modifier, verticalArrangement = Arrangement.spacedBy(14.dp)) {
         Kicker(Res.string.settings_kicker_sharing)
         ServerUrlField(draft.serverUrl, { url -> onEdit { it.copy(serverUrl = url) } }, Modifier.width(KeyFieldWidth))
+        ServerTokenField(draft.serverToken, { token -> onEdit { it.copy(serverToken = token) } }, Modifier.width(KeyFieldWidth))
     }
 }
 

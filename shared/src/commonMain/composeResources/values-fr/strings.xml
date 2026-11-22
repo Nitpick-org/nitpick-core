@@ -194,6 +194,7 @@
     <string name="share_done">Partagée</string>
     <string name="share_no_remote">Ce repo n’a pas de remote origin : les autres appareils ne peuvent pas retrouver la review.</string>
     <string name="share_unreachable">Serveur de reviews injoignable. Lance-le avec ./gradlew :server:run et vérifie son URL dans les réglages.</string>
+    <string name="share_rejected">Le serveur de reviews a refusé la requête (HTTP %1$d). Vérifie le token du serveur dans les réglages et que les deux apps ont la même version.</string>
     <string name="shared_title">Reviews partagées</string>
     <string name="shared_open">Partagées</string>
     <string name="shared_refresh">Actualiser</string>
@@ -207,6 +208,8 @@
     <string name="settings_kicker_sharing">Partage</string>
     <string name="settings_server_url">URL du serveur de reviews</string>
     <string name="settings_server_url_help">Sur le téléphone : adb reverse tcp:8080 tcp:8080, 10.0.2.2:8080 sur l’émulateur, ou l’IP LAN du laptop.</string>
+    <string name="settings_server_token">Token du serveur de reviews</string>
+    <string name="settings_server_token_help">Seulement si le serveur tourne sur le LAN avec NITPICK_TOKEN ; vide pour localhost.</string>
     <string name="fetch_action">Récupérer</string>
     <string name="fetch_error">La récupération a échoué</string>
     <string name="sync_ahead">↑%1$d</string>

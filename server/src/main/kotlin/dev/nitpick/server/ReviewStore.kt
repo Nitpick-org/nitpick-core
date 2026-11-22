@@ -12,6 +12,7 @@ import kotlin.io.path.name
 import kotlin.io.path.readText
 import kotlin.io.path.writeText
 import kotlinx.serialization.json.Json
+import kotlinx.serialization.SerializationException
 
 /**
  * Shared reviews in memory, mirrored to [file] after every share so a restart loses nothing.
@@ -25,13 +26,20 @@ class ReviewStore(private val file: Path) {
     /** A half-written or hand-edited file must not stop the demo server from starting. */
     private fun load(): List<SharedReview> {
         if (!file.exists()) return emptyList()
+        val text = file.readText()
         return try {
-            Json.decodeFromString(file.readText())
-        } catch (e: Exception) {
-            // Keep the bad file for inspection, start with an empty store.
-            runCatching { Files.move(file, file.resolveSibling("${file.name}.corrupt"), REPLACE_EXISTING) }
-            emptyList()
+            Json.decodeFromString(text)
+        } catch (e: SerializationException) {
+            quarantine()
+        } catch (e: IllegalArgumentException) {
+            quarantine()
         }
+    }
+
+    /** Keeps the bad file for inspection under a dated name, so a second one never erases the first. */
+    private fun quarantine(): List<SharedReview> {
+        runCatching { Files.move(file, file.resolveSibling("${file.name}.${System.currentTimeMillis()}.corrupt"), REPLACE_EXISTING) }
+        return emptyList()
     }
 
     /** Stores [review] under a new id and returns it with that id. */
@@ -61,7 +69,7 @@ class ReviewStore(private val file: Path) {
     }
 }
 
-private val SCP_REMOTE = Regex("""[\w.-]+@([^:/]+):(.+)""")
+private val SCP_REMOTE = Regex("""(?:[\w.-]+@)?([^:/]+):(.+)""")
 private val SCHEME_REMOTE = Regex("""(?:https?|ssh|git)://(?:[^@/]+@)?([^/:]+)(?::\d+)?/(.+)""")
 
 /**
@@ -69,8 +77,9 @@ private val SCHEME_REMOTE = Regex("""(?:https?|ssh|git)://(?:[^@/]+@)?([^/:]+)(?
  * phone's `https://github.com/o/r` both become `https://github.com/o/r`. Anything else is kept as is.
  */
 internal fun normalizeRepoUrl(url: String): String {
-    val scp = SCP_REMOTE.matchEntire(url)
-    val withScheme = if (scp != null) "https://${scp.groupValues[1]}/${scp.groupValues[2]}" else url
+    // `host:path` is the SCP form only without a scheme: `https://x` also has a colon.
+    val scp = if (url.contains("://")) null else SCP_REMOTE.matchEntire(url)
+    val withScheme = if (scp != null) "https://${scp.groupValues[1]}/${scp.groupValues[2].trimStart('/')}" else url
     val (host, path) = SCHEME_REMOTE.matchEntire(withScheme)?.destructured ?: return url
     return "https://${host.lowercase()}/${path.trimEnd('/').removeSuffix(".git")}"
 }

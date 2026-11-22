@@ -17,6 +17,6 @@ class AppContainer(
     val gitRepositoryFactory: GitRepositoryFactory,
     val settingsStore: SettingsStore,
     val reviewAgent: ReviewAgent = LlmReviewAgent(KoogLlmClient(settingsStore)),
-    val reviewShareClient: ReviewShareClient = KtorReviewShareClient({ settingsStore.load().serverUrl }),
+    val reviewShareClient: ReviewShareClient = KtorReviewShareClient({ settingsStore.load().serverUrl }, { settingsStore.load().serverToken }),
     val forgeClient: ForgeClient = ForgeClient(),
 )

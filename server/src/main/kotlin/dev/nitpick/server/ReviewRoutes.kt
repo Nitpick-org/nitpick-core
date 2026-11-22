@@ -1,6 +1,7 @@
 package dev.nitpick.server
 
 import dev.nitpick.app.domain.SharedReview
+import dev.nitpick.app.domain.ShareResponse
 import io.ktor.http.HttpStatusCode
 import io.ktor.serialization.kotlinx.json.json
 import io.ktor.server.application.Application
@@ -16,7 +17,6 @@ import io.ktor.server.routing.post
 import io.ktor.server.routing.routing
 import io.ktor.utils.io.readRemaining
 import kotlinx.io.readByteArray
-import kotlinx.serialization.Serializable
 import kotlinx.serialization.SerializationException
 import kotlinx.serialization.json.Json
 
@@ -24,28 +24,28 @@ const val MAX_BODY_BYTES = 1_000_000L
 private const val MAX_REPO_URL_LENGTH = 2_048
 private val REVIEW_ID = Regex("[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}")
 
-@Serializable
-data class ShareResponse(val id: String)
-
 /** The review-sharing API of docs/CONTEXT.md §7.1. Logs nothing: review content never leaves the store. */
-fun Application.reviewModule(store: ReviewStore) {
+fun Application.reviewModule(store: ReviewStore, token: String? = null) {
     install(ContentNegotiation) { json() }
     routing {
         get("/health") { call.respondText("ok") }
 
         post("/reviews") {
+            if (!call.isAuthorized(token)) return@post call.respond(HttpStatusCode.Unauthorized)
             val review = call.receiveReview() ?: return@post
             if (!isValidRepoUrl(review.repoUrl)) return@post call.respond(HttpStatusCode.BadRequest, "Invalid repoUrl")
             call.respond(HttpStatusCode.Created, ShareResponse(store.add(review).id))
         }
 
         get("/reviews") {
+            if (!call.isAuthorized(token)) return@get call.respond(HttpStatusCode.Unauthorized)
             val repoUrl = call.request.queryParameters["repoUrl"]
             if (repoUrl == null || !isValidRepoUrl(repoUrl)) return@get call.respond(HttpStatusCode.BadRequest, "Invalid repoUrl")
             call.respond(store.list(repoUrl))
         }
 
         get("/reviews/{id}") {
+            if (!call.isAuthorized(token)) return@get call.respond(HttpStatusCode.Unauthorized)
             val id = call.parameters["id"].orEmpty()
             if (!REVIEW_ID.matches(id)) return@get call.respond(HttpStatusCode.BadRequest, "Invalid id")
             val review = store.get(id) ?: return@get call.respond(HttpStatusCode.NotFound)
@@ -67,6 +67,10 @@ private suspend fun RoutingCall.receiveReview(): SharedReview? {
         null.also { respond(HttpStatusCode.BadRequest, "Invalid review JSON") }
     }
 }
+
+/** With a [token] (LAN mode), every review route wants `Authorization: Bearer <token>`; on localhost there is none. */
+private fun RoutingCall.isAuthorized(token: String?): Boolean =
+    token == null || request.headers["Authorization"] == "Bearer $token"
 
 private fun isValidRepoUrl(repoUrl: String): Boolean =
     repoUrl.isNotBlank() && repoUrl.length <= MAX_REPO_URL_LENGTH && repoUrl.none { it.isWhitespace() || it.isISOControl() }

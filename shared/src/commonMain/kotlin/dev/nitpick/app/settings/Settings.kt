@@ -37,6 +37,8 @@ data class Settings(
     val recentRepositories: List<String> = emptyList(),
     val gitConnection: GitConnection? = null,
     val serverUrl: String = DEFAULT_SERVER_URL,
+    /** Sent as a bearer token; only needed when the server is bound to the LAN with NITPICK_TOKEN. */
+    val serverToken: String = "",
 )
 
 const val MAX_RECENT_REPOSITORIES = 10

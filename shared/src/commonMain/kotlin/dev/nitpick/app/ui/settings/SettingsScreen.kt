@@ -136,6 +136,12 @@ fun SettingsScreen(settings: Settings, onChange: ((Settings) -> Settings) -> Uni
                     modifier = Modifier.fillMaxWidth(),
                     minHeight = TouchControlHeight,
                 )
+                ServerTokenField(
+                    serverToken = settings.serverToken,
+                    onChange = { token -> onChange { it.copy(serverToken = token) } },
+                    modifier = Modifier.fillMaxWidth(),
+                    minHeight = TouchControlHeight,
+                )
             }
             NitpickCard(verticalArrangement = Arrangement.spacedBy(8.dp)) {
                 SectionTitle(Res.string.settings_section_about)

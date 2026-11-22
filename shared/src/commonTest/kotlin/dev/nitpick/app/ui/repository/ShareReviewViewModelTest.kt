@@ -23,6 +23,7 @@ import kotlinx.coroutines.test.setMain
 import kotlin.test.AfterTest
 import kotlin.test.BeforeTest
 import kotlin.test.Test
+import kotlinx.coroutines.CompletableDeferred
 import kotlin.test.assertEquals
 import kotlin.test.assertFalse
 import kotlin.test.assertNull
@@ -44,13 +45,20 @@ class ShareReviewViewModelTest {
 
     private var llmCalls = 0
     private val agent = object : ReviewAgent {
-        override suspend fun review(repository: GitRepository, baseRef: String): ReviewResult = result.also { llmCalls++ }
+        // A fresh instance per call, like a real agent: the share badge must follow the exact review it sent.
+        override suspend fun review(repository: GitRepository, baseRef: String): ReviewResult = result.copy().also { llmCalls++ }
     }
 
-    private class FakeShareClient(private val failing: Boolean = false) : ReviewShareClient {
+    private class FakeShareClient(
+        private val failing: Boolean = false,
+        private val refusedWith: Int? = null,
+        private val beforeShare: suspend () -> Unit = {},
+    ) : ReviewShareClient {
         val shared = mutableListOf<SharedReview>()
         override suspend fun share(review: SharedReview): String {
+            beforeShare()
             if (failing) throw ReviewShareException("Connection refused")
+            if (refusedWith != null) throw ReviewShareException("Review server answered $refusedWith", status = refusedWith)
             shared += review.copy(id = "id-${shared.size + 1}")
             return shared.last().id
         }
@@ -103,6 +111,30 @@ class ShareReviewViewModelTest {
             client.shared.single(),
         )
         assertEquals("id-1", viewModel.state.value.sharedReviewId)
+    }
+
+    @Test
+    fun aRefusedShareIsNotReportedAsUnreachable() {
+        val viewModel = viewModel(FakeShareClient(refusedWith = 413))
+        viewModel.reviewBranch()
+
+        viewModel.shareReview()
+
+        assertEquals(ShareFailure.Rejected(413), viewModel.state.value.shareFailure)
+    }
+
+    @Test
+    fun aReviewRunAgainWhileTheShareIsInFlightIsNotMarkedShared() {
+        val gate = CompletableDeferred<Unit>()
+        val viewModel = viewModel(FakeShareClient(beforeShare = { gate.await() }))
+        viewModel.reviewBranch()
+        viewModel.shareReview()
+
+        viewModel.reviewBranch()
+        gate.complete(Unit)
+
+        assertEquals(null, viewModel.state.value.sharedReviewId)
+        assertEquals(false, viewModel.state.value.isSharing)
     }
 
     @Test

@@ -194,6 +194,7 @@
     <string name="share_done">Shared</string>
     <string name="share_no_remote">This repository has no origin remote, so other devices cannot find the review.</string>
     <string name="share_unreachable">Review server unreachable. Start it with ./gradlew :server:run and check its URL in Settings.</string>
+    <string name="share_rejected">The review server refused the request (HTTP %1$d). Check the server token in Settings and that both apps run the same version.</string>
     <string name="shared_title">Shared reviews</string>
     <string name="shared_open">Shared</string>
     <string name="shared_refresh">Refresh</string>
@@ -207,6 +208,8 @@
     <string name="settings_kicker_sharing">Sharing</string>
     <string name="settings_server_url">Review server URL</string>
     <string name="settings_server_url_help">On the phone: adb reverse tcp:8080 tcp:8080, 10.0.2.2:8080 on the emulator, or the laptop LAN IP.</string>
+    <string name="settings_server_token">Review server token</string>
+    <string name="settings_server_token_help">Only when the server runs on the LAN with NITPICK_TOKEN; leave empty for localhost.</string>
     <string name="fetch_action">Fetch</string>
     <string name="fetch_error">Fetch failed</string>
     <string name="sync_ahead">↑%1$d</string>

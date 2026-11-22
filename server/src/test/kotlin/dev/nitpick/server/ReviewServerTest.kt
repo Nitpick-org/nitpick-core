@@ -3,6 +3,7 @@ package dev.nitpick.server
 import dev.nitpick.app.domain.ReviewComment
 import dev.nitpick.app.domain.ReviewResult
 import dev.nitpick.app.domain.Severity
+import dev.nitpick.app.domain.ShareResponse
 import dev.nitpick.app.domain.SharedReview
 import io.ktor.client.HttpClient
 import io.ktor.client.request.get
@@ -19,6 +20,8 @@ import io.ktor.server.testing.ApplicationTestBuilder
 import io.ktor.utils.io.ByteWriteChannel
 import io.ktor.utils.io.writeFully
 import io.ktor.server.testing.testApplication
+import io.ktor.http.HttpHeaders
+import io.ktor.client.request.header
 import java.nio.file.Files
 import kotlin.io.path.deleteRecursively
 import kotlin.io.path.exists
@@ -144,6 +147,8 @@ class ReviewServerTest {
             "ssh://git@github.com/Nitpick-org/pocket-ledger.git",
             "https://GitHub.com/Nitpick-org/pocket-ledger/",
             "https://user@github.com/Nitpick-org/pocket-ledger.git",
+            "github.com:Nitpick-org/pocket-ledger.git",
+            "git@github.com:/Nitpick-org/pocket-ledger.git",
             LEDGER,
         ).forEach { assertEquals(LEDGER, normalizeRepoUrl(it), it) }
         assertEquals("/Users/me/repo", normalizeRepoUrl("/Users/me/repo"))
@@ -164,7 +169,22 @@ class ReviewServerTest {
         val store = ReviewStore(file)
 
         assertTrue(store.list(LEDGER).isEmpty())
-        assertTrue(file.resolveSibling("${file.name}.corrupt").exists())
+        assertTrue(file.parent.toFile().listFiles()!!.any { it.name.startsWith(file.name) && it.name.endsWith(".corrupt") })
+    }
+
+    @Test
+    fun aLanServerWantsItsTokenOnEveryReviewRoute() = testApplication {
+        application { reviewModule(ReviewStore(file), token = "team-secret") }
+
+        assertEquals(HttpStatusCode.Unauthorized, client.share(review()).status)
+        assertEquals(HttpStatusCode.Unauthorized, client.get("/reviews?repoUrl=$LEDGER").status)
+        assertEquals(HttpStatusCode.OK, client.get("/health").status)
+        val accepted = client.post("/reviews") {
+            header(HttpHeaders.Authorization, "Bearer team-secret")
+            contentType(ContentType.Application.Json)
+            setBody(Json.encodeToString(review()))
+        }
+        assertEquals(HttpStatusCode.Created, accepted.status)
     }
 
     @Test

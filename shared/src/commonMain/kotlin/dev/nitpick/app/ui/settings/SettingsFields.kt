@@ -35,6 +35,8 @@ import nitpick.shared.generated.resources.settings_api_key
 import nitpick.shared.generated.resources.settings_api_key_help
 import nitpick.shared.generated.resources.settings_server_url
 import nitpick.shared.generated.resources.settings_server_url_help
+import nitpick.shared.generated.resources.settings_server_token_help
+import nitpick.shared.generated.resources.settings_server_token
 import org.jetbrains.compose.resources.stringResource
 
 /** Model select shared by the desktop dialog and the phone screen: a secondary button plus a menu. */
@@ -57,6 +59,25 @@ internal fun ModelSelector(model: String, models: List<String>, onSelect: (Strin
                 )
             }
         }
+    }
+}
+
+/** Bearer token for a LAN review server (`NITPICK_TOKEN`); empty on localhost. */
+@Composable
+internal fun ServerTokenField(serverToken: String, onChange: (String) -> Unit, modifier: Modifier = Modifier, minHeight: Dp = 34.dp) {
+    Column(modifier, verticalArrangement = Arrangement.spacedBy(4.dp)) {
+        NitpickTextField(
+            value = serverToken,
+            onValueChange = onChange,
+            label = stringResource(Res.string.settings_server_token),
+            placeholder = "",
+            minHeight = minHeight,
+        )
+        Text(
+            text = stringResource(Res.string.settings_server_token_help),
+            style = NitpickTheme.typography.micro,
+            color = NitpickTheme.colors.textMuted,
+        )
     }
 }
 

@@ -9,10 +9,13 @@ interface ReviewShareClient {
     suspend fun get(id: String): SharedReview?
 }
 
-/** The server could not be reached or answered with an error; the UI shows it, the app keeps working. */
-class ReviewShareException(message: String, cause: Throwable? = null) : Exception(message, cause)
+/** The server could not be reached ([status] null) or answered with an error status; the UI shows it, the app keeps working. */
+class ReviewShareException(message: String, cause: Throwable? = null, val status: Int? = null) : Exception(message, cause)
 
 private val USER_INFO = Regex("""^([a-zA-Z][a-zA-Z0-9+.-]*://)[^@/]+@""")
 
-/** `https://token@github.com/o/r` → `https://github.com/o/r`: a token in a remote URL must never reach the server. */
-fun withoutCredentials(remoteUrl: String): String = remoteUrl.replace(USER_INFO, "$1")
+/**
+ * `https://token@github.com/o/r` → `https://github.com/o/r`: a token in a remote URL must never reach
+ * the server, nor one in a query string (`?private_token=…`).
+ */
+fun withoutCredentials(remoteUrl: String): String = remoteUrl.substringBefore('?').replace(USER_INFO, "$1")
