@@ -24,6 +24,7 @@
   <img alt="Android" src="https://img.shields.io/badge/Android-minSdk_33-34A853?logo=android&logoColor=white">
   <img alt="Gradle" src="https://img.shields.io/badge/Gradle-Kotlin_DSL-02303A?logo=gradle&logoColor=white">
   <img alt="License: MIT" src="https://img.shields.io/badge/License-MIT-0F766E">
+  <a href="https://github.com/Nitpick-org/nitpick-core/actions/workflows/ci.yml"><img alt="CI" src="https://github.com/Nitpick-org/nitpick-core/actions/workflows/ci.yml/badge.svg"></a>
 </p>
 
 <p align="center">
@@ -31,6 +32,7 @@
   <img alt="OpenAI" src="https://img.shields.io/badge/OpenAI-GPT-412991?logo=openai&logoColor=white">
   <img alt="Google" src="https://img.shields.io/badge/Google-Gemini-8E75B2?logo=googlegemini&logoColor=white">
   <img alt="Ollama" src="https://img.shields.io/badge/Ollama-local-000000?logo=ollama&logoColor=white">
+  <img alt="JetBrains Junie" src="https://img.shields.io/badge/JetBrains_Junie-CLI_(desktop)-000000?logo=jetbrains&logoColor=white">
   <img alt="GitHub" src="https://img.shields.io/badge/GitHub-device_flow-181717?logo=github&logoColor=white">
   <img alt="GitLab" src="https://img.shields.io/badge/GitLab-device_flow-FC6D26?logo=gitlab&logoColor=white">
 </p>
@@ -85,8 +87,9 @@
 Coding agents write more of what lands on `main`, and fewer people read it end to end.
 AI review tools such as CodeRabbit, Copilot review or Graphite run **after** the push, on the
 pull request, on a server. Nitpick runs **before** the push, on your machine, with the
-repository's context, and talks to the provider you pick: Anthropic, OpenAI, Google, or
-Ollama running locally.
+repository's context, and talks to the provider you pick: Anthropic, OpenAI, Google,
+Ollama running locally, or JetBrains Junie through the Junie CLI already signed in on your
+machine (desktop).
 
 ```mermaid
 flowchart LR
@@ -103,12 +106,12 @@ flowchart LR
 
 | | |
 | --- | --- |
-| **Shared code** | **98.6 %** of production lines shared between desktop and Android (8 989 / 9 116, `./scripts/count-lines.sh`, `commonMain` + `jvmSharedMain`); 127 platform-specific lines |
+| **Shared code** | **97.6 %** of production lines shared between desktop and Android (9 138 / 9 366, `./scripts/count-lines.sh`, `commonMain` + `jvmSharedMain`); 228 platform-specific lines, most of them the desktop-only Junie CLI client |
 | **Targets** | Desktop (macOS, Windows, Linux) · Android (API 33+) · Ktor server |
-| **LLM providers** | Anthropic · OpenAI · Google · Ollama (via Koog) |
-| **Tests** | 227 test cases: shared JVM tests, 13 Ktor server tests, 4 instrumented tests on Android ART; the last full JVM + server run on `main` executed 218, 4 skipped without a provider key, 0 failures |
-| **i18n** | English + French: 191 strings and 7 plurals in each language |
-| **Process** | 382 commits, 129 merged PRs, 107 GitHub issues, one journal per ticket in `progress/` |
+| **LLM providers** | Anthropic · OpenAI · Google · Ollama (via Koog) · JetBrains Junie (Junie CLI, desktop) |
+| **Tests** | 237 test cases: shared JVM tests, 13 Ktor server tests, 4 instrumented tests on Android ART; `check.sh` runs on every PR and on `main` in GitHub Actions |
+| **i18n** | English + French: 196 strings and 7 plurals in each language |
+| **Process** | 404 commits, 135 merged PRs, 110 GitHub issues, one journal per ticket in `progress/` |
 
 ## Status
 
@@ -121,7 +124,8 @@ flowchart LR
 | Shared contracts (`GitRepository`, review model) | ✅ in `commonMain`, JGit behind the interface |
 | Commit graph, branch diff | ✅ lanes, colours, refs, per-commit details, diff vs base |
 | AI review with Koog, anchored nits, apply a suggestion, commit | ✅ real provider calls, snippet anchoring, Review panel, Apply/Dismiss, commit |
-| Light/dark theme, English/French | ✅ system/light/dark, 191 strings + 7 plurals EN/FR |
+| Light/dark theme, English/French | ✅ system/light/dark, 196 strings + 7 plurals EN/FR |
+| JetBrains Junie as a review provider | ✅ desktop, through the Junie CLI (`junie-lite`, sandboxed); greyed on Android |
 
 Full scope (MUST / SHOULD / WON'T) and the hour-by-hour plan: [docs/CONTEXT.md](docs/CONTEXT.md).
 
@@ -164,7 +168,11 @@ Full scope (MUST / SHOULD / WON'T) and the hour-by-hour plan: [docs/CONTEXT.md](
 - **Tolerant parsing**: the answer's JSON object is found even inside prose or fences, and
   even when that prose contains a brace of its own.
 - **Four providers** through [Koog](https://github.com/JetBrains/koog): Anthropic, OpenAI,
-  Google, Ollama. Model picked in the settings.
+  Google, Ollama, picked by their marks in the settings.
+- **JetBrains Junie** as a fifth provider on desktop, through the Junie CLI signed in on the
+  machine (`junie-lite` free tier, `sonnet`, `opus`). Junie runs in an empty temporary project
+  and reads the prompt from a file there: it never sees nor edits the open repository. On
+  Android, where there is no CLI, the entry stays greyed with the reason.
 
 ### Accounts, sharing and settings
 
@@ -220,7 +228,7 @@ flowchart TB
             DOM["domain/ · git/<br/><sub>models, GitRepository contract</sub>"]
         end
         JS["jvmSharedMain<br/><sub>JGitRepository, FileSettingsStore</sub>"]
-        JM["jvmMain<br/><sub>desktop only</sub>"]
+        JM["jvmMain<br/><sub>desktop only: Junie CLI client</sub>"]
         AM["androidMain<br/><sub>Android only</sub>"]
     end
 
@@ -232,6 +240,8 @@ flowchart TB
     SV -- reuses models --> DOM
     SH <-. HTTP JSON .-> SV
     REV <-. HTTPS .-> LLM[("Anthropic · OpenAI<br/>Google · Ollama")]
+    JM -- plugged into review --> REV
+    JM <-. process .-> JUNIE[("Junie CLI<br/>temp sandbox")]
     JS <-. HTTPS .-> FORGE[("GitHub · GitLab<br/>any git remote")]
 ```
 
@@ -358,6 +368,9 @@ The proof of a desktop → Android share, with captures, is in
 ## Security and privacy
 
 - **Your code goes only to the provider you chose**, or nowhere with Ollama.
+- **Junie is sandboxed**: the CLI gets an empty temporary project, never the repository; the
+  prompt goes through a file there (not a command-line argument other processes can read),
+  and the user's own MCP servers are not loaded.
 - **API keys** live in the app settings or the local `.env`; nothing is committed. The repo
   history holds no live secret.
 - **Path jail for the LLM**: `ReviewToolbox` refuses absolute paths, `..`, `.git` and untracked
@@ -380,13 +393,17 @@ Details: [`docs/audits/security.md`](docs/audits/security.md).
 | Android build | AGP, minSdk 33, targetSdk 37 | 9.1.1 |
 | Git | JGit | 6.10.1 |
 | AI agents | Koog (+ Google client 1.3.0-beta) | 1.3.0 |
+| JetBrains AI | Junie CLI (desktop, flags validated against) | 26.11 |
+| CI | GitHub Actions, JDK 21 + Android SDK, runs `check.sh` | — |
+| Provider marks | Simple Icons (CC0) | — |
 | Backend | Ktor server (CIO) + client | 3.3.3 |
 | Serialization, async | kotlinx.serialization, kotlinx.coroutines | 1.13.0, 1.11.0 |
 | Font | JetBrains Mono | — |
 
 JGit is pinned to 6.10: JGit 7 ships Java records, which the Android dexer refuses below
 API 34 (details in commit `df36830`). Koog's Android AAR lacks the HTTP client service file of
-its JVM jar, so `KoogLlmClient` passes the factory explicitly.
+its JVM jar, so `KoogLlmClient` passes the factory explicitly. The packaged desktop bundle
+ships every JDK module: a `java.base`-only runtime left JGit hanging on its first pack file.
 
 ## Run it
 
@@ -409,13 +426,14 @@ git config core.hooksPath .githooks      # pre-commit runs scripts/check.sh
 ```
 
 API keys are entered in the app's settings and never committed. For the phone to reach the
-server over USB: `adb reverse tcp:8080 tcp:8080`.
+server over USB: `adb reverse tcp:8080 tcp:8080`. For the Junie provider, install the
+[Junie CLI](https://www.jetbrains.com/junie/) and sign in once; Nitpick looks in `~/.local/bin`, `/usr/local/bin`, `/opt/homebrew/bin`, then the `PATH`.
 
 ## Tests and proof
 
 | Suite | Where | What it covers |
 | --- | --- | --- |
-| Shared tests | `shared/src/commonTest`, `shared/src/jvmTest` | graph lanes, diff parser, prompt, context, response parser, anchoring, toolbox jail, Koog client, ViewModels, settings, device flow, share client, real JGit repositories |
+| Shared tests | `shared/src/commonTest`, `shared/src/jvmTest` | graph lanes, diff parser, prompt, context, response parser, anchoring, toolbox jail, Koog client, Junie CLI command and output, ViewModels, settings, device flow, share client, real JGit repositories |
 | Server tests | `server/src/test` | routes, validation, body limit, token, repository-key normalisation, corrupt store recovery |
 | On-device tests | `androidApp/src/androidTest` | JGit, Koog client and share client running on Android ART |
 | Real provider call | `RealReviewCallTest` | opt-in, skipped without a key |
@@ -456,8 +474,13 @@ flowchart LR
   `implementer`, `reviewer`, `researcher`, `qa-demo`, `devils-advocate`, `pitch`, `scribe`,
   each with a default model; [`/route-task`](.claude/skills/route-task/) picks the cheapest one
   and escalates on evidence ([`docs/MODEL-ROUTING.md`](docs/MODEL-ROUTING.md)).
-- **Hooks enforce the rules**: the session cannot stop while `check.sh` is red, agents cannot
-  edit the human-owned docs, nothing reads `.env`, `pre-commit` runs the checks.
+- **Hooks and CI enforce the rules**: the session cannot stop while `check.sh` is red, agents
+  cannot edit the human-owned docs, nothing reads `.env`, `pre-commit` runs the checks, and
+  GitHub Actions runs the same `check.sh` on every PR and on `main`.
+- **Claude Code, with Junie in the product**: the code was written with Claude Code and its
+  sub-agents. Junie ships inside Nitpick as a review provider; a Junie Lite ticket driven in
+  JetBrains Air is briefed in [`docs/demo/junie-lite-brief.md`](docs/demo/junie-lite-brief.md)
+  and is not claimed until its captures exist.
 - **Everything is logged**: each agent keeps a journal in `progress/<ticket>.md`, compiled
   into [docs/AGENT_LOG.md](docs/AGENT_LOG.md). Every time a human rejects or corrects an
   agent's work, it goes into [docs/REVIEW_LOG.md](docs/REVIEW_LOG.md).
@@ -497,13 +520,14 @@ Docs, code, comments and commit messages are in English.
 LauzHack asks every team to state this explicitly.
 
 - **Reused**: the KMP + Compose Multiplatform wizard template, JGit 6.10, Koog 1.3,
-  Ktor 3.3, JetBrains Mono, and the team's pre-event docs and agent tooling.
+  Ktor 3.3, the Junie CLI, JetBrains Mono, Simple Icons marks, and the team's pre-event docs
+  and agent tooling.
 - **Created during the event**: the domain, graph, diff, review/anchoring, JGit backend,
   Compose UI for desktop and Android, the Koog review agent, the Ktor sharing server, the
   design system, the icons and their tests.
 - **Not mocked**: the review path calls a real provider. Anthropic has a recorded real call;
-  OpenAI was replayed through LM Studio; Google and Ollama are wired but only covered by
-  opt-in tests.
+  OpenAI was replayed through LM Studio; Junie answered a probe diff with `junie-lite` (about
+  9 s); Google and Ollama are wired but only covered by opt-in tests.
 
 ## Team
 
