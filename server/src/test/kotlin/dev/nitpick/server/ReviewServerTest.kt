@@ -151,6 +151,7 @@ class ReviewServerTest {
             "github.com:Nitpick-org/pocket-ledger.git",
             "git@github.com:/Nitpick-org/pocket-ledger.git",
             "https://github.com/Nitpick-Org/Pocket-Ledger",
+            "ssh://git@github.com:22/Nitpick-org/pocket-ledger.git",
             LEDGER,
         ).forEach { assertEquals(LEDGER, normalizeRepoUrl(it), it) }
         assertEquals("/Users/me/repo", normalizeRepoUrl("/Users/me/repo"))

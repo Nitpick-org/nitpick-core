@@ -70,7 +70,8 @@ class ReviewStore(private val file: Path) {
 }
 
 private val SCP_REMOTE = Regex("""(?:[\w.-]+@)?([^:/]+):(.+)""")
-private val SCHEME_REMOTE = Regex("""(?:https?|ssh|git)://(?:[^@/]+@)?([^/:]+)(:\d+)?/(.+)""")
+private val SCHEME_REMOTE = Regex("""(https?|ssh|git)://(?:[^@/]+@)?([^/:]+)(:\d+)?/(.+)""")
+private val DEFAULT_PORTS = mapOf("http" to ":80", "https" to ":443", "ssh" to ":22", "git" to ":9418")
 
 // Hosts whose repository paths are case-insensitive: `Nitpick-org/Pocket-Ledger` is the same repo as lowercase.
 private val CASE_INSENSITIVE_HOSTS = setOf("github.com", "gitlab.com")
@@ -83,9 +84,10 @@ internal fun normalizeRepoUrl(url: String): String {
     // `host:path` is the SCP form only without a scheme: `https://x` also has a colon.
     val scp = if (url.contains("://")) null else SCP_REMOTE.matchEntire(url)
     val withScheme = if (scp != null) "https://${scp.groupValues[1]}/${scp.groupValues[2].trimStart('/')}" else url
-    val (host, port, path) = SCHEME_REMOTE.matchEntire(withScheme)?.destructured ?: return url
+    val (scheme, host, port, path) = SCHEME_REMOTE.matchEntire(withScheme)?.destructured ?: return url
     val cleanPath = path.trimEnd('/').removeSuffix(".git")
     val key = if (host.lowercase() in CASE_INSENSITIVE_HOSTS) cleanPath.lowercase() else cleanPath
-    // The port stays: two self-hosted forges on one machine must not share a list.
-    return "https://${host.lowercase()}$port/$key"
+    // A non-default port stays: two self-hosted forges on one machine must not share a list.
+    val portKey = port.takeUnless { it == DEFAULT_PORTS[scheme.lowercase()] }.orEmpty()
+    return "https://${host.lowercase()}$portKey/$key"
 }
