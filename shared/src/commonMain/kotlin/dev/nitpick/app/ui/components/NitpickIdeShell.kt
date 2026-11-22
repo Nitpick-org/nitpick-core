@@ -13,7 +13,6 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.draw.alpha
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.dp
 import dev.nitpick.app.ui.theme.NitpickTheme
@@ -43,8 +42,6 @@ fun NitpickToolbar(
     }
 }
 
-private const val DisabledAlpha = 0.5f
-
 @Composable
 fun NitpickToolbarAction(
     text: String,
@@ -61,7 +58,7 @@ fun NitpickToolbarAction(
     Surface(
         onClick = { pop.play(); onClick() },
         enabled = enabled,
-        modifier = modifier.height(NitpickTheme.sizes.control).alpha(if (enabled) 1f else DisabledAlpha),
+        modifier = modifier.height(NitpickTheme.sizes.control),
         shape = RoundedCornerShape(NitpickTheme.radii.xs),
         color = if (selected) colors.primary else Color.Transparent,
         contentColor = if (selected) colors.onPrimary else colors.onToolbar,
