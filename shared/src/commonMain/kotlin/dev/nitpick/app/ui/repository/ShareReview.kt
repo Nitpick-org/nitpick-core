@@ -32,6 +32,7 @@ import nitpick.shared.generated.resources.share_unreachable
 import nitpick.shared.generated.resources.shared_empty
 import nitpick.shared.generated.resources.shared_refresh
 import nitpick.shared.generated.resources.shared_row
+import org.jetbrains.compose.resources.pluralStringResource
 import nitpick.shared.generated.resources.shared_title
 import org.jetbrains.compose.resources.stringResource
 
@@ -92,7 +93,7 @@ internal fun SharedReviewList(
                     padding = 10.dp,
                 ) {
                     Text(
-                        text = stringResource(Res.string.shared_row, shared.branch, shared.headCommit.take(7), shared.result.comments.size),
+                        text = pluralStringResource(Res.plurals.shared_row, shared.result.comments.size, shared.branch, shared.headCommit.take(7), shared.result.comments.size),
                         style = NitpickTheme.typography.codeSmall,
                         maxLines = 1,
                         overflow = TextOverflow.Ellipsis,

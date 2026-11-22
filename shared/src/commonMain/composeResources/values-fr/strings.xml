@@ -112,7 +112,10 @@
     <string name="review_title">Review</string>
     <string name="review_vs">%1$s vs %2$s</string>
     <string name="review_rerun">Relancer</string>
-    <string name="review_files_with_nits">Fichiers avec nits · %1$d</string>
+    <plurals name="review_files_with_nits">
+        <item quantity="one">%1$d fichier avec nits</item>
+        <item quantity="other">%1$d fichiers avec nits</item>
+    </plurals>
     <string name="review_nit_position">%1$d sur %2$d</string>
     <string name="review_line">ligne %1$d</string>
     <string name="review_whole_file_short">fichier entier</string>
@@ -185,7 +188,11 @@
     <string name="shared_open">Partagées</string>
     <string name="shared_refresh">Actualiser</string>
     <string name="shared_empty">Aucune review partagée pour ce repo.</string>
-    <string name="shared_row">%1$s · %2$s · %3$d nits</string>
+    <plurals name="shared_row">
+        <item quantity="one">%1$s · %2$s · %3$d nit</item>
+        <item quantity="other">%1$s · %2$s · %3$d nits</item>
+    </plurals>
+    <string name="label_detail">%1$s : %2$s</string>
     <string name="shared_badge">Review partagée</string>
     <string name="settings_kicker_sharing">Partage</string>
     <string name="settings_server_url">URL du serveur de reviews</string>
