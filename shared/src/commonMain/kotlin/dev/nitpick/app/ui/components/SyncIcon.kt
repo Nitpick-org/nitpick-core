@@ -1,7 +1,6 @@
 package dev.nitpick.app.ui.components
 
 import androidx.compose.animation.core.LinearEasing
-import androidx.compose.animation.core.RepeatMode
 import androidx.compose.animation.core.animateFloat
 import androidx.compose.animation.core.infiniteRepeatable
 import androidx.compose.animation.core.rememberInfiniteTransition
@@ -19,8 +18,9 @@ import org.jetbrains.compose.resources.DrawableResource
 enum class SyncMotion { Spin, Down, Up }
 
 private const val SPIN_MILLIS = 900
-private const val BOB_MILLIS = 450
-private val BobDistance = 3.dp
+private const val TRAVEL_MILLIS = 700
+private val TravelDistance = 6.dp
+private const val TRAVEL_FADE = 0.7f
 
 /** A 16 dp icon that moves only while [active]; still otherwise, so idle buttons cost no frames. */
 @Composable
@@ -30,13 +30,13 @@ fun SyncIcon(resource: DrawableResource, motion: SyncMotion, active: Boolean, ti
         return
     }
     val transition = rememberInfiniteTransition(label = "sync")
-    val bob = with(LocalDensity.current) { BobDistance.toPx() }
+    val travel = with(LocalDensity.current) { TravelDistance.toPx() }
     val progress by transition.animateFloat(
         initialValue = 0f,
         targetValue = 1f,
         animationSpec = when (motion) {
             SyncMotion.Spin -> infiniteRepeatable(tween(SPIN_MILLIS, easing = LinearEasing))
-            SyncMotion.Down, SyncMotion.Up -> infiniteRepeatable(tween(BOB_MILLIS), RepeatMode.Reverse)
+            SyncMotion.Down, SyncMotion.Up -> infiniteRepeatable(tween(TRAVEL_MILLIS, easing = LinearEasing))
         },
         label = "progress",
     )
@@ -47,9 +47,10 @@ fun SyncIcon(resource: DrawableResource, motion: SyncMotion, active: Boolean, ti
         modifier = modifier.graphicsLayer {
             when (motion) {
                 SyncMotion.Spin -> rotationZ = progress * 360f
-                SyncMotion.Down -> translationY = progress * bob
-                SyncMotion.Up -> translationY = -progress * bob
+                SyncMotion.Down -> translationY = (progress - 0.5f) * travel
+                SyncMotion.Up -> translationY = (0.5f - progress) * travel
             }
+            if (motion != SyncMotion.Spin) alpha = 1f - TRAVEL_FADE * kotlin.math.abs(progress - 0.5f) * 2f
         },
     )
 }
