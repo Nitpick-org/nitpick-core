@@ -31,6 +31,7 @@ import kotlin.io.path.ExperimentalPathApi
 import kotlin.test.AfterTest
 import kotlin.test.Test
 import kotlin.test.assertEquals
+import kotlin.test.assertNotEquals
 import kotlin.test.assertTrue
 import kotlinx.serialization.json.Json
 
@@ -149,9 +150,13 @@ class ReviewServerTest {
             "https://user@github.com/Nitpick-org/pocket-ledger.git",
             "github.com:Nitpick-org/pocket-ledger.git",
             "git@github.com:/Nitpick-org/pocket-ledger.git",
+            "https://github.com/Nitpick-Org/Pocket-Ledger",
             LEDGER,
         ).forEach { assertEquals(LEDGER, normalizeRepoUrl(it), it) }
         assertEquals("/Users/me/repo", normalizeRepoUrl("/Users/me/repo"))
+        // A self-hosted forge keeps its path case and its port: two forges on one machine are two repos.
+        assertEquals("https://forge.local:3000/Team/Repo", normalizeRepoUrl("http://forge.local:3000/Team/Repo.git"))
+        assertNotEquals(normalizeRepoUrl("http://forge.local:3000/o/r"), normalizeRepoUrl("http://forge.local:4000/o/r"))
     }
 
     @Test
@@ -170,6 +175,16 @@ class ReviewServerTest {
 
         assertTrue(store.list(LEDGER).isEmpty())
         assertTrue(file.parent.toFile().listFiles()!!.any { it.name.startsWith(file.name) && it.name.endsWith(".corrupt") })
+    }
+
+    @Test
+    fun aFieldThisServerDoesNotKnowIsIgnoredNotRejected() = serverTest {
+        val body = Json.encodeToString(review()).dropLast(1) + ""","futureField": 1}"""
+        val response = client.post("/reviews") {
+            contentType(ContentType.Application.Json)
+            setBody(body)
+        }
+        assertEquals(HttpStatusCode.Created, response.status)
     }
 
     @Test
@@ -193,6 +208,6 @@ class ReviewServerTest {
     }
 
     private companion object {
-        const val LEDGER = "https://github.com/Nitpick-org/pocket-ledger"
+        const val LEDGER = "https://github.com/nitpick-org/pocket-ledger"
     }
 }

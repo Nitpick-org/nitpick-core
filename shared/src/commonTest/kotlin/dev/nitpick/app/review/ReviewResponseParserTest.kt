@@ -55,4 +55,15 @@ class ReviewResponseParserTest {
         )
         assertEquals(null, result.comments.single().suggestion)
     }
+
+    @Test
+    fun aBraceInTheProseBeforeTheJsonDoesNotHideTheReview() {
+        val result = parseReviewResponse(
+            """Looking at `fun a() {` first, then the review:
+            {"summary": "s", "comments": [{"filePath": "a.kt", "startLine": -3, "message": "m"}]}""",
+        )
+        assertEquals("s", result.summary)
+        assertEquals(0, result.comments.single().startLine)
+        assertEquals(0, result.comments.single().endLine)
+    }
 }
