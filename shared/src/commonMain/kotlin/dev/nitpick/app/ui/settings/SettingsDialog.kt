@@ -27,6 +27,7 @@ import nitpick.shared.generated.resources.settings_language
 import nitpick.shared.generated.resources.settings_section_about
 import nitpick.shared.generated.resources.settings_section_sharing
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.key
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -110,6 +111,8 @@ fun SettingsDialog(
                 Row(Modifier.weight(1f)) {
                     SettingsNav(section, onSelect = { section = it }, Modifier.width(NavWidth).fillMaxHeight())
                     NitpickVerticalDivider()
+                    // key(section): each section starts at the top with its own scroll state.
+                    key(section) {
                     val content = Modifier.width(ContentWidth).fillMaxHeight().verticalScroll(rememberScrollState()).padding(20.dp)
                     when (section) {
                         SettingsSection.General -> GeneralSection(draft, onEdit, content)
@@ -117,6 +120,7 @@ fun SettingsDialog(
                         SettingsSection.Git -> GitSection(draft, onEdit, content)
                         SettingsSection.Sharing -> SharingSection(draft, onEdit, content)
                         SettingsSection.About -> Column(content, verticalArrangement = Arrangement.spacedBy(14.dp)) { AboutContent(touch = false) }
+                    }
                     }
                 }
                 NitpickDivider()
