@@ -175,6 +175,7 @@
     <string name="pull_up_to_date">Déjà à jour</string>
     <string name="pull_conflict">Pull annulé, conflits dans : %1$s</string>
     <string name="pull_error">Le pull a échoué</string>
+    <string name="sync_commit_first">Commitez les suggestions appliquées avant de pull ou de changer de branche.</string>
     <string name="share_action">Partager la review</string>
     <string name="share_in_progress">Partage…</string>
     <string name="share_done">Partagée</string>
