@@ -7,15 +7,23 @@ import java.net.NetworkInterface
 import kotlin.io.path.Path
 
 private const val PORT = 8080
+private const val DEFAULT_HOST = "127.0.0.1"
 
 fun main() {
     val file = Path(System.getProperty("user.home"), ".nitpick", "server", "reviews.json")
     val store = ReviewStore(file)
-    // 0.0.0.0 so a phone reaches the laptop over the LAN, or through `adb reverse tcp:8080 tcp:8080`.
-    val server = embeddedServer(CIO, port = PORT, host = "0.0.0.0") { reviewModule(store) }
+    // Localhost by default: a LAN peer must not read private code snippets. The phone reaches
+    // this server through `adb reverse tcp:8080 tcp:8080`; set NITPICK_BIND=0.0.0.0 only for a
+    // deliberate LAN demo.
+    val host = System.getenv("NITPICK_BIND")?.takeIf { it.isNotBlank() } ?: DEFAULT_HOST
+    val server = embeddedServer(CIO, port = PORT, host = host) { reviewModule(store) }
     println("Nitpick review server, reviews stored in $file")
     println("  http://localhost:$PORT")
-    lanAddresses().forEach { println("  http://$it:$PORT") }
+    if (host == "0.0.0.0") {
+        lanAddresses().forEach { println("  http://$it:$PORT") }
+    } else {
+        println("  Android over USB: adb reverse tcp:$PORT tcp:$PORT")
+    }
     server.start(wait = true)
 }
 
