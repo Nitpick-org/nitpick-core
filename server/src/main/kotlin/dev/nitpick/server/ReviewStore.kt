@@ -55,7 +55,8 @@ class ReviewStore(private val file: Path) {
     /** Newest first. */
     fun list(repoUrl: String): List<SharedReview> = synchronized(lock) {
         val key = normalizeRepoUrl(repoUrl)
-        reviews.filter { it.repoUrl == key }.reversed()
+        // Stored keys are re-normalised too: a file written before a rule change still matches.
+        reviews.filter { normalizeRepoUrl(it.repoUrl) == key }.reversed()
     }
 
     fun get(id: String): SharedReview? = synchronized(lock) { reviews.firstOrNull { it.id == id } }

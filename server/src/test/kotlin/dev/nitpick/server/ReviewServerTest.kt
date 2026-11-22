@@ -26,6 +26,7 @@ import java.nio.file.Files
 import kotlin.io.path.deleteRecursively
 import kotlin.io.path.exists
 import kotlin.io.path.name
+import kotlin.io.path.readText
 import kotlin.io.path.writeText
 import kotlin.io.path.ExperimentalPathApi
 import kotlin.test.AfterTest
@@ -166,6 +167,14 @@ class ReviewServerTest {
 
         assertEquals(saved, ReviewStore(file).get(saved.id))
         assertEquals(listOf(saved), ReviewStore(file).list(LEDGER))
+    }
+
+    @Test
+    fun aKeyStoredUnderAnOlderRuleStillMatches() {
+        ReviewStore(file).add(review())
+        file.writeText(file.readText().replace("nitpick-org/pocket-ledger", "Nitpick-Org/Pocket-Ledger"))
+
+        assertEquals(1, ReviewStore(file).list(LEDGER).size)
     }
 
     @Test
