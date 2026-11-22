@@ -525,6 +525,34 @@ class RepositoryViewModelTest {
     }
 
     @Test
+    fun applyingANitReanchorsTheOtherNitsOfTheSameFile() {
+        val repo = FakeGitRepository(
+            branch = "main", commits = commits, refs = listOf(mainBranch), diffs = diffs,
+            files = mapOf("graph/CommitGraph.kt" to "fun a() {\n    val x = 1\n}\n"),
+        )
+        val first = ReviewComment(
+            id = "n1", filePath = "graph/CommitGraph.kt", startLine = 2, endLine = 2, severity = Severity.BUG,
+            category = "logic", message = "wrong value", originalSnippet = "val x = 1",
+            suggestion = "    val x = 2\n    val y = 3",
+        )
+        val second = ReviewComment(
+            id = "n2", filePath = "graph/CommitGraph.kt", startLine = 3, endLine = 3, severity = Severity.INFO,
+            category = "style", message = "closing brace", originalSnippet = "}", suggestion = "}",
+        )
+        val agent = object : ReviewAgent {
+            override suspend fun review(repository: GitRepository, baseRef: String) = ReviewResult("2 nits", listOf(first, second))
+        }
+        val viewModel = RepositoryViewModel(FakeGitRepositoryFactory(mapOf("/work/demo" to repo)), graphDispatcher = dispatcher, reviewAgent = agent)
+        viewModel.openRepository("/work/demo")
+        viewModel.reviewBranch()
+
+        viewModel.applySuggestion(first)
+
+        val moved = viewModel.state.value.review?.comments?.first { it.id == "n2" }
+        assertEquals(4, moved?.startLine)
+    }
+
+    @Test
     fun committingTwiceCreatesOneCommit() {
         val repo = FakeGitRepository(
             branch = "main", commits = commits, refs = listOf(mainBranch), diffs = diffs,
