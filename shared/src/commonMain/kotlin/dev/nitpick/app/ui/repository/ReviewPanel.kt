@@ -29,6 +29,7 @@ import dev.nitpick.app.ui.components.ReviewCommentCard
 import dev.nitpick.app.ui.theme.NitpickTheme
 import dev.nitpick.app.ui.theme.NitpickTone
 import nitpick.shared.generated.resources.Res
+import nitpick.shared.generated.resources.commit_bar_applied
 import nitpick.shared.generated.resources.commit_message
 import nitpick.shared.generated.resources.commit_stage
 import nitpick.shared.generated.resources.diff_empty
@@ -93,6 +94,7 @@ fun ReviewPanel(
                     onAction = onReview,
                 )
                 SharedReviewList(state, onLoadSharedReviews, onOpenSharedReview, Modifier.padding(12.dp))
+                state.lastPushedBranch?.let { PushedBanner(it, Modifier.padding(12.dp)) }
             }
             state.diff.isEmpty() -> NitpickEmptyState(
                 title = stringResource(Res.string.diff_empty, state.baseRef),
@@ -168,6 +170,7 @@ fun ReviewPanel(
                         onMessageChange = onCommitMessage,
                         onCommit = onCommit,
                         enabled = !state.isRewritingWorkingTree,
+                        appliedCount = state.appliedIds.size,
                     )
                 }
                 state.lastPushedBranch?.let { PushedBanner(it, Modifier.padding(12.dp)) }
@@ -263,11 +266,22 @@ private fun CleanReviewState() {
 }
 
 @Composable
-private fun CommitBar(message: String, onMessageChange: (String) -> Unit, onCommit: () -> Unit, enabled: Boolean) {
+private fun CommitBar(
+    message: String,
+    onMessageChange: (String) -> Unit,
+    onCommit: () -> Unit,
+    enabled: Boolean,
+    appliedCount: Int,
+) {
     Column(
         modifier = Modifier.fillMaxWidth().padding(12.dp),
         verticalArrangement = Arrangement.spacedBy(8.dp),
     ) {
+        Text(
+            text = pluralStringResource(Res.plurals.commit_bar_applied, appliedCount, appliedCount),
+            style = NitpickTheme.typography.small,
+            color = NitpickTheme.colors.success,
+        )
         NitpickTextField(
             value = message,
             onValueChange = onMessageChange,
