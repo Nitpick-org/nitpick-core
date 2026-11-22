@@ -78,20 +78,24 @@ internal fun junieCommand(binary: String, model: String, project: File, output: 
     "--mcp-default-locations", "false",
 )
 
-/** The envelope exits 0 even on failure: `errors` decides, never the exit code. */
+/**
+ * The envelope exits 0 even on failure: `errors` decides, never the exit code. An answer wins
+ * over `errors`: a failed user hook (session end, #246) is reported next to a complete review.
+ */
 internal fun parseJunieOutput(text: String): String {
     val output = try {
         junieJson.decodeFromString(JunieOutput.serializer(), text)
     } catch (e: SerializationException) {
         throw ReviewProviderException("Junie answered outside its JSON envelope", e)
     }
+    output.result?.let { return it }
     if (output.errors.isNotEmpty()) {
         val message = output.errors.joinToString("; ")
         val signedOut = output.errors.any { "authoriz" in it.lowercase() || "authenticat" in it.lowercase() }
         if (signedOut) throw JunieUnavailableException(message)
         throw ReviewProviderException("Junie failed: $message", IllegalStateException(message))
     }
-    return output.result ?: throw ReviewProviderException("Junie answered without a result", IllegalStateException())
+    throw ReviewProviderException("Junie answered without a result", IllegalStateException())
 }
 
 /** An app launched from the Dock has launchd's PATH, which skips the installer's `~/.local/bin`. */
