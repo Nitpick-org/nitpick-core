@@ -47,10 +47,20 @@
   </picture>
 </p>
 
+## Demo video
+
+<p align="center">
+  <a href="https://www.youtube.com/watch?v=s9VNiOdvKN4">
+    <img src="https://img.youtube.com/vi/s9VNiOdvKN4/maxresdefault.jpg" alt="Watch the Nitpick demo on YouTube" width="720">
+  </a>
+  <br><sub>▶ Watch the demo on YouTube</sub>
+</p>
+
 ---
 
 ## Contents
 
+- [Demo video](#demo-video)
 - [Why](#why)
 - [At a glance](#at-a-glance)
 - [Features](#features)
