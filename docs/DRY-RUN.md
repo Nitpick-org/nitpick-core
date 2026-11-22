@@ -1,5 +1,9 @@
 # Dry run — tester la base comme en conditions réelles
 
+> **Doc historique** (voir `docs/README.md`) : le starter TypeScript, `src/`, `tests/` et
+> `scripts/bootstrap-dry-run.sh` ont été retirés après le gel. Le protocole reste ici comme
+> trace de la répétition ; les commandes qui les nomment ne sont plus utilisables.
+
 > Un mini-projet fictif, **2 h 30**, dans un **clone jetable**. Le but n'est pas de livrer
 > Pulse : c'est de découvrir ce qui casse dans le repo, les agents et le rythme avant le
 > vrai hackathon.

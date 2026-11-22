@@ -1,41 +1,40 @@
-node_modules/
-.next/
-dist/
-build/
-coverage/
+# Secrets and local overrides
 .env
 .env.*
 !.env.example
-.DS_Store
-*.log
-.claude/settings.local.json
-.claude/agent-memory-local/
-.ralph/
-.turbo/
-.vercel/
-*.tsbuildinfo
-test-results/
-playwright-report/
-playwright/.cache/
-.worktrees/
-.pnpm-store/
-.dry-run-test/
-.playwright-browsers/
+local.properties
 
-# Large recordings: keep them outside the repo
-*.m4a
+# OS and editor noise
+.DS_Store
+.idea
+*.iml
 
 # Kotlin / Gradle / Android (from the KMP wizard)
-*.iml
 .kotlin
 .gradle
 **/build/
 !src/**/build/
-local.properties
-.idea
 captures
 .externalNativeBuild
 .cxx
 
-# Local Claude/agent scratch outputs (not part of the repo)
+# Signing material and credential files: never commit one
+*.jks
+*.keystore
+*.p12
+*.pem
+*.key
+.git-credentials
+.netrc
+.npmrc
+
+# Local agent scratch outputs (not part of the repo)
+.claude/settings.local.json
+.claude/agent-memory-local/
+.ralph/
+.worktrees/
 Claude outputs/
+
+# Logs and large recordings (keep recordings outside the repo)
+*.log
+*.m4a

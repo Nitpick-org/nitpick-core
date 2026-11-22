@@ -29,7 +29,7 @@ Ollama running locally.
 | Shared contracts (`GitRepository`, review model) | ✅ in `commonMain`, JGit behind the interface |
 | Commit graph, branch diff | ✅ lanes, colours, refs, per-commit details, diff vs base |
 | AI review with Koog, anchored nits, apply a suggestion, commit | ✅ real provider calls, snippet anchoring, Review panel, Apply/Dismiss, commit |
-| Light/dark theme, English/French | ✅ system/light/dark, 177 strings + plurals EN/FR |
+| Light/dark theme, English/French | ✅ system/light/dark, 179 strings + 7 plurals EN/FR |
 
 Full scope (MUST / SHOULD / WON'T) and the hour-by-hour plan: [docs/CONTEXT.md](docs/CONTEXT.md).
 
@@ -122,6 +122,7 @@ The rules every agent follows are in [AGENTS.md](AGENTS.md) (Claude Code adds
 | Path | What it is |
 | --- | --- |
 | `shared/`, `desktopApp/`, `androidApp/` | The app |
+| [docs/README.md](docs/README.md) | Docs index: current docs first, pre-event history last |
 | [docs/CONTEXT.md](docs/CONTEXT.md) | Master project brief: mission, stack, scope, plan, demo (French) |
 | [docs/JETBRAINS-CHALLENGE.md](docs/JETBRAINS-CHALLENGE.md) | Official JetBrains KMP challenge brief and how Nitpick maps to it |
 | [docs/HANDOFF.md](docs/HANDOFF.md) | Current handoff: changes, ownership, open issues, review checklist |
@@ -131,7 +132,7 @@ The rules every agent follows are in [AGENTS.md](AGENTS.md) (Claude Code adds
 | `progress/` | One journal per ticket, written by the agent working on it |
 | `scripts/` | `check.sh`, `doctor.sh`, worktree and AFK helpers, hook scripts |
 | `.claude/` | Claude Code subagents, the `/route-task` skill, settings and hooks |
-| `dry-run/` | Leftovers from the pre-event rehearsal (TypeScript, not part of the app) |
+| `dry-run/` | Pre-event rehearsal notes; the TypeScript starter they referred to was removed after the freeze |
 
 Team docs are written in French; code, comments and commit messages are in English.
 
@@ -146,3 +147,9 @@ LauzHack asks every team to state this explicitly.
   their tests.
 - **Not mocked**: the review path calls a real provider. The demo repository and the
   backup video are still being prepared; see `docs/DEMO.md`.
+
+## License
+
+Nitpick is released under the MIT License: see [LICENSE](LICENSE). The third-party
+components it depends on or bundles, and their licenses, are listed in
+[THIRD-PARTY-NOTICES.md](THIRD-PARTY-NOTICES.md).
