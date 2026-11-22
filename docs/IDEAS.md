@@ -43,7 +43,7 @@
 - **What it would do**: add `org.eclipse.jgit.ssh.apache` so fetch, pull, push and clone work over SSH with the user's keys and agent; today the app refuses an SSH remote with a sentence (#232).
 - **Why it is interesting**: no HTTPS remote or token to set up for a repo you already have.
 - **Estimated cost**: 1 h on desktop (host-key prompt, passphrase prompt, known_hosts), unknown on Android (dexing of the module, no ssh-agent).
-- **Verdict**: after the demo; the demo repos are HTTPS clones.
+- **Verdict**: done on desktop in #254 (22/11, H2's call): `org.eclipse.jgit.ssh.apache` + the agent module on the desktop classpath, a new host key accepted and stored, a passphrase without agent refused with a sentence. Android keeps the token flow and the refusal.
 
 ## JetBrains AI (Junie) as a review provider
 

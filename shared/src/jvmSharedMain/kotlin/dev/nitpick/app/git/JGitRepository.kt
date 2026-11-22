@@ -26,6 +26,7 @@ import org.eclipse.jgit.revwalk.RevCommit
 import org.eclipse.jgit.revwalk.RevSort
 import org.eclipse.jgit.revwalk.RevWalk
 import org.eclipse.jgit.revwalk.filter.RevFilter
+import org.eclipse.jgit.transport.CredentialsProvider
 import org.eclipse.jgit.transport.PushResult
 import org.eclipse.jgit.transport.RefSpec
 import org.eclipse.jgit.transport.RemoteRefUpdate
@@ -263,7 +264,7 @@ class JGitRepository(private val git: Git) : GitRepository {
     override suspend fun fetch(credentials: Credentials?) {
         withContext(Dispatchers.IO) {
             requireSupportedRemote()
-            git.fetch().setCredentialsProvider(credentials.toJGit()).call()
+            translatingSshErrors(remoteUrlOrNull()) { git.fetch().setCredentialsProvider(providerFor(credentials)).call() }
         }
     }
 
@@ -275,10 +276,10 @@ class JGitRepository(private val git: Git) : GitRepository {
         val dirty = uncommitted.isNotEmpty()
         val command = git.pull()
             .setRebase(false)
-            .setCredentialsProvider(credentials.toJGit())
+            .setCredentialsProvider(providerFor(credentials))
         if (dirty) command.setFastForward(MergeCommand.FastForwardMode.FF_ONLY)
         val merge = try {
-            command.call().mergeResult
+            translatingSshErrors(remoteUrlOrNull()) { command.call() }.mergeResult
         } catch (e: CheckoutConflictException) {
             // The incoming commits change a file with local edits, and JGit wrote nothing. Any
             // other failure (network, credentials) keeps its own message.
@@ -303,7 +304,7 @@ class JGitRepository(private val git: Git) : GitRepository {
     override suspend fun push(credentials: Credentials?) {
         withContext(Dispatchers.IO) {
             requireSupportedRemote()
-            requireAccepted(git.push().setCredentialsProvider(credentials.toJGit()).call())
+            requireAccepted(translatingSshErrors(remoteUrlOrNull()) { git.push().setCredentialsProvider(providerFor(credentials)).call() })
         }
     }
 
@@ -311,11 +312,13 @@ class JGitRepository(private val git: Git) : GitRepository {
         requireSupportedRemote()
         val branch = currentLocalBranch() ?: throw IllegalStateException("Cannot publish a detached HEAD")
         requireAccepted(
-            git.push()
-                .setRemote(Constants.DEFAULT_REMOTE_NAME)
-                .setRefSpecs(RefSpec("refs/heads/$branch:refs/heads/$branch"))
-                .setCredentialsProvider(credentials.toJGit())
-                .call(),
+            translatingSshErrors(remoteUrlOrNull()) {
+                git.push()
+                    .setRemote(Constants.DEFAULT_REMOTE_NAME)
+                    .setRefSpecs(RefSpec("refs/heads/$branch:refs/heads/$branch"))
+                    .setCredentialsProvider(providerFor(credentials))
+                    .call()
+            },
         )
         val config = repository.config
         config.setString("branch", branch, "remote", Constants.DEFAULT_REMOTE_NAME)
@@ -362,12 +365,16 @@ class JGitRepository(private val git: Git) : GitRepository {
     private fun currentLocalBranch(): String? =
         repository.fullBranch?.takeIf { it.startsWith(Constants.R_HEADS) }?.let { Repository.shortenRefName(it) }
 
-    // The build ships core JGit without an SSH transport: an SSH remote must fail with a
-    // sentence, not JGit's "remote hung up unexpectedly" (#232).
+    // Without an SSH transport (Android), an SSH remote must fail with a sentence, not JGit's
+    // "remote hung up unexpectedly" (#232). Desktop ships the Apache module (#254).
     private fun requireSupportedRemote() {
-        val url = repository.config.getString("remote", Constants.DEFAULT_REMOTE_NAME, "url") ?: return
-        check(!isSshRemote(url)) { UNSUPPORTED_SSH_REMOTE }
+        val url = remoteUrlOrNull() ?: return
+        check(!isSshRemote(url) || sshAvailable) { UNSUPPORTED_SSH_REMOTE }
     }
+
+    private fun providerFor(credentials: Credentials?): CredentialsProvider? = credentials.toJGit(remoteUrlOrNull())
+
+    private fun remoteUrlOrNull(): String? = repository.config.getString("remote", Constants.DEFAULT_REMOTE_NAME, "url")
 
     /**
      * Paths can come from the LLM, so they must stay inside the working tree and out of

@@ -10,6 +10,11 @@ components, not to Nitpick's own code.
 - License: <https://www.eclipse.org/legal/epl-2.0/>
 - Source for the exact version: <https://repo1.maven.org/maven2/org/eclipse/jgit/org.eclipse.jgit/6.10.1.202505221210-r/>
 - Used by `shared/src/jvmSharedMain` for the desktop and Android git backend.
+- Desktop only (`shared/src/jvmMain`): `org.eclipse.jgit.ssh.apache` and
+  `org.eclipse.jgit.ssh.apache.agent` (EPL 2.0), which bring Apache MINA SSHD
+  (<https://mina.apache.org/sshd-project/>, Apache License 2.0) and JNA
+  (<https://github.com/java-native-access/jna>, Apache License 2.0) for SSH remotes and the
+  ssh-agent.
 
 ## Compose Multiplatform 1.12.2 / Material 3 — Apache License 2.0
 

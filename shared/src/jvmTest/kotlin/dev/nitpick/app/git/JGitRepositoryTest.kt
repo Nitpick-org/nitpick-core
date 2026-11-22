@@ -688,16 +688,20 @@ class JGitRepositoryTest {
     }
 
     @Test
-    fun anSshRemoteFailsWithASentenceNotAHungUpTransport() = runBlocking<Unit> {
+    fun anSshRemoteGoesThroughTheSshTransportOnDesktop() = runBlocking<Unit> {
+        // Nothing listens on port 1: the transport must be tried and refuse the connection,
+        // not the "SSH remotes are not supported" sentence Android still gives (#254).
+        assertTrue(sshAvailable, "the Apache SSH module must be on the desktop classpath")
         repo.write("a.txt", "x")
         repo.commit("base", at = 1_000)
-        repo.git("remote", "add", "origin", "git@github.com:Nitpick-org/nitpick-core.git")
+        repo.git("remote", "add", "origin", "ssh://git@127.0.0.1:1/o/r.git")
         val git = open()
 
-        val error = assertFailsWith<IllegalStateException> { git.fetch(credentials = null) }
+        val error = assertFails { git.fetch(credentials = null) }
 
-        assertEquals(UNSUPPORTED_SSH_REMOTE, error.message)
-        assertFailsWith<IllegalStateException> { factory.clone("ssh://git@github.com/o/r.git", newCloneTarget().path, credentials = null) }
+        assertFalse(error.message == UNSUPPORTED_SSH_REMOTE, error.message)
+        val cloneError = assertFails { factory.clone("ssh://git@127.0.0.1:1/o/r.git", newCloneTarget().path, credentials = null) }
+        assertFalse(cloneError.message == UNSUPPORTED_SSH_REMOTE, cloneError.message)
     }
 
     @Test
