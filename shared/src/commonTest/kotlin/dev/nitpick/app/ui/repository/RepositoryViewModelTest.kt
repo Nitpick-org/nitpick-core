@@ -246,6 +246,13 @@ class RepositoryViewModelTest {
     }
 
     @Test
+    fun pullIsBlockedAndSaysSoWhileSuggestionsAreApplied() {
+        assertEquals(false, RepositoryUiState().isPullBlocked)
+        assertEquals(true, RepositoryUiState(appliedFiles = setOf("a.kt")).isPullBlocked)
+        assertEquals(true, RepositoryUiState(isReviewing = true).isPullBlocked)
+    }
+
+    @Test
     fun pullReloadsTheGraphWhenCommitsArrived() {
         val incoming = commit(id = "4444444dddd", message = "From origin", parents = listOf(child.id))
         val remote = PushingRepository(

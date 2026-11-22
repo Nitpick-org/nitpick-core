@@ -185,7 +185,7 @@ private fun BranchCard(
                 },
                 icon = Res.drawable.ic_pull,
                 onClick = onPull,
-                enabled = enabled,
+                enabled = enabled && !state.isPullBlocked,
                 modifier = Modifier.weight(1f),
             )
             if (state.tracking != null || state.hasOrigin) {
