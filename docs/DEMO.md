@@ -82,6 +82,10 @@ Préparer 10 réponses de 2 phrases :
 
 - **Vidéo de secours** : à enregistrer avant 11:00 (aucun lien pour l'instant).
 - **Captures** : `docs/demo/` (dogfooding sur nos branches d'agents)
+- **Partage desktop → Android rejoué** (22/11 02:05, serveur Ktor local + `adb reverse`) : review desktop
+  → Share review → ouverte sur le téléphone depuis Shared reviews sans appel au modèle → Apply :
+  `docs/demo/share-proof.md`, captures `share-desktop-shared.png`, `share-android-opened.png`,
+  `share-android-applied.png`.
 - **Parcours Android rejoué** (22/11 00:45, émulateur API 36, compte GitHub connecté par le
   device flow, repo `pepito2t/OpenTab`, branche `perf/thumbnail-lookup` avec un lock non
   relâché et un off-by-one d'éviction) : `docs/demo/android-01-repos-signed-in.png` →
@@ -118,5 +122,6 @@ couper.
 - [ ] Vidéo de secours accessible hors ligne.
 - [ ] Téléphone en silencieux.
 - [x] Android rejoué à la main : Repos → Graph → Nitpick branch → nit en bottom sheet → Apply → Stage & commit → le bouton **Push** apparaît après le commit → push visible sur GitHub (22/11 00:45, captures `docs/demo/android-*.png`).
+- [x] Partage rejoué : review desktop → Share review → Shared reviews sur le téléphone → ouverture sans appel au modèle → Apply (22/11 02:05, `docs/demo/share-proof.md`).
 - [ ] Les 3 savent qui parle quand.
 - [ ] La phrase de nouveauté est écrite sur un post-it.
