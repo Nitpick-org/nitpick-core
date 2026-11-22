@@ -30,16 +30,18 @@ class JGitRepositoryFactory(private val commitIdentity: GitIdentity? = null) : G
 
     override suspend fun clone(url: String, path: String, credentials: Credentials?): GitRepository =
         withContext(Dispatchers.IO) {
-            check(!isSshRemote(url)) { UNSUPPORTED_SSH_REMOTE }
+            check(!isSshRemote(url) || sshAvailable) { UNSUPPORTED_SSH_REMOTE }
             // JGit deletes a folder it created itself when the clone fails, so a retry can reuse the path.
             // Without an explicit gitDir, JGit takes GIT_DIR from the environment (set by git hooks)
             // and would initialise the clone inside the caller's repository.
-            val git = Git.cloneRepository()
-                .setURI(url)
-                .setDirectory(File(path))
-                .setGitDir(File(path, ".git"))
-                .setCredentialsProvider(credentials.toJGit())
-                .call()
+            val git = translatingSshErrors(url) {
+                Git.cloneRepository()
+                    .setURI(url)
+                    .setDirectory(File(path))
+                    .setGitDir(File(path, ".git"))
+                    .setCredentialsProvider(credentials.toJGit(url))
+                    .call()
+            }
             ensureIdentity(git)
             JGitRepository(git)
         }

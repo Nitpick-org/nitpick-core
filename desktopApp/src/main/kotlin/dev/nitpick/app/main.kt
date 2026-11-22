@@ -2,6 +2,7 @@ package dev.nitpick.app
 
 import androidx.compose.ui.window.Window
 import androidx.compose.ui.window.application
+import dev.nitpick.app.git.DesktopSsh
 import dev.nitpick.app.git.JGitRepositoryFactory
 import dev.nitpick.app.review.JunieCliLlmClient
 import dev.nitpick.app.review.KoogLlmClient
@@ -12,6 +13,7 @@ import dev.nitpick.app.ui.nitpickAppIcon
 import java.io.File
 
 fun main() {
+    DesktopSsh.install()
     val settingsFile = File(System.getProperty("user.home"), ".nitpick/settings.json")
     val settingsStore = FileSettingsStore(settingsFile)
     val container = AppContainer(

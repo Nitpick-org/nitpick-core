@@ -67,6 +67,12 @@ kotlin {
             implementation(libs.jgit)
             implementation(libs.ktor.client.cio)
         }
+        // Desktop only: the machine's SSH keys, known_hosts and ssh-agent for git@ remotes (#254).
+        // The phone keeps tokens: no agent there, and the module's dexing is unverified.
+        getByName("jvmMain").dependencies {
+            implementation(libs.jgit.sshApache)
+            implementation(libs.jgit.sshApacheAgent)
+        }
         commonTest.dependencies {
             implementation(project.dependencies.platform(libs.ktor.bom))
             implementation(libs.ktor.client.mock)
