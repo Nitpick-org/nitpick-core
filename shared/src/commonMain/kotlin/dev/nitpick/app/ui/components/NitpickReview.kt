@@ -62,7 +62,8 @@ fun ReviewCommentCard(
                 style = NitpickTheme.typography.codeSmall,
                 color = colors.textMuted,
                 maxLines = 1,
-                overflow = TextOverflow.Ellipsis,
+                // A long path loses its folders, never the file name and line that anchor the nit.
+                overflow = TextOverflow.StartEllipsis,
                 modifier = Modifier.weight(1f),
             )
             if (onDismiss != null) {
