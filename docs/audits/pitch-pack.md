@@ -24,6 +24,14 @@ Source: six audit lanes on `origin/main` @ `54c37a2`, plus #133/#135 merged afte
 - "All four providers tested" — only Anthropic has a real recorded call (#82).
 - "99 % multiplatform common" — 99 % is shared+JGit; commonMain is 93.2 %.
 
+## Fixed since the audit
+
+- #140 Pull refusal message (PR #161).
+- #141 before/after lines (PR #174).
+- #142 anchor keeps the line number (PR #173).
+- #143 sheet insets (closed as not reproducible since #135).
+- #144 44 dp top-bar actions (PR #176).
+
 ## Demo risks
 
 - Repo private + no LICENSE: submission blocker (#162).
