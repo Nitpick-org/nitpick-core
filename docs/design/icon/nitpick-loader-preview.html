@@ -1,0 +1,231 @@
+<!DOCTYPE html>
+<html lang="en"><head><meta charset="utf-8"><title>Nitpick loader</title>
+<style>
+ body{margin:0;font-family:Inter,system-ui,sans-serif;display:grid;grid-template-columns:1fr 1fr;min-height:100vh}
+ section{display:flex;flex-direction:column;align-items:center;justify-content:center;gap:28px}
+ .l{background:#F7F8FA;color:#6C707E} .d{background:#1E1F22;color:#9DA0A8}
+ .row{display:flex;align-items:flex-end;gap:32px}
+ .row svg{display:block}
+ p{margin:0;font-size:13px}
+</style></head><body>
+<section class="l"><div class="row">
+ <div style="width:160px"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512" width="160" height="160" role="img" aria-label="Loading">
+  <style>
+    .r, .arm-l, .arm-r, .lift, .dot { transform-box: view-box; }
+    .r { stroke-dasharray: 18 82; animation: run 1.6s linear infinite; }
+    .arm-l { transform-origin: 234.4px 121px; animation: armL 2.4s cubic-bezier(.65,0,.35,1) infinite; }
+    .arm-r { transform-origin: 277.6px 121px; animation: armR 2.4s cubic-bezier(.65,0,.35,1) infinite; }
+    .lift { animation: lift 2.4s cubic-bezier(.65,0,.35,1) infinite; }
+    .dot { transform-origin: 256px 371px; animation: dot 2.4s cubic-bezier(.45,0,.55,1) infinite; }
+    @keyframes run { to { stroke-dashoffset: -100; } }
+    @keyframes armL { 0%, 6% { transform: rotate(5deg); } 18%, 62% { transform: rotate(0deg); } 70%, 100% { transform: rotate(5deg); } }
+    @keyframes armR { 0%, 6% { transform: rotate(-5deg); } 18%, 62% { transform: rotate(0deg); } 70%, 100% { transform: rotate(-5deg); } }
+    @keyframes lift { 0%, 20% { transform: translateY(0); } 40%, 64% { transform: translateY(-38px); } 90%, 100% { transform: translateY(0); } }
+    @keyframes dot {
+      0%, 20% { transform: translateY(0) scale(1); }
+      40%, 66% { transform: translateY(-38px) scale(1); }
+      79% { transform: translateY(0) scale(1.18, .8); }
+      85% { transform: translateY(-10px) scale(.95, 1.05); }
+      91% { transform: translateY(0) scale(1.06, .94); }
+      96%, 100% { transform: translateY(0) scale(1); }
+    }
+    @media (prefers-reduced-motion: reduce) {
+      .arm-l, .arm-r, .lift, .dot { animation: none; }
+      .r { animation-duration: 4s; }
+    }
+  </style>
+  <rect x="14" y="14" width="484" height="484" rx="124" fill="none" stroke="#D2EFEA" stroke-width="10"/>
+  <rect class="r" x="14" y="14" width="484" height="484" rx="124" fill="none" stroke="#0F766E" stroke-width="10" stroke-linecap="round" pathLength="100"/>
+  <rect x="44" y="44" width="424" height="424" rx="98" fill="#0F766E"/>
+  <g class="lift" fill="none" stroke="#F0FDFA" stroke-width="24" stroke-linecap="round" stroke-linejoin="round">
+    <path d="M234.4 121H277.6"/>
+    <path class="arm-l" d="M234.4 121L185.8 279L234.4 346.5"/>
+    <path class="arm-r" d="M277.6 121L326.2 279L277.6 346.5"/>
+  </g>
+  <circle class="dot" cx="256" cy="371" r="20" fill="#5EEAD4"/>
+</svg>
+</div>
+ <div style="width:64px"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512" width="64" height="64" role="img" aria-label="Loading">
+  <style>
+    .r, .arm-l, .arm-r, .lift, .dot { transform-box: view-box; }
+    .r { stroke-dasharray: 18 82; animation: run 1.6s linear infinite; }
+    .arm-l { transform-origin: 234.4px 121px; animation: armL 2.4s cubic-bezier(.65,0,.35,1) infinite; }
+    .arm-r { transform-origin: 277.6px 121px; animation: armR 2.4s cubic-bezier(.65,0,.35,1) infinite; }
+    .lift { animation: lift 2.4s cubic-bezier(.65,0,.35,1) infinite; }
+    .dot { transform-origin: 256px 371px; animation: dot 2.4s cubic-bezier(.45,0,.55,1) infinite; }
+    @keyframes run { to { stroke-dashoffset: -100; } }
+    @keyframes armL { 0%, 6% { transform: rotate(5deg); } 18%, 62% { transform: rotate(0deg); } 70%, 100% { transform: rotate(5deg); } }
+    @keyframes armR { 0%, 6% { transform: rotate(-5deg); } 18%, 62% { transform: rotate(0deg); } 70%, 100% { transform: rotate(-5deg); } }
+    @keyframes lift { 0%, 20% { transform: translateY(0); } 40%, 64% { transform: translateY(-38px); } 90%, 100% { transform: translateY(0); } }
+    @keyframes dot {
+      0%, 20% { transform: translateY(0) scale(1); }
+      40%, 66% { transform: translateY(-38px) scale(1); }
+      79% { transform: translateY(0) scale(1.18, .8); }
+      85% { transform: translateY(-10px) scale(.95, 1.05); }
+      91% { transform: translateY(0) scale(1.06, .94); }
+      96%, 100% { transform: translateY(0) scale(1); }
+    }
+    @media (prefers-reduced-motion: reduce) {
+      .arm-l, .arm-r, .lift, .dot { animation: none; }
+      .r { animation-duration: 4s; }
+    }
+  </style>
+  <rect x="14" y="14" width="484" height="484" rx="124" fill="none" stroke="#D2EFEA" stroke-width="10"/>
+  <rect class="r" x="14" y="14" width="484" height="484" rx="124" fill="none" stroke="#0F766E" stroke-width="10" stroke-linecap="round" pathLength="100"/>
+  <rect x="44" y="44" width="424" height="424" rx="98" fill="#0F766E"/>
+  <g class="lift" fill="none" stroke="#F0FDFA" stroke-width="24" stroke-linecap="round" stroke-linejoin="round">
+    <path d="M234.4 121H277.6"/>
+    <path class="arm-l" d="M234.4 121L185.8 279L234.4 346.5"/>
+    <path class="arm-r" d="M277.6 121L326.2 279L277.6 346.5"/>
+  </g>
+  <circle class="dot" cx="256" cy="371" r="20" fill="#5EEAD4"/>
+</svg>
+</div>
+ <div style="width:32px"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512" width="32" height="32" role="img" aria-label="Loading">
+  <style>
+    .r, .arm-l, .arm-r, .lift, .dot { transform-box: view-box; }
+    .r { stroke-dasharray: 18 82; animation: run 1.6s linear infinite; }
+    .arm-l { transform-origin: 234.4px 121px; animation: armL 2.4s cubic-bezier(.65,0,.35,1) infinite; }
+    .arm-r { transform-origin: 277.6px 121px; animation: armR 2.4s cubic-bezier(.65,0,.35,1) infinite; }
+    .lift { animation: lift 2.4s cubic-bezier(.65,0,.35,1) infinite; }
+    .dot { transform-origin: 256px 371px; animation: dot 2.4s cubic-bezier(.45,0,.55,1) infinite; }
+    @keyframes run { to { stroke-dashoffset: -100; } }
+    @keyframes armL { 0%, 6% { transform: rotate(5deg); } 18%, 62% { transform: rotate(0deg); } 70%, 100% { transform: rotate(5deg); } }
+    @keyframes armR { 0%, 6% { transform: rotate(-5deg); } 18%, 62% { transform: rotate(0deg); } 70%, 100% { transform: rotate(-5deg); } }
+    @keyframes lift { 0%, 20% { transform: translateY(0); } 40%, 64% { transform: translateY(-38px); } 90%, 100% { transform: translateY(0); } }
+    @keyframes dot {
+      0%, 20% { transform: translateY(0) scale(1); }
+      40%, 66% { transform: translateY(-38px) scale(1); }
+      79% { transform: translateY(0) scale(1.18, .8); }
+      85% { transform: translateY(-10px) scale(.95, 1.05); }
+      91% { transform: translateY(0) scale(1.06, .94); }
+      96%, 100% { transform: translateY(0) scale(1); }
+    }
+    @media (prefers-reduced-motion: reduce) {
+      .arm-l, .arm-r, .lift, .dot { animation: none; }
+      .r { animation-duration: 4s; }
+    }
+  </style>
+  <rect x="14" y="14" width="484" height="484" rx="124" fill="none" stroke="#D2EFEA" stroke-width="10"/>
+  <rect class="r" x="14" y="14" width="484" height="484" rx="124" fill="none" stroke="#0F766E" stroke-width="10" stroke-linecap="round" pathLength="100"/>
+  <rect x="44" y="44" width="424" height="424" rx="98" fill="#0F766E"/>
+  <g class="lift" fill="none" stroke="#F0FDFA" stroke-width="24" stroke-linecap="round" stroke-linejoin="round">
+    <path d="M234.4 121H277.6"/>
+    <path class="arm-l" d="M234.4 121L185.8 279L234.4 346.5"/>
+    <path class="arm-r" d="M277.6 121L326.2 279L277.6 346.5"/>
+  </g>
+  <circle class="dot" cx="256" cy="371" r="20" fill="#5EEAD4"/>
+</svg>
+</div>
+</div><p>Nitpicking…</p></section>
+<section class="d"><div class="row">
+ <div style="width:160px"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512" width="160" height="160" role="img" aria-label="Loading">
+  <style>
+    .r, .arm-l, .arm-r, .lift, .dot { transform-box: view-box; }
+    .r { stroke-dasharray: 18 82; animation: run 1.6s linear infinite; }
+    .arm-l { transform-origin: 234.4px 121px; animation: armL 2.4s cubic-bezier(.65,0,.35,1) infinite; }
+    .arm-r { transform-origin: 277.6px 121px; animation: armR 2.4s cubic-bezier(.65,0,.35,1) infinite; }
+    .lift { animation: lift 2.4s cubic-bezier(.65,0,.35,1) infinite; }
+    .dot { transform-origin: 256px 371px; animation: dot 2.4s cubic-bezier(.45,0,.55,1) infinite; }
+    @keyframes run { to { stroke-dashoffset: -100; } }
+    @keyframes armL { 0%, 6% { transform: rotate(5deg); } 18%, 62% { transform: rotate(0deg); } 70%, 100% { transform: rotate(5deg); } }
+    @keyframes armR { 0%, 6% { transform: rotate(-5deg); } 18%, 62% { transform: rotate(0deg); } 70%, 100% { transform: rotate(-5deg); } }
+    @keyframes lift { 0%, 20% { transform: translateY(0); } 40%, 64% { transform: translateY(-38px); } 90%, 100% { transform: translateY(0); } }
+    @keyframes dot {
+      0%, 20% { transform: translateY(0) scale(1); }
+      40%, 66% { transform: translateY(-38px) scale(1); }
+      79% { transform: translateY(0) scale(1.18, .8); }
+      85% { transform: translateY(-10px) scale(.95, 1.05); }
+      91% { transform: translateY(0) scale(1.06, .94); }
+      96%, 100% { transform: translateY(0) scale(1); }
+    }
+    @media (prefers-reduced-motion: reduce) {
+      .arm-l, .arm-r, .lift, .dot { animation: none; }
+      .r { animation-duration: 4s; }
+    }
+  </style>
+  <rect x="14" y="14" width="484" height="484" rx="124" fill="none" stroke="#2B2D30" stroke-width="10"/>
+  <rect class="r" x="14" y="14" width="484" height="484" rx="124" fill="none" stroke="#5EEAD4" stroke-width="10" stroke-linecap="round" pathLength="100"/>
+  <rect x="44" y="44" width="424" height="424" rx="98" fill="#1E1F22" stroke="#393B40" stroke-width="4"/>
+  <g class="lift" fill="none" stroke="#5EEAD4" stroke-width="24" stroke-linecap="round" stroke-linejoin="round">
+    <path d="M234.4 121H277.6"/>
+    <path class="arm-l" d="M234.4 121L185.8 279L234.4 346.5"/>
+    <path class="arm-r" d="M277.6 121L326.2 279L277.6 346.5"/>
+  </g>
+  <circle class="dot" cx="256" cy="371" r="20" fill="#F0FDFA"/>
+</svg>
+</div>
+ <div style="width:64px"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512" width="64" height="64" role="img" aria-label="Loading">
+  <style>
+    .r, .arm-l, .arm-r, .lift, .dot { transform-box: view-box; }
+    .r { stroke-dasharray: 18 82; animation: run 1.6s linear infinite; }
+    .arm-l { transform-origin: 234.4px 121px; animation: armL 2.4s cubic-bezier(.65,0,.35,1) infinite; }
+    .arm-r { transform-origin: 277.6px 121px; animation: armR 2.4s cubic-bezier(.65,0,.35,1) infinite; }
+    .lift { animation: lift 2.4s cubic-bezier(.65,0,.35,1) infinite; }
+    .dot { transform-origin: 256px 371px; animation: dot 2.4s cubic-bezier(.45,0,.55,1) infinite; }
+    @keyframes run { to { stroke-dashoffset: -100; } }
+    @keyframes armL { 0%, 6% { transform: rotate(5deg); } 18%, 62% { transform: rotate(0deg); } 70%, 100% { transform: rotate(5deg); } }
+    @keyframes armR { 0%, 6% { transform: rotate(-5deg); } 18%, 62% { transform: rotate(0deg); } 70%, 100% { transform: rotate(-5deg); } }
+    @keyframes lift { 0%, 20% { transform: translateY(0); } 40%, 64% { transform: translateY(-38px); } 90%, 100% { transform: translateY(0); } }
+    @keyframes dot {
+      0%, 20% { transform: translateY(0) scale(1); }
+      40%, 66% { transform: translateY(-38px) scale(1); }
+      79% { transform: translateY(0) scale(1.18, .8); }
+      85% { transform: translateY(-10px) scale(.95, 1.05); }
+      91% { transform: translateY(0) scale(1.06, .94); }
+      96%, 100% { transform: translateY(0) scale(1); }
+    }
+    @media (prefers-reduced-motion: reduce) {
+      .arm-l, .arm-r, .lift, .dot { animation: none; }
+      .r { animation-duration: 4s; }
+    }
+  </style>
+  <rect x="14" y="14" width="484" height="484" rx="124" fill="none" stroke="#2B2D30" stroke-width="10"/>
+  <rect class="r" x="14" y="14" width="484" height="484" rx="124" fill="none" stroke="#5EEAD4" stroke-width="10" stroke-linecap="round" pathLength="100"/>
+  <rect x="44" y="44" width="424" height="424" rx="98" fill="#1E1F22" stroke="#393B40" stroke-width="4"/>
+  <g class="lift" fill="none" stroke="#5EEAD4" stroke-width="24" stroke-linecap="round" stroke-linejoin="round">
+    <path d="M234.4 121H277.6"/>
+    <path class="arm-l" d="M234.4 121L185.8 279L234.4 346.5"/>
+    <path class="arm-r" d="M277.6 121L326.2 279L277.6 346.5"/>
+  </g>
+  <circle class="dot" cx="256" cy="371" r="20" fill="#F0FDFA"/>
+</svg>
+</div>
+ <div style="width:32px"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512" width="32" height="32" role="img" aria-label="Loading">
+  <style>
+    .r, .arm-l, .arm-r, .lift, .dot { transform-box: view-box; }
+    .r { stroke-dasharray: 18 82; animation: run 1.6s linear infinite; }
+    .arm-l { transform-origin: 234.4px 121px; animation: armL 2.4s cubic-bezier(.65,0,.35,1) infinite; }
+    .arm-r { transform-origin: 277.6px 121px; animation: armR 2.4s cubic-bezier(.65,0,.35,1) infinite; }
+    .lift { animation: lift 2.4s cubic-bezier(.65,0,.35,1) infinite; }
+    .dot { transform-origin: 256px 371px; animation: dot 2.4s cubic-bezier(.45,0,.55,1) infinite; }
+    @keyframes run { to { stroke-dashoffset: -100; } }
+    @keyframes armL { 0%, 6% { transform: rotate(5deg); } 18%, 62% { transform: rotate(0deg); } 70%, 100% { transform: rotate(5deg); } }
+    @keyframes armR { 0%, 6% { transform: rotate(-5deg); } 18%, 62% { transform: rotate(0deg); } 70%, 100% { transform: rotate(-5deg); } }
+    @keyframes lift { 0%, 20% { transform: translateY(0); } 40%, 64% { transform: translateY(-38px); } 90%, 100% { transform: translateY(0); } }
+    @keyframes dot {
+      0%, 20% { transform: translateY(0) scale(1); }
+      40%, 66% { transform: translateY(-38px) scale(1); }
+      79% { transform: translateY(0) scale(1.18, .8); }
+      85% { transform: translateY(-10px) scale(.95, 1.05); }
+      91% { transform: translateY(0) scale(1.06, .94); }
+      96%, 100% { transform: translateY(0) scale(1); }
+    }
+    @media (prefers-reduced-motion: reduce) {
+      .arm-l, .arm-r, .lift, .dot { animation: none; }
+      .r { animation-duration: 4s; }
+    }
+  </style>
+  <rect x="14" y="14" width="484" height="484" rx="124" fill="none" stroke="#2B2D30" stroke-width="10"/>
+  <rect class="r" x="14" y="14" width="484" height="484" rx="124" fill="none" stroke="#5EEAD4" stroke-width="10" stroke-linecap="round" pathLength="100"/>
+  <rect x="44" y="44" width="424" height="424" rx="98" fill="#1E1F22" stroke="#393B40" stroke-width="4"/>
+  <g class="lift" fill="none" stroke="#5EEAD4" stroke-width="24" stroke-linecap="round" stroke-linejoin="round">
+    <path d="M234.4 121H277.6"/>
+    <path class="arm-l" d="M234.4 121L185.8 279L234.4 346.5"/>
+    <path class="arm-r" d="M277.6 121L326.2 279L277.6 346.5"/>
+  </g>
+  <circle class="dot" cx="256" cy="371" r="20" fill="#F0FDFA"/>
+</svg>
+</div>
+</div><p>Nitpicking…</p></section>
+</body></html>

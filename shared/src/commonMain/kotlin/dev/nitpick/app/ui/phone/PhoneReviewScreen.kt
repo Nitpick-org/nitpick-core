@@ -57,7 +57,6 @@ import nitpick.shared.generated.resources.review_line
 import nitpick.shared.generated.resources.review_local
 import nitpick.shared.generated.resources.review_rerun
 import nitpick.shared.generated.resources.review_run
-import nitpick.shared.generated.resources.review_running
 import nitpick.shared.generated.resources.review_title
 import nitpick.shared.generated.resources.review_vs
 import nitpick.shared.generated.resources.review_whole_file_short
