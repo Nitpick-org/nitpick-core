@@ -11,6 +11,7 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.ModalBottomSheet
 import androidx.compose.material3.Text
+import androidx.compose.material3.rememberModalBottomSheetState
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
@@ -86,6 +87,8 @@ fun NitBottomSheet(
 ) {
     ModalBottomSheet(
         onDismissRequest = onClose,
+        // Half-open, a long nit hides its actions under the fold: open fully, the body scrolls.
+        sheetState = rememberModalBottomSheetState(skipPartiallyExpanded = true),
         containerColor = NitpickTheme.colors.surface,
         contentColor = NitpickTheme.colors.text,
     ) {
