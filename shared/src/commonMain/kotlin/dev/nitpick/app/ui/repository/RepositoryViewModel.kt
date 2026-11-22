@@ -19,6 +19,7 @@ import dev.nitpick.app.review.MissingApiKeyException
 import dev.nitpick.app.review.ReviewAgent
 import dev.nitpick.app.review.ReviewAnchoring
 import dev.nitpick.app.review.ReviewProviderException
+import dev.nitpick.app.review.ReviewResponseException
 import dev.nitpick.app.share.ReviewShareClient
 import dev.nitpick.app.share.ReviewShareException
 import dev.nitpick.app.share.withoutCredentials
@@ -48,6 +49,7 @@ sealed interface ReviewFailure {
     data class MissingKey(val provider: LlmProvider) : ReviewFailure
     data object Network : ReviewFailure
     data object Timeout : ReviewFailure
+    data object InvalidAnswer : ReviewFailure
     data class Other(val message: String) : ReviewFailure
 }
 
@@ -61,6 +63,7 @@ private fun Throwable.toReviewFailure(): ReviewFailure = when {
     this is MissingApiKeyException -> ReviewFailure.MissingKey(provider)
     isTimeout() -> ReviewFailure.Timeout
     this is ReviewProviderException -> ReviewFailure.Network
+    this is ReviewResponseException -> ReviewFailure.InvalidAnswer
     else -> ReviewFailure.Other(message ?: toString())
 }
 

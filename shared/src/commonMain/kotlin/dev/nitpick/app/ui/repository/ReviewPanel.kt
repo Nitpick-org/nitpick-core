@@ -19,6 +19,7 @@ import dev.nitpick.app.domain.ReviewComment
 import dev.nitpick.app.domain.Severity
 import dev.nitpick.app.domain.SharedReview
 import dev.nitpick.app.ui.components.NitpickBadge
+import dev.nitpick.app.ui.components.SeverityCounters
 import dev.nitpick.app.ui.components.NitpickButton
 import dev.nitpick.app.ui.components.NitpickButtonSize
 import dev.nitpick.app.ui.components.NitpickButtonVariant
@@ -50,6 +51,7 @@ import nitpick.shared.generated.resources.review_clean_body
 import nitpick.shared.generated.resources.review_clean_title
 import nitpick.shared.generated.resources.review_empty
 import nitpick.shared.generated.resources.review_error
+import nitpick.shared.generated.resources.review_invalid_answer
 import nitpick.shared.generated.resources.review_local
 import nitpick.shared.generated.resources.review_changed_files
 import nitpick.shared.generated.resources.review_nits
@@ -133,7 +135,7 @@ fun ReviewPanel(
                             Row(verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(8.dp)) {
                                 NitpickBadge(
                                     stringResource(if (state.openedSharedReview != null) Res.string.shared_badge else Res.string.review_local),
-                                    tone = NitpickTone.Info,
+                                    tone = if (state.openedSharedReview != null) NitpickTone.Info else NitpickTone.Ai,
                                 )
                                 Text(review.summary, style = NitpickTheme.typography.section)
                             }
@@ -142,17 +144,7 @@ fun ReviewPanel(
                                 style = NitpickTheme.typography.small,
                                 color = NitpickTheme.colors.textSecondary,
                             )
-                            Row(horizontalArrangement = Arrangement.spacedBy(6.dp)) {
-                                Severity.entries.forEach { severity ->
-                                    val count = review.comments.count { it.severity == severity }
-                                    if (count > 0) {
-                                        NitpickBadge(
-                                            text = "${severityLabel(severity)} $count",
-                                            tone = severityTone(severity),
-                                        )
-                                    }
-                                }
-                            }
+                            SeverityCounters(review.comments)
                             if (review.toolUses.isNotEmpty()) {
                                 Text(
                                     text = stringResource(
@@ -241,6 +233,13 @@ internal fun ReviewFailureState(
             NitpickTone.Danger,
             stringResource(Res.string.error_timeout_title),
             stringResource(Res.string.error_timeout_body),
+            stringResource(Res.string.review_retry),
+            onRetry,
+        )
+        ReviewFailure.InvalidAnswer -> FailureContent(
+            NitpickTone.Danger,
+            stringResource(Res.string.review_error),
+            stringResource(Res.string.review_invalid_answer),
             stringResource(Res.string.review_retry),
             onRetry,
         )
