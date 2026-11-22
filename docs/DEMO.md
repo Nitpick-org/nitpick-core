@@ -61,6 +61,9 @@ Prepare 10 answers of 2 sentences:
 
 1. What did you really build during the event?
 2. What did you reuse?
+   > Kotlin Multiplatform, Compose, JGit, Koog and Ktor are reused; the review prompt, the
+   > anchoring, the apply loop and the share server are ours. The code was written with Claude
+   > Code and, for #255, Junie Lite through the Junie CLI; every agent diff was reviewed by a human.
 3. Why has nobody done it before?
 4. How does it work, in one sentence?
 5. How much does it cost per user?

@@ -1,0 +1,106 @@
+Junie 26.11.2 (4100.11) (pid=69234): log file: /Users/thomas/.junie/logs/log-2026-11-22_114629-pid-69234.log
+Authenticated successfully
+
+● Opened file
+AGENTS.md
+The AGENTS.md file containing team rules and project guidelines has been opened. This step addresses the initial plan to review the team rules before proceeding with the task.
+
+● Found "shared/src/commonMain/kotlin/dev/nitpick/app/settings/**/*.kt" 
+shared/src/commonMain/kotlin/dev/nitpick/app/settings/ForgeClient.kt
+shared/src/commonMain/kotlin/dev/nitpick/app/settings/LlmModels.kt
+shared/src/commonMain/kotlin/dev/nitpick/app/settings/Settings.kt
+
+● Opened file
+shared/src/commonMain/kotlin/dev/nitpick/app/settings/LlmModels.kt
+The LlmModels.kt file has been opened.
+
+● Opened file
+shared/src/commonMain/kotlin/dev/nitpick/app/settings/Settings.kt
+The Settings.kt file has been opened.
+
+● Found "shared/src/commonTest/kotlin/dev/nitpick/app/settings/**/*.kt" 
+shared/src/commonTest/kotlin/dev/nitpick/app/settings/ForgeClientTest.kt
+shared/src/commonTest/kotlin/dev/nitpick/app/settings/SettingsTest.kt
+
+● Opened file
+shared/src/commonTest/kotlin/dev/nitpick/app/settings/SettingsTest.kt
+The SettingsTest.kt file has been opened.
+
+● Opened file
+shared/src/commonTest/kotlin/dev/nitpick/app/settings/ForgeClientTest.kt
+The ForgeClientTest.kt file has been opened.
+
+● Searched "fallback|resolveModel|selectModel|unknown.*model|model.*unknown" in shared/src/commonMain/kotlin/dev/nitpick/app/settings
+No matches found
+
+● Found "fallback|resolveModel|selectModel|unknown.*model|model.*unknown|knownModel" in shared/src/commonMain/kotlin/dev/nitpick/app
+shared/src/commonMain/kotlin/dev/nitpick/app/review/KoogLlmClient.kt [74—78]
+shared/src/commonMain/kotlin/dev/nitpick/app/review/KoogLlmClient.kt [223—231]
+shared/src/commonMain/kotlin/dev/nitpick/app/review/LocalReviewAgent.kt [11—15]
+shared/src/commonMain/kotlin/dev/nitpick/app/settings/LlmModels.kt [4—8]
+shared/src/commonMain/kotlin/dev/nitpick/app/settings/Settings.kt [31—35]
+...
+8 files more
+
+● Searched "resolveModel|fallbackModel|defaultModel|isValidModel" in shared/src/commonMain/kotlin/dev/nitpick/app
+No matches found
+
+● Edited files
+Updated shared/src/commonMain/kotlin/dev/nitpick/app/settings/LlmModels.kt
+A `resolveModel` function was added to the LlmModels file to handle model selection. This function returns the stored model if it is recognized, otherwise it falls back to the first known model for the provider.
+
+● Edited files
+Created shared/src/commonTest/kotlin/dev/nitpick/app/settings/LlmModelsTest.kt
+The LlmModelsTest.kt file has been created with tests for LLM provider model resolution and fallback behavior.
+
+! Running: ./gradlew :shared:jvmTest --tests 'dev.nitpick.app.settings.*' 2>&1
+● ./gradlew :shared:jvmTest --tests 'dev.nitpick.app.settings.*' 2>&1
+| Calculating task graph as no cached configuration is available for tasks: :shared:jvmTest --tests dev.nitpick.app.settings.*
+| ...
+| 18 actionable tasks: 18 executed
+| Configuration cache entry stored.
+The tests for the `resolveModel` function and related logic in the settings module were executed. All tests passed successfully, resulting in a successful build.
+
+! Running: find shared/build/reports/tests -name "index.html" -path "*jvmTest*" | head -1 | xargs grep -oP '\d+ test' 2>/dev/null || grep -r "tests" shared/build/reports/tests/jvmTest/index.html 2>/dev/null | head -5
+● find shared/build/reports/tests -name "index.html" -path "*jvmTest*" | head -1 | xargs grep -oP '\d+ test' 2>/dev/null || grep -r "tests" shared/build/reports/tests/jvmTest/index.html 2>/dev/null | head -5
+| shared/build/reports/tests/jvmTest/index.html:<p>tests</p>
+The command to extract the test count from the report was executed. The output indicates that the report contains a reference to tests, but a specific numerical count was not successfully retrieved.
+
+● Found "tests|failures|ignored|success" in shared/build/reports/tests/jvmTest
+shared/build/reports/tests/jvmTest/D9uI1WNq5CA/index.html [18—22]
+shared/build/reports/tests/jvmTest/D9uI1WNq5CA/index.html [43—47]
+shared/build/reports/tests/jvmTest/D9uI1WNq5CA/index.html [49—53]
+shared/build/reports/tests/jvmTest/D9uI1WNq5CA/index.html [69—73]
+shared/build/reports/tests/jvmTest/D9uI1WNq5CA/index.html [71—75]
+...
+95 files more
+
+● Opened file
+shared/build/reports/tests/jvmTest/index.html
+The JVM test results report has been opened.
+
+● Found "progress/255-junie-b.md" 
+progress/255-junie-b.md
+
+● Opened file
+progress/255-junie-b.md
+The progress file for ticket 255-junie-b has been opened.
+
+● Edited files
+Updated progress/255-junie-b.md
+The progress file has been updated to mark the ticket as completed, documenting the implementation of `resolveModel()` and the successful execution of 29 tests.
+
+● TASK RESULT
+Added LlmModelsTest.kt and a `resolveModel()` fallback function to validate LLM model selection logic.
+### Changes
+- **LlmModels.kt**: Added `resolveModel(storedModel: String)` extension on `LlmProvider` — returns the stored model if recognized, otherwise falls back to `knownModels.first()`.
+- **LlmModelsTest.kt**: New test class with 5 tests: every provider has ≥1 model, known models pass through unchanged, unknown models fall back to first, empty string falls back, retired model falls back.
+- **progress/255-junie-b.md**: Updated with agent, model, decisions, and test results.
+### Verification
+- `./gradlew :shared:jvmTest --tests 'dev.nitpick.app.settings.*'` — 29 tests total (8 FileSettingsStore + 9 ForgeClient + 5 LlmModels + 7 Settings), 0 failures, 0 skipped, 100% success rate.
+### Notes
+- No new dependencies; logic stays in `commonMain`. The existing `knownModels` extension and `Settings` data class were left unchanged.
+# FILES
+Updated shared/src/commonMain/kotlin/dev/nitpick/app/settings/LlmModels.kt
+Created shared/src/commonTest/kotlin/dev/nitpick/app/settings/LlmModelsTest.kt
+Updated progress/255-junie-b.md

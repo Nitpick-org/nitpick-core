@@ -470,6 +470,10 @@ flowchart LR
   (sharing server).
 - **Agents do real work, humans review it.** Each ticket gets its own git worktree and one
   writing agent. A read-only reviewer agent goes over every diff before a human merges it.
+- **Several agents, one process**: most tickets were driven with Claude Code and its
+  subagents; ticket #255 was driven with Junie Lite through the Junie CLI (no Air on the
+  laptop; transcript in [`docs/demo/junie-255-transcript.txt`](docs/demo/junie-255-transcript.txt)),
+  reviewed and merged the same way: its unrequested `resolveModel()` helper was rejected.
 - **Specialised sub-agents** in [`.claude/agents/`](.claude/agents/): `architect`,
   `implementer`, `reviewer`, `researcher`, `qa-demo`, `devils-advocate`, `pitch`, `scribe`,
   each with a default model; [`/route-task`](.claude/skills/route-task/) picks the cheapest one
