@@ -1,6 +1,6 @@
 # Ticket 170-share-proof
 
-- Statut : en cours
+- Statut : prêt pour PR
 - Propriétaire humain : @pepito2t (H3)
 - Piste : D partage
 - Agent : Claude Code, session humaine
