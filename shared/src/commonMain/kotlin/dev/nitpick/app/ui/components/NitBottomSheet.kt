@@ -14,6 +14,17 @@ import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.height
 import nitpick.shared.generated.resources.review_apply
 import nitpick.shared.generated.resources.review_dismiss
+import androidx.compose.foundation.background
+import androidx.compose.foundation.clickable
+import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.ui.Alignment
+import androidx.compose.ui.draw.clip
+import androidx.compose.ui.graphics.Color
+import nitpick.shared.generated.resources.ic_check
+import nitpick.shared.generated.resources.ic_x
+import org.jetbrains.compose.resources.DrawableResource
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
@@ -24,9 +35,10 @@ import nitpick.shared.generated.resources.review_nit_position
 import org.jetbrains.compose.resources.stringResource
 
 private val SheetActionHeight = 56.dp
+private val SheetIconSize = 24.dp
 
 /**
- * One nit on a phone (UI handoff §4.3): the review card with its check and cross, plus two thumb-sized actions.
+ * One nit on a phone (UI handoff §4.3): the review card, then a thumb-sized cross and check.
  * [onApply] is null for a nit without a suggestion or one that was already applied.
  */
 @Composable
@@ -46,6 +58,7 @@ fun NitSheetContent(
                 style = NitpickTheme.typography.small,
                 color = NitpickTheme.colors.textMuted,
             )
+            // No squares on the phone card: the two big buttons below carry the check and the cross.
             ReviewCommentCard(
                 filePath = comment.filePath,
                 line = comment.startLine,
@@ -53,29 +66,26 @@ fun NitSheetContent(
                 message = comment.message,
                 suggestion = comment.suggestion,
                 original = comment.originalSnippet,
-                onApply = onApply,
-                onDismiss = onDismiss,
-                touch = true,
             )
         }
-        // The same two actions again, thumb-sized and pinned at the bottom: the card's squares are the IDE gesture, these are the reach.
         Row(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.spacedBy(12.dp)) {
-            NitpickButton(
-                text = stringResource(Res.string.review_dismiss),
-                onClick = onDismiss,
-                variant = NitpickButtonVariant.Secondary,
-                size = NitpickButtonSize.Large,
-                modifier = Modifier.weight(1f).height(SheetActionHeight),
-            )
+            val colors = NitpickTheme.colors
+            SheetIconButton(Res.drawable.ic_x, stringResource(Res.string.review_dismiss), colors.dangerSoft, colors.danger, onDismiss, Modifier.weight(1f))
             if (onApply != null) {
-                NitpickButton(
-                    text = stringResource(Res.string.review_apply),
-                    onClick = onApply,
-                    size = NitpickButtonSize.Large,
-                    modifier = Modifier.weight(1f).height(SheetActionHeight),
-                )
+                SheetIconButton(Res.drawable.ic_check, stringResource(Res.string.review_apply), colors.success, colors.onPrimary, onApply, Modifier.weight(1f))
             }
         }
+    }
+}
+
+/** A thumb-sized button that is only an icon; the description is what TalkBack reads. */
+@Composable
+private fun SheetIconButton(icon: DrawableResource, description: String, background: Color, tint: Color, onClick: () -> Unit, modifier: Modifier) {
+    Box(
+        modifier = modifier.height(SheetActionHeight).clip(RoundedCornerShape(NitpickTheme.radii.md)).background(background).clickable(onClick = onClick),
+        contentAlignment = Alignment.Center,
+    ) {
+        NitpickIcon(icon, contentDescription = description, tint = tint, modifier = Modifier.size(SheetIconSize))
     }
 }
 
