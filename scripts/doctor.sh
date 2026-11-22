@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
-# Read-only readiness check for the hackathon base.
-# Run it before the event, then again at H0 and H12.
+# Read-only sanity check for the repository and the toolchain.
+# Run it after a fresh clone, or before trusting a green check.sh.
 #
 # Usage: ./scripts/doctor.sh
 set -uo pipefail
@@ -129,7 +129,7 @@ else
   warn "route-task skill missing"
 fi
 
-for script in scripts/guard-protected.sh scripts/guard-bash.sh scripts/format-edited.sh scripts/stop-check.sh; do
+for script in scripts/guard-protected.sh scripts/guard-bash.sh scripts/stop-check.sh; do
   if [ -x "$script" ]; then
     ok "hook script: $script"
   else
@@ -150,25 +150,23 @@ fi
 
 echo
 echo "── Project docs ───────────────────────────────────────────"
-for doc in docs/PRD.md docs/DEMO.md docs/DECISIONS.md docs/QUESTIONS.md docs/LAUZHACK.md docs/STRATEGY.md docs/AGENT-OPS.md docs/ULTRA.md docs/MODEL-ROUTING.md docs/STACK.md docs/ONBOARDING.md docs/DRY-RUN.md; do
+for doc in docs/CONTEXT.md docs/DEMO.md docs/DECISIONS.md docs/QUESTIONS.md docs/AGENT_LOG.md docs/REVIEW_LOG.md docs/JETBRAINS-CHALLENGE.md docs/DESIGN-SYSTEM.md; do
   [ -f "$doc" ] && ok "$doc" || warn "$doc missing"
 done
 
-if grep -qE '<NOM DU PROJET>|<PRÉNOM|<UNE PHRASE|<DATE>' docs/PRD.md CLAUDE.md 2>/dev/null; then
-  warn "placeholders remain in CLAUDE.md/PRD.md — fill them at H0"
+if grep -qE '<lien>|<preview stable>|<NOM DU PROJET>' docs/DEMO.md 2>/dev/null; then
+  warn "placeholders remain in docs/DEMO.md — fill the video link and the fallback URL"
 else
-  ok "no obvious placeholders in CLAUDE.md/PRD.md"
+  ok "no obvious placeholders in docs/DEMO.md"
 fi
 
 [ -d progress ] && ok "progress/ present" || warn "progress/ missing (agents need a conflict-free log)"
 
 echo
-echo "── CI ─────────────────────────────────────────────────────"
-[ -f .github/workflows/ci.yml ] && ok "CI workflow present" || warn "no CI workflow"
+echo "── Event artefacts ───────────────────────────────────────"
 [ -f .github/ISSUE_TEMPLATE/ticket.md ] && ok "ticket template present" || warn "no ticket template"
-[ -f dry-run/starter/package.json ] && ok "dry-run starter present" || warn "dry-run starter missing"
-[ -f dry-run/REVIEW.md ] && ok "review template present" || warn "review template missing"
 [ -f .github/ISSUE_TEMPLATE/bug.md ] && ok "bug template present" || warn "no bug template"
+[ -d docs/demo ] && ok "demo captures present" || warn "docs/demo missing"
 
 echo
 echo "───────────────────────────────────────────────────────────"

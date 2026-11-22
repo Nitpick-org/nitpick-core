@@ -25,15 +25,16 @@ Quand deux sources se contredisent, applique la plus haute et ajoute l'écart à
 
 ## État (H2, à chaque sync)
 
-- **Phase** : heure 1 terminée ; les contrats du §6 sont à écrire et à faire valider par un
-  humain avant de lancer les pistes A, B et C (`CONTEXT.md` §9).
-- **Fait** : projet du wizard, `check.sh` vert, source set `jvmSharedMain`, JGit lit un log
-  sur desktop et sur Android (émulateur API 36).
-- **Pas encore** : contrats §6, Koog, UI, « Hello » vérifié à l'écran sur les 2 cibles.
-- **Prochaines portes** : 17:00 graph réel affiché sur desktop ; **21:00 boucle review de
-  bout en bout (critique)** ; 09:30 feature freeze ; soumission avant 12:00.
-- **Équipe** : H1 Produit & Pitch, H2 Architecte & Intégration (**Ultra**), H3 Builder &
-  Démo (**Ultra**). Les 3 débutent en Kotlin.
+- **Phase** : fin de projet ; feature freeze passé, il reste l'emballage de soumission.
+- **Livré** : les pièces du tableau *Status* du `README.md` — JGit partagé, contrats de
+  `commonMain`, graphe et diff, review Koog avec nits ancrés, thème et i18n EN/FR — plus le
+  serveur Ktor de partage. `README.md` reste la source de vérité.
+- **Vérifié** : `:shared:jvmTest`, `:server:test` et `:desktopApp:assemble` verts sur `main`
+  (200 tests, 4 ignorés faute de clé provider) ; parcours Android rejoué sur émulateur API 36
+  (`docs/demo/android-*.png`).
+- **Reste ouvert** : vidéo de secours et URL de repli (`docs/DEMO.md`) ; `./scripts/check.sh`
+  complet demande une machine avec le SDK Android.
+- **Équipe** : H1 Produit & Pitch, H2 Architecte & Intégration, H3 Builder & Démo.
 
 ## Avant toute tâche
 

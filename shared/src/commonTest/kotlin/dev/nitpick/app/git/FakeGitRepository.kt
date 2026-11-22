@@ -33,9 +33,9 @@ class FakeGitRepository(
     override suspend fun writeFile(path: String, content: String) { files[path] = content }
     override suspend fun stage(paths: List<String>) { staged += paths }
     override suspend fun commit(message: String) { commitMessages += message }
-    override suspend fun fetch(credentials: Credentials?) = TODO("not faked yet")
-    override suspend fun pull(credentials: Credentials?): PullResult = TODO("not faked yet")
-    override suspend fun push(credentials: Credentials?) = TODO("not faked yet")
+    override suspend fun fetch(credentials: Credentials?) = notFaked("fetch")
+    override suspend fun pull(credentials: Credentials?): PullResult = notFaked("pull")
+    override suspend fun push(credentials: Credentials?) = notFaked("push")
     override suspend fun checkout(branch: String) {
         checkoutError?.let { throw it }
         this.branch = branch
@@ -50,5 +50,8 @@ class FakeGitRepositoryFactory(
         repositories[path] ?: throw IllegalArgumentException("Not a git repository: $path")
 
     override suspend fun clone(url: String, path: String, credentials: Credentials?): GitRepository =
-        TODO("not faked yet")
+        notFaked("clone")
 }
+
+private fun notFaked(operation: String): Nothing =
+    throw UnsupportedOperationException("$operation is not faked by this test double")

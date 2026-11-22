@@ -5,9 +5,7 @@
   },
   "permissions": {
     "allow": [
-      "Bash(pnpm *)",
-      "Bash(npm *)",
-      "Bash(npx *)",
+      "Bash(./gradlew *)",
       "Bash(./scripts/*)",
       "Bash(bash scripts/*)",
       "Bash(git status*)",
@@ -23,15 +21,18 @@
       "Bash(gh issue *)",
       "Bash(gh pr view*)",
       "Bash(gh pr list*)",
-      "Edit(src/**)",
-      "Edit(tests/**)",
+      "Edit(shared/**)",
+      "Edit(desktopApp/**)",
+      "Edit(androidApp/**)",
+      "Edit(server/**)",
       "Edit(docs/**)",
       "Edit(progress/**)",
       "Edit(progress.txt)",
       "Edit(README.md)",
-      "Write(README.md)",
-      "Write(src/**)",
-      "Write(tests/**)",
+      "Write(shared/**)",
+      "Write(desktopApp/**)",
+      "Write(androidApp/**)",
+      "Write(server/**)",
       "Write(docs/**)",
       "Write(progress/**)"
     ],
@@ -74,17 +75,6 @@
           {
             "type": "command",
             "command": "bash scripts/guard-protected.sh"
-          }
-        ]
-      }
-    ],
-    "PostToolUse": [
-      {
-        "matcher": "Write|Edit",
-        "hooks": [
-          {
-            "type": "command",
-            "command": "bash scripts/format-edited.sh"
           }
         ]
       }
