@@ -36,6 +36,7 @@ import dev.nitpick.app.ui.components.NitpickToolbarAction
 import dev.nitpick.app.ui.components.severityLabel
 import dev.nitpick.app.ui.components.severityTone
 import dev.nitpick.app.ui.repository.RepositoryUiState
+import dev.nitpick.app.ui.repository.PushedBanner
 import dev.nitpick.app.ui.repository.ReviewFailureState
 import dev.nitpick.app.ui.repository.ShareReviewAction
 import dev.nitpick.app.ui.repository.branchLabel
@@ -213,7 +214,7 @@ private fun CommitAndPushBar(
     onCommit: () -> Unit,
     onPush: () -> Unit,
 ) {
-    if (state.appliedFiles.isEmpty() && !state.isPushing && !state.hasUnpushedCommits) return
+    if (state.appliedFiles.isEmpty() && !state.isPushing && !state.hasUnpushedCommits && state.lastPushedBranch == null) return
     NitpickDivider()
     Column(Modifier.fillMaxWidth().padding(horizontal = 16.dp, vertical = 8.dp), verticalArrangement = Arrangement.spacedBy(8.dp)) {
         when {
@@ -223,6 +224,7 @@ private fun CommitAndPushBar(
                 PhoneBottomButton(text = stringResource(Res.string.commit_stage), onClick = onCommit, enabled = state.commitMessage.isNotBlank() && !state.isRewritingWorkingTree)
             }
             state.isPushing -> PhoneBottomButton(text = stringResource(Res.string.push_in_progress), onClick = {}, enabled = false)
+            state.lastPushedBranch != null -> PushedBanner(state.lastPushedBranch)
             else -> {
                 if (state.pushError != null) {
                     Text(stringResource(Res.string.push_error) + ": " + state.pushError, style = NitpickTheme.typography.small, color = NitpickTheme.colors.danger)

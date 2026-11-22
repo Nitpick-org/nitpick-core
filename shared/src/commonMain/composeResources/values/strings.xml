@@ -123,6 +123,7 @@
     <string name="push_action">Push</string>
     <string name="push_in_progress">Pushing…</string>
     <string name="push_error">Push failed</string>
+    <string name="push_done">Pushed to origin/%1$s</string>
     <string name="branch_checkout_hint">Tap a branch to check it out</string>
     <string name="repository_loading">Loading…</string>
     <string name="connect_title">Connect your git account</string>

@@ -7,6 +7,7 @@ import nitpick.shared.generated.resources.pull_conflict
 import nitpick.shared.generated.resources.pull_error
 import nitpick.shared.generated.resources.pull_up_to_date
 import nitpick.shared.generated.resources.pull_updated
+import nitpick.shared.generated.resources.push_done
 import nitpick.shared.generated.resources.push_error
 import org.jetbrains.compose.resources.stringResource
 
@@ -17,6 +18,7 @@ internal fun syncStatusMessage(state: RepositoryUiState): String? = when {
     state.pullError != null -> stringResource(Res.string.pull_error) + ": " + state.pullError
     state.pushError != null -> stringResource(Res.string.push_error) + ": " + state.pushError
     state.checkoutError != null -> state.checkoutError
+    state.lastPushedBranch != null -> stringResource(Res.string.push_done, state.lastPushedBranch)
     state.lastPull == null -> null
     state.lastPull.conflictedPaths.isNotEmpty() -> stringResource(Res.string.pull_conflict, state.lastPull.conflictedPaths.joinToString(", "))
     state.lastPull.updated -> stringResource(Res.string.pull_updated)

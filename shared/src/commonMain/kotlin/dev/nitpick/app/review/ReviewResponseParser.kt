@@ -25,6 +25,7 @@ private data class CommentResponse(
     val message: String,
     val originalSnippet: String = "",
     val suggestion: String? = null,
+    val title: String = "",
 )
 
 private val lenientJson = Json { ignoreUnknownKeys = true; isLenient = true; coerceInputValues = true }
@@ -55,6 +56,7 @@ fun parseReviewResponse(text: String): ReviewResult {
                 message = comment.message,
                 originalSnippet = comment.originalSnippet,
                 suggestion = comment.suggestion?.takeIf { it.isNotBlank() },
+                title = comment.title.trim(),
             )
         },
     )

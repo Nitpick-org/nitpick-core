@@ -165,6 +165,7 @@ fun ReviewPanel(
                         enabled = !state.isRewritingWorkingTree,
                     )
                 }
+                state.lastPushedBranch?.let { PushedBanner(it, Modifier.padding(12.dp)) }
             }
         }
     }

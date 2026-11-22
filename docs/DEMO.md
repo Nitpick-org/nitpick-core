@@ -88,7 +88,9 @@ Préparer 10 réponses de 2 phrases :
   `android-02-clone-form` → `android-03-branch-checkout` → `android-04-review-two-bugs` (les
   2 bugs trouvés) → `android-05-nit-suggestion` (bottom sheet, suggestion) →
   `android-06-suggestions-applied` → `android-07-push-after-commit` → `android-08-pushed-graph`
-  (↑0 ↓0). Commit `cb55041` « Apply review suggestions » visible sur GitHub.
+  (↑0 ↓0). Commit `cb55041` « Apply review suggestions » visible sur GitHub. Second passage
+  (01:00) : `android-09-commit-message` (sujet proposé depuis les nits appliqués) et
+  `android-10-pushed-banner` (confirmation animée après le push), commit `f91a419`.
 - **Données de démo** : repo `pocket-ledger` (CLI Kotlin + SQLite), `main` propre ; la
   branche à relire est `feature/search-pages-import`, écrite par un agent (Junie via Air,
   sinon Claude Code, voir `docs/AGENT_LOG.md`) depuis

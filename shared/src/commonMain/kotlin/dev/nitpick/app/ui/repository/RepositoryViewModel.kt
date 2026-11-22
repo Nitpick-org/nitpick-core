@@ -102,6 +102,8 @@ data class RepositoryUiState(
     val isPulling: Boolean = false,
     val pullError: String? = null,
     val lastPull: PullResult? = null,
+    // The branch the last push sent, until the next commit or sync; drives the « Pushed » feedback.
+    val lastPushedBranch: String? = null,
     val isSharing: Boolean = false,
     // Set once the review on screen is on the server: shared from here, or opened from the list.
     val sharedReviewId: String? = null,
@@ -297,10 +299,13 @@ class RepositoryViewModel(
                     git.writeFile(comment.filePath, ReviewAnchoring.apply(content, comment))
                     if (repository !== git) return@withLock
                     _state.update {
+                        val appliedBefore = it.review?.comments.orEmpty().filter { nit -> nit.id in it.appliedIds }
+                        // The user's own message stays; the proposed one follows what is applied.
+                        val untouched = it.commitMessage.isBlank() || it.commitMessage == commitMessageFor(appliedBefore)
                         it.copy(
                             appliedIds = it.appliedIds + comment.id,
                             appliedFiles = it.appliedFiles + comment.filePath,
-                            commitMessage = it.commitMessage.ifBlank { "Apply review suggestions" },
+                            commitMessage = if (untouched) commitMessageFor(appliedBefore + comment) else it.commitMessage,
                         )
                     }
                 }
@@ -358,6 +363,7 @@ class RepositoryViewModel(
                             appliedFiles = emptySet(),
                             commitMessage = "",
                             lastPull = null,
+                            lastPushedBranch = null,
                         )
                     }
                 }
@@ -483,6 +489,7 @@ class RepositoryViewModel(
                         refs = git.refs(),
                         tracking = git.trackingStatus(),
                         lastPull = null,
+                        lastPushedBranch = null,
                     )
                 }
             } catch (e: CancellationException) {
@@ -497,7 +504,7 @@ class RepositoryViewModel(
     fun publishBranch(credentials: Credentials?) {
         val git = repository ?: return
         if (_state.value.isSyncing) return
-        _state.update { it.copy(isPushing = true, pushError = null) }
+        _state.update { it.copy(isPushing = true, pushError = null, lastPushedBranch = null) }
         viewModelScope.launch {
             try {
                 git.publishBranch(credentials)
@@ -508,6 +515,7 @@ class RepositoryViewModel(
                         refs = git.refs(),
                         tracking = git.trackingStatus(),
                         lastPull = null,
+                        lastPushedBranch = it.currentBranch,
                     )
                 }
             } catch (e: CancellationException) {
@@ -522,12 +530,12 @@ class RepositoryViewModel(
     fun pushBranch(credentials: Credentials?) {
         val git = repository ?: return
         if (_state.value.isSyncing) return
-        _state.update { it.copy(isPushing = true, pushError = null) }
+        _state.update { it.copy(isPushing = true, pushError = null, lastPushedBranch = null) }
         viewModelScope.launch {
             try {
                 git.push(credentials)
                 if (repository !== git) return@launch
-                _state.update { it.copy(isPushing = false, refs = git.refs(), tracking = git.trackingStatus(), lastPull = null) }
+                _state.update { it.copy(isPushing = false, refs = git.refs(), tracking = git.trackingStatus(), lastPull = null, lastPushedBranch = it.currentBranch) }
             } catch (e: CancellationException) {
                 throw e
             } catch (e: Exception) {
@@ -541,7 +549,7 @@ class RepositoryViewModel(
         val git = repository ?: return
         // Applied but uncommitted suggestions would be merged over; commit them first.
         if (_state.value.isSyncing || _state.value.isReviewing || _state.value.appliedFiles.isNotEmpty()) return
-        _state.update { it.copy(isPulling = true, pullError = null, fetchError = null, pushError = null, lastPull = null) }
+        _state.update { it.copy(isPulling = true, pullError = null, fetchError = null, pushError = null, lastPull = null, lastPushedBranch = null) }
         viewModelScope.launch {
             try {
                 val result = git.pull(credentials)
@@ -554,6 +562,7 @@ class RepositoryViewModel(
                         it.copy(
                             isPulling = false,
                             lastPull = result,
+                            lastPushedBranch = null,
                             graph = graph,
                             refs = git.refs(),
                             tracking = git.trackingStatus(),
@@ -568,7 +577,7 @@ class RepositoryViewModel(
                             commitMessage = "",
                         )
                     } else {
-                        it.copy(isPulling = false, lastPull = result, refs = git.refs(), tracking = git.trackingStatus())
+                        it.copy(isPulling = false, lastPull = result, lastPushedBranch = null, refs = git.refs(), tracking = git.trackingStatus())
                     }
                 }
                 if (result.updated) refreshDiff()
@@ -615,6 +624,7 @@ class RepositoryViewModel(
                     pushError = null,
                     pullError = null,
                     lastPull = null,
+                        lastPushedBranch = null,
                 )
             }
             refreshDiff()
