@@ -11,15 +11,14 @@ import dev.nitpick.app.settings.Settings
 import dev.nitpick.app.settings.SettingsStore
 import dev.nitpick.app.settings.knownModels
 import kotlinx.coroutines.runBlocking
-import java.net.InetSocketAddress
-import java.net.Socket
+import org.junit.Assume.assumeTrue
 import kotlin.test.Test
 import kotlin.test.assertTrue
 
 /**
  * Acceptance proof of #20 and #82: one real review per provider. Opt-in, so check.sh never
- * spends money: each test skips unless APP_<PROVIDER>_API_KEY is set (the app keys, never
- * ANTHROPIC_API_KEY), or, for Ollama, unless localhost:11434 answers.
+ * spends money: each test is skipped unless APP_<PROVIDER>_API_KEY is set (the app keys,
+ * never ANTHROPIC_API_KEY), or, for Ollama, unless APP_OLLAMA_MODEL is set.
  * APP_<PROVIDER>_MODEL overrides the first known model. Keys are never printed.
  */
 class RealReviewCallTest {
@@ -47,12 +46,10 @@ class RealReviewCallTest {
 
     private fun reviewWith(provider: LlmProvider) = runBlocking {
         val apiKey = System.getenv("APP_${provider.name}_API_KEY").orEmpty()
-        val available = if (provider == LlmProvider.OLLAMA) ollamaIsUp() else apiKey.isNotBlank()
-        if (!available) {
-            val missing = if (provider == LlmProvider.OLLAMA) "localhost:11434 is not reachable" else "APP_${provider.name}_API_KEY is not set"
-            println("RealReviewCallTest.${provider.name} skipped: $missing")
-            return@runBlocking
-        }
+        // Ollama has no key: an explicit model is its opt-in, so a running local server never
+        // turns check.sh into a slow real call.
+        val optIn = if (provider == LlmProvider.OLLAMA) "APP_OLLAMA_MODEL" else "APP_${provider.name}_API_KEY"
+        assumeTrue("$optIn is not set", !System.getenv(optIn).isNullOrBlank())
         val model = System.getenv("APP_${provider.name}_MODEL") ?: provider.knownModels.first()
         val store = object : SettingsStore {
             override suspend fun load() = Settings(provider = provider, model = model, apiKey = apiKey)
@@ -68,12 +65,5 @@ class RealReviewCallTest {
         result.comments.forEach { println("${it.severity} ${it.filePath}:${it.startLine}-${it.endLine} ${it.message}") }
         println("tools used: ${result.toolUses.size}")
         assertTrue(result.comments.any { !it.isFileLevel }, "expected at least one nit anchored on a line from ${provider.name}")
-    }
-
-    private fun ollamaIsUp(): Boolean = try {
-        Socket().use { it.connect(InetSocketAddress("localhost", 11434), 500) }
-        true
-    } catch (e: java.io.IOException) {
-        false
     }
 }

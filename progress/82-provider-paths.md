@@ -16,15 +16,15 @@
 
 ## Décisions
 
-- Skip = `println` + retour, comme le test Anthropic existant : pas de JUnit `Assume`
-  (le test vit dans `jvmTest` avec `kotlin.test`).
-- Ollama est détecté par une connexion TCP de 500 ms sur `localhost:11434`.
+- Skip = JUnit `assumeTrue` : le rapport compte `skipped`, pas un faux test vert.
+- Ollama est opt-in par `APP_OLLAMA_MODEL` : un serveur local lancé pour autre chose ne
+  doit pas transformer check.sh en vraie review lente.
 - Pas de nouveau code de repli : `KoogLlmClient` en a déjà un (outils → sans outils).
 
 ## Vérifications
 
-- `:shared:jvmTest` ciblé : KoogLlmClientTest 2 tests, RealReviewCallTest 4 tests, 0 échec ;
-  les 4 providers affichent `skipped` (aucune clé, pas d'Ollama sur cette machine).
+- `:shared:jvmTest` ciblé : KoogLlmClientTest 2 tests, 0 échec ; RealReviewCallTest 4 tests,
+  **4 skipped** dans le rapport JUnit (aucune clé ni `APP_OLLAMA_MODEL` sur cette machine).
 
 ## Incertain
 
