@@ -20,7 +20,7 @@ Source: six audit lanes on `origin/main` @ `54c37a2`, plus #133/#135 merged afte
 - "Keyboard shortcuts" — none; the `⌘⇧R` hint is in the internal catalogue (P2 #171).
 - "Share proven end-to-end" — pass: #170 / PR #184 has desktop shared, phone opened, phone applied captures. Show `docs/demo/share-*.png`.
 - "Built with Air / Junie" — no capture; the comparison is Claude Code/subagents (until #169).
-- "No security issue" — no live secret, but the LAN server is unauthenticated (#167) and there is no LICENSE (#162).
+- "No security issue" — no live secret; the server now binds localhost (#167) and LICENSE/THIRD-PARTY-NOTICES are in (#180). The repo is still **private** (#162); do not claim it is public yet.
 - "All four providers tested" — only Anthropic has a real recorded call (#82).
 - "99 % multiplatform common" — 99 % is shared+JGit; commonMain is 93.2 %.
 
@@ -32,6 +32,13 @@ Source: six audit lanes on `origin/main` @ `54c37a2`, plus #133/#135 merged afte
 - #143 sheet insets (closed as not reproducible since #135).
 - #144 44 dp top-bar actions (PR #176).
 - #170 share desktop → Android proof (PR #184).
+- #137/#138 applied-suggestion guards (PR #181).
+- #139 suggestion indentation (PR #188).
+- #148 tool-loop final answer (PR #190).
+- #156 re-anchor the other nits after Apply (PR #191).
+- #157 unreadable tracked file (PR #192).
+- #159 anchor/line-number contrast (PR #193).
+- #167 localhost server + ui-tooling out of release (PR #185).
 
 ## Demo risks
 
