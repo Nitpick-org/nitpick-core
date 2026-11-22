@@ -14,6 +14,7 @@ import dev.nitpick.app.git.GitRepositoryFactory
 import dev.nitpick.app.review.MissingApiKeyException
 import dev.nitpick.app.review.ReviewAgent
 import dev.nitpick.app.review.ReviewProviderException
+import dev.nitpick.app.review.ReviewResponseException
 import dev.nitpick.app.settings.LlmProvider
 import dev.nitpick.app.domain.ReviewComment
 import dev.nitpick.app.domain.ReviewResult
@@ -387,6 +388,12 @@ class RepositoryViewModelTest {
     fun aTimeoutIsKeptDistinctFromANetworkFailure() = runReviewFailure(
         ReviewProviderException("request failed", IllegalStateException("request timed out")),
         ReviewFailure.Timeout,
+    )
+
+    @Test
+    fun anInvalidModelAnswerIsShownAsItsOwnFailureNotRawText() = runReviewFailure(
+        ReviewResponseException("The model answer is not a valid review: Unexpected JSON token at offset 12"),
+        ReviewFailure.InvalidAnswer,
     )
 
     private fun runReviewFailure(error: Exception, expected: ReviewFailure) {

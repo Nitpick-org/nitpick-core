@@ -40,6 +40,7 @@ import androidx.compose.ui.unit.dp
 import dev.nitpick.app.domain.ReviewComment
 import dev.nitpick.app.ui.components.NitBottomSheet
 import dev.nitpick.app.ui.components.NitpickBadge
+import dev.nitpick.app.ui.components.SeverityCounters
 import dev.nitpick.app.ui.components.NitpickCard
 import dev.nitpick.app.ui.components.NitpickDivider
 import dev.nitpick.app.ui.components.NitpickEmptyState
@@ -195,7 +196,7 @@ private fun NitList(
                 Row(verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(8.dp)) {
                     NitpickBadge(
                         stringResource(if (state.openedSharedReview != null) Res.string.shared_badge else Res.string.review_local),
-                        tone = NitpickTone.Info,
+                        tone = if (state.openedSharedReview != null) NitpickTone.Info else NitpickTone.Ai,
                     )
                     Text(summary, style = NitpickTheme.typography.body, modifier = Modifier.weight(1f))
                 }
@@ -204,6 +205,7 @@ private fun NitList(
                     style = NitpickTheme.typography.small,
                     color = NitpickTheme.colors.textSecondary,
                 )
+                SeverityCounters(comments)
                 ShareReviewAction(state, onShare, touch = true)
             }
         }

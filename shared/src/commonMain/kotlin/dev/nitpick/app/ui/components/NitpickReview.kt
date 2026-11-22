@@ -31,6 +31,7 @@ import dev.nitpick.app.domain.DiffLine
 import dev.nitpick.app.domain.DiffLineType
 import dev.nitpick.app.domain.Ref
 import dev.nitpick.app.domain.RefType
+import dev.nitpick.app.domain.ReviewComment
 import dev.nitpick.app.domain.Severity
 import dev.nitpick.app.ui.theme.NitpickTheme
 import nitpick.shared.generated.resources.Res
@@ -217,6 +218,18 @@ fun RefBadge(ref: Ref, modifier: Modifier = Modifier) {
         RefType.TAG -> "tag"
     }
     NitpickBadge(text = "$prefix · ${ref.name}", tone = tone, modifier = modifier)
+}
+
+/** One badge per severity present, bugs first: « BUG 1 · WARNING 2 » (UI handoff §3.4.1). */
+@Composable
+fun SeverityCounters(comments: List<ReviewComment>, modifier: Modifier = Modifier) {
+    val counts = Severity.entries.sortedDescending().mapNotNull { severity ->
+        comments.count { it.severity == severity }.takeIf { it > 0 }?.let { severity to it }
+    }
+    if (counts.isEmpty()) return
+    Row(modifier, horizontalArrangement = Arrangement.spacedBy(6.dp)) {
+        counts.forEach { (severity, count) -> NitpickBadge(text = "${severityLabel(severity)} $count", tone = severityTone(severity)) }
+    }
 }
 
 internal fun severityTone(severity: Severity): NitpickTone = when (severity) {

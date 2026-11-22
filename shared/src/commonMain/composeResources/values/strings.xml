@@ -46,6 +46,7 @@
     <string name="review_running">Reviewing…</string>
     <string name="review_empty">Run a review to see nits on this branch</string>
     <string name="review_error">Review failed</string>
+    <string name="review_invalid_answer">The model did not answer with a valid review. Try again.</string>
     <string name="review_retry">Retry</string>
     <string name="review_applied">Applied</string>
     <string name="review_apply">Apply suggestion</string>

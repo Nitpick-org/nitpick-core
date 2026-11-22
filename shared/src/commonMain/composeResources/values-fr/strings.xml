@@ -46,6 +46,7 @@
     <string name="review_running">Analyse…</string>
     <string name="review_empty">Lancez une review pour voir les nits de cette branche</string>
     <string name="review_error">La review a échoué</string>
+    <string name="review_invalid_answer">Le modèle n'a pas répondu par une review valide. Réessayez.</string>
     <string name="review_retry">Réessayer</string>
     <string name="review_applied">Appliqué</string>
     <string name="review_apply">Appliquer</string>
