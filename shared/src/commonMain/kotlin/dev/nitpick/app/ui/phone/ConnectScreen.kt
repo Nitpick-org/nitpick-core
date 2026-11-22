@@ -8,7 +8,9 @@ import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.heightIn
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.wrapContentHeight
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material3.Text
 import dev.nitpick.app.ui.components.NitpickIcon
@@ -176,7 +178,7 @@ fun ConnectScreen(
                         text = stringResource(if (showToken) Res.string.connect_token_hide else Res.string.connect_token_show),
                         style = NitpickTheme.typography.label,
                         color = NitpickTheme.colors.primary,
-                        modifier = Modifier.clickable { showToken = !showToken }.padding(4.dp),
+                        modifier = Modifier.clickable { showToken = !showToken }.heightIn(min = PhoneTouchTarget).wrapContentHeight().padding(horizontal = 4.dp),
                     )
                 },
             )

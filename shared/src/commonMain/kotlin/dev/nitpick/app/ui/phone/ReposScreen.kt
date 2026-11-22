@@ -52,6 +52,7 @@ fun ReposScreen(
             NitpickToolbarAction(
                 text = accountLogin.ifBlank { stringResource(Res.string.connect_edit) },
                 onClick = onEditConnection,
+                modifier = Modifier.heightIn(min = PhoneTouchTarget),
                 leading = accountIcon?.let { { NitpickIcon(it, contentDescription = null, tint = NitpickTheme.colors.onToolbar) } },
             )
             SettingsAction(onOpenSettings)

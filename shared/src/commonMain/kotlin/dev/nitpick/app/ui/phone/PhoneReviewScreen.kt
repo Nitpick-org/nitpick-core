@@ -106,7 +106,7 @@ fun PhoneReviewScreen(
             onBack = onBack,
         ) {
             if (review != null && !state.isReviewing) {
-                NitpickToolbarAction(text = stringResource(Res.string.review_rerun), onClick = onRunReview)
+                NitpickToolbarAction(text = stringResource(Res.string.review_rerun), onClick = onRunReview, modifier = Modifier.heightIn(min = PhoneTouchTarget))
             }
         }
         Box(Modifier.weight(1f)) {

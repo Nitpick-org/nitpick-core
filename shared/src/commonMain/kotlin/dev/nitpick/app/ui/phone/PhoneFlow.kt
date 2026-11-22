@@ -3,6 +3,7 @@ package dev.nitpick.app.ui.phone
 import androidx.compose.foundation.layout.RowScope
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.heightIn
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.Text
 import androidx.compose.foundation.clickable
@@ -203,6 +204,9 @@ fun PhoneFlow(
     }
 }
 
+/** Minimum touch target of a tappable text on the phone (UI handoff §0.5: 44 dp). */
+internal val PhoneTouchTarget = 44.dp
+
 @Composable
 internal fun PhoneTopBar(
     title: String,
@@ -212,7 +216,7 @@ internal fun PhoneTopBar(
 ) {
     NitpickToolbar {
         if (onBack != null) {
-            NitpickToolbarAction(text = "‹ " + stringResource(Res.string.action_back), onClick = onBack)
+            NitpickToolbarAction(text = "‹ " + stringResource(Res.string.action_back), onClick = onBack, modifier = Modifier.heightIn(min = PhoneTouchTarget))
         }
         Column(Modifier.weight(1f).padding(horizontal = 4.dp)) {
             Text(
