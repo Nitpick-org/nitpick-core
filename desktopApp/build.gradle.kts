@@ -35,6 +35,10 @@ compose.desktop {
 
         nativeDistributions {
             targetFormats(TargetFormat.Dmg, TargetFormat.Msi, TargetFormat.Deb)
+            // The jlink runtime of the bundle ships java.base only by default: JGit then dies
+            // on the first pack file (javax.management, #245). Everything is cheaper than a
+            // second surprise on stage.
+            includeAllModules = true
             // The Dock and the app switcher show this name; the bundle id stays reverse-DNS.
             packageName = "Nitpick"
             packageVersion = "1.0.0"
