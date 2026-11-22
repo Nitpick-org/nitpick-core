@@ -1,6 +1,6 @@
 # Ticket 122 — Phone UI/UX pass
 
-- Statut : en cours (vérification émulateur)
+- Statut : fait, à merger
 - Propriétaire humain : @pepito2t (H3)
 - Piste : C android + finitions
 - Agent : Claude Code (Fable 5.1), session humaine
@@ -24,6 +24,10 @@
 - Graph : la ligne de statut sync a un séparateur et de l'air, elle ne colle plus à la liste.
 - Carte repo : le chemin interne `/data/user/0/…` est retiré, nom + chevron.
 - Résumé de review en `body` au lieu de `section` (4 lignes grasses pesaient).
+- Sensation : glissement entre écrans (220 ms, avant/arrière comme une pile native), « À jour »
+  en vert à la place de « ↑0 ↓0 », retour haptique à l'Apply, écran « Clean branch » avec un
+  check qui pop quand la review ne trouve rien, et la même carte de chargement que le desktop
+  (badge AI, « Reviewing… », pince animée, phrases).
 
 ## Non fait
 
@@ -35,9 +39,12 @@
 ## Preuves
 
 - `check.sh` vert (UI seulement, pas de test ajouté : pas d'infra de test Compose).
-- Émulateur : captures `u0*` du scratchpad (voir journal).
+- Émulateur : Repos, Connect, Graph (dates compactes, « À jour »), Review (titre + sous-titre), sheet
+  pleine hauteur avec actions épinglées, transition capturée à mi-course ; commit `93089d1` poussé
+  depuis le téléphone. Non vu : l'écran « Clean branch » (le modèle a toujours trouvé un nit).
 
 ## Journal
 
 - 01:20 — ticket, worktree, relecture des écrans et du handoff §4.
 - 01:40 — changements, check vert.
+- 01:30 — captures émulateur, sheet pleine hauteur, transitions, loader desktop réutilisé.

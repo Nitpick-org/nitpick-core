@@ -43,7 +43,6 @@ import dev.nitpick.app.domain.ReviewComment
 import dev.nitpick.app.ui.components.NitBottomSheet
 import dev.nitpick.app.ui.components.NitpickBadge
 import dev.nitpick.app.ui.components.NitpickCard
-import dev.nitpick.app.ui.components.NitpickReviewLoader
 import dev.nitpick.app.ui.components.NitpickDivider
 import dev.nitpick.app.ui.components.NitpickEmptyState
 import dev.nitpick.app.ui.components.NitpickTextField
@@ -53,6 +52,7 @@ import dev.nitpick.app.ui.components.severityTone
 import dev.nitpick.app.ui.repository.RepositoryUiState
 import dev.nitpick.app.ui.repository.PushedBanner
 import dev.nitpick.app.ui.repository.ReviewFailureState
+import dev.nitpick.app.ui.repository.ReviewProgress
 import dev.nitpick.app.ui.repository.ShareReviewAction
 import dev.nitpick.app.ui.repository.branchLabel
 import dev.nitpick.app.ui.theme.NitpickTheme
@@ -115,9 +115,7 @@ fun PhoneReviewScreen(
         Box(Modifier.weight(1f)) {
             when {
                 // Opening a shared review may check its branch out first.
-                state.isReviewing || state.isCheckingOut -> Box(Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
-                    NitpickReviewLoader(symbolSize = 72.dp)
-                }
+                state.isReviewing || state.isCheckingOut -> ReviewProgress()
                 state.reviewError != null -> ReviewFailureState(
                     failure = state.reviewError,
                     onRetry = onRunReview,

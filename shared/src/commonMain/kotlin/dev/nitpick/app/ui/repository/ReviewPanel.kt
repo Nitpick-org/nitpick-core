@@ -171,8 +171,9 @@ fun ReviewPanel(
     }
 }
 
+/** The AI badge, « Reviewing… » and the tweezers loader: the same card on desktop and phone. */
 @Composable
-private fun ReviewProgress() {
+internal fun ReviewProgress() {
     Column(Modifier.fillMaxSize().padding(16.dp), verticalArrangement = Arrangement.spacedBy(12.dp)) {
         NitpickCard(verticalArrangement = Arrangement.spacedBy(10.dp)) {
             Row(verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(8.dp)) {
