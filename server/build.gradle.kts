@@ -5,7 +5,9 @@ plugins {
 }
 
 dependencies {
-    // Only the @Serializable domain models are used: the server never touches Compose, JGit or a LLM.
+    // Only the @Serializable domain classes are used, but project(":shared") still pulls
+    // Compose, JGit and Koog transitively; a narrow :domain module is post-freeze. Do not
+    // claim a slim server in the pitch until that module exists.
     implementation(project(":shared"))
     // Same BOM as the Koog client in :shared, so one Ktor version sits on the classpath.
     implementation(platform(libs.ktor.bom))
