@@ -574,12 +574,14 @@ class RepositoryViewModel(
         viewModelScope.launch {
             try {
                 git.fetch(credentials)
+                val refs = git.refs()
+                val tracking = git.trackingStatus()
                 if (repository !== git) return@launch
                 _state.update {
                     it.copy(
                         isFetching = false,
-                        refs = git.refs(),
-                        tracking = git.trackingStatus(),
+                        refs = refs,
+                        tracking = tracking,
                         lastPull = null,
                         lastPushedBranch = null,
                     )
@@ -600,12 +602,14 @@ class RepositoryViewModel(
         viewModelScope.launch {
             try {
                 git.publishBranch(credentials)
+                val refs = git.refs()
+                val tracking = git.trackingStatus()
                 if (repository !== git) return@launch
                 _state.update {
                     it.copy(
                         isPushing = false,
-                        refs = git.refs(),
-                        tracking = git.trackingStatus(),
+                        refs = refs,
+                        tracking = tracking,
                         lastPull = null,
                         lastPushedBranch = it.currentBranch,
                     )
@@ -626,8 +630,10 @@ class RepositoryViewModel(
         viewModelScope.launch {
             try {
                 git.push(credentials)
+                val refs = git.refs()
+                val tracking = git.trackingStatus()
                 if (repository !== git) return@launch
-                _state.update { it.copy(isPushing = false, refs = git.refs(), tracking = git.trackingStatus(), lastPull = null, lastPushedBranch = it.currentBranch) }
+                _state.update { it.copy(isPushing = false, refs = refs, tracking = tracking, lastPull = null, lastPushedBranch = it.currentBranch) }
             } catch (e: CancellationException) {
                 throw e
             } catch (e: Exception) {
@@ -647,6 +653,8 @@ class RepositoryViewModel(
                 val result = git.pull(credentials)
                 val commits = git.log()
                 val graph = withContext(graphDispatcher) { buildCommitGraph(commits) }
+                val refs = git.refs()
+                val tracking = git.trackingStatus()
                 if (repository !== git) return@launch
                 _state.update {
                     if (result.updated) {
@@ -656,8 +664,8 @@ class RepositoryViewModel(
                             lastPull = result,
                             lastPushedBranch = null,
                             graph = graph,
-                            refs = git.refs(),
-                            tracking = git.trackingStatus(),
+                            refs = refs,
+                            tracking = tracking,
                             selectedCommitId = graph.firstOrNull()?.commit?.id,
                             review = null,
                             reviewError = null,
@@ -669,7 +677,7 @@ class RepositoryViewModel(
                             commitMessage = "",
                         )
                     } else {
-                        it.copy(isPulling = false, lastPull = result, lastPushedBranch = null, refs = git.refs(), tracking = git.trackingStatus())
+                        it.copy(isPulling = false, lastPull = result, lastPushedBranch = null, refs = refs, tracking = tracking)
                     }
                 }
                 if (result.updated) refreshDiff()
@@ -697,14 +705,17 @@ class RepositoryViewModel(
             git.checkout(branch)
             val commits = git.log()
             val graph = withContext(graphDispatcher) { buildCommitGraph(commits) }
+            val currentBranch = git.currentBranch()
+            val refs = git.refs()
+            val tracking = git.trackingStatus()
             if (repository !== git) return false
             _state.update {
                 it.copy(
                     isCheckingOut = false,
-                    currentBranch = git.currentBranch(),
+                    currentBranch = currentBranch,
                     graph = graph,
-                    refs = git.refs(),
-                    tracking = git.trackingStatus(),
+                    refs = refs,
+                    tracking = tracking,
                     selectedCommitId = graph.firstOrNull()?.commit?.id,
                     review = null,
                     reviewError = null,

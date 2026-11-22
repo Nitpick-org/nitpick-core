@@ -12,7 +12,9 @@ import java.nio.file.StandardCopyOption
 
 class FileSettingsStore(private val file: File) : SettingsStore {
 
-    private val json = Json { ignoreUnknownKeys = true; prettyPrint = true }
+    // coerceInputValues: an unknown enum value (older build, hand edit) falls back alone instead of
+    // failing the whole file, which would come back as defaults and be saved over the key and token.
+    private val json = Json { ignoreUnknownKeys = true; coerceInputValues = true; prettyPrint = true }
 
     // One thread, so saves fired by fast typing land on disk in order and never interleave.
     private val io = Dispatchers.IO.limitedParallelism(1)
@@ -23,6 +25,8 @@ class FileSettingsStore(private val file: File) : SettingsStore {
             val settings = json.decodeFromString(Settings.serializer(), file.readText())
             if (settings.model.isEmpty()) settings.copy(model = settings.provider.knownModels.first()) else settings
         } catch (e: SerializationException) {
+            // Keep the unreadable file: the next save must not erase a key nobody can read back.
+            runCatching { Files.move(file.toPath(), File(file.path + ".bak").toPath(), StandardCopyOption.REPLACE_EXISTING) }
             Settings()
         } catch (e: IOException) {
             Settings()
@@ -32,9 +36,12 @@ class FileSettingsStore(private val file: File) : SettingsStore {
     override suspend fun save(settings: Settings) = withContext(io) {
         file.parentFile?.mkdirs()
         val tmp = File(file.path + ".tmp")
-        tmp.writeText(json.encodeToString(Settings.serializer(), settings))
+        // Owner-only before any byte of the key is written, not after.
+        tmp.delete()
+        tmp.createNewFile()
         tmp.setReadable(false, false)
         tmp.setReadable(true, true)
+        tmp.writeText(json.encodeToString(Settings.serializer(), settings))
         try {
             Files.move(tmp.toPath(), file.toPath(), StandardCopyOption.REPLACE_EXISTING, StandardCopyOption.ATOMIC_MOVE)
         } catch (e: AtomicMoveNotSupportedException) {

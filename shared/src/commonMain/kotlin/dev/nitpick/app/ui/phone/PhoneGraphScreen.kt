@@ -189,7 +189,7 @@ private fun BranchCard(
                 motion = SyncMotion.Down,
                 active = state.isPulling,
                 onClick = onPull,
-                enabled = enabled && !state.isPullBlocked,
+                enabled = enabled && !state.isPullBlocked && state.tracking != null,
                 modifier = Modifier.weight(1f),
             )
             if (state.tracking != null || state.hasOrigin) {

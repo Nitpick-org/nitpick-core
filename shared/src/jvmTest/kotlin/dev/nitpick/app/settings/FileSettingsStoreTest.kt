@@ -51,9 +51,22 @@ class FileSettingsStoreTest {
     }
 
     @Test
-    fun corruptFileGivesDefaults() = runBlocking {
+    fun corruptFileGivesDefaultsAndIsKeptAsABackup() = runBlocking {
         val file = tempFile().apply { writeText("{ not json") }
         assertEquals(Settings(), FileSettingsStore(file).load())
+        assertFalse(file.exists())
+        assertEquals("{ not json", File(file.path + ".bak").readText())
+    }
+
+    @Test
+    fun anUnknownEnumValueFallsBackAloneAndKeepsTheKey() = runBlocking {
+        val file = tempFile().apply { writeText("""{"provider": "FUTURE_PROVIDER", "apiKey": "secret", "themeMode": "DARK"}""") }
+
+        val loaded = FileSettingsStore(file).load()
+
+        assertEquals("secret", loaded.apiKey)
+        assertEquals(ThemeMode.DARK, loaded.themeMode)
+        assertEquals(Settings().provider, loaded.provider)
     }
 
     @Test
