@@ -12,6 +12,7 @@ import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
+import androidx.compose.ui.graphics.Color
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -49,6 +50,7 @@ fun ReviewCommentCard(
     message: String,
     modifier: Modifier = Modifier,
     suggestion: String? = null,
+    original: String? = null,
     onApply: (() -> Unit)? = null,
     onDismiss: (() -> Unit)? = null,
 ) {
@@ -57,14 +59,23 @@ fun ReviewCommentCard(
     NitpickCard(modifier = modifier, verticalArrangement = Arrangement.spacedBy(10.dp)) {
         Row(verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(8.dp)) {
             NitpickBadge(text = severityLabel(severity), tone = tone)
+            // The path may lose its start, the line number never.
             Text(
-                text = if (line == 0) "$filePath · ${stringResource(Res.string.review_whole_file)}" else "$filePath:$line",
+                text = filePath,
                 style = NitpickTheme.typography.codeSmall,
                 color = colors.textMuted,
                 maxLines = 1,
+                softWrap = false,
                 // A long path loses its folders, never the file name and line that anchor the nit.
                 overflow = TextOverflow.StartEllipsis,
                 modifier = Modifier.weight(1f),
+            )
+            Text(
+                text = if (line == 0) "· ${stringResource(Res.string.review_whole_file)}" else ":$line",
+                style = NitpickTheme.typography.codeSmall,
+                color = colors.textMuted,
+                maxLines = 1,
+                softWrap = false,
             )
             if (onDismiss != null) {
                 NitpickButton(
@@ -93,7 +104,9 @@ fun ReviewCommentCard(
                         style = NitpickTheme.typography.kicker,
                         color = colors.textMuted,
                     )
-                    Text(text = suggestion, style = NitpickTheme.typography.code, color = colors.text)
+                    // Before and after, like a diff: the jury sees what changes, not only the result.
+                    original?.takeIf { it.isNotBlank() }?.lines()?.forEach { ChangeLine("-", it, colors.diffRemovedBg, colors.diffRemovedFg) }
+                    suggestion.lines().forEach { ChangeLine("+", it, colors.diffAddedBg, colors.diffAddedFg) }
                     if (onApply != null) {
                         NitpickButton(
                             text = stringResource(Res.string.review_apply),
@@ -104,6 +117,14 @@ fun ReviewCommentCard(
                 }
             }
         }
+    }
+}
+
+@Composable
+private fun ChangeLine(gutter: String, text: String, background: Color, foreground: Color) {
+    Row(Modifier.fillMaxWidth().background(background, RoundedCornerShape(NitpickTheme.radii.xs)).padding(horizontal = 6.dp, vertical = 1.dp)) {
+        Text(gutter, modifier = Modifier.width(14.dp), style = NitpickTheme.typography.code, color = foreground)
+        Text(text, style = NitpickTheme.typography.code, color = foreground)
     }
 }
 
@@ -147,7 +168,7 @@ fun DiffLineRow(line: DiffLine, modifier: Modifier = Modifier) {
 }
 
 @Composable
-private fun DiffLineNumber(value: String, color: androidx.compose.ui.graphics.Color) {
+private fun DiffLineNumber(value: String, color: Color) {
     Text(
         text = value,
         modifier = Modifier.width(40.dp),

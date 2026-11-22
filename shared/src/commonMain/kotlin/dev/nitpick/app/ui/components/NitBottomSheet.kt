@@ -52,6 +52,7 @@ fun NitSheetContent(
                 severity = comment.severity,
                 message = comment.message,
                 suggestion = comment.suggestion,
+                original = comment.originalSnippet,
             )
         }
         Row(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.spacedBy(12.dp)) {
