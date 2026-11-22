@@ -25,11 +25,11 @@ Ollama running locally.
 | Piece | State |
 | --- | --- |
 | KMP project (desktop + Android, shared Compose UI) | ✅ generated, builds on both targets |
-| JGit behind a shared source set (`jvmSharedMain`) | ✅ init, commit and log run on the desktop JVM and on Android (emulator, API 36) |
-| Shared contracts (`GitRepository`, review model) | ⏳ next |
-| Commit graph, branch diff | ⏳ planned |
-| AI review with Koog, inline nits, apply a suggestion, commit | ⏳ planned, the core loop |
-| Light/dark theme, English/French | ⏳ planned |
+| JGit behind a shared source set (`jvmSharedMain`) | ✅ log, diff, stage, commit, fetch/pull/push and checkout run on desktop and Android (emulator, API 36) |
+| Shared contracts (`GitRepository`, review model) | ✅ in `commonMain`, JGit behind the interface |
+| Commit graph, branch diff | ✅ lanes, colours, refs, per-commit details, diff vs base |
+| AI review with Koog, anchored nits, apply a suggestion, commit | ✅ real provider calls, snippet anchoring, Review panel, Apply/Dismiss, commit |
+| Light/dark theme, English/French | ✅ system/light/dark, 177 strings + plurals EN/FR |
 
 Full scope (MUST / SHOULD / WON'T) and the hour-by-hour plan: [docs/CONTEXT.md](docs/CONTEXT.md).
 
@@ -50,12 +50,10 @@ As much as possible lives in `commonMain`; platform code stays thin.
 shared/                       Kotlin Multiplatform module (targets: jvm, android)
   src/commonMain/             domain, git contract, commit graph, diff parsing,
                               Koog review agent, settings, Compose UI, EN/FR strings
-  src/jvmSharedMain/          JGit implementation, written once for desktop and Android
-  src/jvmMain/                desktop-only pieces (folder picker, settings store)
-  src/androidMain/            Android-only pieces (settings store, clone location)
-desktopApp/                   main() and the "Nitpick" window
-androidApp/                   MainActivity; androidTest/ runs on a real device or emulator
-server/                       Ktor server that shares reviews, reusing the domain models (planned)
+  src/jvmSharedMain/          JGit + FileSettingsStore, shared by desktop and Android
+desktopApp/                   main(), the folder picker and the "Nitpick" window
+androidApp/                   MainActivity, app-private clone folder; androidTest/ runs on a device
+server/                       Ktor server that shares reviews, reusing the domain models
 ```
 
 - **No `org.eclipse.jgit` import outside `jvmSharedMain`.** The rest of the app only sees the
@@ -76,8 +74,8 @@ server/                       Ktor server that shares reviews, reusing the domai
 | UI | Compose Multiplatform + Material 3 | 1.12.2 |
 | Android build | AGP, minSdk 33, targetSdk 37 | 9.1.1 |
 | Git | JGit | 6.10.1 |
-| AI agents | Koog | planned |
-| Backend | Ktor server + client | planned |
+| AI agents | Koog | 1.3.0 |
+| Backend | Ktor server + client | 3.3.3 |
 
 JGit is pinned to 6.10: JGit 7 ships Java records, which the Android dexer refuses below
 API 34 (details in commit `df36830`).
@@ -88,7 +86,7 @@ Prerequisites: JDK 17+, the Android SDK with `ANDROID_HOME` set, and an emulator
 phone for Android. Gradle downloads everything else, including the JDK 21 its daemon runs on.
 
 ```bash
-git clone https://github.com/zooldyyk/hackathon.git nitpick && cd nitpick
+git clone https://github.com/Nitpick-org/nitpick-core.git nitpick && cd nitpick
 git config core.hooksPath .githooks      # pre-commit runs scripts/check.sh
 
 ./gradlew :desktopApp:run                # desktop app
@@ -141,9 +139,10 @@ Team docs are written in French; code, comments and commit messages are in Engli
 
 LauzHack asks every team to state this explicitly.
 
-- **Reused**: Kotlin Multiplatform and Compose Multiplatform (the KMP wizard template),
-  JGit, and our team's pre-event tooling (the docs, agent definitions and scripts in
-  `docs/`, `.claude/`, `scripts/`). Koog and the LLM providers' APIs join this list once
-  integrated.
-- **Created during the event**: the Nitpick app itself. This section will list the shipped
-  pieces at submission time.
+- **Reused**: the KMP + Compose Multiplatform wizard template, JGit 6.10, Koog 1.3,
+  Ktor 3.3, JetBrains Mono, and the team's pre-event docs and agent tooling.
+- **Created during the event**: the domain, graph, diff, review/anchoring, JGit backend,
+  Compose UI for desktop and Android, the Koog review agent, the Ktor sharing server and
+  their tests.
+- **Not mocked**: the review path calls a real provider. The demo repository and the
+  backup video are still being prepared; see `docs/DEMO.md`.
