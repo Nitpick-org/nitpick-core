@@ -553,6 +553,33 @@ class RepositoryViewModelTest {
     }
 
     @Test
+    fun applyingAllSuggestionsOfAFileWritesThemBottomUp() {
+        val repo = FakeGitRepository(
+            branch = "main", commits = commits, refs = listOf(mainBranch), diffs = diffs,
+            files = mapOf("graph/CommitGraph.kt" to "fun a() {\n    val x = 1\n    val y = 2\n}\n"),
+        )
+        val first = ReviewComment(
+            id = "n1", filePath = "graph/CommitGraph.kt", startLine = 2, endLine = 2, severity = Severity.BUG,
+            category = "logic", message = "wrong x", originalSnippet = "val x = 1", suggestion = "    val x = 10",
+        )
+        val second = ReviewComment(
+            id = "n2", filePath = "graph/CommitGraph.kt", startLine = 3, endLine = 3, severity = Severity.BUG,
+            category = "logic", message = "wrong y", originalSnippet = "val y = 2", suggestion = "    val y = 20",
+        )
+        val agent = object : ReviewAgent {
+            override suspend fun review(repository: GitRepository, baseRef: String) = ReviewResult("2 nits", listOf(first, second))
+        }
+        val viewModel = RepositoryViewModel(FakeGitRepositoryFactory(mapOf("/work/demo" to repo)), graphDispatcher = dispatcher, reviewAgent = agent)
+        viewModel.openRepository("/work/demo")
+        viewModel.reviewBranch()
+
+        viewModel.applyAllSuggestions("graph/CommitGraph.kt")
+
+        assertEquals("fun a() {\n    val x = 10\n    val y = 20\n}\n", repo.files["graph/CommitGraph.kt"])
+        assertEquals(setOf("n1", "n2"), viewModel.state.value.appliedIds)
+    }
+
+    @Test
     fun committingTwiceCreatesOneCommit() {
         val repo = FakeGitRepository(
             branch = "main", commits = commits, refs = listOf(mainBranch), diffs = diffs,

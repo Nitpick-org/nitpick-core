@@ -49,6 +49,7 @@
     <string name="review_retry">Réessayer</string>
     <string name="review_applied">Appliqué</string>
     <string name="review_apply">Appliquer</string>
+    <string name="review_apply_all">Tout appliquer</string>
     <string name="review_dismiss">Ignorer</string>
     <string name="commit_message">Message de commit</string>
     <string name="commit_later">Plus tard</string>

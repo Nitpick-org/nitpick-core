@@ -49,6 +49,7 @@
     <string name="review_retry">Retry</string>
     <string name="review_applied">Applied</string>
     <string name="review_apply">Apply suggestion</string>
+    <string name="review_apply_all">Apply all</string>
     <string name="review_dismiss">Dismiss</string>
     <string name="commit_message">Commit message</string>
     <string name="commit_later">Later</string>

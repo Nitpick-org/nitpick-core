@@ -62,6 +62,7 @@ fun DiffPanel(
     isRewritingWorkingTree: Boolean = state.isRewritingWorkingTree,
     onApply: ((ReviewComment) -> Unit)? = null,
     onDismiss: ((String) -> Unit)? = null,
+    onApplyAll: ((String) -> Unit)? = null,
 ) {
     Column(modifier) {
         DiffHeader(state, onSelectBase)
@@ -103,6 +104,7 @@ fun DiffPanel(
                     isRewritingWorkingTree = isRewritingWorkingTree,
                     onApply = onApply,
                     onDismiss = onDismiss,
+                    onApplyAll = onApplyAll,
                 )
             }
         }
@@ -206,6 +208,7 @@ internal fun FileHunks(
     isRewritingWorkingTree: Boolean = false,
     onApply: ((ReviewComment) -> Unit)? = null,
     onDismiss: ((String) -> Unit)? = null,
+    onApplyAll: ((String) -> Unit)? = null,
 ) {
     val comments = remember(file.path, review) {
         review?.comments.orEmpty().filter { it.filePath == file.path }
@@ -214,17 +217,31 @@ internal fun FileHunks(
     val byLine = remember(comments) { comments.filterNot { it.isFileLevel }.groupBy { it.startLine } }
     LazyColumn(modifier.fillMaxWidth()) {
         item {
-            Text(
-                text = file.oldPath?.let { "$it → ${file.path}" } ?: file.path,
+            Row(
                 modifier = Modifier
                     .fillMaxWidth()
                     .height(NitpickTheme.sizes.toolWindowHeader)
                     .padding(horizontal = 12.dp, vertical = 6.dp),
-                style = NitpickTheme.typography.codeSmall,
-                color = NitpickTheme.colors.text,
-                maxLines = 1,
-                overflow = TextOverflow.Ellipsis,
-            )
+                verticalAlignment = Alignment.CenterVertically,
+                horizontalArrangement = Arrangement.spacedBy(8.dp),
+            ) {
+                Text(
+                    text = file.oldPath?.let { "$it → ${file.path}" } ?: file.path,
+                    modifier = Modifier.weight(1f),
+                    style = NitpickTheme.typography.codeSmall,
+                    color = NitpickTheme.colors.text,
+                    maxLines = 1,
+                    overflow = TextOverflow.Ellipsis,
+                )
+                if (onApplyAll != null && comments.any { !it.isFileLevel && it.suggestion != null && it.id !in appliedIds }) {
+                    NitpickButton(
+                        text = stringResource(Res.string.review_apply_all),
+                        onClick = { onApplyAll(file.path) },
+                        variant = NitpickButtonVariant.Secondary,
+                        size = NitpickButtonSize.Small,
+                    )
+                }
+            }
         }
         if (fileLevel.isNotEmpty()) {
             items(fileLevel, key = { "file:${it.id}" }) { comment ->

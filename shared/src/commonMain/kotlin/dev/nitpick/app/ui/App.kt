@@ -129,6 +129,7 @@ fun App(
                     onOpenSettings = { showSettings = true },
                     onRunReview = repositoryViewModel::reviewBranch,
                     onApplySuggestion = repositoryViewModel::applySuggestion,
+                    onApplyAll = repositoryViewModel::applyAllSuggestions,
                     onDismissSuggestion = repositoryViewModel::dismissSuggestion,
                     onCommitMessage = repositoryViewModel::setCommitMessage,
                     onCommit = repositoryViewModel::commitAppliedSuggestions,
