@@ -20,8 +20,19 @@ import kotlinx.serialization.json.Json
 class ReviewStore(private val file: Path) {
 
     private val lock = Any()
-    private var reviews: List<SharedReview> =
-        if (file.exists()) Json.decodeFromString(file.readText()) else emptyList()
+    private var reviews: List<SharedReview> = load()
+
+    /** A half-written or hand-edited file must not stop the demo server from starting. */
+    private fun load(): List<SharedReview> {
+        if (!file.exists()) return emptyList()
+        return try {
+            Json.decodeFromString(file.readText())
+        } catch (e: Exception) {
+            // Keep the bad file for inspection, start with an empty store.
+            runCatching { Files.move(file, file.resolveSibling("${file.name}.corrupt"), REPLACE_EXISTING) }
+            emptyList()
+        }
+    }
 
     /** Stores [review] under a new id and returns it with that id. */
     fun add(review: SharedReview): SharedReview = synchronized(lock) {

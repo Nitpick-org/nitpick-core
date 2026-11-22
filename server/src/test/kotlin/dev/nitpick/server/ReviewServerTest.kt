@@ -21,10 +21,14 @@ import io.ktor.utils.io.writeFully
 import io.ktor.server.testing.testApplication
 import java.nio.file.Files
 import kotlin.io.path.deleteRecursively
+import kotlin.io.path.exists
+import kotlin.io.path.name
+import kotlin.io.path.writeText
 import kotlin.io.path.ExperimentalPathApi
 import kotlin.test.AfterTest
 import kotlin.test.Test
 import kotlin.test.assertEquals
+import kotlin.test.assertTrue
 import kotlinx.serialization.json.Json
 
 @OptIn(ExperimentalPathApi::class)
@@ -151,6 +155,16 @@ class ReviewServerTest {
 
         assertEquals(saved, ReviewStore(file).get(saved.id))
         assertEquals(listOf(saved), ReviewStore(file).list(LEDGER))
+    }
+
+    @Test
+    fun aCorruptStoreStartsEmptyAndKeepsTheBadFile() {
+        file.writeText("{not json")
+
+        val store = ReviewStore(file)
+
+        assertTrue(store.list(LEDGER).isEmpty())
+        assertTrue(file.resolveSibling("${file.name}.corrupt").exists())
     }
 
     @Test

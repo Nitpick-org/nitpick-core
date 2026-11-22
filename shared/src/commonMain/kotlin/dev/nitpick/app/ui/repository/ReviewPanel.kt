@@ -90,6 +90,15 @@ fun ReviewPanel(
                 onOpenSettings = onOpenSettings,
             )
             state.review == null -> Column(Modifier.weight(1f)) {
+                // A failed "open shared review" had nowhere to show its error in this branch (#146).
+                state.actionError?.let { error ->
+                    Text(
+                        text = error,
+                        modifier = Modifier.padding(horizontal = 12.dp, vertical = 8.dp),
+                        style = NitpickTheme.typography.small,
+                        color = NitpickTheme.colors.danger,
+                    )
+                }
                 NitpickEmptyState(
                     title = stringResource(Res.string.review_empty),
                     modifier = Modifier.weight(1f),
