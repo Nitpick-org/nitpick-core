@@ -268,6 +268,6 @@ internal fun PhoneBottomButton(text: String, onClick: () -> Unit, enabled: Boole
         enabled = enabled,
         size = NitpickButtonSize.Large,
         modifier = Modifier.fillMaxWidth().padding(16.dp).height(PhoneActionHeight),
-        leading = icon?.let { { NitpickIcon(it, contentDescription = null, tint = NitpickTheme.colors.onPrimary) } },
+        icon = icon,
     )
 }
