@@ -21,6 +21,11 @@ import androidx.compose.material3.DropdownMenu
 import androidx.compose.material3.DropdownMenuItem
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
+import dev.nitpick.app.ui.components.SyncIcon
+import dev.nitpick.app.ui.components.SyncMotion
+import nitpick.shared.generated.resources.ic_fetch
+import nitpick.shared.generated.resources.ic_pull
+import nitpick.shared.generated.resources.ic_push
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -233,6 +238,7 @@ private fun RepositoryToolbar(
                 NitpickToolbarAction(
                     text = stringResource(if (state.isFetching) Res.string.fetch_in_progress else Res.string.fetch_action),
                     onClick = { if (!syncing) onFetch() },
+                    leading = { SyncIcon(Res.drawable.ic_fetch, SyncMotion.Spin, state.isFetching, tint = NitpickTheme.colors.onToolbar) },
                 )
             }
             NitpickTooltip(text = stringResource(if (state.isPullBlocked) Res.string.sync_commit_first else Res.string.pull_action)) {
@@ -244,6 +250,7 @@ private fun RepositoryToolbar(
                     },
                     onClick = { if (!syncing && !state.isPullBlocked) onPull() },
                     modifier = Modifier.alpha(if (state.isPullBlocked) BlockedActionAlpha else 1f),
+                    leading = { SyncIcon(Res.drawable.ic_pull, SyncMotion.Down, state.isPulling, tint = NitpickTheme.colors.onToolbar) },
                 )
             }
             if (state.tracking != null || state.hasOrigin) {
@@ -258,6 +265,7 @@ private fun RepositoryToolbar(
                         else -> stringResource(Res.string.push_action)
                     },
                     onClick = { if (!syncing) if (state.tracking == null) onPublish() else onPush() },
+                    leading = { SyncIcon(Res.drawable.ic_push, SyncMotion.Up, state.isPushing, tint = NitpickTheme.colors.onToolbar) },
                 )
                 }
             }
