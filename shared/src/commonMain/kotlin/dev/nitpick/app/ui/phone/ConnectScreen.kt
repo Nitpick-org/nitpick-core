@@ -206,7 +206,7 @@ fun ConnectScreen(
 }
 
 // Not knowing the name must not block the connection: the token still works.
-private suspend fun ForgeClient.loginOrBlank(host: GitHost, token: String): String =
+internal suspend fun ForgeClient.loginOrBlank(host: GitHost, token: String): String =
     try {
         fetchLogin(host, token)
     } catch (e: DeviceFlowException) {
@@ -214,7 +214,7 @@ private suspend fun ForgeClient.loginOrBlank(host: GitHost, token: String): Stri
     }
 
 @Composable
-private fun signInErrorText(code: String): String = when (code) {
+internal fun signInErrorText(code: String): String = when (code) {
     "access_denied" -> stringResource(Res.string.connect_signin_denied)
     "expired_token" -> stringResource(Res.string.connect_signin_expired)
     else -> stringResource(Res.string.connect_signin_failed, code)

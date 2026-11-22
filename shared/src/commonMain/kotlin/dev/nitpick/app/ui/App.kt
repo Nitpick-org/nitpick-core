@@ -158,6 +158,7 @@ fun App(
                             draft?.let {
                                 SettingsDialog(
                                     draft = it,
+                                    forge = container.forgeClient,
                                     onEdit = settingsViewModel::editDraft,
                                     onSave = { settingsViewModel.saveDraft(); showSettings = false },
                                     onCancel = { settingsViewModel.discardDraft(); showSettings = false },

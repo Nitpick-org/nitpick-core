@@ -37,6 +37,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.window.Dialog
 import androidx.compose.ui.window.DialogProperties
+import dev.nitpick.app.settings.ForgeClient
 import dev.nitpick.app.settings.GitConnection
 import dev.nitpick.app.settings.GitHost
 import dev.nitpick.app.settings.LlmProvider
@@ -55,6 +56,7 @@ import dev.nitpick.app.ui.theme.NitpickTheme
 import nitpick.shared.generated.resources.Res
 import nitpick.shared.generated.resources.action_cancel
 import nitpick.shared.generated.resources.action_save
+import nitpick.shared.generated.resources.connect_current
 import nitpick.shared.generated.resources.connect_github
 import nitpick.shared.generated.resources.connect_gitlab
 import nitpick.shared.generated.resources.connect_host
@@ -95,6 +97,7 @@ private enum class SettingsSection(val label: StringResource) {
 @Composable
 fun SettingsDialog(
     draft: Settings,
+    forge: ForgeClient,
     onEdit: ((Settings) -> Settings) -> Unit,
     onSave: () -> Unit,
     onCancel: () -> Unit,
@@ -117,7 +120,7 @@ fun SettingsDialog(
                     when (section) {
                         SettingsSection.General -> GeneralSection(draft, onEdit, content)
                         SettingsSection.Review -> ReviewSection(draft, onEdit, content)
-                        SettingsSection.Git -> GitSection(draft, onEdit, content)
+                        SettingsSection.Git -> GitSection(draft, forge, onEdit, content)
                         SettingsSection.Sharing -> SharingSection(draft, onEdit, content)
                         SettingsSection.About -> Column(content, verticalArrangement = Arrangement.spacedBy(14.dp)) { AboutContent(touch = false) }
                     }
@@ -209,21 +212,35 @@ private fun ReviewSection(draft: Settings, onEdit: ((Settings) -> Settings) -> U
 }
 
 @Composable
-private fun GitSection(draft: Settings, onEdit: ((Settings) -> Settings) -> Unit, modifier: Modifier) {
+private fun GitSection(draft: Settings, forge: ForgeClient, onEdit: ((Settings) -> Settings) -> Unit, modifier: Modifier) {
     val hostLabels = mapOf(
         GitHost.GITHUB to stringResource(Res.string.connect_github),
         GitHost.GITLAB to stringResource(Res.string.connect_gitlab),
     )
+    val host = draft.gitConnection?.host ?: GitHost.GITHUB
     Column(modifier, verticalArrangement = Arrangement.spacedBy(14.dp)) {
         Kicker(Res.string.settings_kicker_git)
+        draft.gitConnection?.takeIf { it.login.isNotBlank() }?.let {
+            Text(
+                text = stringResource(Res.string.connect_current, hostLabels.getValue(it.host), it.login),
+                style = NitpickTheme.typography.small,
+                color = NitpickTheme.colors.text,
+            )
+        }
         FieldLabel(Res.string.connect_host)
         NitpickRadioGroup(
             options = GitHost.entries,
-            selected = draft.gitConnection?.host ?: GitHost.GITHUB,
-            label = { host -> hostLabels.getValue(host) },
-            onSelect = { host ->
-                onEdit { it.copy(gitConnection = (it.gitConnection ?: GitConnection()).copy(host = host)) }
+            selected = host,
+            label = { hostLabels.getValue(it) },
+            onSelect = { chosen ->
+                onEdit { it.copy(gitConnection = (it.gitConnection ?: GitConnection()).copy(host = chosen)) }
             },
+        )
+        ForgeSignIn(
+            host = host,
+            forge = forge,
+            onConnected = { connection -> onEdit { it.copy(gitConnection = connection) } },
+            modifier = Modifier.width(KeyFieldWidth),
         )
         GitTokenField(
             token = draft.gitConnection?.token.orEmpty(),
