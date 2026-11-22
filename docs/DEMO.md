@@ -42,9 +42,9 @@
 ./scripts/count-lines.sh
 ```
 
-Relevé du 21/11, 19:00 : **4 466 / 4 546 lignes de production = 98,2 % partagées**
-(`commonMain` + `jvmSharedMain`) ; 80 lignes plateforme ; 1 628 lignes de tests exclues.
-Relancer le script juste avant la démo et coller le chiffre à jour.
+Relevé du 22/11, 02:10 sur `main` : **8 198 / 8 282 lignes de production = 99,0 % partagées**
+(`commonMain` + `jvmSharedMain`) ; 84 lignes plateforme ; 2 947 lignes de tests exclues.
+Relancer `./scripts/count-lines.sh` juste avant la démo et coller le chiffre à jour.
 
 ## Ce qu'on a créé vs réutilisé
 
@@ -74,13 +74,13 @@ Préparer 10 réponses de 2 phrases :
 
 | Panne | Réaction | Préparé ? |
 | --- | --- | --- |
-| API externe down | passer en `DEMO_MODE=mock` | [ ] |
+| API externe down | ouvrir une review déjà partagée sur le serveur, sinon la vidéo de secours | [ ] |
 | Réseau lent | utiliser la vidéo de secours | [ ] |
 | Base vide | `reset demo` / seed | [ ] |
 | Écran qui ne s'affiche pas | capture PNG plein écran | [ ] |
 | Démo qui crash | vidéo de 2 min, on continue à parler | [ ] |
 
-- **Vidéo de secours** : `<lien>` (2 min, enregistrée avant 23:00, testée sur un autre laptop)
+- **Vidéo de secours** : à enregistrer avant 11:00 (aucun lien pour l'instant).
 - **Captures** : `docs/demo/` (dogfooding sur nos branches d'agents)
 - **Parcours Android rejoué** (22/11 00:45, émulateur API 36, compte GitHub connecté par le
   device flow, repo `pepito2t/OpenTab`, branche `perf/thumbnail-lookup` avec un lock non
@@ -91,12 +91,11 @@ Préparer 10 réponses de 2 phrases :
   (↑0 ↓0). Commit `cb55041` « Apply review suggestions » visible sur GitHub. Second passage
   (01:00) : `android-09-commit-message` (sujet proposé depuis les nits appliqués) et
   `android-10-pushed-banner` (confirmation animée après le push), commit `f91a419`.
-- **Données de démo** : repo `pocket-ledger` (CLI Kotlin + SQLite), `main` propre ; la
-  branche à relire est `feature/search-pages-import`, écrite par un agent (Junie via Air,
-  sinon Claude Code, voir `docs/AGENT_LOG.md`) depuis
-  `docs/demo/junie-brief.md` (off-by-one, injection SQL, reader non fermé). Clone local
-  prêt sur le laptop et sur l'émulateur avant de monter sur scène.
-- **URL de secours** : `<preview stable>`
+- **Données de démo** : le parcours capturé utilise `pepito2t/OpenTab`
+  (branche `perf/thumbnail-lookup`, deux bugs plantés). `pocket-ledger` +
+  `docs/demo/junie-brief.md` restent le plan B si ce repo est recréé ; il n'est pas dans
+  ce dépôt. Préparer les clones locaux sur le laptop et l'émulateur avant la scène.
+- **URL de secours** : aucune ; la démo est locale (desktop + Android + serveur Ktor sur le laptop).
 
 ## Répétition
 
@@ -114,8 +113,8 @@ couper.
 ## Checklist avant de monter sur scène
 
 - [ ] Laptop chargé, câble, adaptateur.
-- [ ] Preview ouverte dans un onglet, données seedées.
-- [ ] Mode mock prêt.
+- [ ] Serveur Ktor lancé, `adb reverse tcp:8080 tcp:8080` en place, une review partagée de secours.
+- [ ] Review partagée de secours prête (plan B LLM).
 - [ ] Vidéo de secours accessible hors ligne.
 - [ ] Téléphone en silencieux.
 - [x] Android rejoué à la main : Repos → Graph → Nitpick branch → nit en bottom sheet → Apply → Stage & commit → le bouton **Push** apparaît après le commit → push visible sur GitHub (22/11 00:45, captures `docs/demo/android-*.png`).
