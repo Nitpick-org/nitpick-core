@@ -195,6 +195,7 @@ private fun ReviewSection(draft: Settings, onEdit: ((Settings) -> Settings) -> U
             options = LlmProvider.entries,
             selected = draft.provider,
             label = { providerLabels.getValue(it) },
+            icon = { it.icon },
             onSelect = { provider -> onEdit { it.copy(provider = provider, model = provider.knownModels.first()) } },
         )
         FieldLabel(Res.string.settings_model)

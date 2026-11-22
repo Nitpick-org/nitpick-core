@@ -105,6 +105,7 @@ fun SettingsScreen(settings: Settings, onChange: ((Settings) -> Settings) -> Uni
                     options = LlmProvider.entries,
                     selected = settings.provider,
                     label = { providerLabels.getValue(it) },
+                    icon = { it.icon },
                     onSelect = { provider -> onChange { it.copy(provider = provider, model = provider.knownModels.first()) } },
                     subtitle = { providerHints.getValue(it) },
                     vertical = true,
