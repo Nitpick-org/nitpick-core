@@ -29,10 +29,12 @@ private data class CommentResponse(
 )
 
 private val lenientJson = Json { ignoreUnknownKeys = true; isLenient = true; coerceInputValues = true }
+private val OBJECT_START = Regex("""\{\s*"""")
 
 /** Models wrap JSON in prose or fences more often than not: keep the outermost object only. */
 fun parseReviewResponse(text: String): ReviewResult {
-    val start = text.indexOf('{')
+    // Prose before the JSON may contain a brace of its own (`fun a() {`): start at the first object key.
+    val start = OBJECT_START.find(text)?.range?.first ?: text.indexOf('{')
     val end = text.lastIndexOf('}')
     if (start < 0 || end <= start) throw ReviewResponseException("The model answer contains no JSON object")
     val response = try {
@@ -49,7 +51,7 @@ fun parseReviewResponse(text: String): ReviewResult {
                 id = "${comment.filePath}:${comment.startLine}:$index",
                 filePath = comment.filePath,
                 startLine = comment.startLine.coerceAtLeast(0),
-                endLine = (comment.endLine ?: comment.startLine).coerceAtLeast(comment.startLine),
+                endLine = (comment.endLine ?: comment.startLine).coerceAtLeast(comment.startLine.coerceAtLeast(0)),
                 severity = Severity.entries.firstOrNull { it.name.equals(comment.severity.trim(), ignoreCase = true) }
                     ?: Severity.INFO,
                 category = comment.category,

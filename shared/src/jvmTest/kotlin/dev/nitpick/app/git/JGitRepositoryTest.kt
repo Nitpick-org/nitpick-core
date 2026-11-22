@@ -726,4 +726,21 @@ class JGitRepositoryTest {
         val error = assertFailsWith<IllegalStateException> { git.publishBranch(credentials = null) }
         assertTrue(error.message!!.contains("detached"))
     }
+
+    @Test
+    fun checkoutOverAConflictingLocalEditFailsAndLeavesTheTreeUntouched() = runBlocking<Unit> {
+        repo.write("a.txt", "base\n")
+        repo.commit("base", at = 1_000)
+        repo.git("checkout", "-b", "feature")
+        repo.write("a.txt", "feature\n")
+        repo.commit("on feature", at = 2_000)
+        repo.git("checkout", "main")
+        repo.write("a.txt", "my local edit\n")
+        val git = open()
+
+        assertFailsWith<Exception> { git.checkout("feature") }
+
+        assertEquals("main", git.currentBranch())
+        assertEquals("my local edit\n", git.readFile("a.txt"))
+    }
 }

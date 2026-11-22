@@ -55,7 +55,8 @@ class ReviewStore(private val file: Path) {
     /** Newest first. */
     fun list(repoUrl: String): List<SharedReview> = synchronized(lock) {
         val key = normalizeRepoUrl(repoUrl)
-        reviews.filter { it.repoUrl == key }.reversed()
+        // Stored keys are re-normalised too: a file written before a rule change still matches.
+        reviews.filter { normalizeRepoUrl(it.repoUrl) == key }.reversed()
     }
 
     fun get(id: String): SharedReview? = synchronized(lock) { reviews.firstOrNull { it.id == id } }
@@ -70,7 +71,11 @@ class ReviewStore(private val file: Path) {
 }
 
 private val SCP_REMOTE = Regex("""(?:[\w.-]+@)?([^:/]+):(.+)""")
-private val SCHEME_REMOTE = Regex("""(?:https?|ssh|git)://(?:[^@/]+@)?([^/:]+)(?::\d+)?/(.+)""")
+private val SCHEME_REMOTE = Regex("""(https?|ssh|git)://(?:[^@/]+@)?([^/:]+)(:\d+)?/(.+)""")
+private val DEFAULT_PORTS = mapOf("http" to ":80", "https" to ":443", "ssh" to ":22", "git" to ":9418")
+
+// Hosts whose repository paths are case-insensitive: `Nitpick-org/Pocket-Ledger` is the same repo as lowercase.
+private val CASE_INSENSITIVE_HOSTS = setOf("github.com", "gitlab.com")
 
 /**
  * One key per repository whatever the clone used: the laptop's `git@github.com:o/r.git` and the
@@ -80,6 +85,10 @@ internal fun normalizeRepoUrl(url: String): String {
     // `host:path` is the SCP form only without a scheme: `https://x` also has a colon.
     val scp = if (url.contains("://")) null else SCP_REMOTE.matchEntire(url)
     val withScheme = if (scp != null) "https://${scp.groupValues[1]}/${scp.groupValues[2].trimStart('/')}" else url
-    val (host, path) = SCHEME_REMOTE.matchEntire(withScheme)?.destructured ?: return url
-    return "https://${host.lowercase()}/${path.trimEnd('/').removeSuffix(".git")}"
+    val (scheme, host, port, path) = SCHEME_REMOTE.matchEntire(withScheme)?.destructured ?: return url
+    val cleanPath = path.trimEnd('/').removeSuffix(".git")
+    val key = if (host.lowercase() in CASE_INSENSITIVE_HOSTS) cleanPath.lowercase() else cleanPath
+    // A non-default port stays: two self-hosted forges on one machine must not share a list.
+    val portKey = port.takeUnless { it == DEFAULT_PORTS[scheme.lowercase()] }.orEmpty()
+    return "https://${host.lowercase()}$portKey/$key"
 }

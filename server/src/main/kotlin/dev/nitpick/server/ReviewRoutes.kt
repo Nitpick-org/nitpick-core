@@ -21,6 +21,8 @@ import kotlinx.serialization.SerializationException
 import kotlinx.serialization.json.Json
 
 const val MAX_BODY_BYTES = 1_000_000L
+// A newer app may send a field this server does not know yet: never a 400 for that.
+private val json = Json { ignoreUnknownKeys = true }
 private const val MAX_REPO_URL_LENGTH = 2_048
 private val REVIEW_ID = Regex("[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}")
 
@@ -60,7 +62,7 @@ private suspend fun RoutingCall.receiveReview(): SharedReview? {
     val body = receiveChannel().readRemaining(MAX_BODY_BYTES + 1).readByteArray()
     if (body.size > MAX_BODY_BYTES) return null.also { respond(HttpStatusCode.PayloadTooLarge) }
     return try {
-        Json.decodeFromString<SharedReview>(body.decodeToString())
+        json.decodeFromString<SharedReview>(body.decodeToString())
     } catch (_: SerializationException) {
         null.also { respond(HttpStatusCode.BadRequest, "Invalid review JSON") }
     } catch (_: IllegalArgumentException) {
