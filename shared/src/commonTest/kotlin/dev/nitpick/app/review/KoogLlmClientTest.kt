@@ -19,9 +19,12 @@ class KoogLlmClientTest {
 
     @Test
     fun refusesToCallAProviderWithoutAKey() = runTest {
-        val client = KoogLlmClient(store(Settings(provider = LlmProvider.ANTHROPIC, apiKey = " ")))
-        val error = assertFailsWith<MissingApiKeyException> { client.complete("s", "u") }
-        assertEquals(LlmProvider.ANTHROPIC, error.provider)
+        // Ollama is local and keyless; every hosted provider must stop before any request.
+        listOf(LlmProvider.ANTHROPIC, LlmProvider.OPENAI, LlmProvider.GOOGLE).forEach { provider ->
+            val client = KoogLlmClient(store(Settings(provider = provider, apiKey = " ")))
+            val error = assertFailsWith<MissingApiKeyException> { client.complete("s", "u") }
+            assertEquals(provider, error.provider)
+        }
     }
 
     @Test

@@ -154,3 +154,28 @@ Une classe implémente `ToolSet`, ses fonctions portent `@Tool` + `@LLMDescripti
 - Sur ART (API 26+), un `executeStructured` passe-t-il avec `ktor-client-okhttp` ? Test `androidTest` à écrire.
 - Id « claude-opus-5-5 » : existe-t-il ? Non vérifié ; la doc Koog donne `claude-opus-5` côté `develop`.
 
+
+## Vérifier les 4 providers de review (#82) — 22/11/2026
+
+`RealReviewCallTest` (`shared/src/jvmTest`) lance une vraie review par provider, chacun en
+opt-in : sans sa variable, le test affiche `skipped` et passe (check.sh ne paie rien).
+
+| Provider | Active le test | Modèle (sinon 1er de `knownModels`) |
+| --- | --- | --- |
+| Anthropic | `APP_ANTHROPIC_API_KEY` | `APP_ANTHROPIC_MODEL` |
+| OpenAI | `APP_OPENAI_API_KEY` | `APP_OPENAI_MODEL` |
+| Google | `APP_GOOGLE_API_KEY` | `APP_GOOGLE_MODEL` |
+| Ollama | `localhost:11434` qui répond (`ollama serve` + `ollama pull <modèle>`) | `APP_OLLAMA_MODEL` |
+
+```bash
+APP_OPENAI_API_KEY=… ./gradlew :shared:jvmTest --tests 'dev.nitpick.app.review.RealReviewCallTest' -i
+```
+
+- Jamais `ANTHROPIC_API_KEY` (Claude Code facturerait l'API). Le test n'affiche que le
+  résumé et les nits, pas la clé ; une erreur provider passe par `ReviewProviderException`,
+  dont le message ne recopie pas la réponse brute.
+- Repli sans outils : déjà dans `KoogLlmClient.completeWithTools` (une `LLMClientException`
+  sur l'appel avec outils relance le prompt sans outils), puis `LlmReviewAgent` redemande
+  le JSON une fois si la réponse est de la prose.
+- Risque non vérifié : Koog #2308 (`toolConfig: {}` → HTTP 400 chez Google sans outils)
+  pourrait casser ce repli pour Google seulement.
