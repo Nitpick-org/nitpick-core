@@ -80,9 +80,33 @@ class KtorReviewShareClientTest {
     }
 
     @Test
+    fun aRefusedRequestKeepsItsStatusAndAnUnreachableServerHasNone() = runTest {
+        val tooLarge = client { respond("too large", HttpStatusCode.PayloadTooLarge) }
+        val refused = client { throw IllegalStateException("Connection refused") }
+
+        assertEquals(413, assertFailsWith<ReviewShareException> { tooLarge.share(review) }.status)
+        assertEquals(null, assertFailsWith<ReviewShareException> { refused.share(review) }.status)
+    }
+
+    @Test
+    fun theServerTokenTravelsAsABearerHeaderOnlyWhenSet() = runTest {
+        val withToken = KtorReviewShareClient(
+            serverUrl = { "http://laptop:8080" },
+            serverToken = { "team-secret" },
+            http = HttpClient(MockEngine { request -> requests += request; json("""[]""") }),
+        )
+        withToken.list(review.repoUrl)
+        client { json("""[]""") }.list(review.repoUrl)
+
+        assertEquals("Bearer team-secret", requests[0].headers["Authorization"])
+        assertEquals(null, requests[1].headers["Authorization"])
+    }
+
+    @Test
     fun aTokenInTheRemoteUrlNeverLeavesTheDevice() {
         assertEquals("https://github.com/o/r.git", withoutCredentials("https://ghp_secret@github.com/o/r.git"))
         assertEquals("https://github.com/o/r", withoutCredentials("https://x-access-token:ghp_secret@github.com/o/r"))
         assertEquals("git@github.com:o/r.git", withoutCredentials("git@github.com:o/r.git"))
+        assertEquals("https://gitlab.example.com/o/r", withoutCredentials("https://gitlab.example.com/o/r?private_token=abc"))
     }
 }

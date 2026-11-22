@@ -58,6 +58,8 @@ sealed interface ShareFailure {
     /** No `origin` remote: nothing identifies the repository on another device. */
     data object NoRemote : ShareFailure
     data object Unreachable : ShareFailure
+    /** The server answered, but refused: wrong token, body too large, versions that disagree. */
+    data class Rejected(val status: Int) : ShareFailure
 }
 
 private fun Throwable.toReviewFailure(): ReviewFailure = when {
@@ -485,7 +487,8 @@ class RepositoryViewModel(
             } ?: return@launch
             _state.update {
                 outcome.fold(
-                    { id -> it.copy(isSharing = false, sharedReviewId = id) },
+                    // A review run again while the share was in flight was never sent: no badge on it.
+                    { id -> if (it.review === review) it.copy(isSharing = false, sharedReviewId = id) else it.copy(isSharing = false) },
                     { failure -> it.copy(isSharing = false, shareFailure = failure) },
                 )
             }
@@ -558,7 +561,7 @@ class RepositoryViewModel(
         } catch (e: CancellationException) {
             throw e
         } catch (e: ReviewShareException) {
-            ShareOutcome.Failed(ShareFailure.Unreachable)
+            ShareOutcome.Failed(e.status?.let { ShareFailure.Rejected(it) } ?: ShareFailure.Unreachable)
         }
         return outcome.takeIf { repository === git }
     }

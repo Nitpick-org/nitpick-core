@@ -29,6 +29,7 @@ import nitpick.shared.generated.resources.Res
 import nitpick.shared.generated.resources.ic_fetch
 import nitpick.shared.generated.resources.ic_share
 import nitpick.shared.generated.resources.share_action
+import nitpick.shared.generated.resources.share_rejected
 import nitpick.shared.generated.resources.share_done
 import nitpick.shared.generated.resources.share_no_remote
 import nitpick.shared.generated.resources.share_unreachable
@@ -119,12 +120,11 @@ internal fun SharedReviewList(
 @Composable
 private fun ShareFailureText(failure: ShareFailure) {
     Text(
-        text = stringResource(
-            when (failure) {
-                ShareFailure.NoRemote -> Res.string.share_no_remote
-                ShareFailure.Unreachable -> Res.string.share_unreachable
-            },
-        ),
+        text = when (failure) {
+            ShareFailure.NoRemote -> stringResource(Res.string.share_no_remote)
+            ShareFailure.Unreachable -> stringResource(Res.string.share_unreachable)
+            is ShareFailure.Rejected -> stringResource(Res.string.share_rejected, failure.status)
+        },
         style = NitpickTheme.typography.small,
         color = NitpickTheme.colors.danger,
     )

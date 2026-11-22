@@ -1,6 +1,9 @@
 package dev.nitpick.app.share
 
 import dev.nitpick.app.domain.SharedReview
+import io.ktor.client.request.header
+import io.ktor.client.request.HttpRequestBuilder
+import dev.nitpick.app.domain.ShareResponse
 import io.ktor.client.HttpClient
 import io.ktor.client.plugins.HttpTimeout
 import io.ktor.client.request.get
@@ -15,11 +18,7 @@ import io.ktor.http.contentType
 import io.ktor.http.encodeURLPathPart
 import io.ktor.http.isSuccess
 import kotlinx.coroutines.CancellationException
-import kotlinx.serialization.Serializable
 import kotlinx.serialization.json.Json
-
-@Serializable
-private data class ShareResponse(val id: String)
 
 private val json = Json { ignoreUnknownKeys = true }
 
@@ -30,6 +29,7 @@ private val json = Json { ignoreUnknownKeys = true }
  */
 class KtorReviewShareClient(
     private val serverUrl: suspend () -> String,
+    private val serverToken: suspend () -> String = { "" },
     private val http: HttpClient = HttpClient {
         // A wrong LAN IP must fail within seconds, not hang the Share button.
         install(HttpTimeout) {
@@ -41,6 +41,7 @@ class KtorReviewShareClient(
 
     override suspend fun share(review: SharedReview): String = call {
         val response = http.post("${base()}/reviews") {
+            authorize()
             contentType(ContentType.Application.Json)
             setBody(json.encodeToString(review.copy(id = "")))
         }
@@ -48,18 +49,22 @@ class KtorReviewShareClient(
     }
 
     override suspend fun list(repoUrl: String): List<SharedReview> = call {
-        json.decodeFromString(http.get("${base()}/reviews") { parameter("repoUrl", repoUrl) }.successBody())
+        json.decodeFromString(http.get("${base()}/reviews") { authorize(); parameter("repoUrl", repoUrl) }.successBody())
     }
 
     override suspend fun get(id: String): SharedReview? = call {
-        val response = http.get("${base()}/reviews/${id.encodeURLPathPart()}")
+        val response = http.get("${base()}/reviews/${id.encodeURLPathPart()}") { authorize() }
         if (response.status == HttpStatusCode.NotFound) null else json.decodeFromString(response.successBody())
     }
 
     private suspend fun base() = serverUrl().trimEnd('/')
 
+    private suspend fun HttpRequestBuilder.authorize() {
+        serverToken().takeIf { it.isNotBlank() }?.let { header("Authorization", "Bearer $it") }
+    }
+
     private suspend fun HttpResponse.successBody(): String {
-        if (!status.isSuccess()) throw ReviewShareException("Review server answered ${status.value}")
+        if (!status.isSuccess()) throw ReviewShareException("Review server answered ${status.value}", status = status.value)
         return bodyAsText()
     }
 
