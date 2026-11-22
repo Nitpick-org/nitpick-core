@@ -3,6 +3,7 @@ package dev.nitpick.server
 import io.ktor.server.cio.CIO
 import io.ktor.server.engine.embeddedServer
 import java.net.Inet4Address
+import java.net.InetAddress
 import java.net.NetworkInterface
 import kotlin.io.path.Path
 import kotlin.system.exitProcess
@@ -20,7 +21,7 @@ fun main() {
     // On the LAN anyone on the Wi-Fi could list a team's snippets or post a review: a shared
     // token (the same value in the apps' settings) is required there, never on localhost.
     val token = System.getenv("NITPICK_TOKEN")?.takeIf { it.isNotBlank() }
-    if (host != DEFAULT_HOST && token == null) {
+    if (!InetAddress.getByName(host).isLoopbackAddress && token == null) {
         System.err.println("NITPICK_BIND=$host needs NITPICK_TOKEN: set the same token in the apps' Sharing settings.")
         exitProcess(1)
     }
