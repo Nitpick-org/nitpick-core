@@ -235,7 +235,8 @@ class RepositoryViewModel(
                 )
             } catch (e: CancellationException) {
                 throw e
-            } catch (e: Exception) {
+            } catch (e: Throwable) {
+                // Also an Error (a missing JDK module, #245): a message beats an endless loader.
                 RepositoryUiState(path = path, errorMessage = e.message ?: e.toString())
             }
             refreshDiff()
