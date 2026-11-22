@@ -12,7 +12,6 @@ import java.io.IOException
 import java.nio.file.Files
 
 private const val POLL_MS = 200L
-private const val MAX_TASK_CHARS = 100_000
 
 @Serializable
 private data class JunieOutput(val result: String? = null, val errors: List<String> = emptyList())
@@ -31,16 +30,14 @@ class JunieCliLlmClient(
     private val sandbox: File by lazy { Files.createTempDirectory("nitpick-junie").toFile() }
 
     override suspend fun complete(system: String, user: String): String = withContext(Dispatchers.IO) {
-        val task = "$system\n\n$user"
-        // shortcut: the CLI takes the task only as an argument, capped by the OS (128 KiB per
-        // argument on Linux); upgrade to a file-based task when the CLI offers one.
-        if (task.length > MAX_TASK_CHARS) {
-            throw ReviewProviderException("The review is too large for the Junie CLI", IllegalArgumentException("${task.length} chars"))
-        }
         val model = settingsStore.load().model
-        val output = File(sandbox, "answer-${System.nanoTime()}.json")
+        val id = System.nanoTime()
+        val output = File(sandbox, "answer-$id.json")
+        // The prompt goes through a file Junie reads with its own tools: a command-line argument
+        // is capped by the OS (128 KiB on Linux) and visible to every local process (#249).
+        val taskFile = File(sandbox, "review-task-$id.md").apply { writeText("$system\n\n$user") }
         val process = try {
-            ProcessBuilder(junieCommand(binary, model, sandbox, output, task))
+            ProcessBuilder(junieCommand(binary, model, sandbox, output, taskFile))
                 .redirectOutput(ProcessBuilder.Redirect.DISCARD)
                 .redirectError(ProcessBuilder.Redirect.DISCARD)
                 .start()
@@ -58,6 +55,7 @@ class JunieCliLlmClient(
         } finally {
             process.destroy()
             output.delete()
+            taskFile.delete()
         }
     }
 }
@@ -67,9 +65,10 @@ class JunieCliLlmClient(
  * `result` is Junie's summary of its work, not the model's answer; without the MCP opt-out it
  * loads the user's own MCP servers on every review.
  */
-internal fun junieCommand(binary: String, model: String, project: File, output: File, task: String): List<String> = listOf(
+internal fun junieCommand(binary: String, model: String, project: File, output: File, taskFile: File): List<String> = listOf(
     binary,
-    "--task", task,
+    "--task", "Read the file ${taskFile.name} in this project and follow its instructions exactly. " +
+        "Do not edit any file. Your whole answer must be the JSON object the file asks for, nothing else.",
     "--model", model,
     "--project", project.path,
     "--output-format", "json",

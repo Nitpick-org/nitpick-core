@@ -20,13 +20,18 @@ class JunieCliLlmClientTest {
         override suspend fun save(settings: Settings) = Unit
     }
 
-    /** A shell script standing in for `junie`: records its arguments, writes [envelope] to the output file. */
+    /**
+     * A shell script standing in for `junie`: records its arguments, copies the task file it is
+     * told to read (deleted after the run) and writes [envelope] to the output file.
+     */
     private fun fakeJunie(envelope: String, argsFile: File): String {
         val script = createTempFile("junie", ".sh").toFile()
         script.writeText(
             """
             #!/bin/sh
             printf '%s\037' "$@" > "${argsFile.path}"
+            while [ "$1" != "--project" ]; do shift; done
+            cat "$2"/review-task-*.md > "${argsFile.path}.task" 2>/dev/null
             while [ "$1" != "--json-output-file" ]; do shift; done
             printf '%s' '$envelope' > "$2"
             """.trimIndent(),
@@ -44,7 +49,9 @@ class JunieCliLlmClientTest {
 
         assertEquals("""{"summary":"ok","comments":[]}""", answer)
         val args = argsFile.readText().split(ARG_SEPARATOR)
-        assertEquals("system text\n\nuser text", args[args.indexOf("--task") + 1])
+        val task = args[args.indexOf("--task") + 1]
+        assertTrue("review-task-" in task && "follow its instructions" in task, task)
+        assertEquals("system text\n\nuser text", File("${argsFile.path}.task").readText())
         assertEquals("junie-lite", args[args.indexOf("--model") + 1])
         assertTrue("--act-as-interactive" in args, "result must be the answer, not Junie's summary")
         assertEquals("false", args[args.indexOf("--mcp-default-locations") + 1])
@@ -70,11 +77,16 @@ class JunieCliLlmClientTest {
     }
 
     @Test
-    fun aPromptTooLargeForAnArgumentFailsBeforeTheExec() = runTest {
-        val error = assertFailsWith<ReviewProviderException> {
-            JunieCliLlmClient(store, "/nonexistent/junie").complete("s", "x".repeat(100_001))
-        }
-        assertTrue("too large" in error.message.orEmpty())
+    fun aLargePromptGoesThroughTheFileAndTheFileIsRemovedAfterTheRun() = runTest {
+        val argsFile = createTempFile("junie-args").toFile()
+        val binary = fakeJunie("""{"result":"{}"}""", argsFile)
+        val big = "x".repeat(400_000)
+
+        JunieCliLlmClient(store, binary).complete("s", big)
+
+        assertEquals("s\n\n$big", File("${argsFile.path}.task").readText())
+        val project = argsFile.readText().split(ARG_SEPARATOR).let { it[it.indexOf("--project") + 1] }
+        assertTrue(File(project).listFiles().orEmpty().none { it.name.startsWith("review-task-") }, "task file left behind")
     }
 
     @Test
