@@ -27,4 +27,4 @@
 
 - 10:16 — worktree created.
 - 10:05 — `:shared:jvmTest` + `:server:test` on `main`: 218 tests, 4 skipped, 0 failures.
-- 10:15 — desktop replay on `main` with the local test repo: open, graph, review, shared review, settings.
+- 10:15 — desktop replay on `main` with the local test repo: open, graph, review started (result not observed, window taken over by hand), shared review opened from the server.

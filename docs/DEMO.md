@@ -107,10 +107,10 @@ Prepare 10 answers of 2 sentences:
   planted bugs (the night's replays fixed them in `cb55041`, `f91a419`, `93089d1`). Before the
   scene, reset it to `3a0510d` (`git push --force origin 3a0510d:perf/thumbnail-lookup`) or push
   a fresh branch from that commit, then re-clone on the laptop and the emulator.
-- **Desktop replay on `main` (22/11, 10:15, after the six audit merges)**: Open → graph →
-  Nitpick branch → Review panel, a shared review opened from the local server, Settings dialog:
-  no regression seen. Apply → commit → push not replayed on this pass (covered by the 02:05
-  share proof and the 00:45 Android replay).
+- **Desktop replay on `main` (22/11, 10:15, after the morning's audit merges #229, #231, #233)**:
+  Open → graph → Nitpick branch: the review started, its result was not observed (the window was
+  taken over by hand); a shared review opened from the local server: OK. Apply → commit → push
+  not replayed on this pass (covered by the 02:05 share proof and the 00:45 Android replay).
 
 ## Rehearsal
 
