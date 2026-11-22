@@ -14,8 +14,8 @@ Source: six audit lanes on `origin/main` @ `54c37a2`, plus #133/#135 merged afte
 
 ## Do not claim
 
-- "Nits inline" — true on the **desktop Diff tab** now (#195); the phone keeps the grouped list + bottom sheet. Apply all/Undo still absent.
-- "Apply all for this file" — absent (until #145).
+- "Nits inline" — true on the **desktop Diff tab** (#195), with **Apply all for a file** (#204); the phone keeps the grouped list + bottom sheet. Undo is absent (not in CONTEXT §7).
+- "Apply all for this file" — implemented on the desktop diff (#204).
 - "Before/after suggestion" — only the after half (until #145).
 - "Keyboard shortcuts" — none; the `⌘⇧R` hint is in the internal catalogue (P2 #171).
 - "Share proven end-to-end" — pass: #170 / PR #184 has desktop shared, phone opened, phone applied captures. Show `docs/demo/share-*.png`.
@@ -45,6 +45,7 @@ Source: six audit lanes on `origin/main` @ `54c37a2`, plus #133/#135 merged afte
 - #199 shared-review error visibility + corrupt store recovery (PR #199).
 - #162 public repo + MIT license + third-party notices.
 - #163 README/DEMO truthful (PR #183).
+- #204 Apply all suggestions for a file (desktop).
 
 ## Demo risks
 
