@@ -19,9 +19,21 @@ object ReviewAnchoring {
         if (snippet.isEmpty()) throw IllegalArgumentException("Comment ${comment.id} has no snippet")
         val start = findSnippet(lines, snippet, preferredStart = comment.startLine - 1)
             ?: throw IllegalArgumentException("Snippet not found for ${comment.id}")
-        val replacement = suggestion.split("\n")
+        val replacement = withOriginalIndentation(lines[start], suggestion)
         return (lines.subList(0, start) + replacement + lines.subList(start + snippet.size, lines.size))
             .joinToString("\n")
+    }
+
+    /**
+     * Models often return an unindented suggestion even when the snippet was indented. Keep the
+     * indentation of the line being replaced unless the model already supplied its own (#139).
+     */
+    private fun withOriginalIndentation(originalLine: String, suggestion: String): List<String> {
+        val indent = originalLine.takeWhile { it == ' ' || it == '\t' }
+        val suggestionLines = suggestion.split("\n")
+        val firstContent = suggestionLines.firstOrNull { it.isNotBlank() } ?: return suggestionLines
+        if (indent.isEmpty() || firstContent.first().isWhitespace()) return suggestionLines
+        return suggestionLines.map { line -> if (line.isBlank()) line else indent + line }
     }
 
     /** The comment moved to where its snippet really is, or null if the snippet is gone. */
