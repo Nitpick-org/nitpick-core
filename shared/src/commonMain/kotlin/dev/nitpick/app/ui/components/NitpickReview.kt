@@ -133,7 +133,7 @@ fun ReviewCommentCard(
 }
 
 private val DesktopActionSize = 28.dp
-private val TouchActionSize = 44.dp
+private val TouchActionSize = 48.dp
 
 @Composable
 private fun CardAction(icon: DrawableResource, description: String, tint: Color, background: Color, size: Dp, onClick: () -> Unit) {
