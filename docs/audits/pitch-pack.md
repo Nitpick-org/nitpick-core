@@ -16,10 +16,10 @@ Source: six audit lanes on `origin/main` @ `54c37a2`, plus #133/#135 merged afte
 
 - "Nits inline" — true on the **desktop Diff tab** (#195), with **Apply all for a file** (#204); the phone keeps the grouped list + bottom sheet. Undo is absent (not in CONTEXT §7).
 - "Apply all for this file" — implemented on the desktop diff (#204).
-- "Before/after suggestion" — only the after half (until #145).
-- "Keyboard shortcuts" — none; the `⌘⇧R` hint is in the internal catalogue (P2 #171).
+- "Before/after suggestion" — implemented (#141/#174); the card shows `-`/`+` lines.
+- "Keyboard shortcuts" — none; the `⌘⇧R` hint is in the internal catalogue (P2, not scheduled).
 - "Share proven end-to-end" — pass: #170 / PR #184 has desktop shared, phone opened, phone applied captures. Show `docs/demo/share-*.png`.
-- "Built with Air / Junie" — no capture; the comparison is Claude Code/subagents (until #169).
+- "Built with Air / Junie" — no capture; the comparison is Claude Code + subagents. Do not claim Air.
 - "No security issue" — no live secret in history; the server binds localhost (#167), LICENSE/THIRD-PARTY-NOTICES are in (#180), and the repo is **public** (#162).
 - "All four providers tested" — only Anthropic has a real recorded call (#82).
 - "99 % multiplatform common" — 99 % is shared+JGit; commonMain is 93.2 %.
@@ -61,4 +61,4 @@ Source: six audit lanes on `origin/main` @ `54c37a2`, plus #133/#135 merged afte
 - `progress/16-graph.md:37-52`: two subagents, comparison table, decision.
 - `docs/demo/dogfooding.md`: 2 nits, 1 real bug (#114), capture.
 - `progress/*.md`: per-ticket journals.
-- State honestly that `AGENT_LOG`/`REVIEW_LOG` are being filled and no Air capture exists, unless #169 produces one.
+- State honestly what is recorded in `AGENT_LOG`/`REVIEW_LOG`; no Air capture exists.
