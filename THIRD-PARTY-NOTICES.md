@@ -34,6 +34,12 @@ components, not to Nitpick's own code.
 - Projects: <https://github.com/Kotlin/kotlinx.coroutines>, <https://github.com/Kotlin/kotlinx.serialization>
 - License: <https://www.apache.org/licenses/LICENSE-2.0>
 
+## AndroidX (Activity Compose, Lifecycle) — Apache License 2.0
+
+- Project: <https://developer.android.com/jetpack/androidx>
+- License: <https://www.apache.org/licenses/LICENSE-2.0>
+- Used by `androidApp/` (Activity Compose) and the shared ViewModels (Lifecycle).
+
 ## JetBrains Mono — SIL Open Font License 1.1
 
 - Project: <https://www.jetbrains.com/lp/mono/>
