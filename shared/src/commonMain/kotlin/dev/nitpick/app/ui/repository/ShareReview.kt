@@ -20,6 +20,8 @@ import dev.nitpick.app.ui.components.NitpickBadge
 import dev.nitpick.app.ui.components.NitpickButton
 import dev.nitpick.app.ui.components.NitpickButtonSize
 import dev.nitpick.app.ui.components.NitpickButtonVariant
+import dev.nitpick.app.ui.components.SyncIcon
+import dev.nitpick.app.ui.components.SyncMotion
 import dev.nitpick.app.ui.components.NitpickCard
 import dev.nitpick.app.ui.theme.NitpickTheme
 import dev.nitpick.app.ui.theme.NitpickTone
@@ -28,7 +30,6 @@ import nitpick.shared.generated.resources.ic_fetch
 import nitpick.shared.generated.resources.ic_share
 import nitpick.shared.generated.resources.share_action
 import nitpick.shared.generated.resources.share_done
-import nitpick.shared.generated.resources.share_in_progress
 import nitpick.shared.generated.resources.share_no_remote
 import nitpick.shared.generated.resources.share_unreachable
 import nitpick.shared.generated.resources.shared_empty
@@ -46,11 +47,11 @@ internal fun ShareReviewAction(state: RepositoryUiState, onShare: () -> Unit, to
             NitpickBadge(stringResource(Res.string.share_done), tone = NitpickTone.Success)
         } else {
             NitpickButton(
-                text = stringResource(if (state.isSharing) Res.string.share_in_progress else Res.string.share_action),
+                text = stringResource(Res.string.share_action),
                 onClick = onShare,
                 enabled = !state.isSharing,
                 variant = NitpickButtonVariant.Secondary,
-                icon = Res.drawable.ic_share,
+                leading = { SyncIcon(Res.drawable.ic_share, SyncMotion.Up, state.isSharing, tint = NitpickTheme.colors.text) },
                 size = if (touch) NitpickButtonSize.Large else NitpickButtonSize.Small,
             )
         }

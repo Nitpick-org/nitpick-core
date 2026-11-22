@@ -52,13 +52,10 @@ import nitpick.shared.generated.resources.branch_checkout_hint
 import nitpick.shared.generated.resources.branch_no_upstream
 import nitpick.shared.generated.resources.fetch_action
 import nitpick.shared.generated.resources.ic_cloud
-import nitpick.shared.generated.resources.fetch_in_progress
 import nitpick.shared.generated.resources.pull_action
-import nitpick.shared.generated.resources.pull_in_progress
 import nitpick.shared.generated.resources.publish_action
 import nitpick.shared.generated.resources.publish_in_progress
 import nitpick.shared.generated.resources.push_action
-import nitpick.shared.generated.resources.push_in_progress
 import nitpick.shared.generated.resources.repository_loading
 import nitpick.shared.generated.resources.review_cta
 import nitpick.shared.generated.resources.shared_open
@@ -175,7 +172,7 @@ private fun BranchCard(
         val enabled = !state.isSyncing
         Row(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.spacedBy(8.dp)) {
             SyncButton(
-                text = stringResource(if (state.isFetching) Res.string.fetch_in_progress else Res.string.fetch_action),
+                text = stringResource(Res.string.fetch_action),
                 icon = Res.drawable.ic_fetch,
                 motion = SyncMotion.Spin,
                 active = state.isFetching,
@@ -185,7 +182,6 @@ private fun BranchCard(
             )
             SyncButton(
                 text = when {
-                    state.isPulling -> stringResource(Res.string.pull_in_progress)
                     (state.tracking?.behind ?: 0) > 0 -> stringResource(Res.string.sync_pull_count, state.tracking!!.behind)
                     else -> stringResource(Res.string.pull_action)
                 },
@@ -199,7 +195,6 @@ private fun BranchCard(
             if (state.tracking != null || state.hasOrigin) {
                 SyncButton(
                     text = when {
-                        state.isPushing -> stringResource(Res.string.push_in_progress)
                         state.tracking == null -> stringResource(Res.string.publish_action)
                         state.tracking.ahead > 0 -> stringResource(Res.string.sync_push_count, state.tracking.ahead)
                         else -> stringResource(Res.string.push_action)

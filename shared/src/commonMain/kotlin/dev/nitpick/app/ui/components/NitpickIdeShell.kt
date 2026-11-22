@@ -1,6 +1,7 @@
 package dev.nitpick.app.ui.components
 
 import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.RowScope
 import androidx.compose.foundation.layout.Spacer
@@ -68,7 +69,7 @@ fun NitpickToolbarAction(
             horizontalArrangement = Arrangement.spacedBy(6.dp),
         ) {
             icon?.let { NitpickIcon(it, contentDescription = null, modifier = pop.modifier, tint = foreground) }
-            leading?.invoke()
+            leading?.let { Box(pop.modifier) { it() } }
             Text(
                 text = text,
                 style = NitpickTheme.typography.label,

@@ -240,7 +240,7 @@ private fun RepositoryToolbar(
             val syncing = state.isSyncing
             NitpickTooltip(text = stringResource(Res.string.fetch_action)) {
                 NitpickToolbarAction(
-                    text = stringResource(if (state.isFetching) Res.string.fetch_in_progress else Res.string.fetch_action),
+                    text = stringResource(Res.string.fetch_action),
                     onClick = { if (!syncing) onFetch() },
                     leading = { SyncIcon(Res.drawable.ic_fetch, SyncMotion.Spin, state.isFetching, tint = NitpickTheme.colors.onToolbar) },
                 )
@@ -248,7 +248,6 @@ private fun RepositoryToolbar(
             NitpickTooltip(text = stringResource(if (state.isPullBlocked) Res.string.sync_commit_first else Res.string.pull_action)) {
                 NitpickToolbarAction(
                     text = when {
-                        state.isPulling -> stringResource(Res.string.pull_in_progress)
                         (state.tracking?.behind ?: 0) > 0 -> stringResource(Res.string.sync_pull_count, state.tracking!!.behind)
                         else -> stringResource(Res.string.pull_action)
                     },
@@ -263,7 +262,6 @@ private fun RepositoryToolbar(
                 ) {
                 NitpickToolbarAction(
                     text = when {
-                        state.isPushing -> stringResource(Res.string.push_in_progress)
                         state.tracking == null -> stringResource(Res.string.publish_action)
                         state.tracking.ahead > 0 -> stringResource(Res.string.sync_push_count, state.tracking.ahead)
                         else -> stringResource(Res.string.push_action)

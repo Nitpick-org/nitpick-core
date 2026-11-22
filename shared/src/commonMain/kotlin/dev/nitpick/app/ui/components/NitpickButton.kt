@@ -2,6 +2,7 @@ package dev.nitpick.app.ui.components
 
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
@@ -71,7 +72,7 @@ fun NitpickButton(
             verticalAlignment = Alignment.CenterVertically,
         ) {
             icon?.let { NitpickIcon(it, contentDescription = null, modifier = pop.modifier, tint = foreground) }
-            leading?.invoke()
+            leading?.let { Box(pop.modifier) { it() } }
             Text(text = text, style = labelStyle, color = foreground, maxLines = 1)
         }
     }
