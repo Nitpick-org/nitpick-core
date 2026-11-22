@@ -88,11 +88,8 @@ fun ReviewCommentCard(
                 maxLines = 1,
                 softWrap = false,
             )
-            // Like an IDE intention: a green check applies, a red cross dismisses, in the corner.
-            if (onApply != null) {
-                CardAction(Res.drawable.ic_check, stringResource(Res.string.review_apply), colors.success, colors.successSoft, actionSize, onApply)
-            }
-            if (onDismiss != null) {
+            // A nit without a change block keeps its cross here; otherwise the actions sit on the change.
+            if (suggestion == null && onDismiss != null) {
                 CardAction(Res.drawable.ic_x, stringResource(Res.string.review_dismiss), colors.danger, colors.dangerSoft, actionSize, onDismiss)
             }
         }
@@ -109,11 +106,21 @@ fun ReviewCommentCard(
                     modifier = Modifier.fillMaxWidth().padding(10.dp),
                     verticalArrangement = Arrangement.spacedBy(6.dp),
                 ) {
-                    Text(
-                        text = stringResource(Res.string.review_suggested_change),
-                        style = NitpickTheme.typography.kicker,
-                        color = colors.textMuted,
-                    )
+                    // Like an IDE intention, on the change itself: a green check applies, a red cross dismisses.
+                    Row(verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(8.dp)) {
+                        Text(
+                            text = stringResource(Res.string.review_suggested_change),
+                            style = NitpickTheme.typography.kicker,
+                            color = colors.textMuted,
+                            modifier = Modifier.weight(1f),
+                        )
+                        if (onApply != null) {
+                            CardAction(Res.drawable.ic_check, stringResource(Res.string.review_apply), colors.success, colors.successSoft, actionSize, onApply)
+                        }
+                        if (onDismiss != null) {
+                            CardAction(Res.drawable.ic_x, stringResource(Res.string.review_dismiss), colors.danger, colors.dangerSoft, actionSize, onDismiss)
+                        }
+                    }
                     // Before and after, like a diff: the jury sees what changes, not only the result.
                     original?.takeIf { it.isNotBlank() }?.lines()?.forEach { ChangeLine("-", it, colors.diffRemovedBg, colors.diffRemovedFg) }
                     suggestion.lines().forEach { ChangeLine("+", it, colors.diffAddedBg, colors.diffAddedFg) }
