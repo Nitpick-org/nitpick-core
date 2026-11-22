@@ -1,71 +1,71 @@
 # Ticket 18-theme-settings
 
-- Statut : prêt pour review (PR)
-- Propriétaire humain : @thomas
-- Piste : C android+finitions
-- Agent : Claude Fable 5.1 (session interactive)
-- Model : fable
-- Escalations : aucune
-- Fichiers autorisés : shared/src/commonMain/kotlin/dev/nitpick/app/{ui,settings}/**,
+- Status: ready for review (PR)
+- Human owner: @thomas
+- Track: C android+polish
+- Agent: Claude Fable 5.1 (interactive session)
+- Model: fable
+- Escalations: none
+- Allowed files: shared/src/commonMain/kotlin/dev/nitpick/app/{ui,settings}/**,
   shared/src/commonMain/kotlin/dev/nitpick/app/AppContainer.kt,
   shared/src/commonMain/composeResources/**, shared/src/jvmSharedMain/.../settings/**,
   shared/src/{commonTest,jvmTest}/.../settings/**, desktopApp/.../main.kt,
   androidApp/.../MainActivity.kt, gradle/libs.versions.toml, shared/build.gradle.kts
 
-## Fait
+## Done
 
-- `Settings` est `@Serializable` (contrat inchangé).
-- `FileSettingsStore(file)` dans `jvmSharedMain` : JSON, `Dispatchers.IO`, fichier absent ou
-  corrompu → `Settings()`, `ignoreUnknownKeys` pour les champs futurs.
-- `AppContainer(settingsStore)`, créé par `main()` (`~/.nitpick/settings.json`) et
+- `Settings` is `@Serializable` (contract unchanged).
+- `FileSettingsStore(file)` in `jvmSharedMain`: JSON, `Dispatchers.IO`, missing or corrupted
+  file → `Settings()`, `ignoreUnknownKeys` for future fields.
+- `AppContainer(settingsStore)`, created by `main()` (`~/.nitpick/settings.json`) and
   `MainActivity` (`filesDir/settings.json`).
-- `NitpickTheme(themeMode)` : Material 3 clair/sombre, SYSTEM suit `isSystemInDarkTheme()`,
-  accent unique teal (`#0F766E` clair, `#5EEAD4` sombre).
-- `SettingsViewModel` (StateFlow<Settings>, `update { copy }` qui sauvegarde) +
-  `SettingsScreen` : thème, fournisseur, modèle, clé API masquée.
-- 12 strings EN/FR dans `composeResources/values{,-fr}/strings.xml`, zéro `Text("…")` dans `ui/`.
-- `App(container)` : thème + écran Réglages comme seul écran ; le boilerplate du wizard
-  (Greeting, logo, previews) est supprimé.
-- Tests : `FileSettingsStoreTest` (jvmTest, 4 tests : aller-retour, absent, corrompu, dossier
-  parent créé) et `SettingsTest` (commonTest, défauts). Rapport : 4 + 1 exécutés, 0 échec.
+- `NitpickTheme(themeMode)`: Material 3 light/dark, SYSTEM follows `isSystemInDarkTheme()`,
+  single teal accent (`#0F766E` light, `#5EEAD4` dark).
+- `SettingsViewModel` (StateFlow<Settings>, `update { copy }` that saves) +
+  `SettingsScreen`: theme, provider, model, masked API key.
+- 12 EN/FR strings in `composeResources/values{,-fr}/strings.xml`, zero `Text("…")` in `ui/`.
+- `App(container)`: theme + Settings screen as the only screen; the wizard boilerplate
+  (Greeting, logo, previews) is removed.
+- Tests: `FileSettingsStoreTest` (jvmTest, 4 tests: round trip, missing, corrupted, parent
+  directory created) and `SettingsTest` (commonTest, defaults). Report: 4 + 1 executed, 0 failures.
 
-## Décisions
+## Decisions
 
-- Un seul `FileSettingsStore` en `jvmSharedMain` plutôt que l'expect/actual + SharedPreferences
-  du §5 : `java.io.File` existe sur les deux cibles, donc zéro code plateforme et un seul test.
-  Écart noté dans `docs/QUESTIONS.md`.
-- Pas de test du ViewModel : il faudrait `kotlinx-coroutines-test` + `Dispatchers.setMain` pour
-  trois lignes de logique ; le store et les défauts sont testés comme le ticket l'exige.
-- Première frame avec le thème par défaut avant la lecture du fichier : accepté.
+- A single `FileSettingsStore` in `jvmSharedMain` rather than the expect/actual + SharedPreferences
+  of §5: `java.io.File` exists on both targets, so zero platform code and a single test.
+  Gap noted in `docs/QUESTIONS.md`.
+- No ViewModel test: it would need `kotlinx-coroutines-test` + `Dispatchers.setMain` for
+  three lines of logic; the store and the defaults are tested as the ticket requires.
+- First frame with the default theme before the file is read: accepted.
 
-## Incertain / blocages
+## Uncertain / blockers
 
-- Aucun. Android rejoué sur l'émulateur `nitpick` (API 36, arm64) : tap Dark →
-  `files/settings.json` = `{"themeMode": "DARK"}` en `-rw-------`, force-stop + relance → Dark
-  toujours sélectionné et thème sombre appliqué (captures dans le scratchpad de session).
+- None. Android replayed on the `nitpick` emulator (API 36, arm64): tap Dark →
+  `files/settings.json` = `{"themeMode": "DARK"}` in `-rw-------`, force-stop + restart → Dark
+  still selected and the dark theme applied (screenshots in the session scratchpad).
 
-## Suivant
+## Next
 
-- #15 branche le layout desktop et déplace l'écran Réglages derrière une navigation.
+- #15 wires the desktop layout and moves the Settings screen behind a navigation.
 
-## Journal
+## Log
 
-- 15:45 — branche `ticket/18-theme-settings`, plan.
-- 16:40 — implémentation, `check.sh` vert (1er run : test non-void, corrigé).
-- 16:50 — desktop lancé, toggle Sombre → `~/.nitpick/settings.json` écrit, fermeture OK.
-- 17:20 — review ponytail : écritures sérialisées sur un seul thread (`limitedParallelism(1)`),
-  fichier écrit via `.tmp` + rename, lecture réservée au propriétaire, chargement initial par
-  `compareAndSet` ; test permissions ajouté (5 tests store).
-- 17:50 — rebase sur `main` (#27 et #29 mergés) : `AppContainer` porte git + settings, `App`
-  garde `RepositoryScreen` sous `NitpickTheme` avec un bouton « Réglages » et un retour ;
-  29 strings EN/FR. Règle force push assouplie pour les branches de PR (règles d'équipe et
-  liste de refus Claude).
-- 18:15 — émulateur installé (`sdkmanager emulator` + image android-36 arm64, AVD `nitpick`),
-  persistance Android vérifiée ; libellés des boutons segmentés sur une ligne (auto-size, sans
-  coche) pour que « Anthropic » tienne sur téléphone.
-- 18:40 — modèle : select pur par fournisseur (`LlmProvider.knownModels`, `ExposedDropdownMenuBox`
-  en lecture seule), défaut `claude-opus-5-5` ; changer de fournisseur sélectionne son premier modèle. Ids
-  Anthropic vérifiés (opus/sonnet/haiku 5.5), OpenAI/Google/Ollama non vérifiés (`shortcut:`).
-- 18:55 — review ponytail : écran Réglages scrollable (paysage / petite fenêtre) ; un fichier
-  d'un ancien build avec `model` vide reçoit le premier modèle du fournisseur au chargement
-  (6 tests store).
+- 15:45 — branch `ticket/18-theme-settings`, plan.
+- 16:40 — implementation, `check.sh` green (1st run: non-void test, fixed).
+- 16:50 — desktop launched, Dark toggle → `~/.nitpick/settings.json` written, close OK.
+- 17:20 — ponytail review: writes serialized on a single thread (`limitedParallelism(1)`),
+  file written via `.tmp` + rename, read reserved to the owner, initial load by
+  `compareAndSet`; permissions test added (5 store tests).
+- 17:50 — rebase on `main` (#27 and #29 merged): `AppContainer` carries git + settings, `App`
+  keeps `RepositoryScreen` under `NitpickTheme` with a "Settings" button and a back action;
+  29 EN/FR strings. Force-push rule relaxed for PR branches (team rules and
+  Claude refusal list).
+- 18:15 — emulator installed (`sdkmanager emulator` + android-36 arm64 image, AVD `nitpick`),
+  Android persistence verified; segmented button labels on one line (auto-size, without a
+  check mark) so that "Anthropic" fits on a phone.
+- 18:40 — model: pure select per provider (`LlmProvider.knownModels`, `ExposedDropdownMenuBox`
+  read-only), default `claude-opus-5-5`; changing provider selects its first model. Anthropic
+  ids verified (opus/sonnet/haiku 5.5), OpenAI/Google/Ollama unverified (`shortcut:`).
+- 18:55 — ponytail review: scrollable Settings screen (landscape / small window); a file
+  from an old build with an empty `model` receives the provider's first model on load
+  (6 store tests).

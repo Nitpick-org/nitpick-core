@@ -1,33 +1,33 @@
 # Ticket 87-android-vectors
 
-- Statut : prêt pour PR
-- Propriétaire humain : @zooldyyk
-- Piste : C (Android)
-- Agent : lead
-- Fichiers : `shared/src/commonMain/composeResources/drawable/ic_*.xml`,
-  suppression des `ic_*.svg`
+- Status: ready for PR
+- Human owner: @zooldyyk
+- Track: C (Android)
+- Agent: lead
+- Files: `shared/src/commonMain/composeResources/drawable/ic_*.xml`,
+  removal of the `ic_*.svg`
 
-## Journal
+## Log
 
-- 23:20 — #87 reproduit : Compose Resources ne décode pas SVG sur Android
-  (`Android platform doesn't support SVG format`). Conversion des 15 icônes UI en
-  `VectorDrawable` XML 24 dp, même `pathData`, trait 1,8, bouts ronds.
-- Les app icons `ic_app_light/dark.png` restent des PNG (desktop/dock), hors du chemin
-  Android.
+- 23:20 — #87 reproduced: Compose Resources does not decode SVG on Android
+  (`Android platform doesn't support SVG format`). Conversion of the 15 UI icons to
+  `VectorDrawable` XML 24 dp, same `pathData`, 1.8 stroke, round caps.
+- The `ic_app_light/dark.png` app icons stay PNG (desktop/dock), outside the
+  Android path.
 
-## Décisions
+## Decisions
 
-- Un seul format pour les icônes UI : XML vectoriel, décodé par Compose sur desktop et
-  Android. Plus aucun SVG dans `composeResources`.
-- Aucun changement de code : `painterResource` accepte déjà les VectorDrawables.
+- A single format for UI icons: vector XML, decoded by Compose on desktop and
+  Android. No SVG left in `composeResources`.
+- No code change: `painterResource` already accepts VectorDrawables.
 
-## Vérifications
+## Checks
 
-- `:shared:compileKotlinJvm` + `:desktopApp:compileKotlin` verts.
-- `:androidApp:assembleDebug` non lancé (SDK absent) ; validation Branches à faire sur
-  l'émulateur.
+- `:shared:compileKotlinJvm` + `:desktopApp:compileKotlin` green.
+- `:androidApp:assembleDebug` not run (no SDK); Branches validation to do on
+  the emulator.
 
-## Incertain
+## Uncertain
 
-- Rendu exact des paths (couleur/trait) à vérifier sur Android ; le tint est appliqué par
+- Exact rendering of the paths (color/stroke) to check on Android; the tint is applied by
   `NitpickIcon`.

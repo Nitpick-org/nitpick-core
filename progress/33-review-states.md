@@ -1,32 +1,32 @@
 # Ticket 33-review-states
 
-- Statut : prêt pour PR (desktop ; Android suivra avec #23)
-- Propriétaire humain : @dovatgabriel (H1) pour la revue ; implémentation H2
-- Piste : B + C (UI partagée)
-- Agent : lead
-- Fichiers : `shared/src/commonMain/.../ui/repository/{ReviewPanel,RepositoryViewModel,RepositoryScreen}.kt`,
+- Status: ready for PR (desktop; Android will follow with #23)
+- Human owner: @dovatgabriel (H1) for the review; H2 implementation
+- Track: B + C (shared UI)
+- Agent: lead
+- Files: `shared/src/commonMain/.../ui/repository/{ReviewPanel,RepositoryViewModel,RepositoryScreen}.kt`,
   `composeResources/values{,-fr}/strings.xml`, `commonTest/.../RepositoryViewModelTest.kt`
 
-## Journal
+## Log
 
-- 18:45 — états typés : `ReviewFailure.MissingKey`, `Network`, `Timeout`, `Other` ; mapping
-  depuis `MissingApiKeyException`, `ReviewProviderException` (timeout par message/cause).
-- 18:50 — ReviewPanel : progression (4 étapes), clé manquante → Open Settings, réseau/timeout
-  → Retry, branche propre → CLEAN, résultat inchangé.
-- 18:55 — tests ViewModel : clé manquante, provider/network, timeout distinct.
+- 18:45 — typed states: `ReviewFailure.MissingKey`, `Network`, `Timeout`, `Other`; mapping
+  from `MissingApiKeyException`, `ReviewProviderException` (timeout by message/cause).
+- 18:50 — ReviewPanel: progress (4 steps), missing key → Open Settings, network/timeout
+  → Retry, clean branch → CLEAN, unchanged result.
+- 18:55 — ViewModel tests: missing key, provider/network, distinct timeout.
 
-## Décisions
+## Decisions
 
-- L’erreur fournisseur reste reformulée par `KoogLlmClient` ; l’UI ne montre jamais la clé.
-- Le bouton « Push N commits » de l’état propre est omis tant que #36 (fetch/pull/push) n’est
-  pas là ; l’état indique simplement la branche propre.
+- The provider error stays reformulated by `KoogLlmClient`; the UI never shows the key.
+- The "Push N commits" button of the clean state is omitted as long as #36 (fetch/pull/push) is
+  not there; the state simply indicates the clean branch.
 
-## Vérifications
+## Checks
 
-- `:shared:jvmTest --rerun-tasks` : tests ajoutés, 0 échec.
-- `:shared:compileKotlinJvm` + `:desktopApp:compileKotlin` verts.
-- Android : états partagés prêts, écran Android à brancher avec #23.
+- `:shared:jvmTest --rerun-tasks`: added tests, 0 failure.
+- `:shared:compileKotlinJvm` + `:desktopApp:compileKotlin` green.
+- Android: shared states ready, Android screen to wire with #23.
 
-## Suivant
+## Next
 
-- Rejouer les 6 états à l’écran desktop/Android et comparer au handoff.
+- Replay the 6 states on the desktop/Android screen and compare with the handoff.

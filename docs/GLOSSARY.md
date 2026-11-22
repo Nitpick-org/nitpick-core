@@ -1,25 +1,25 @@
-# Glossaire — le langage de l'équipe
+# Glossary — the team's language
 
-> Un terme ambigu coûte des heures d'agents. Dès qu'un mot peut vouloir dire deux choses,
-> on l'écrit ici. Les agents utilisent ce vocabulaire dans le code, les tickets et les tests.
+> An ambiguous term costs agent-hours. As soon as a word can mean two things,
+> we write it here. Agents use this vocabulary in the code, the tickets and the tests.
 
-## Règle
+## Rule
 
-- Un terme = une définition = un nom de variable/fichier cohérent.
-- Si un terme change, mettre à jour cette page et `docs/DECISIONS.md`.
-- Ne pas inventer de synonyme dans le code.
+- One term = one definition = one consistent variable/file name.
+- If a term changes, update this page and `docs/DECISIONS.md`.
+- Do not invent synonyms in the code.
 
-## Termes
+## Terms
 
-| Terme | Définition | À ne pas confondre avec |
+| Term | Definition | Not to be confused with |
 | --- | --- | --- |
-| **démo** | Le parcours de 3 minutes décrit dans `docs/DEMO.md` | le produit complet |
-| **aha** | Le moment visible où le jury comprend la valeur | la feature technique |
-| **ticket** | Une tranche verticale, un comportement visible | une tâche technique |
-| **module** | Un dossier `src/modules/<nom>/` avec une interface publique | un fichier |
-| **mock** | Une implémentation simulée, clairement assumée | une donnée fausse non dite |
-| **critique démo** | Si ça casse, la démo est morte | important mais optionnel |
-| **nouveauté** | Ce qui n'existait pas avant, en une phrase | la complexité |
-| **sponsor challenge** | Le challenge d'un sponsor, avec ses critères | le classement global |
+| **demo** | The 3-minute walkthrough described in `docs/DEMO.md` | the complete product |
+| **aha** | The visible moment when the jury understands the value | the technical feature |
+| **ticket** | A vertical slice, a visible behaviour | a technical task |
+| **module** | A `src/modules/<nom>/` folder with a public interface | a file |
+| **mock** | A simulated implementation, clearly acknowledged as such | fake data no one mentions |
+| **demo-critical** | If it breaks, the demo is dead | important but optional |
+| **novelty** | What did not exist before, in one sentence | the complexity |
+| **sponsor challenge** | A sponsor's challenge, with its criteria | the overall ranking |
 
 <!-- Add the project terms at H0: product name, actors, domain objects. -->

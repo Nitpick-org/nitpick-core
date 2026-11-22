@@ -1,65 +1,65 @@
 @AGENTS.md
 
-# Claude Code — en plus d'AGENTS.md
+# Claude Code — in addition to AGENTS.md
 
-Les règles de l'équipe sont dans `AGENTS.md`, importé ci-dessus. Ce fichier ne couvre que
-les sous-agents, le routage des modèles, les hooks, l'AFK et la capacité Ultra.
+The team rules live in `AGENTS.md`, imported above. This file covers only
+sub-agents, model routing, hooks, AFK and Ultra capacity.
 
-## Sous-agents
+## Sub-agents
 
-| Besoin | Agent | Modèle par défaut |
+| Need | Agent | Default model |
 | --- | --- | --- |
-| Doc factuelle, README, progress, résumé | `scribe` | Haiku |
-| Implémenter un ticket en TDD | `implementer` | Sonnet (Opus si critique démo à risque ≥ moyen) |
-| Recherche sourcée (Koog, JGit, Compose, jury) | `researcher` | Sonnet |
-| Rejouer la démo, chercher ce qui casse | `qa-demo` | Sonnet |
-| Relire un diff avant merge | `reviewer` | Opus |
-| Découper en packages et tickets | `architect` | Opus |
-| Challenger le scope ou un plan | `devils-advocate` | Opus |
-| Script de démo, README de soumission, Q&A | `pitch` | Opus |
+| Factual docs, README, progress, summary | `scribe` | Haiku |
+| Implement a ticket in TDD | `implementer` | Sonnet (Opus if demo-critical with risk ≥ medium) |
+| Sourced research (Koog, JGit, Compose, jury) | `researcher` | Sonnet |
+| Replay the demo, find what breaks | `qa-demo` | Sonnet |
+| Review a diff before merge | `reviewer` | Opus |
+| Split into packages and tickets | `architect` | Opus |
+| Challenge the scope or a plan | `devils-advocate` | Opus |
+| Demo script, submission README, Q&A | `pitch` | Opus |
 
-- **Route avant de déléguer** : `/route-task`, détail dans `docs/MODEL-ROUTING.md`. Commence
-  bas ; deux échecs sur le même point → relance le même agent avec le modèle au-dessus.
-  Fable se choisit à la main (`/model`), pour une décision à fort enjeu.
-- La reconnaissance du code passe par les agents intégrés `Explore` et `Plan` (lecture seule).
-- Les sous-agents absorbent le bruit (lecture, recherche, review, QA) ; l'écriture de code
-  se fait dans un worktree par ticket. Plafond : 8 sessions, dont 3 écrivains de code
-  (`docs/AGENT-OPS.md`, `docs/ULTRA.md`). Les agent teams restent désactivées.
-- Un rapport de sous-agent est une proposition : l'humain du domaine décide ce qu'on garde,
-  et chaque rejet ou correction va dans `docs/REVIEW_LOG.md`.
+- **Route before delegating**: `/route-task`, details in `docs/MODEL-ROUTING.md`. Start
+  low; two failures on the same point → relaunch the same agent with the model one step up.
+  Fable is picked by hand (`/model`), for a high-stakes decision.
+- Code reconnaissance goes through the built-in `Explore` and `Plan` agents (read-only).
+- Sub-agents absorb the noise (reading, research, review, QA); code writing
+  happens in one worktree per ticket. Cap: 8 sessions, 3 of them code writers
+  (`docs/AGENT-OPS.md`, `docs/ULTRA.md`). Agent teams stay disabled.
+- A sub-agent report is a proposal: the domain human decides what we keep,
+  and every rejection or correction goes into `docs/REVIEW_LOG.md`.
 
 ## Hooks
 
-- **`Stop`** (`scripts/stop-check.sh`) : tant que `check.sh` est rouge sur un arbre modifié,
-  la session ne peut pas s'arrêter. Exploration volontairement sale :
+- **`Stop`** (`scripts/stop-check.sh`): as long as `check.sh` is red on a modified tree,
+  the session cannot stop. Deliberately dirty exploration:
   `HACKATHON_SKIP_STOP_CHECK=1 claude`.
-- **`PreToolUse` Edit/Write** (`scripts/guard-protected.sh`) : un sous-agent ou une session
-  headless n'édite pas `AGENTS.md`, `CLAUDE.md`, `docs/CONTEXT.md`, `docs/REVIEW_LOG.md`,
+- **`PreToolUse` Edit/Write** (`scripts/guard-protected.sh`): a sub-agent or a headless
+  session does not edit `AGENTS.md`, `CLAUDE.md`, `docs/CONTEXT.md`, `docs/REVIEW_LOG.md`,
   `docs/DECISIONS.md`, `docs/PRD.md`, `docs/STRATEGY.md`, `docs/AGENT-OPS.md`,
-  `docs/ULTRA.md`, `docs/MODEL-ROUTING.md`, `progress.txt`, `.env`. Override explicite :
+  `docs/ULTRA.md`, `docs/MODEL-ROUTING.md`, `progress.txt`, `.env`. Explicit override:
   `HACKATHON_ALLOW_PROTECTED=1`.
-- **`PreToolUse` Bash** (`scripts/guard-bash.sh`) : bloque tout accès à `.env` et toute
-  commande d'écriture (`>`, `sed -i`, `mv`, `python`…) qui nomme un fichier protégé, **même
-  dans la session humaine**. Pour les lire, utilise Read ; pour les modifier, Edit ou Write.
-  Un message de commit qui contient `>` et un de ces noms est bloqué aussi : écris-le dans
-  un fichier et passe-le avec `git commit -F`.
-- **`pre-commit`** (`.githooks/pre-commit`) : lance `check.sh` et refuse un `.env` indexé.
+- **`PreToolUse` Bash** (`scripts/guard-bash.sh`): blocks all access to `.env` and any
+  write command (`>`, `sed -i`, `mv`, `python`…) that names a protected file, **even
+  in the human session**. To read them, use Read; to change them, use Edit or Write.
+  A commit message that contains `>` and one of these names is blocked too: write it to
+  a file and pass it with `git commit -F`.
+- **`pre-commit`** (`.githooks/pre-commit`): runs `check.sh` and rejects a staged `.env`.
 
 ## AFK
 
-`AFK_OK=1 ./scripts/afk-ralph.sh 4` dans un worktree de ticket, seulement si la tâche a un
-oracle déterministe (`check.sh`, un test), qu'elle est low-risk (tests, docs, refactor
-local, aucune décision produit) et que le worktree est propre. Ouvre `claude` une fois dans
-le worktree avant (trust dialog). Modèle Sonnet par défaut ; les scripts refusent Fable.
-Détail : `docs/AGENT-OPS.md`, `docs/ULTRA.md`.
+`AFK_OK=1 ./scripts/afk-ralph.sh 4` in a ticket worktree, only if the task has a
+deterministic oracle (`check.sh`, a test), is low-risk (tests, docs, local refactor,
+no product decision) and the worktree is clean. Open `claude` once in the worktree
+first (trust dialog). Sonnet model by default; the scripts refuse Fable.
+Details: `docs/AGENT-OPS.md`, `docs/ULTRA.md`.
 
-## Capacité et budget
+## Capacity and budget
 
-- H2 et H3 sont sur Ultra : la recherche large, la QA répétée et l'AFK partent chez eux ;
-  les décisions restent chez leur propriétaire.
-- `/usage` à chaque sync, comparé aux paliers de `docs/ULTRA.md`.
-- Claude Code tourne sur l'abonnement : `doctor.sh`, `ralph-once.sh` et `afk-ralph.sh`
-  refusent de tourner si `ANTHROPIC_API_KEY` est définie.
+- H2 and H3 are on Ultra: broad research, repeated QA and AFK go to them;
+  decisions stay with their owner.
+- `/usage` at every sync, compared against the thresholds in `docs/ULTRA.md`.
+- Claude Code runs on the subscription: `doctor.sh`, `ralph-once.sh` and `afk-ralph.sh`
+  refuse to run if `ANTHROPIC_API_KEY` is set.
 
 ## Agent skills
 

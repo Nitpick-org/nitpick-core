@@ -1,42 +1,42 @@
-# Brief Junie : branche à défauts de `pocket-ledger` (#44)
+# Junie brief: branch with planted defects in `pocket-ledger` (#44)
 
-À coller dans Air, dans un clone de `pocket-ledger` positionné sur `main`. Junie produit la
-branche que Nitpick relit pendant la démo (points 3 et 4 du script). La session Air sert
-aussi de capture pour #39.
+To be pasted into Air, in a clone of `pocket-ledger` checked out on `main`. Junie produces the
+branch that Nitpick reviews during the demo (points 3 and 4 of the script). The Air session also
+doubles as the capture for #39.
 
-## Le prompt
+## The prompt
 
-> Crée la branche `feature/search-pages-import` depuis `main` et ajoute trois commandes au
-> CLI `ledger`, **un commit par commande**, avec des messages conventionnels réalistes.
-> C'est un repo de démo pour un outil de code review : chaque commit contient
-> **volontairement** le défaut décrit ci-dessous. Écris-le comme un développeur pressé
-> l'écrirait, sans commentaire qui le signale, et sans le corriger.
+> Create the branch `feature/search-pages-import` from `main` and add three commands to the
+> `ledger` CLI, **one commit per command**, with realistic conventional messages.
+> This is a demo repo for a code review tool: each commit contains
+> **deliberately** the defect described below. Write it like a developer in a hurry
+> would write it, without a comment flagging it, and without fixing it.
 >
-> 1. `ledger list --page <n>` : pages de 10 dépenses, numérotées à partir de 1, avec
->    `LIMIT ? OFFSET ?` dans `ExpenseStore.page(page: Int)`. **Défaut** : l'offset vaut
->    `page * PAGE_SIZE`, donc la page 1 saute les 10 premières dépenses (off-by-one).
->    Commit : `feat: paginate the expense list`.
-> 2. `ledger search <text>` : les dépenses dont le marchand contient le texte, dans
->    `ExpenseStore.search(text: String)`. **Défaut** : la requête est construite par
->    concaténation, `"... WHERE merchant LIKE '%$text%'"`, avec `createStatement()`
->    (injection SQL). Commit : `feat: search expenses by merchant`.
-> 3. `ledger import <file.csv>` : importe un export bancaire `date,merchant,category,amount`
->    (en-tête ignoré) avec `parseCents` pour les montants. **Défaut** :
->    `File(path).bufferedReader()` n'est jamais fermé, pas de `use {}` (ressource non
->    fermée). Commit : `feat: import expenses from a bank CSV export`.
+> 1. `ledger list --page <n>`: pages of 10 expenses, numbered from 1, with
+>    `LIMIT ? OFFSET ?` in `ExpenseStore.page(page: Int)`. **Defect**: the offset equals
+>    `page * PAGE_SIZE`, so page 1 skips the first 10 expenses (off-by-one).
+>    Commit: `feat: paginate the expense list`.
+> 2. `ledger search <text>`: the expenses whose merchant contains the text, in
+>    `ExpenseStore.search(text: String)`. **Defect**: the query is built by
+>    concatenation, `"... WHERE merchant LIKE '%$text%'"`, with `createStatement()`
+>    (SQL injection). Commit: `feat: search expenses by merchant`.
+> 3. `ledger import <file.csv>`: imports a bank export `date,merchant,category,amount`
+>    (header ignored) with `parseCents` for the amounts. **Defect**:
+>    `File(path).bufferedReader()` is never closed, no `use {}` (resource not
+>    closed). Commit: `feat: import expenses from a bank CSV export`.
 >
-> Le reste du code est propre : mêmes conventions que `ExpenseStore` (requêtes préparées
-> partout ailleurs), README mis à jour avec les trois commandes. Les tests existants
-> restent verts ; n'ajoute pas de test pour ces trois commandes.
-> Aucun secret, aucun token, aucun fichier `.db` commité.
+> The rest of the code is clean: same conventions as `ExpenseStore` (prepared queries
+> everywhere else), README updated with the three commands. The existing tests
+> stay green; do not add a test for these three commands.
+> No secret, no token, no `.db` file committed.
 
-## Ce que l'humain vérifie avant de pousser
+## What the human checks before pushing
 
-- 3 commits sur la branche, un défaut par commit, aucun commentaire qui le trahit.
-- `./gradlew test` vert (tests de `main` seulement) ; `git ls-files` ne montre ni `.db` ni `.env`.
-- Nitpick sur la branche contre `main` trouve **au moins l'off-by-one**, avec une suggestion
-  applicable (`(page - 1) * PAGE_SIZE`). Sinon on ajuste le code, pas le prompt de review.
+- 3 commits on the branch, one defect per commit, no comment that gives it away.
+- `./gradlew test` green (tests of `main` only); `git ls-files` shows neither `.db` nor `.env`.
+- Nitpick on the branch against `main` finds **at least the off-by-one**, with an applicable
+  suggestion (`(page - 1) * PAGE_SIZE`). Otherwise we adjust the code, not the review prompt.
 
-## Fallback sans Air
+## Fallback without Air
 
-Même prompt dans Claude Code, noté dans `docs/AGENT_LOG.md` (`CONTEXT.md` §11).
+Same prompt in Claude Code, noted in `docs/AGENT_LOG.md` (`CONTEXT.md` §11).

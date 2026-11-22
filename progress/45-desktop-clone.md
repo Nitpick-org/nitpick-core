@@ -1,51 +1,51 @@
 # Ticket 45-desktop-clone
 
-- Statut : fait, à relire puis merger (issue #45). Preuve manuelle avec un dépôt privé à faire.
-- Piste : B
-- Agent : Claude Code, session principale
-- Model : opus 5.5
-- Escalations : aucune
-- Fichiers : `ui/repository/CloneDialog.kt` (nouveau), `ui/repository/RepositoryScreen.kt`,
+- Status: done, to review then merge (issue #45). Manual proof with a private repo still to do.
+- Track: B
+- Agent: Claude Code, main session
+- Model: opus 5.5
+- Escalations: none
+- Files: `ui/repository/CloneDialog.kt` (new), `ui/repository/RepositoryScreen.kt`,
   `ui/App.kt`, `composeResources/values{,-fr}/strings.xml`,
   `commonTest/.../ui/repository/CloneCredentialsTest.kt`
 
-## Journal
+## Log
 
-- Branche `ticket/45-desktop-clone` depuis `main`. #21 est fermée : `GitRepositoryFactory.clone`
-  et `RepositoryViewModel.cloneRepository` existent, rien à ajouter côté git.
-- `CloneDialog` : URL, token masqué (Show/Hide), dossier de destination (bouton Choose… qui
-  réutilise le sélecteur natif `pickDirectory` déjà passé à `App`), nom du dossier déduit de
-  l'URL. Le dialogue reste ouvert pendant le clone (bouton « Cloning… ») et affiche l'erreur
-  JGit sur place ; il se ferme quand le dépôt est chargé.
-- `cloneCredentials(url, token)` : token vide → clone anonyme ; sinon `x-access-token`, ou
-  `oauth2` si l'URL contient `gitlab`. 3 tests JVM exécutés, 0 échec.
-- Toolbar : « Clone repository… » à côté de « Open repository… », seulement si la plateforme a
-  un sélecteur de dossier (desktop). `recentRepositories` : effet existant de `App`.
-- `check.sh` vert.
-- Review ponytail, points 1 et 2 corrigés :
-  - Un clone raté fermait le dépôt ouvert (`load()` vide l'état avant git). Le clone tourne
-    maintenant dans son propre job et passe par `RepositoryUiState.clone` (chemin + erreur) ;
-    seul un clone réussi remplace l'état. Test `aFailedCloneKeepsTheOpenRepositoryAndReportsTheError`
-    exécuté, vert. Effet aussi sur Android : un clone raté laisse l'état précédent.
-  - La logique « clone en cours / erreur / fini » de `CloneScreen` et `CloneDialog` est
-    partagée dans `rememberCloneProgress` (`ui/phone/CloneScreen.kt`).
-  - Points 3 (GitLab détecté sur l'URL entière) et 4 (repli sur `Settings.gitConnection`)
-    laissés de côté.
+- Branch `ticket/45-desktop-clone` from `main`. #21 is closed: `GitRepositoryFactory.clone`
+  and `RepositoryViewModel.cloneRepository` exist, nothing to add on the git side.
+- `CloneDialog`: URL, masked token (Show/Hide), destination folder (Choose… button that
+  reuses the native `pickDirectory` picker already passed to `App`), folder name inferred from
+  the URL. The dialog stays open during the clone ("Cloning…" button) and shows the JGit
+  error in place; it closes when the repo is loaded.
+- `cloneCredentials(url, token)`: empty token → anonymous clone; otherwise `x-access-token`, or
+  `oauth2` if the URL contains `gitlab`. 3 JVM tests run, 0 failures.
+- Toolbar: "Clone repository…" next to "Open repository…", only if the platform has
+  a folder picker (desktop). `recentRepositories`: existing effect of `App`.
+- `check.sh` green.
+- Ponytail review, points 1 and 2 fixed:
+  - A failed clone closed the open repo (`load()` clears the state before git). The clone now
+    runs in its own job and goes through `RepositoryUiState.clone` (path + error);
+    only a successful clone replaces the state. Test `aFailedCloneKeepsTheOpenRepositoryAndReportsTheError`
+    run, green. Effect also on Android: a failed clone leaves the previous state.
+  - The "clone in progress / error / done" logic of `CloneScreen` and `CloneDialog` is
+    shared in `rememberCloneProgress` (`ui/phone/CloneScreen.kt`).
+  - Points 3 (GitLab detected on the whole URL) and 4 (fallback to `Settings.gitConnection`)
+    left aside.
 
-## Décisions
+## Decisions
 
-- Le token vit dans un `remember` du dialogue : ni `settings.json`, ni saved state, ni l'état
-  du ViewModel (déjà garanti par #21).
-- Pas de choix GitHub/GitLab dans le dialogue : on le déduit de l'URL.
-- Aide du token : texte exact de l'issue, nouvelle string `clone_token_help`.
+- The token lives in a `remember` of the dialog: not `settings.json`, nor saved state, nor the
+  ViewModel state (already guaranteed by #21).
+- No GitHub/GitLab choice in the dialog: it is inferred from the URL.
+- Token help: exact text of the issue, new string `clone_token_help`.
 
-## Incertain
+## Uncertain
 
-- Les erreurs « token invalide » / « réseau » sont le message brut de JGit, comme sur Android.
-- Push/pull après un clone privé utilisent `Settings.gitConnection`, pas le token du dialogue :
-  sans compte configuré, le push d'un dépôt privé échouera.
-- Pas vérifié à l'écran : un humain doit cloner un dépôt privé avec un token (critère 1).
+- The "invalid token" / "network" errors are the raw JGit message, as on Android.
+- Push/pull after a private clone use `Settings.gitConnection`, not the dialog token:
+  without a configured account, pushing a private repo will fail.
+- Not verified on screen: a human must clone a private repo with a token (criterion 1).
 
-## Suivant
+## Next
 
-- Preuve manuelle : `./gradlew :desktopApp:run`, Clone repository…, dépôt privé + token.
+- Manual proof: `./gradlew :desktopApp:run`, Clone repository…, private repo + token.

@@ -1,145 +1,145 @@
-# Audit 2 — partage, dry run et capacité Ultra
+# Audit 2 — sharing, dry run and Ultra capacity
 
-> Deuxième revue, le 16 novembre 2026, après l'ajout de `docs/ULTRA.md`, du dry run et du
-> starter. Objectif : vérifier que le repo peut être partagé aux 2 autres, testé en
-> situation réelle, et que les agents sont réglés pour 2 comptes Ultra.
+> Second review, on 16 November 2026, after adding `docs/ULTRA.md`, the dry run and the
+> starter. Objective: verify that the repo can be shared with the other 2, tested in a
+> real situation, and that the agents are configured for 2 Ultra accounts.
 
 ## Verdict
 
-La base est maintenant **partageable et testable** : onboarding, dry run, starter exécutable,
-scripts de capacité Ultra, garde-fous API key. Le dry run a été validé localement
-(installation, typecheck, 6 tests, build, 2 tests e2e).
+The base is now **shareable and testable**: onboarding, dry run, runnable starter,
+Ultra capacity scripts, API key guardrails. The dry run was validated locally
+(install, typecheck, 6 tests, build, 2 e2e tests).
 
-Deux choses restent **non vérifiables d'ici** : les réglages GitHub (collaborateurs,
-protection de branche, Actions) et le comportement réel des agents Claude Code. Le dry run
-est justement là pour ça.
+Two things remain **not verifiable from here**: the GitHub settings (collaborators,
+branch protection, Actions) and the real behaviour of the Claude Code agents. The dry run
+is precisely there for that.
 
-## Ce qui a été corrigé depuis l'audit 1
+## What has been fixed since audit 1
 
-| # | Constat | Correction |
+| # | Finding | Fix |
 | --- | --- | --- |
-| 1 | Impossible de partager proprement le repo | `docs/ONBOARDING.md` : accès, clone, hooks, `.env`, Ultra, skills, `doctor.sh`, dépannage |
-| 2 | Aucun test « situation réelle » | `docs/DRY-RUN.md` + starter Vite/React + `dry-run/TICKETS.md` + `dry-run/RETRO.md` |
-| 3 | Le starter n'était pas exécutable | `scripts/bootstrap-dry-run.sh` : branche jetable, copie, install, commit |
-| 4 | `new-worktree.sh` ne savait pas partir d'une branche de dry run | `WT_FROM` ajouté (`WT_FROM=dry-run/base`) |
-| 5 | Le modèle de `implementer` était décrit « souvent Sonnet » | Corrigé : Sonnet par défaut, Opus via override explicite |
-| 6 | Les sessions Ultra n'étaient pas intégrées à la concurrence | Table `Total Ultra` dans `AGENT-OPS` (8 sessions, 3 écrivains) |
-| 7 | Roster non optimisé pour Ultra | Section « Roster optimization for Ultra » : plus de lecteurs, jamais plus d'écrivains |
-| 8 | `doctor.sh` ne vérifiait pas onboarding/dry run | Ajout des docs et du starter |
-| 9 | README sans section partage | Section « Partager avec les 2 autres » + liens |
-| 10 | Checklist J-5 disait « repo public » et « 3 membres » | Corrigé : repo privé, 2 invitations, public avant soumission |
-| 11 | Pas de routage modèle : la doc pouvait partir sur Opus | `docs/MODEL-ROUTING.md`, skill `/route-task`, agent `scribe` (Haiku docs) |
+| 1 | Impossible to share the repo cleanly | `docs/ONBOARDING.md`: access, clone, hooks, `.env`, Ultra, skills, `doctor.sh`, troubleshooting |
+| 2 | No "real situation" test | `docs/DRY-RUN.md` + Vite/React starter + `dry-run/TICKETS.md` + `dry-run/RETRO.md` |
+| 3 | The starter was not runnable | `scripts/bootstrap-dry-run.sh`: throwaway branch, copy, install, commit |
+| 4 | `new-worktree.sh` did not know how to start from a dry run branch | `WT_FROM` added (`WT_FROM=dry-run/base`) |
+| 5 | The `implementer` model was described as "often Sonnet" | Fixed: Sonnet by default, Opus via explicit override |
+| 6 | Ultra sessions were not integrated into concurrency | `Total Ultra` table in `AGENT-OPS` (8 sessions, 3 writers) |
+| 7 | Roster not optimized for Ultra | "Roster optimization for Ultra" section: more readers, never more writers |
+| 8 | `doctor.sh` did not check onboarding/dry run | Added the docs and the starter |
+| 9 | README without a sharing section | "Share with the other 2" section + links |
+| 10 | J-5 checklist said "public repo" and "3 members" | Fixed: private repo, 2 invitations, public before submission |
+| 11 | No model routing: the doc could start on Opus | `docs/MODEL-ROUTING.md`, skill `/route-task`, `scribe` agent (Haiku docs) |
 
-## Constats encore ouverts
+## Findings still open
 
-| # | Priorité | Constat | Action | Propriétaire |
+| # | Priority | Finding | Action | Owner |
 | --- | --- | --- | --- | --- |
-| 1 | P0 | Pas de `package.json` à la racine : `check.sh` et la CI échouent | Choisir la stack, bootstrap, déployer | H2, J-4 |
-| 2 | P0 | CI rouge tant que `package.json` manque, donc `main` est bloquée pour les non-admins | Choisir la stack et faire passer `check` | H2, J-4 |
-| 3 | P0 | Pas de déploiement/preview | Déployer le hello world | H2, J-4 |
-| 4 | P1 | Project board pas encore créé | Le créer via l'UI web (ou `gh auth refresh -s project`) | H1 |
-| 5 | P1 | Labels et milestone créés, pas encore utilisés | Ouvrir les premiers tickets à H0 | H1 |
-| 6 | P1 | Le dry run n'a pas encore été joué par les 3 humains | Le planifier à J-3 et remplir `dry-run/RETRO.md` | tous |
-| 7 | P1 | Pas de test réel des 8 agents | Le dry run est le test ; noter les frictions | tous |
-| 8 | P2 | Le starter utilise `lint = tsc --noEmit` | Acceptable pour le dry run ; la vraie stack aura un vrai linter | H2 |
-| 9 | P2 | Le repo devra être public pour la soumission | Le rendre public à J-1, ou fournir un lien public | H2 |
+| 1 | P0 | No `package.json` at the root: `check.sh` and CI fail | Choose the stack, bootstrap, deploy | H2, J-4 |
+| 2 | P0 | CI red as long as `package.json` is missing, so `main` is blocked for non-admins | Choose the stack and make `check` pass | H2, J-4 |
+| 3 | P0 | No deployment/preview | Deploy the hello world | H2, J-4 |
+| 4 | P1 | Project board not created yet | Create it via the web UI (or `gh auth refresh -s project`) | H1 |
+| 5 | P1 | Labels and milestone created, not used yet | Open the first tickets at H0 | H1 |
+| 6 | P1 | The dry run has not yet been played by the 3 humans | Schedule it at J-3 and fill `dry-run/RETRO.md` | all |
+| 7 | P1 | No real test of the 8 agents | The dry run is the test; note the friction | all |
+| 8 | P2 | The starter uses `lint = tsc --noEmit` | Acceptable for the dry run; the real stack will have a real linter | H2 |
+| 9 | P2 | The repo will have to be public for the submission | Make it public at J-1, or provide a public link | H2 |
 
-### Réglages GitHub appliqués (16/11)
+### GitHub settings applied (16/11)
 
-- Collaborateurs : `pepito2t`, `dovatgabriel` (push).
-- `main` **sans protection** depuis le 21/11 (à la demande de l’équipe) : merge direct
-  autorisé. PR et `check` restent recommandés, mais ne bloquent plus.
-- Merge : squash + merge commit, rebase désactivé, auto-merge, suppression de branche après merge.
-- Features : issues/projects on, wiki/discussions off, description et topics.
-- Labels : `ticket`, `bug`, `demo`, `P0`, `P1`, `P2`, `blocked`, `review`.
-- Milestone : `LauzHack 2026` (22/11).
-- Dependabot alerts : activés.
-- Project board : pas encore créé (scope `project` absent du token `gh`).
+- Collaborators: `pepito2t`, `dovatgabriel` (push).
+- `main` **without protection** since 21/11 (at the team's request): direct merge
+  allowed. PR and `check` remain recommended, but no longer block.
+- Merge: squash + merge commit, rebase disabled, auto-merge, delete branch after merge.
+- Features: issues/projects on, wiki/discussions off, description and topics.
+- Labels: `ticket`, `bug`, `demo`, `P0`, `P1`, `P2`, `blocked`, `review`.
+- Milestone: `LauzHack 2026` (22/11).
+- Dependabot alerts: enabled.
+- Project board: not created yet (`project` scope missing from the `gh` token).
 
-## Audit des agents (Ultra)
+## Agents audit (Ultra)
 
-### Ce qui est bon
+### What is good
 
-- 8 agents, un rôle clair, pas de doublon ; `scribe` (Haiku) sort la doc des modèles chers.
-- `maxTurns` sur chaque agent, tools restrictifs pour les lecteurs, `disallowedTools` sur
+- 8 agents, a clear role, no duplicate; `scribe` (Haiku) takes the docs off the expensive models.
+- `maxTurns` on each agent, restrictive tools for readers, `disallowedTools` on
   `reviewer`.
-- Modèle routé : Opus pour les décisions, Sonnet pour le volume, Haiku pour la doc,
-  `implementer` en Sonnet, Opus via override explicite.
-- Hooks `Stop` et `PreToolUse` : pas de « done » sans `check.sh`, pas d'édition des docs
-  pivots par un sous-agent.
-- Garde-fou `ANTHROPIC_API_KEY` dans `doctor.sh`, `ralph-once.sh`, `afk-ralph.sh`.
-- AFK borné par `--max-turns` et `--max-budget-usd`, avec variables d'environnement validées.
-- Routage documenté (`docs/MODEL-ROUTING.md`) + skill `/route-task` : escalation après
-  2 échecs, Fable manuel, jamais d'Opus pour un README.
+- Routed model: Opus for decisions, Sonnet for volume, Haiku for docs,
+  `implementer` in Sonnet, Opus via explicit override.
+- `Stop` and `PreToolUse` hooks: no "done" without `check.sh`, no editing of the pivot
+  docs by a sub-agent.
+- `ANTHROPIC_API_KEY` guardrail in `doctor.sh`, `ralph-once.sh`, `afk-ralph.sh`.
+- AFK bounded by `--max-turns` and `--max-budget-usd`, with validated environment variables.
+- Documented routing (`docs/MODEL-ROUTING.md`) + skill `/route-task`: escalation after
+  2 failures, manual Fable, never Opus for a README.
 
-### Ce qu'il ne faut pas faire
+### What not to do
 
-- **Ajouter des agents écrivains code.** Le goulot est la revue humaine ; 8 sessions,
-  3 écrivains code max. `scribe` est docs-only et ne compte pas dedans. Ultra donne des
-  lecteurs en plus, pas des mergeurs en plus.
-- **Activer les agent teams.** Expérimental, pas d'isolation worktree par coéquipier.
-- **Mettre Fable par défaut.** Limite séparée, consommation rapide, réservé aux décisions
-  à fort enjeu.
-- **Utiliser `ANTHROPIC_API_KEY`.** En `-p`, Claude Code la prend systématiquement ; les
-  scripts refusent, c'est voulu.
-- **Créer un agent `scout` maison.** Les agents intégrés Explore/Plan font déjà la
-  reconnaissance read-only.
+- **Add code-writing agents.** The bottleneck is the human review; 8 sessions,
+  3 code writers max. `scribe` is docs-only and does not count in it. Ultra gives more
+  readers, not more mergers.
+- **Enable agent teams.** Experimental, no worktree isolation per teammate.
+- **Set Fable by default.** Separate limit, fast consumption, reserved for high-stakes
+  decisions.
+- **Use `ANTHROPIC_API_KEY`.** In `-p`, Claude Code takes it systematically; the
+  scripts refuse, by design.
+- **Create a homemade `scout` agent.** The built-in Explore/Plan agents already do the
+  read-only reconnaissance.
 
-### Optimisations recommandées
+### Recommended optimizations
 
-1. **Deux lecteurs en parallèle par humain Ultra** au kickoff : `researcher` (concurrents,
-  API) + Explore/Plan (codebase). H1 reste sur le PRD.
-2. **QA en continu** sur le compte H3 : `qa-demo` après chaque merge, pas seulement à H18.
-3. **Skills préchargés** (`tdd`, `code-review`, `research`, `codebase-design`) seulement
-  après installation et test ; ne pas les hardcoder avant.
-4. **Subagents en arrière-plan** pour les longs QA/recherches si la version les supporte ;
-  jamais pour écrire.
-5. **Un AFK par compte Ultra**, sur le shift de son propriétaire, avec un ticket low-risk
-  et un oracle déterministe.
-6. **Router avant de déléguer** : `scribe`/Haiku pour la doc, Sonnet pour le standard,
-  Opus pour le critique ; escalader après 2 échecs, jamais Fable en automatique.
+1. **Two readers in parallel per Ultra human** at kickoff: `researcher` (competitors,
+   API) + Explore/Plan (codebase). H1 stays on the PRD.
+2. **Continuous QA** on the H3 account: `qa-demo` after each merge, not only at H18.
+3. **Preloaded skills** (`tdd`, `code-review`, `research`, `codebase-design`) only
+   after installation and testing; do not hardcode them before.
+4. **Background subagents** for long QA/research if the version supports them;
+   never for writing.
+5. **One AFK per Ultra account**, on its owner's shift, with a low-risk ticket
+   and a deterministic oracle.
+6. **Route before delegating**: `scribe`/Haiku for docs, Sonnet for the standard,
+   Opus for the critical; escalate after 2 failures, never Fable automatically.
 
-## Audit du dry run
+## Dry run audit
 
-### Validé localement
+### Validated locally
 
-- `pnpm install` : OK.
-- `pnpm typecheck` : OK.
-- `pnpm test` : 6 tests, OK.
-- `pnpm build` : OK.
-- `pnpm e2e` : 2 tests, OK (Chromium installé dans un cache local pour le test).
-- Le sample produit bien **2 anomalies** ; le CSV invalide affiche une erreur.
+- `pnpm install`: OK.
+- `pnpm typecheck`: OK.
+- `pnpm test`: 6 tests, OK.
+- `pnpm build`: OK.
+- `pnpm e2e`: 2 tests, OK (Chromium installed in a local cache for the test).
+- The sample does produce **2 anomalies**; the invalid CSV shows an error.
 
-### Limites connues
+### Known limits
 
-- Le starter est un **Vite/React jetable**, pas la stack du hackathon.
-- `lint = tsc --noEmit` : ce n'est pas un vrai linter, c'est un placeholder pour le test.
-- `pnpm` peut afficher `Ignored build scripts: esbuild` ; `pnpm rebuild esbuild` suffit.
-- Playwright doit installer Chromium une fois (`pnpm exec playwright install chromium`).
-- Le dry run ne teste ni le déploiement, ni la DB, ni les APIs sponsors, ni la nuit.
+- The starter is a **throwaway Vite/React**, not the hackathon stack.
+- `lint = tsc --noEmit`: this is not a real linter, it is a placeholder for the test.
+- `pnpm` may show `Ignored build scripts: esbuild`; `pnpm rebuild esbuild` is enough.
+- Playwright must install Chromium once (`pnpm exec playwright install chromium`).
+- The dry run tests neither deployment, nor the DB, nor the sponsor APIs, nor the night.
 
-### Ce que le dry run doit produire
+### What the dry run must produce
 
-- Un `dry-run/RETRO.md` rempli.
-- 3 frictions concrètes, avec un correctif et un propriétaire.
-- 3 tickets dans le vrai repo, corrigés avant H0.
-- Une démo de 3 minutes qui tient en 2:45.
+- A filled `dry-run/RETRO.md`.
+- 3 concrete frictions, with a fix and an owner.
+- 3 tickets in the real repo, fixed before H0.
+- A 3-minute demo that fits in 2:45.
 
-## Les 5 actions qui restent
+## The 5 remaining actions
 
-1. **Partager** : inviter les 2 autres, protéger `main`, vérifier les Actions.
-2. **Stack** : choisir, bootstrap, déployer, `check.sh` + CI verts.
-3. **Dry run** : le jouer à 3, remplir la rétro, corriger les 3 frictions.
-4. **Agents** : tester les 8 agents en réel, vérifier les hooks et le refus
-   `ANTHROPIC_API_KEY`.
-5. **Event** : clés, reçus, repo public, `doctor.sh` sans échec, sommeil.
+1. **Share**: invite the other 2, protect `main`, check the Actions.
+2. **Stack**: choose, bootstrap, deploy, `check.sh` + CI green.
+3. **Dry run**: play it with 3, fill the retro, fix the 3 frictions.
+4. **Agents**: test the 8 agents for real, check the hooks and the
+   `ANTHROPIC_API_KEY` refusal.
+5. **Event**: keys, receipts, public repo, `doctor.sh` with no failure, sleep.
 
-## Méthode de review
+## Review method
 
-- Lecture complète des docs et scripts.
-- Exécution de `doctor.sh`, `check.sh`, des scripts de worktree et des garde-fous API key.
-- Installation et test du starter dans un dossier temporaire (typecheck, tests, build, e2e).
-- Vérification des faits Ultra contre les pages officielles (plan, crédits API, Fable,
-  variables d'environnement Claude Code).
-- Limites : pas d'accès aux réglages GitHub (repo privé, `gh` non authentifié), pas de
-  session Claude Code réelle pour les 8 agents ; le dry run couvre ce point.
+- Full reading of the docs and scripts.
+- Running `doctor.sh`, `check.sh`, the worktree scripts and the API key guardrails.
+- Installing and testing the starter in a temporary folder (typecheck, tests, build, e2e).
+- Checking the Ultra facts against the official pages (plan, API credits, Fable,
+  Claude Code environment variables).
+- Limits: no access to the GitHub settings (private repo, `gh` not authenticated), no
+  real Claude Code session for the 8 agents; the dry run covers this point.

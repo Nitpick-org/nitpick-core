@@ -1,40 +1,40 @@
 ---
-name: Bug de démo
-about: Quelque chose casse le parcours de docs/DEMO.md
+name: Demo bug
+about: Something breaks the docs/DEMO.md walkthrough
 labels: bug, demo
 ---
 
-## Gravité
+## Severity
 
-- [ ] Bloque la démo
-- [ ] Gênant
-- [ ] Cosmétique
+- [ ] Blocks the demo
+- [ ] Annoying
+- [ ] Cosmetic
 
-## Étapes pour reproduire
+## Steps to reproduce
 
 1. …
 2. …
 3. …
 
-## Attendu
+## Expected
 
 …
 
-## Obtenu
+## Actual
 
 …
 
-## Contexte
+## Context
 
-- URL / preview : …
-- Navigateur : …
-- État des données : …
-- Dernier commit : …
+- URL / preview: …
+- Browser: …
+- Data state: …
+- Last commit: …
 
-## Protection proposée
+## Proposed protection
 
 - [ ] Mock
 - [ ] Cache
-- [ ] État de secours
-- [ ] Vidéo de secours
-- [ ] Autre : …
+- [ ] Fallback state
+- [ ] Backup video
+- [ ] Other: …

@@ -1,55 +1,55 @@
 # Ticket 104-audit-data-safety
 
-- Statut : prêt pour PR (#113, rebasée)
-- Propriétaire humain : @dovatgabriel
-- Piste : B git+desktop, C android+finitions
-- Agent : Claude Code, session principale (audit qualité du 22/11)
-- Model : Fable, choisi à la main par H1
-- Escalations : aucune
-- Fichiers : `jvmSharedMain/.../git/JGitRepository.kt`,
+- Status: ready for PR (#113, rebased)
+- Human owner: @dovatgabriel
+- Track: B git+desktop, C android+polish
+- Agent: Claude Code, main session (quality audit of 22/11)
+- Model: Fable, picked by hand by H1
+- Escalations: none
+- Files: `jvmSharedMain/.../git/JGitRepository.kt`,
   `commonMain/.../ui/settings/SettingsViewModel.kt`,
   `commonMain/.../ui/repository/{RepositoryViewModel,ReviewPanel}.kt`,
-  `commonMain/.../ui/phone/PhoneReviewScreen.kt`, tests `FileSettingsStoreTest` et
+  `commonMain/.../ui/phone/PhoneReviewScreen.kt`, tests `FileSettingsStoreTest` and
   `RepositoryViewModelTest`
 
-## Contexte
+## Context
 
-Cette branche portait les quatre correctifs de #104. H2 les a mergés en premier dans #109, et
-#116 a complété. Rebasée sur `main` à la demande de H1, il n'en reste que ce que `main` n'a pas.
+This branch carried the four fixes of #104. H2 merged them first in #109, and #116 completed.
+Rebased on `main` at H1's request, it keeps only what `main` does not have.
 
 ## Journal
 
-- 00:23 — worktree créé, quatre correctifs écrits (pull, minSdk 33, `saveDraft`, `Files.move`).
-- 00:35 — #109 mergée par H2 avec les mêmes correctifs : PR #113 fermée comme doublon.
-- Rebase sur `main` (après #109 et #116) :
-  - commit du pull : abandonné, `main` a déjà le correctif et ses messages (#116) ;
-  - commit minSdk : abandonné, déjà dans #109 et #116 ;
-  - `saveDraft` : réduit à la forme « tout le brouillon sauf les repos récents », pour qu'un
-    champ ajouté au dialog ne soit plus oublié une troisième fois ;
-  - `Files.move` : réduit au test « deux sauvegardes de suite », que #109 n'avait pas ;
-  - `requireAccepted` : gardé tel quel, `push` et `publishBranch` partagent le contrôle.
-- Deux suites de la relecture de #116 par l'agent `reviewer` :
-  - Apply et Commit sont désactivés pendant un pull ou un checkout, au lieu d'ignorer le tap ;
-  - `actionError` est remise à zéro quand un pull ou une review partagée remplace la review.
+- 00:23 — worktree created, four fixes written (pull, minSdk 33, `saveDraft`, `Files.move`).
+- 00:35 — #109 merged by H2 with the same fixes: PR #113 closed as a duplicate.
+- Rebase on `main` (after #109 and #116):
+  - pull commit: dropped, `main` already has the fix and its messages (#116);
+  - minSdk commit: dropped, already in #109 and #116;
+  - `saveDraft`: reduced to the "all the draft except the recent repos" form, so that a
+    field added to the dialog is no longer forgotten a third time;
+  - `Files.move`: reduced to the "two saves in a row" test, which #109 did not have;
+  - `requireAccepted`: kept as is, `push` and `publishBranch` share the check.
+- Two follow-ups from the `reviewer` agent's review of #116:
+  - Apply and Commit are disabled during a pull or a checkout, instead of ignoring the tap;
+  - `actionError` is reset when a pull or a shared review replaces the review.
 
-## Décisions
+## Decisions
 
-- Les tests de `SettingsViewModelTest` restent ceux de `main` : ils couvrent déjà les deux
-  comportements, la réécriture de `saveDraft` ne change rien d'observable.
-- Les deux suites de #116 sont dans cette PR plutôt que dans une troisième : ce sont des
-  retouches de quelques lignes sur du code que je viens de faire merger.
+- The `SettingsViewModelTest` tests stay those of `main`: they already cover both
+  behaviours, the rewrite of `saveDraft` changes nothing observable.
+- The two follow-ups of #116 are in this PR rather than in a third one: they are a few-line
+  touch-ups to code I just had merged.
 
-## Vérifications
+## Checks
 
-- Test rouge puis vert : `aPullThatDropsTheReviewAlsoDropsItsActionError` (l'erreur « Snippet
-  not found for n1 » restait dans le state après le pull).
-- `./scripts/check.sh` vert sur la branche rebasée.
+- Red then green test: `aPullThatDropsTheReviewAlsoDropsItsActionError` (the error "Snippet
+  not found for n1" stayed in the state after the pull).
+- `./scripts/check.sh` green on the rebased branch.
 
-## Incertain
+## Uncertain
 
-- Boutons désactivés sur téléphone et desktop : pas de test Compose, à regarder à la main.
-- Windows : le test des deux sauvegardes ne peut pas échouer sur macOS ou Linux.
+- Buttons disabled on phone and desktop: no Compose test, to be checked by hand.
+- Windows: the two-saves test cannot fail on macOS or Linux.
 
-## Suivant
+## Next
 
-- Relecture humaine. Le reste de l'audit est dans #107.
+- Human review. The rest of the audit is in #107.

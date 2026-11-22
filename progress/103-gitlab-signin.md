@@ -1,32 +1,32 @@
 # Ticket 103 — GitLab sign-in on Android and signed-in account backfill
 
-- Statut : prêt à merger (GitLab reporté)
-- Propriétaire humain : @pepito2t (H3)
-- Piste : C android + finitions
-- Agent : Claude Code (Fable 5.1), session humaine
-- Model : fable
-- Escalations : aucune
-- Fichiers autorisés : `shared/src/commonMain/kotlin/dev/nitpick/app/ui/App.kt`,
-  `shared/src/commonMain/kotlin/dev/nitpick/app/settings/ForgeClient.kt` (constante `GITLAB`)
+- Status: ready to merge (GitLab deferred)
+- Human owner: @pepito2t (H3)
+- Track: C android + polish
+- Agent: Claude Code (Fable 5.1), human session
+- Model: fable
+- Escalations: none
+- Allowed files: `shared/src/commonMain/kotlin/dev/nitpick/app/ui/App.kt`,
+  `shared/src/commonMain/kotlin/dev/nitpick/app/settings/ForgeClient.kt` (constant `GITLAB`)
 
-## Fait
+## Done
 
-- Au démarrage, une connexion complète sans `login` (enregistrée avant #96) demande son nom à la
-  forge une fois (`ForgeClient.fetchLogin`) et le sauve ; un échec laisse le nom vide sans
-  réessayer tant que la connexion ne change pas.
+- At startup, a complete connection without `login` (saved before #96) asks the
+  forge for its name once (`ForgeClient.fetchLogin`) and saves it; a failure leaves the name empty without
+  retrying as long as the connection does not change.
 
-## Reporté
+## Deferred
 
-- GitLab : décision H3 du 22/11, GitHub seul pour l'instant. Le jour venu : application GitLab
-  « Nitpick », non confidentielle, scopes `read_repository` + `write_repository`, coller
-  l'Application ID dans `ForgeOAuthClientIds.GITLAB`.
+- GitLab: H3 decision of 22/11, GitHub only for now. When the time comes: a GitLab
+  application "Nitpick", non-confidential, scopes `read_repository` + `write_repository`, paste
+  the Application ID into `ForgeOAuthClientIds.GITLAB`.
 
-## Preuves
+## Evidence
 
-- `check.sh` vert. Pas de test ajouté : l'effet ne fait qu'enchaîner `fetchLogin` (testé dans
-  `ForgeClientTest`) et `SettingsViewModel.update` (testé dans `SettingsViewModelTest`).
+- `check.sh` green. No test added: the effect only chains `fetchLogin` (tested in
+  `ForgeClientTest`) and `SettingsViewModel.update` (tested in `SettingsViewModelTest`).
 
-## Journal
+## Log
 
-- 00:10 — worktree créé, rattrapage du login au démarrage.
-- 00:20 — PR #108 ; GitLab reporté.
+- 00:10 — worktree created, login backfill at startup.
+- 00:20 — PR #108; GitLab deferred.

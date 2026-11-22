@@ -1,123 +1,123 @@
-# Ultra — exploiter les 2 abonnements Claude Ultra
+# Ultra — making the most of the 2 Claude Ultra subscriptions
 
-> Deux membres de l'équipe ont un abonnement **Claude Ultra**. Ce document dit comment
-> transformer cette capacité en travail utile **sans** casser les règles d'`AGENT-OPS.md` :
-> Ultra lève la contrainte de tokens, pas la contrainte de **revue humaine**.
+> Two team members have a **Claude Ultra** subscription. This document explains how to
+> turn that capacity into useful work **without** breaking the rules of `AGENT-OPS.md`:
+> Ultra lifts the token constraint, not the **human review** constraint.
 
-## Les faits (vérifiés le 16/11/2026)
+## The facts (verified on 16/11/2026)
 
-| Fait | Conséquence pour nous |
+| Fact | Consequence for us |
 | --- | --- |
-| Ultra = **10× l'usage hebdomadaire de Pro**, **200 $/mois**. | Les comptes Ultra portent les escouades lourdes. |
-| Compte **vérifié** = **pas de limite de 5 h**. Un compte non vérifié en a une temporaire. | Vérifier **avant** J-1 (voir plus bas), sinon on se bloque en pleine nuit. |
-| Une **limite hebdomadaire** couvre tous les modèles, avec une **limite séparée pour Fable**. Fable peut utiliser jusqu'à **50 %** de la limite hebdo et consomme plus vite. | Fable est réservé aux décisions à fort enjeu (voir « Modèles »). |
-| Claude Code **partage** les limites avec claude.ai. | Pas de longues discussions sur claude.ai pendant les 24 h : ça mange le budget de code. |
-| Les limites se remettent à zéro **une fois par semaine** (date visible dans Settings > Usage). | Arriver à H0 avec un maximum de marge ; un reset pendant le hack est un bonus. |
-| Si `ANTHROPIC_API_KEY` est définie dans le shell, Claude Code utilise **la clé API** au lieu de l'abonnement. En mode `-p` (AFK/Ralph), elle est utilisée **systématiquement** si elle existe. | Facturation API par erreur. La variable est renommée `APP_ANTHROPIC_API_KEY` ; `doctor.sh`, `ralph-once.sh` et `afk-ralph.sh` refusent de tourner si elle est présente. |
-| Ultra inclut **200 $/mois de crédits API** (Console). | Les utiliser pour les appels IA **de l'application** (clé dans `.env` sous `APP_ANTHROPIC_API_KEY`) ou l'Agent SDK avec clé API, **pas** pour Claude Code interactif. |
+| Ultra = **10× Pro's weekly usage**, **$200/month**. | Ultra accounts carry the heavy squads. |
+| A **verified** account = **no 5-hour limit**. An unverified account has a temporary one. | Verify **before** D-1 (see below), otherwise we get stuck in the middle of the night. |
+| A **weekly limit** covers all models, with a **separate limit for Fable**. Fable can use up to **50%** of the weekly limit and burns through it faster. | Fable is reserved for high-stakes decisions (see "Models"). |
+| Claude Code **shares** its limits with claude.ai. | No long discussions on claude.ai during the 24 h: they eat the coding budget. |
+| Limits reset **once a week** (date visible in Settings > Usage). | Reach H0 with maximum headroom; a reset during the hack is a bonus. |
+| If `ANTHROPIC_API_KEY` is set in the shell, Claude Code uses **the API key** instead of the subscription. In `-p` mode (AFK/Ralph), it is used **systematically** if it exists. | API billing by mistake. The variable is renamed `APP_ANTHROPIC_API_KEY`; `doctor.sh`, `ralph-once.sh` and `afk-ralph.sh` refuse to run if it is present. |
+| Ultra includes **$200/month of API credits** (Console). | Use them for the **application's** AI calls (key in `.env` as `APP_ANTHROPIC_API_KEY`) or for the Agent SDK with an API key, **not** for interactive Claude Code. |
 
-## Qui pilote quoi
+## Who drives what
 
-| Humain | Plan | Rôle (`AGENT-OPS.md`) | Charge agents |
+| Human | Plan | Role (`AGENT-OPS.md`) | Agent load |
 | --- | --- | --- | --- |
-| **H1** | Pro / autre | Produit & Pitch | 1 session principale + 1 scout. Peu de tokens, beaucoup de décisions. |
-| **H2** | **Ultra** | Architecte & Intégration | 1 principale + 2 parallèles (builder en worktree + `reviewer`). AFK sur son shift de sommeil. |
-| **H3** | **Ultra** | Builder & Démo | 1 principale + 2–3 parallèles (builders en worktrees + `qa-demo`). AFK sur son shift de sommeil. |
+| **H1** | Pro / other | Product & Pitch | 1 main session + 1 scout. Few tokens, many decisions. |
+| **H2** | **Ultra** | Architect & Integration | 1 main + 2 parallel (builder in a worktree + `reviewer`). AFK during their sleep shift. |
+| **H3** | **Ultra** | Builder & Demo | 1 main + 2–3 parallel (builders in worktrees + `qa-demo`). AFK during their sleep shift. |
 
-> Hypothèse : H1 n'est pas sur Ultra. Si c'est faux, rééquilibrer : H1 prend les
-> `researcher` / `devils-advocate` en parallèle et un AFK de nuit.
+> Assumption: H1 is not on Ultra. If that is wrong, rebalance: H1 takes the
+> `researcher` / `devils-advocate` in parallel plus one night AFK.
 
-**Règle d'or :** les tâches **gourmandes en tokens** (recherche large, gros refactor, AFK,
-QA répétée) partent sur un compte Ultra. Les tâches **gourmandes en jugement** (PRD, périmètre,
-pitch) restent chez l'humain concerné, quel que soit son plan.
+**Golden rule:** **token-hungry** tasks (broad research, big refactor, AFK,
+repeated QA) go to an Ultra account. **Judgment-hungry** tasks (PRD, scope,
+pitch) stay with the human concerned, whatever their plan.
 
-La répartition agent par agent est dans `docs/AGENT-OPS.md` → **Roster optimization for
-Ultra** : plus de lecteurs, jamais plus d'un écrivain par worktree.
+The agent-by-agent split is in `docs/AGENT-OPS.md` → **Roster optimization for
+Ultra**: more readers, never more than one writer per worktree.
 
-## Concurrence : ce qui change, ce qui ne change pas
+## Concurrency: what changes, what does not
 
-- **Ne change pas :** un humain relit sérieusement **un** diff significatif à la fois.
-  Le plafond d'écrivains reste celui d'`AGENT-OPS.md`.
-- **Change :** on peut ajouter des **lecteurs** (scouts read-only, QA, recherche) sans peur
-  du coût. Plafond total porté de 6 à **8 sessions**, dont au plus 3 écrivains.
+- **Does not change:** a human seriously reviews **one** significant diff at a time.
+  The writer cap stays that of `AGENT-OPS.md`.
+- **Changes:** we can add **readers** (read-only scouts, QA, research) without fearing
+  the cost. The total cap goes from 6 to **8 sessions**, at most 3 of them writers.
 
-| Phase | Écrivains | Lecteurs / QA | Total max | Sur Ultra |
+| Phase | Writers | Readers / QA | Total max | On Ultra |
 | --- | --- | --- | --- | --- |
-| Kickoff | 1 | 3 | 4 | `researcher` ×2 en parallèle (concurrents, API) |
-| Squelette | 2 | 2 | 4 | les 2 builders |
-| Cœur | 3 | 4–5 | 8 | builders + `reviewer` + `qa-demo` en continu |
-| Nuit | AFK ×2 | 0–1 | 3 | 1 AFK par compte Ultra, sur son shift de sommeil |
-| Durcissement | 1–2 | 3 | 5 | `qa-demo` en boucle sur `DEMO.md` |
-| Gel | 0 | 1–2 | 2 | `reviewer` + `qa-demo` |
+| Kickoff | 1 | 3 | 4 | `researcher` ×2 in parallel (competitors, API) |
+| Skeleton | 2 | 2 | 4 | both builders |
+| Core | 3 | 4–5 | 8 | builders + `reviewer` + `qa-demo` continuously |
+| Night | AFK ×2 | 0–1 | 3 | 1 AFK per Ultra account, during their sleep shift |
+| Hardening | 1–2 | 3 | 5 | `qa-demo` in a loop over `DEMO.md` |
+| Freeze | 0 | 1–2 | 2 | `reviewer` + `qa-demo` |
 
-**Agent teams :** toujours désactivées. Ultra supprime l'argument du coût, pas celui de
-l'isolation (pas de worktree par coéquipier) ni de la revue.
+**Agent teams:** still disabled. Ultra removes the cost argument, not the
+isolation one (no worktree per teammate) nor the review one.
 
-## Budget hebdomadaire (par compte Ultra)
+## Weekly budget (per Ultra account)
 
-Objectif : ne **jamais** atteindre la limite avant dimanche 12:00. Lire le % consommé avec
-`/usage` dans Claude Code (ou Settings > Usage) **à chaque sync de 3 h**.
+Goal: **never** hit the limit before Sunday 12:00. Read the % used with
+`/usage` in Claude Code (or Settings > Usage) **at every 3 h sync**.
 
-| Bloc | Heures | Budget cumulé max | Si dépassé |
+| Block | Hours | Max cumulative budget | If exceeded |
 | --- | --- | --- | --- |
-| Avant H0 (J-5 → J-1) | — | **≤ 25 %** de la semaine | Plus de tests d'agents jusqu'à H0 |
-| Kickoff + squelette | 12:00–16:00 | ≤ 40 % | Passer les scouts en Sonnet |
-| Cœur + 2ᵉ feature | 16:00–23:00 | ≤ 65 % | Plus de scouts parallèles, 1 builder max |
-| Nuit (AFK) | 00:00–07:00 | ≤ 80 % | AFK limité à 2 itérations |
-| Intégration + gel | 07:00–12:00 | ≤ 95 % | Uniquement correctifs bloquants |
+| Before H0 (D-5 → D-1) | — | **≤ 25%** of the week | No more agent tests until H0 |
+| Kickoff + skeleton | 12:00–16:00 | ≤ 40% | Move the scouts to Sonnet |
+| Core + 2nd feature | 16:00–23:00 | ≤ 65% | No more parallel scouts, 1 builder max |
+| Night (AFK) | 00:00–07:00 | ≤ 80% | AFK limited to 2 iterations |
+| Integration + freeze | 07:00–12:00 | ≤ 95% | Blocking fixes only |
 
-Si un compte Ultra est presque à sec, l'autre reprend ses tickets. Si les deux le sont,
-on bascule **les sessions** sur le compte de H1, jamais sur une clé API dans le shell.
+If one Ultra account is nearly dry, the other takes over its tickets. If both are,
+we switch **the sessions** to H1's account, never to an API key in the shell.
 
-> Après la limite hebdomadaire, Claude peut continuer en **usage payant** si c'est activé
-> sur le compte. Décidez à J-1 si vous l'autorisez, et avec quel plafond (voir Q-004).
+> After the weekly limit, Claude can continue on **paid usage** if that is enabled
+> on the account. Decide on D-1 whether you allow it, and with what cap (see Q-004).
 
-## Modèles
+## Models
 
-| Usage | Modèle | Pourquoi |
+| Usage | Model | Why |
 | --- | --- | --- |
-| Sessions principales H2/H3 | Opus | Ultra le permet ; meilleure qualité de code et moins d'allers-retours |
-| `researcher`, `qa-demo` | Sonnet | volume, lecture, exécution de tests |
-| `scribe` | Haiku | docs, README, progress, résumés |
-| `architect`, `devils-advocate`, `reviewer`, `pitch` | Opus | inchangé (voir les agents) |
-| **Fable** | à la main, via `/model` | **seulement** : choix d'idée à H0, découpage en modules, bug bloquant > 30 min, relecture finale du pitch. Limite séparée et consommation rapide : ne jamais le mettre en défaut ni dans un AFK. |
+| Main H2/H3 sessions | Opus | Ultra allows it; better code quality and fewer round trips |
+| `researcher`, `qa-demo` | Sonnet | volume, reading, test execution |
+| `scribe` | Haiku | docs, README, progress, summaries |
+| `architect`, `devils-advocate`, `reviewer`, `pitch` | Opus | unchanged (see the agents) |
+| **Fable** | by hand, via `/model` | **only**: idea choice at H0, module split, blocking bug > 30 min, final pitch review. Separate limit and fast consumption: never make it the default, never put it in an AFK. |
 
-Routage complet, escalade et budgets : `docs/MODEL-ROUTING.md` et skill `/route-task`.
+Full routing, escalation and budgets: `docs/MODEL-ROUTING.md` and the `/route-task` skill.
 
-## AFK de nuit avec Ultra
+## Night AFK with Ultra
 
-Le compte qui lance `afk-ralph.sh` est **celui connecté sur la machine** qui le lance.
+The account that launches `afk-ralph.sh` is **the one logged in on the machine** that launches it.
 
-1. Avant son shift de sommeil, l'humain Ultra choisit 1 ticket **low-risk** avec oracle
-   (`AGENT-OPS.md` → « Quand utiliser l'AFK »).
-2. `./scripts/new-worktree.sh <ticket>` puis, dans le worktree :
+1. Before their sleep shift, the Ultra human picks 1 **low-risk** ticket with an oracle
+   (`AGENT-OPS.md` → "When to use AFK").
+2. `./scripts/new-worktree.sh <ticket>` then, in the worktree:
    `AFK_OK=1 ./scripts/afk-ralph.sh 6`.
-3. Machine branchée, veille désactivée (`caffeinate -dimsu` sur macOS), Wi-Fi stable.
-4. Au réveil : `git log`, `progress/<ticket>.md`, `check.sh --demo`, puis PR.
+3. Machine plugged in, sleep disabled (`caffeinate -dimsu` on macOS), stable Wi-Fi.
+4. On waking: `git log`, `progress/<ticket>.md`, `check.sh --demo`, then a PR.
 
-Plafonds par défaut des scripts (surchargeables) : `AFK_MAX_TURNS=60`,
-`AFK_BUDGET_USD=4`, `AFK_MODEL=sonnet` ; `RALPH_MAX_TURNS=40`, `RALPH_BUDGET_USD=3`,
-`RALPH_MODEL=sonnet` pour `ralph-once.sh`. **Fable est refusé** par les deux scripts : il ne
-doit jamais être le modèle par défaut d'un AFK. Le budget en $ est une **estimation** côté abonnement :
-c'est un garde-fou contre la boucle folle, pas une facture.
+Default script caps (overridable): `AFK_MAX_TURNS=60`,
+`AFK_BUDGET_USD=4`, `AFK_MODEL=sonnet`; `RALPH_MAX_TURNS=40`, `RALPH_BUDGET_USD=3`,
+`RALPH_MODEL=sonnet` for `ralph-once.sh`. **Fable is refused** by both scripts: it must
+never be the default model of an AFK. The $ budget is an **estimate** on the subscription side:
+it is a guardrail against the runaway loop, not an invoice.
 
-## À faire avant H0 (chaque compte Ultra)
+## To do before H0 (each Ultra account)
 
-- [ ] **Compte vérifié :** Settings > Usage. Pas de barre « Current session » = vérifié.
-- [ ] **Jour et heure du reset hebdomadaire** notés dans `docs/DECISIONS.md`.
-- [ ] `/usage` à J-1 au soir : **≥ 75 %** de la semaine disponible.
-- [ ] `echo $ANTHROPIC_API_KEY` vide dans le shell (et pas dans `~/.zshrc`).
-- [ ] `claude` connecté avec le compte Ultra (`/status`).
-- [ ] Décision sur l'usage payant après limite (oui/non, plafond).
-- [ ] Crédits API Ultra : créer une clé pour l'app si on en a besoin, la mettre dans `.env`
-      sous `APP_ANTHROPIC_API_KEY`.
+- [ ] **Verified account:** Settings > Usage. No "Current session" bar = verified.
+- [ ] **Day and time of the weekly reset** noted in `docs/DECISIONS.md`.
+- [ ] `/usage` on the evening of D-1: **≥ 75%** of the week available.
+- [ ] `echo $ANTHROPIC_API_KEY` empty in the shell (and not in `~/.zshrc`).
+- [ ] `claude` logged in with the Ultra account (`/status`).
+- [ ] Decision on paid usage after the limit (yes/no, cap).
+- [ ] Ultra API credits: create a key for the app if we need one, put it in `.env`
+      as `APP_ANTHROPIC_API_KEY`.
 
 ## Sources
 
-- [Claude Help Center — plan Ultra](https://support.claude.com/en/articles/17728952)
-- [Claude Help Center — crédits API mensuels](https://support.claude.com/en/articles/17154008-monthly-api-credits-for-max-ultra-and-team-plans)
-- [Claude Help Center — Fable sur votre plan](https://support.claude.com/en/articles/15424964-claude-fable-models-on-your-plan)
-- [Claude Help Center — Claude Code avec un plan](https://support.claude.com/en/articles/11145838-use-claude-code-with-your-pro-max-or-ultra-plan)
-- [Claude Monitor — limites Ultra](https://claude-monitor.com/claude-ultra-plan-usage-limits)
-- [Claude Code — variables d'environnement](https://code.claude.com/docs/en/env-vars)
-- [Claude Code — coûts](https://code.claude.com/docs/en/costs)
+- [Claude Help Center — Ultra plan](https://support.claude.com/en/articles/17728952)
+- [Claude Help Center — monthly API credits](https://support.claude.com/en/articles/17154008-monthly-api-credits-for-max-ultra-and-team-plans)
+- [Claude Help Center — Fable on your plan](https://support.claude.com/en/articles/15424964-claude-fable-models-on-your-plan)
+- [Claude Help Center — Claude Code with a plan](https://support.claude.com/en/articles/11145838-use-claude-code-with-your-pro-max-or-ultra-plan)
+- [Claude Monitor — Ultra limits](https://claude-monitor.com/claude-ultra-plan-usage-limits)
+- [Claude Code — environment variables](https://code.claude.com/docs/en/env-vars)
+- [Claude Code — costs](https://code.claude.com/docs/en/costs)

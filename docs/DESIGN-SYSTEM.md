@@ -1,102 +1,101 @@
 # Design system — Nitpick
 
-> **DA : JetBrains IDE / New UI (expUI).** Nitpick est un outil de développeur, pas un site
-> marketing. L'interface doit ressembler à l'IDE qui héberge le challenge : graphite,
-> dense, une seule couleur d'action, du code au centre, de la couleur uniquement quand elle
-> porte un sens.
+> **Art direction: JetBrains IDE / New UI (expUI).** Nitpick is a developer tool, not a
+> marketing site. The interface must look like the IDE hosting the challenge: graphite,
+> dense, a single action color, code at the center, color only when it carries meaning.
 >
-> La structure du document (tokens → composants → usages) s'inspire d'Oria, mais **aucun
-> token ni composant d'Oria n'est repris** : les valeurs viennent des thèmes expUI
-> d'IntelliJ IDEA (`themes/expUI/expUI_light.theme.json` et `expUI_dark.theme.json`) et du
-> schéma éditeur (`DefaultColorSchemesManager.xml`).
+> The document structure (tokens → components → usages) is inspired by Oria, but **no Oria
+> token or component is reused**: the values come from the IntelliJ IDEA expUI themes
+> (`themes/expUI/expUI_light.theme.json` and `expUI_dark.theme.json`) and from the editor
+> scheme (`DefaultColorSchemesManager.xml`).
 
-## 1. Principes
+## 1. Principles
 
-1. **Le code est le héros.** Le chrome (toolbar, tool windows, status bar) est sombre et
-   calme ; le diff, les commits et les nits prennent la lumière.
-2. **Densité IDE.** Contrôles 28 dp, lignes 24 dp, toolbar 40 dp, status bar 22 dp. Pas de
-   padding Material de 56 dp.
-3. **Une seule action saturée.** Le teal `#0F766E` (clair) / `#5EEAD4` (sombre) est réservé
-   aux actions primaires, au focus et à la sélection active. Le reste est graphite.
-4. **La couleur est sémantique.** Vert = ajout/succès, rouge = suppression/erreur, jaune =
-   avertissement, violet = IA. Jamais de couleur décorative.
-5. **Deux plateformes, une langue.** Les tokens sont dans `commonMain`. Desktop garde la
-   densité IDE ; Android agrandit les cibles tactiles à 44–48 dp sans changer les couleurs.
-6. **Review avant push.** Un nit est lisible sans couleur : badge texte, gouttière `+/-`,
-   numéro de ligne, icône. La couleur renforce, elle ne remplace pas.
+1. **Code is the hero.** Chrome (toolbar, tool windows, status bar) is dark and calm; the
+   diff, commits and nits get the spotlight.
+2. **IDE density.** 28 dp controls, 24 dp lines, 40 dp toolbar, 22 dp status bar. No
+   Material 56 dp padding.
+3. **A single saturated action.** The teal `#0F766E` (light) / `#5EEAD4` (dark) is reserved
+   for primary actions, focus and active selection. The rest is graphite.
+4. **Color is semantic.** Green = addition/success, red = removal/error, yellow =
+   warning, purple = AI. Never decorative color.
+5. **Two platforms, one language.** The tokens live in `commonMain`. Desktop keeps the IDE
+   density; Android enlarges touch targets to 44–48 dp without changing colors.
+6. **Review before push.** A nit is readable without color: text badge, `+/-` gutter,
+   line number, icon. Color reinforces, it does not replace.
 
-## 2. Sources de vérité
+## 2. Sources of truth
 
 | Source | Usage |
 | --- | --- |
-| `shared/src/commonMain/kotlin/dev/nitpick/app/ui/theme/NitpickTokens.kt` | couleurs, espacements, rayons, tailles |
-| `ui/theme/NitpickTypography.kt` | échelle UI + code |
-| `ui/theme/NitpickTheme.kt` | thème Compose, light/dark, mapping Material 3 |
-| `ui/components/` | composants publics |
-| `ui/designsystem/DesignSystemCatalog.kt` | catalogue visuel (preview IDE) |
-| Thèmes IntelliJ `expUI_light/dark` | valeurs de référence |
-| `DefaultColorSchemesManager.xml` | couleurs éditeur, diff, numéros de ligne |
+| `shared/src/commonMain/kotlin/dev/nitpick/app/ui/theme/NitpickTokens.kt` | colors, spacing, radii, sizes |
+| `ui/theme/NitpickTypography.kt` | UI + code scale |
+| `ui/theme/NitpickTheme.kt` | Compose theme, light/dark, Material 3 mapping |
+| `ui/components/` | public components |
+| `ui/designsystem/DesignSystemCatalog.kt` | visual catalog (IDE preview) |
+| IntelliJ themes `expUI_light/dark` | reference values |
+| `DefaultColorSchemesManager.xml` | editor, diff, line number colors |
 
-## 3. Couleurs
+## 3. Colors
 
 ### 3.1 Base (light / dark)
 
 | Token | Light | Dark | Usage |
 | --- | --- | --- | --- |
-| `canvas` | `#F7F8FA` | `#1E1F22` | fond de l'app, zones vides |
-| `surface` | `#FFFFFF` | `#2B2D30` | panneaux, tool windows |
-| `surfaceRaised` | `#FFFFFF` | `#393B40` | popovers, lignes survolées |
-| `surfaceSunken` | `#F7F8FA` | `#1E1F22` | champs, blocs de code |
-| `toolbar` | `#27282E` | `#2B2D30` | barre principale (sombre dans les deux thèmes) |
-| `statusBar` | `#F7F8FA` | `#1E1F22` | barre de statut |
-| `panelHeader` | `#F7F8FA` | `#2B2D30` | en-tête de tool window |
-| `border` | `#EBECF0` | `#393B40` | séparateurs 1 px |
-| `borderStrong` | `#C9CCD6` | `#4E5157` | bord de champ, focus |
-| `text` | `#000000` | `#DFE1E5` | texte principal |
-| `textSecondary` | `#6C707E` | `#9DA0A8` | métadonnées |
+| `canvas` | `#F7F8FA` | `#1E1F22` | app background, empty areas |
+| `surface` | `#FFFFFF` | `#2B2D30` | panels, tool windows |
+| `surfaceRaised` | `#FFFFFF` | `#393B40` | popovers, hovered rows |
+| `surfaceSunken` | `#F7F8FA` | `#1E1F22` | fields, code blocks |
+| `toolbar` | `#27282E` | `#2B2D30` | main bar (dark in both themes) |
+| `statusBar` | `#F7F8FA` | `#1E1F22` | status bar |
+| `panelHeader` | `#F7F8FA` | `#2B2D30` | tool window header |
+| `border` | `#EBECF0` | `#393B40` | 1 px separators |
+| `borderStrong` | `#C9CCD6` | `#4E5157` | field border, focus |
+| `text` | `#000000` | `#DFE1E5` | main text |
+| `textSecondary` | `#6C707E` | `#9DA0A8` | metadata |
 | `textMuted` | `#818594` | `#6F737A` | hints, labels |
-| `primary` | `#0F766E` | `#5EEAD4` | action, focus, lien |
-| `onPrimary` | `#FFFFFF` | `#0B2E2A` | texte sur `primary` |
+| `primary` | `#0F766E` | `#5EEAD4` | action, focus, link |
+| `onPrimary` | `#FFFFFF` | `#0B2E2A` | text on `primary` |
 | `primaryHover` | `#115E59` | `#7FF0DE` | hover |
-| `primarySoft` | `#D2EFEA` | `#1F403C` | fond d'action secondaire |
-| `selection` | `#D2EFEA` | `#1F403C` | ligne/onglet sélectionné |
-| `hover` | `#EDF7F5` | `#393B40` | survol |
+| `primarySoft` | `#D2EFEA` | `#1F403C` | secondary action background |
+| `selection` | `#D2EFEA` | `#1F403C` | selected row/tab |
+| `hover` | `#EDF7F5` | `#393B40` | hover |
 
-> Le teal remplace le **Blue6** `#3574F0` de JetBrains, qui passe en lane 5 du graphe. En
-> light, le texte sur le teal est blanc ; en dark, le teal clair impose un texte sombre
-> `#0B2E2A`. Ne pas utiliser `primary` comme fond de grande surface.
+> The teal replaces JetBrains **Blue6** `#3574F0`, which moves to lane 5 of the graph. In
+> light, the text on teal is white; in dark, the light teal requires dark text `#0B2E2A`.
+> Do not use `primary` as the background of a large surface.
 
-### 3.2 Sémantique
+### 3.2 Semantic
 
 | Token | Light | Dark | Usage |
 | --- | --- | --- | --- |
-| `success` | `#208A3C` | `#5FAD65` | commit appliqué, review propre |
-| `warning` | `#A46704` | `#BA9752` | avertissement, branche divergente |
-| `danger` | `#DB3B4B` | `#DB5C5C` | bug, conflit, suppression |
-| `info` | `#3369D6` | `#548AF7` | information, lien |
-| `suggestion` | `#1F8039` | `#5FAD65` | suggestion applicable |
-| `ai` | `#7444D4` | `#8150BE` | action/annotation IA |
+| `success` | `#208A3C` | `#5FAD65` | applied commit, clean review |
+| `warning` | `#A46704` | `#BA9752` | warning, diverging branch |
+| `danger` | `#DB3B4B` | `#DB5C5C` | bug, conflict, deletion |
+| `info` | `#3369D6` | `#548AF7` | information, link |
+| `suggestion` | `#1F8039` | `#5FAD65` | applicable suggestion |
+| `ai` | `#7444D4` | `#8150BE` | AI action/annotation |
 
-Chaque famille a un `*Soft` pour les fonds de badge et les surfaces de message.
+Each family has a `*Soft` for badge backgrounds and message surfaces.
 
 ### 3.3 Diff
 
 | Token | Light | Dark |
 | --- | --- | --- |
-| ajout fond | `#BEE6BE` | `#294436` |
-| ajout gouttière | `#AADEAA` | `#447152` |
-| suppression fond | `#D6D6D6` | `#484A4A` |
-| suppression gouttière | `#C8C8C8` | `#656E76` |
-| contexte | `#FFFFFF` | `#1E1F22` |
-| numéro de ligne | `#999999` | `#606366` |
-| gouttière éditeur | `#F0F0F0` | `#313335` |
+| added background | `#BEE6BE` | `#294436` |
+| added gutter | `#AADEAA` | `#447152` |
+| removed background | `#D6D6D6` | `#484A4A` |
+| removed gutter | `#C8C8C8` | `#656E76` |
+| context | `#FFFFFF` | `#1E1F22` |
+| line number | `#999999` | `#606366` |
+| editor gutter | `#F0F0F0` | `#313335` |
 
-Le préfixe `+` / `-` et les colonnes de numéros sont **toujours** affichés : la couleur
-seule ne suffit pas (daltonisme, impression, captures).
+The `+` / `-` prefix and the number columns are **always** displayed: color
+alone is not enough (color blindness, printing, screenshots).
 
-### 3.4 Lanes du graphe
+### 3.4 Graph lanes
 
-Huit couleurs, dans l'ordre :
+Eight colors, in order:
 
 | Light | Dark |
 | --- | --- |
@@ -109,18 +108,18 @@ Huit couleurs, dans l'ordre :
 | `#DF9303` | `#D6AE58` |
 | `#5A5D6B` | `#9DA0A8` |
 
-La couleur est `lane % 8` ; la lane est stable sur toute la ligne. Ne pas réassigner une
-couleur à une lane en cours de route.
+The color is `lane % 8`; the lane is stable across the whole line. Do not reassign a
+color to a lane mid-way.
 
-## 4. Typographie
+## 4. Typography
 
-- **UI** : système sans (Inter si installé, sinon système). Pas de police décorative.
-- **Code / diff / ids / numéros** : **JetBrains Mono** (embarqué dans
-  `composeResources/font/`), le font de l'éditeur JetBrains.
-- Poids : 400, 500, 600. Pas de 700+ dans le chrome, pas d'italique décoratif.
-- Chiffres tabulaires pour les numéros de ligne et les compteurs.
+- **UI**: system sans (Inter if installed, otherwise the system font). No decorative font.
+- **Code / diff / ids / numbers**: **JetBrains Mono** (bundled in
+  `composeResources/font/`), the JetBrains editor font.
+- Weights: 400, 500, 600. No 700+ in the chrome, no decorative italics.
+- Tabular figures for line numbers and counters.
 
-| Rôle | Taille / interligne | Style |
+| Role | Size / leading | Style |
 | --- | --- | --- |
 | `display` | 24 / 30 | SemiBold |
 | `title` | 20 / 26 | SemiBold |
@@ -134,125 +133,125 @@ couleur à une lane en cours de route.
 | `code` | 12 / 18 | JetBrains Mono Regular |
 | `codeSmall` | 11 / 16 | JetBrains Mono Regular |
 
-## 5. Espacement, tailles, rayons
+## 5. Spacing, sizes, radii
 
-Base **4 dp**. Échelle : 2, 4, 8, 12, 16, 20, 24, 32.
+**4 dp** base. Scale: 2, 4, 8, 12, 16, 20, 24, 32.
 
-| Élément | Taille |
+| Element | Size |
 | --- | --- |
-| contrôle (bouton, champ) | **28 dp** |
-| contrôle large | 32 dp |
-| ligne de liste / tree | **24 dp** |
-| ligne de commit (2 lignes) | 40 dp |
+| control (button, field) | **28 dp** |
+| wide control | 32 dp |
+| list / tree row | **24 dp** |
+| commit row (2 lines) | 40 dp |
 | toolbar | **40 dp** |
-| en-tête de tool window | **28 dp** |
+| tool window header | **28 dp** |
 | status bar | **22 dp** |
 | sidebar | 240 dp |
 | inspector | 320 dp |
-| icône | 16 dp (20 dp toolbar) |
+| icon | 16 dp (20 dp toolbar) |
 
-Rayons : `4` (kbd, micro-surface), `6` (champ/badge), `8` (bouton, carte, panneau),
-`10` (popover). **Pas de pilules** sauf badge de statut (999).
+Radii: `4` (kbd, micro-surface), `6` (field/badge), `8` (button, card, panel),
+`10` (popover). **No pills** except the status badge (999).
 
-## 6. Bordures, élévation, mouvement
+## 6. Borders, elevation, motion
 
-- Bordure 1 px `border` partout ; `borderStrong` pour les champs et le focus.
-- **Pas d'ombre** sur les cartes/panneaux. Ombre douce uniquement pour popover/tooltip.
-- Toolbar et status bar sont des surfaces plates, sans dégradé.
-- Mouvement : 100–150 ms, `ease-out` ; hover/press uniquement. Pas de rebond, pas de
-  parallaxe. Respecter `prefers-reduced-motion` côté plateforme.
+- 1 px `border` everywhere; `borderStrong` for fields and focus.
+- **No shadow** on cards/panels. Soft shadow only for popover/tooltip.
+- Toolbar and status bar are flat surfaces, with no gradient.
+- Motion: 100–150 ms, `ease-out`; hover/press only. No bounce, no
+  parallax. Respect `prefers-reduced-motion` on the platform side.
 
-## 7. Iconographie
+## 7. Iconography
 
-- Icônes **16 px**, trait 1,5–2 px, style JetBrains (chevrons, branch, commit, diff,
+- **16 px** icons, 1.5–2 px stroke, JetBrains style (chevrons, branch, commit, diff,
   check, warning, bug).
-- Toujours accompagnées d'un texte ou d'un `contentDescription` ; jamais seules pour une
-  action destructive.
-- Pas d'emoji, pas de glyphes Unicode comme icônes.
+- Always accompanied by text or a `contentDescription`; never alone for a
+  destructive action.
+- No emoji, no Unicode glyphs as icons.
 
-## 8. Composants
+## 8. Components
 
-Tous les composants sont dans `ui/components/` et utilisent uniquement les tokens.
+All components live in `ui/components/` and use only the tokens.
 
 ### Button
 
-- `NitpickButton` : `Primary`, `Secondary`, `Ghost`, `Danger`.
-- Hauteur 28 dp (défaut), 32 dp large ; padding horizontal 12 dp ; rayon 8 dp.
-- Primaire : fond `primary`, texte `onPrimary` (blanc). Danger : fond `dangerSoft`,
-  texte `danger` — jamais un bloc rouge plein.
-- Un seul bouton primaire par zone visible.
+- `NitpickButton`: `Primary`, `Secondary`, `Ghost`, `Danger`.
+- 28 dp height (default), 32 dp wide; 12 dp horizontal padding; 8 dp radius.
+- Primary: `primary` background, `onPrimary` text (white). Danger: `dangerSoft` background,
+  `danger` text — never a solid red block.
+- One primary button per visible zone.
 
 ### Badge
 
-- `NitpickBadge` : 11 sp, uppercase, rayon 4–6 dp, bord 1 px, padding 7×2.
-- Tons : neutral, accent, success, warning, danger, info, suggestion, AI.
-- Le libellé porte le sens (« BUG », « WARNING »), pas seulement la couleur.
+- `NitpickBadge`: 11 sp, uppercase, 4–6 dp radius, 1 px border, 7×2 padding.
+- Tones: neutral, accent, success, warning, danger, info, suggestion, AI.
+- The label carries the meaning ("BUG", "WARNING"), not just the color.
 
 ### TextField
 
-- `NitpickTextField` : 28 dp, fond `surface`, bord `borderStrong`, focus `primary`.
-- Label 11 sp au-dessus, erreur 11 sp en `danger` en dessous.
-- Placeholder `textMuted` ; pas de label flottant Material.
+- `NitpickTextField`: 28 dp, `surface` background, `borderStrong` border, `primary` focus.
+- 11 sp label above, 11 sp error in `danger` below.
+- `textMuted` placeholder; no Material floating label.
 
 ### Toolbar / tool window / status bar
 
-- `NitpickToolbar` : 40 dp, `toolbar` sombre, actions 28 dp, texte 12 sp.
-- `NitpickToolWindowHeader` : 28 dp, label uppercase 11 sp, actions à droite.
-- `NitpickStatusBar` : 22 dp, texte 11 sp `onStatusBar`, séparé par des espaces.
-- `NitpickTab` : 28 dp, onglet actif `surface` + rail bleu 2 px.
+- `NitpickToolbar`: 40 dp, dark `toolbar`, 28 dp actions, 12 sp text.
+- `NitpickToolWindowHeader`: 28 dp, 11 sp uppercase label, actions on the right.
+- `NitpickStatusBar`: 22 dp, 11 sp `onStatusBar` text, separated by spaces.
+- `NitpickTab`: 28 dp, active tab `surface` + 2 px blue rail.
 
 ### ReviewCommentCard
 
-- En-tête : badge de sévérité + `fichier:ligne` en mono + action `Dismiss`.
-- Corps : message 13 sp.
-- Suggestion : bloc `surfaceSunken`, label `SUGGESTED CHANGE`, code mono, bouton
-  `Apply suggestion` (petit).
-- La sévérité est aussi dans le texte du badge, pas seulement dans la couleur.
+- Header: severity badge + `fichier:ligne` in mono + `Dismiss` action.
+- Body: 13 sp message.
+- Suggestion: `surfaceSunken` block, `SUGGESTED CHANGE` label, mono code,
+  `Apply suggestion` button (small).
+- Severity is also in the badge text, not only in the color.
 
 ### DiffLineRow
 
-- Deux colonnes de numéros (40 dp), gouttière `+`/`-`/espace (16 dp), code mono.
-- Fond `diffAddedBg` / `diffRemovedBg` / `diffContextBg`.
-- Une ligne = 20 dp minimum ; pas de wrap (scroll horizontal).
+- Two number columns (40 dp), `+`/`-`/space gutter (16 dp), mono code.
+- `diffAddedBg` / `diffRemovedBg` / `diffContextBg` background.
+- One line = 20 dp minimum; no wrap (horizontal scroll).
 
 ### RefBadge / Kbd / EmptyState
 
-- `RefBadge` : préfixe `branch`, `remote` ou `tag` + nom ; tons accent/neutral/warning.
-- `NitpickKbd` : mono 11 sp, fond `surfaceSunken`, bord `border`, rayon 4.
-- `NitpickEmptyState` : titre 20 sp, détail 12 sp, action unique ; pas de « Coming soon ».
+- `RefBadge`: `branch`, `remote` or `tag` prefix + name; accent/neutral/warning tones.
+- `NitpickKbd`: 11 sp mono, `surfaceSunken` background, `border` border, 4 radius.
+- `NitpickEmptyState`: 20 sp title, 12 sp detail, single action; no "Coming soon".
 
-## 9. États
+## 9. States
 
-| État | Light | Dark |
+| State | Light | Dark |
 | --- | --- | --- |
 | hover | `#EDF3FF` | `#393B40` |
-| sélection | `#D4E2FF` | `#2E436E` |
-| focus | `primary` (bord 1 px + halo 2 px) | idem |
-| disabled | `textMuted` + alpha 0.55 | idem |
-| erreur | `danger` + fond `dangerSoft` | idem |
+| selection | `#D4E2FF` | `#2E436E` |
+| focus | `primary` (1 px border + 2 px halo) | same |
+| disabled | `textMuted` + alpha 0.55 | same |
+| error | `danger` + `dangerSoft` background | same |
 
-Ne jamais utiliser un contour navigateur par défaut. Le focus clavier est toujours visible.
+Never use a default browser outline. Keyboard focus is always visible.
 
-## 10. Accessibilité
+## 10. Accessibility
 
-- Contraste texte/fond ≥ 4,5:1 ; les couleurs de lane sont un renfort, pas la seule info.
-- Cibles tactiles Android : 44–48 dp même si le contrôle visuel fait 28 dp (padding
-  invisible).
-- Navigation clavier complète sur desktop ; `Tab`/`Shift+Tab`, `Esc`, `Enter`.
-- `contentDescription` sur chaque icône seule.
-- Le diff reste lisible en noir et blanc : préfixes, numéros, libellés.
-- Respecter la taille de police système ; ne pas bloquer le scaling.
+- Text/background contrast ≥ 4.5:1; lane colors are a reinforcement, not the only info.
+- Android touch targets: 44–48 dp even if the visual control is 28 dp (invisible
+  padding).
+- Full keyboard navigation on desktop; `Tab`/`Shift+Tab`, `Esc`, `Enter`.
+- `contentDescription` on every standalone icon.
+- The diff stays readable in black and white: prefixes, numbers, labels.
+- Respect the system font size; do not block scaling.
 
-## 11. Contenu et voix
+## 11. Content and voice
 
-- Public : développeurs. Ton direct, factuel, sans emphase.
-- Anglais par défaut, français complet (strings dans `composeResources`).
-- Verbes d'action : `Nitpick branch`, `Apply suggestion`, `Dismiss`, `Open repository`.
-- Erreurs : ce qui a échoué, où, quoi faire. Pas de « Oops ».
-- Pas d'emoji, pas de majuscules criardes hors kicker/badge.
-- Les termes git restent en anglais : commit, branch, diff, rebase, push, nit.
+- Audience: developers. Direct, factual tone, without emphasis.
+- English by default, complete French (strings in `composeResources`).
+- Action verbs: `Nitpick branch`, `Apply suggestion`, `Dismiss`, `Open repository`.
+- Errors: what failed, where, what to do. No "Oops".
+- No emoji, no shouty capitals outside kicker/badge.
+- Git terms stay in English: commit, branch, diff, rebase, push, nit.
 
-## 12. Patterns d'écran
+## 12. Screen patterns
 
 ### IDE shell
 
@@ -269,42 +268,42 @@ Ne jamais utiliser un contour navigateur par défaut. Le focus clavier est toujo
 └──────────────────────────────────────────────────────────────┘
 ```
 
-- Tool windows : 240 dp (gauche), 320 dp (droite), redimensionnables plus tard.
-- Le graphe est dans la zone centrale ; le diff/review remplaceront les détails.
-- Pas de cartes flottantes ni de coins très arrondis.
+- Tool windows: 240 dp (left), 320 dp (right), resizable later.
+- The graph is in the central area; diff/review will replace the details.
+- No floating cards or very rounded corners.
 
 ### Review
 
-1. Liste des nits groupés par fichier ; badge de sévérité + ligne.
-2. Carte de commentaire : message, suggestion, Apply/Dismiss.
-3. Diff avec lignes colorées et commentaires ancrés.
-4. Barre d'action : `Nitpick branch` (primaire), `Cancel` (secondaire).
+1. List of nits grouped by file; severity badge + line.
+2. Comment card: message, suggestion, Apply/Dismiss.
+3. Diff with colored lines and anchored comments.
+4. Action bar: `Nitpick branch` (primary), `Cancel` (secondary).
 
-## 13. Règles / anti-patterns
+## 13. Rules / anti-patterns
 
-| À faire | À éviter |
+| Do | Avoid |
 | --- | --- |
-| Utiliser `NitpickTheme.colors` | Couleur littérale dans un composant |
-| 28 dp de contrôle, 24 dp de ligne | Composants Material 40–56 dp |
-| Bordure 1 px + surface | Ombre portée sur une carte |
-| Bleu uniquement pour l'action | Bleu en fond de grande zone |
-| Badge + texte + gouttière | Couleur seule pour la sévérité |
-| Mono pour le code/les ids | Mono pour le texte UI |
-| Grille 4 dp | Marges arbitraires |
-| Un seul primaire par écran | Trois boutons bleus côte à côte |
+| Use `NitpickTheme.colors` | Literal color in a component |
+| 28 dp control, 24 dp row | Material 40–56 dp components |
+| 1 px border + surface | Drop shadow on a card |
+| Blue only for the action | Blue as the background of a large area |
+| Badge + text + gutter | Color alone for severity |
+| Mono for code/ids | Mono for UI text |
+| 4 dp grid | Arbitrary margins |
+| One primary per screen | Three blue buttons side by side |
 
-## 14. Fichiers
+## 14. Files
 
 ```text
 shared/src/commonMain/kotlin/dev/nitpick/app/ui/
   theme/
-    NitpickTokens.kt       couleurs, espacements, rayons, tailles, tons
-    NitpickTypography.kt   échelle UI + code, mapping Material
-    NitpickTheme.kt        thème Compose, light/dark, locals
+    NitpickTokens.kt       colours, spacing, radii, sizes, tones
+    NitpickTypography.kt   UI + code scale, Material mapping
+    NitpickTheme.kt        Compose theme, light/dark, locales
   components/
-    NitpickButton.kt       boutons
-    NitpickSurface.kt      carte, badge, kbd, séparateurs
-    NitpickTextField.kt    champ dense
+    NitpickButton.kt       buttons
+    NitpickSurface.kt      card, badge, kbd, separators
+    NitpickTextField.kt    dense field
     NitpickLayout.kt       section header, empty state
     NitpickIdeShell.kt     toolbar, tool window header, tab, status bar
     NitpickReview.kt       review card, diff line, ref badge
@@ -312,13 +311,13 @@ shared/src/commonMain/kotlin/dev/nitpick/app/ui/
     DesignSystemCatalog.kt catalogue visuel (preview)
 ```
 
-## 15. Vérification
+## 15. Verification
 
 ```bash
 GRADLE_USER_HOME=/tmp/nitpick-gradle ANDROID_USER_HOME=/tmp/nitpick-android \
   ./gradlew :shared:compileKotlinJvm :desktopApp:compileKotlin
 ```
 
-Ouvrir `DesignSystemCatalog` dans une preview IDE pour vérifier light/dark, densité,
-diff et review. Toute nouvelle couleur doit être ajoutée aux tokens, jamais dans un
-composant.
+Open `DesignSystemCatalog` in an IDE preview to check light/dark, density,
+diff and review. Any new color must be added to the tokens, never in a
+component.

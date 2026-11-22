@@ -1,20 +1,20 @@
 # Ticket 147-ux-followups
 
-- Statut : en cours
-- Propriétaire humain : @pepito2t (H3)
-- Piste : C finitions
-- Agent : Claude Code, session humaine
-- Model : Fable 5.1
-- Escalations : aucune
-- Fichiers autorisés : ui/components/NitpickReview.kt, ui/repository/{ReviewPanel,RepositoryViewModel}.kt, ui/phone/PhoneReviewScreen.kt, strings EN/FR, docs/demo/*.png
+- Status: in progress
+- Human owner: @pepito2t (H3)
+- Track: C polish
+- Agent: Claude Code, human session
+- Model: Fable 5.1
+- Escalations: none
+- Allowed files: ui/components/NitpickReview.kt, ui/repository/{ReviewPanel,RepositoryViewModel}.kt, ui/phone/PhoneReviewScreen.kt, strings EN/FR, docs/demo/*.png
 
-## Journal
+## Log
 
-- 02:30 — état sur `main` : les points 2 (pluriels `shared_row`, `review_files_with_nits`) et 3 (« : » en dur) sont déjà corrigés par d'autres commits ; les compteurs par sévérité existent déjà sur desktop mais pas sur le téléphone ; le badge reste en ton Info.
-- 02:40 — point 4 : `SeverityCounters(comments)` partagé dans `NitpickReview.kt` (bugs d'abord), utilisé par la carte résumé desktop et téléphone ; badge « AI review » en ton `Ai`, « Shared review » reste Info.
-- 02:45 — point 1, la part qui touche la démo : une réponse du modèle qui n'est pas une review valide (`ReviewResponseException`) devient `ReviewFailure.InvalidAnswer`, affichée par une phrase EN/FR au lieu du texte de l'exception. Les autres messages (JGit, apply, clone) restent tels quels : ce sont nos propres phrases anglaises ou le détail JGit, utiles tels quels et hors budget pour cette nuit.
-- Test : `anInvalidModelAnswerIsShownAsItsOwnFailureNotRawText`.
+- 02:30 — state on `main`: points 2 (plurals `shared_row`, `review_files_with_nits`) and 3 (hardcoded ":") are already fixed by other commits; the per-severity counters already exist on desktop but not on the phone; the badge stays in the Info tone.
+- 02:40 — point 4: `SeverityCounters(comments)` shared in `NitpickReview.kt` (bugs first), used by the desktop and phone summary card; "AI review" badge in the `Ai` tone, "Shared review" stays Info.
+- 02:45 — point 1, the part that affects the demo: a model answer that is not a valid review (`ReviewResponseException`) becomes `ReviewFailure.InvalidAnswer`, shown with an EN/FR sentence instead of the exception text. The other messages (JGit, apply, clone) stay as they are: they are our own English sentences or the JGit detail, useful as is and out of budget for tonight.
+- Test: `anInvalidModelAnswerIsShownAsItsOwnFailureNotRawText`.
 
-## Incertain
+## Uncertain
 
-- Point 5 (captures desktop apply/commit/push clair + sombre) : fait dans cette PR si le desktop se lance ; les trous de `DEMO.md` (phrase, créé vs réutilisé) sont du contenu pitch pour H1 (#163).
+- Point 5 (desktop apply/commit/push screenshots, light + dark): done in this PR if the desktop launches; the gaps in `DEMO.md` (sentence, created vs reused) are pitch content for H1 (#163).

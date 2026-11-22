@@ -1,64 +1,64 @@
 # Ticket 105-audit-vm-errors
 
-- Statut : prêt pour PR
-- Propriétaire humain : @dovatgabriel
-- Piste : B git+desktop, C android+finitions
-- Agent : Claude Code, session principale (audit qualité du 22/11)
-- Model : Fable, choisi à la main par H1
-- Escalations : aucune
-- Fichiers : `ui/phone/{PhoneReviewScreen,CloneScreen}.kt`,
+- Status: ready for PR
+- Human owner: @dovatgabriel
+- Track: B git+desktop, C android+polish
+- Agent: Claude Code, main session (quality audit of 22/11)
+- Model: Fable, picked by hand by H1
+- Escalations: none
+- Files: `ui/phone/{PhoneReviewScreen,CloneScreen}.kt`,
   `ui/repository/{RepositoryViewModel,RepositoryScreen,DiffPanel,CloneDialog,CloneProgress}.kt`,
   `ui/components/NitpickReview.kt`, `ui/settings/SettingsViewModel.kt`,
-  `jvmSharedMain/.../git/JGitRepository.kt`, leurs tests, `README.md`, `docs/QUESTIONS.md`,
+  `jvmSharedMain/.../git/JGitRepository.kt`, their tests, `README.md`, `docs/QUESTIONS.md`,
   `.editorconfig`
 
-## Contexte
+## Context
 
-H2 a repris les issues de l'audit et mergé #109, #111 et #112 pendant que j'écrivais les mêmes
-correctifs. Ma PR #113 a été fermée comme doublon. Ce ticket ne contient que ce que ces trois
-PR ont laissé ouvert, relu sur `main` après leur merge.
+H2 took over the audit issues and merged #109, #111 and #112 while I was writing the same
+fixes. My PR #113 was closed as a duplicate. This ticket only contains what those three
+PRs left open, re-read on `main` after their merge.
 
-## Journal
+## Log
 
-- 00:35 — worktree créé depuis `main` à jour.
-- `PhoneReviewScreen` n'affichait toujours pas `actionError` : le journal de #111 le dit fait,
-  mais le fichier n'était pas dans son diff. Ajouté entre la liste des nits et la barre de
-  commit.
-- Badge de sévérité du téléphone : `nit.severity.name` remplacé par le `severityLabel` de la
-  carte ; un seul `severityTone`.
-- Messages du pull (#109) : trois tests rouges sur le code mergé. Divergence → « Pull failed:
-  Aborted » ; origin injoignable → « Uncommitted changes… » à tort ; fast-forward sur un fichier
-  modifié → phrase sur une branche divergente. Les deux cas réels disent maintenant « Commit or
-  discard your changes before pulling: <chemins> », les autres erreurs gardent leur message.
-- Apply ou commit pendant un pull ou un checkout : ignoré. Trouvé par l'agent `reviewer` : une
-  suggestion appliquée pendant le fetch pouvait être effacée par le reset d'un pull en conflit.
-- Docs et commentaires alignés sur minSdk 33 ; Q-020 ajoutée ; `DiscardOutputStream` supprimé.
-- Reste de #106 : helpers de clone déplacés dans `ui/repository/CloneProgress.kt` (plus de
-  cycle `ui/phone` ↔ `ui/repository`), deux doublons fusionnés, 3 tests du wizard supprimés,
-  `.editorconfig` en 4 espaces pour Kotlin.
+- 00:35 — worktree created from an up-to-date `main`.
+- `PhoneReviewScreen` still did not display `actionError`: #111's log says it is done,
+  but the file was not in its diff. Added between the nits list and the
+  commit bar.
+- Phone severity badge: `nit.severity.name` replaced by the card's `severityLabel`;
+  a single `severityTone`.
+- Pull messages (#109): three red tests on the merged code. Divergence → "Pull failed:
+  Aborted"; unreachable origin → "Uncommitted changes…" wrongly; fast-forward over a modified
+  file → sentence about a diverging branch. The two real cases now say "Commit or
+  discard your changes before pulling: <paths>", the other errors keep their message.
+- Apply or commit during a pull or a checkout: ignored. Found by the `reviewer` agent: a
+  suggestion applied during the fetch could be wiped by the reset of a conflicting pull.
+- Docs and comments aligned on minSdk 33; Q-020 added; `DiscardOutputStream` removed.
+- Leftover from #106: clone helpers moved into `ui/repository/CloneProgress.kt` (no more
+  `ui/phone` ↔ `ui/repository` cycle), two duplicates merged, 3 wizard tests deleted,
+  `.editorconfig` at 4 spaces for Kotlin.
 
-## Décisions
+## Decisions
 
-- Le garde « pas d'apply pendant une synchro » ne couvre que pull et checkout, qui écrivent
-  des fichiers. Un fetch ou un push ne bloque pas un tap.
-- `CHECKOUT_CONFLICT` sort de la branche du reset : JGit 6.10 lève une exception pour ce cas
-  et `merge.conflicts` y est nul.
-- `LocalReviewAgent` reste : le supprimer rend un paramètre obligatoire et casserait `main` si
-  une PR en cours ajoute un test du ViewModel. Noté dans #107.
+- The "no apply during a sync" guard only covers pull and checkout, which write
+  files. A fetch or a push does not block a tap.
+- `CHECKOUT_CONFLICT` leaves the reset branch: JGit 6.10 throws an exception for this case
+  and `merge.conflicts` is null there.
+- `LocalReviewAgent` stays: removing it makes a parameter mandatory and would break `main` if
+  an in-flight PR adds a ViewModel test. Noted in #107.
 
-## Vérifications
+## Verification
 
-- Tests rouges puis verts : 3 sur le pull, 1 sur l'apply pendant un pull.
-- `:shared:allTests` : 169 tests sur la JVM, 123 sur l'hôte Android, 0 échec.
-- `./scripts/check.sh` vert à chaque commit (hook pre-commit).
+- Red then green tests: 3 on the pull, 1 on the apply during a pull.
+- `:shared:allTests`: 169 tests on the JVM, 123 on the Android host, 0 failure.
+- `./scripts/check.sh` green at every commit (pre-commit hook).
 
-## Incertain
+## Uncertain
 
-- Le rendu de `actionError` et du badge sur le téléphone n'a pas de test Compose : à vérifier
-  à la main sur l'appareil.
-- Tests sur ART non relancés (aucun émulateur démarré).
-- Le téléphone de démo doit être en Android 13 ou plus (Q-020).
+- The rendering of `actionError` and of the badge on the phone has no Compose test: to check
+  by hand on the device.
+- Tests on ART not re-run (no emulator started).
+- The demo phone must run Android 13 or later (Q-020).
 
-## Suivant
+## Next
 
-- Relecture humaine de la PR. Les points d'architecture et d'outillage sont dans #107.
+- Human review of the PR. The architecture and tooling points are in #107.

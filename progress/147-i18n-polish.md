@@ -1,25 +1,25 @@
 # Ticket 147 (part) — i18n polish: plurals and label/detail format
 
-- Statut : points 2 et 3 faits ; 1, 4, 5 restent post-freeze
-- Propriétaire humain : @pepito2t (H3)
-- Piste : A core (strings) + UI
-- Agent : Claude Code (Fable 5.1), session humaine
-- Model : fable
-- Fichiers autorisés : strings EN/FR, `ui/repository/{SyncStatus,ReviewPanel,ShareReview}.kt`,
+- Status: items 2 and 3 done; 1, 4, 5 remain post-freeze
+- Human owner: @pepito2t (H3)
+- Track: A core (strings) + UI
+- Agent: Claude Code (Fable 5.1), human session
+- Model: fable
+- Allowed files: EN/FR strings, `ui/repository/{SyncStatus,ReviewPanel,ShareReview}.kt`,
   `ui/phone/PhoneReviewScreen.kt`, `CountStringsTest.kt`
 
-## Fait
+## Done
 
-- `review_files_with_nits` et `shared_row` deviennent des `<plurals>` (« 1 nit », « 1 fichier
-  avec nits ») ; `CountStringsTest` les couvre dans les deux langues.
-- `label_detail` (« %1$s: %2$s » en EN, « %1$s : %2$s » en FR) remplace les quatre jointures
-  `+ ": " +` en Kotlin (statut sync, erreur de push téléphone, outils utilisés).
+- `review_files_with_nits` and `shared_row` become `<plurals>` ("1 nit", "1 file
+  with nits"); `CountStringsTest` covers them in both languages.
+- `label_detail` ("%1$s: %2$s" in EN, "%1$s : %2$s" in FR) replaces the four `+ ": " +`
+  joins in Kotlin (sync status, phone push error, tools used).
 
-## Reste (post-freeze)
+## Remaining (post-freeze)
 
-- Texte d'exception brut dans l'UI (1 h), compteurs de sévérité sur le résumé (1 h), captures
-  desktop clair/sombre (15 min, à faire avec l'app desktop ouverte).
+- Raw exception text in the UI (1 h), severity counters on the summary (1 h), light/dark
+  desktop screenshots (15 min, to do with the desktop app open).
 
-## Journal
+## Log
 
-- 02:35 — worktree, pluriels, format label/detail, check vert.
+- 02:35 — worktree, plurals, label/detail format, check green.

@@ -1,25 +1,25 @@
 # Ticket 89-android-back
 
-- Statut : prêt pour PR
-- Propriétaire humain : @zooldyyk
-- Piste : C Android
-- Agent : lead
-- Fichiers : `ui/phone/PhoneFlow.kt`, `ui/App.kt`, `gradle/libs.versions.toml`,
+- Status: ready for PR
+- Human owner: @zooldyyk
+- Track: C Android
+- Agent: lead
+- Files: `ui/phone/PhoneFlow.kt`, `ui/App.kt`, `gradle/libs.versions.toml`,
   `shared/build.gradle.kts`
 
-## Journal
+## Log
 
-- 23:50 — ajout de `BackHandler` Compose Multiplatform (`ui-backhandler` 1.12.2) :
-  Clone/Graph → Repos, Review/Shared → Graph, Diff → Review ; depuis Repos, l'app se ferme.
-- 23:52 — Settings (téléphone) : Retour ferme Settings avant de quitter.
-- Dépendance `org.jetbrains.compose.ui:ui-backhandler` ajoutée à `commonMain`.
+- 23:50 — added Compose Multiplatform `BackHandler` (`ui-backhandler` 1.12.2):
+  Clone/Graph → Repos, Review/Shared → Graph, Diff → Review; from Repos, the app closes.
+- 23:52 — Settings (phone): Back closes Settings before quitting.
+- `org.jetbrains.compose.ui:ui-backhandler` dependency added to `commonMain`.
 
-## Vérifications
+## Checks
 
-- `:shared:jvmTest` + `:desktopApp:compileKotlin` verts.
-- Android runtime non testé (SDK absent) : vérifier sur l’émulateur.
+- `:shared:jvmTest` + `:desktopApp:compileKotlin` green.
+- Android runtime not tested (no SDK): to check on the emulator.
 
-## Incertain
+## Uncertain
 
-- `BackHandler` est déprécié au profit de `NavigationEventHandler` ; l’API stable actuelle
-  reste utilisée, migration à prévoir.
+- `BackHandler` is deprecated in favor of `NavigationEventHandler`; the current stable API
+  stays in use, migration to plan.

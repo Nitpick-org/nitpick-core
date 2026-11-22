@@ -1,36 +1,36 @@
-# Dry run — tester la base comme en conditions réelles
+# Dry run — test the base under real conditions
 
-> **Doc historique** (voir `docs/README.md`) : le starter TypeScript, `src/`, `tests/` et
-> `scripts/bootstrap-dry-run.sh` ont été retirés après le gel. Le protocole reste ici comme
-> trace de la répétition ; les commandes qui les nomment ne sont plus utilisables.
+> **Historical doc** (see `docs/README.md`): the TypeScript starter, `src/`, `tests/` and
+> `scripts/bootstrap-dry-run.sh` were removed after the freeze. The protocol stays here as a
+> trace of the rehearsal; the commands that name them are no longer usable.
 
-> Un mini-projet fictif, **2 h 30**, dans un **clone jetable**. Le but n'est pas de livrer
-> Pulse : c'est de découvrir ce qui casse dans le repo, les agents et le rythme avant le
-> vrai hackathon.
+> A fictional mini-project, **2 h 30**, in a **throwaway clone**. The goal is not to ship
+> Pulse: it is to discover what breaks in the repo, the agents and the pace before the
+> real hackathon.
 
-## Ce que ça teste
+## What it tests
 
-- L'onboarding : clone, hooks, `.env`, Claude Code, Ultra, skills.
-- Le kickoff : DEMO, PRD, modules, tickets.
-- Les worktrees, `check.sh`, `check.sh --demo`, les agents, la revue, le merge.
-- La démo de 3 minutes et le Q&A.
-- La capacité Ultra : 2 comptes, 8 sessions max, 3 écrivains.
+- Onboarding: clone, hooks, `.env`, Claude Code, Ultra, skills.
+- The kickoff: DEMO, PRD, modules, tickets.
+- Worktrees, `check.sh`, `check.sh --demo`, the agents, the review, the merge.
+- The 3-minute demo and the Q&A.
+- Ultra capacity: 2 accounts, 8 sessions max, 3 writers.
 
-## Ce que ça ne teste pas
+## What it does not test
 
-- La vraie stack (le starter est un Vite + React jetable).
-- Le déploiement, la base de données, les APIs sponsors.
-- La nuit, le sommeil, les 24 h complètes.
+- The real stack (the starter is a throwaway Vite + React).
+- Deployment, the database, the sponsor APIs.
+- The night, sleep, the full 24 h.
 
-## Règles
+## Rules
 
-1. **Clone jetable** : `git clone <repo> /tmp/lauzhack-dry-run`. Ne fais pas ça dans le repo
-   partagé.
-2. **Aucun secret réel** : pas de clé API, pas de donnée personnelle.
-3. **Ne merge jamais `dry-run/base` dans `main`.**
-4. **Timebox** : 2 h 30. Si une étape dépasse, note-le et passe à la suivante.
-5. **Note les frictions** : chaque blocage de plus de 5 minutes va dans `dry-run/REVIEW.md`
-   (section bugs) et dans `dry-run/RETRO.md` (synthèse interne).
+1. **Throwaway clone**: `git clone <repo> /tmp/lauzhack-dry-run`. Do not do this in the shared
+   repo.
+2. **No real secret**: no API key, no personal data.
+3. **Never merge `dry-run/base` into `main`.**
+4. **Timebox**: 2 h 30. If a step overruns, note it and move to the next one.
+5. **Note the friction**: each blockage of more than 5 minutes goes into `dry-run/REVIEW.md`
+   (bugs section) and into `dry-run/RETRO.md` (internal synthesis).
 
 ## Setup (10 minutes)
 
@@ -47,52 +47,52 @@ pnpm exec playwright install chromium
 ./scripts/check.sh --demo
 ```
 
-- `bootstrap-dry-run.sh` crée `dry-run/base`, copie le starter, installe les dépendances et
-  commit.
-- `playwright install chromium` est nécessaire pour `--demo` (une fois).
-- Si `check.sh --demo` échoue, note-le : c'est peut-être un vrai bug de base.
-- Le starter installe avec `--ignore-scripts` (connu, jetable). Si tu vois quand même un
-  warning `Ignored build scripts: esbuild`, `pnpm rebuild esbuild` suffit ; le build passe.
-- Si l'installation des navigateurs Playwright échoue (cache en lecture seule), utilise
+- `bootstrap-dry-run.sh` creates `dry-run/base`, copies the starter, installs the dependencies and
+  commits.
+- `playwright install chromium` is required for `--demo` (once).
+- If `check.sh --demo` fails, note it: it may be a real bug in the base.
+- The starter installs with `--ignore-scripts` (known, throwaway). If you still see an
+  `Ignored build scripts: esbuild` warning, `pnpm rebuild esbuild` is enough; the build passes.
+- If the Playwright browser installation fails (read-only cache), use
   `PLAYWRIGHT_BROWSERS_PATH="$PWD/.playwright-browsers" pnpm exec playwright install chromium`
-  puis la même variable devant `./scripts/check.sh --demo`.
+  then the same variable before `./scripts/check.sh --demo`.
 
-## Rôles
+## Roles
 
-| Humain | Rôle | Agents | Compte |
+| Human | Role | Agents | Account |
 | --- | --- | --- | --- |
-| H1 | Produit & Pitch : DEMO, PRD, script, Q&A | `devils-advocate`, `pitch` | Pro / autre |
-| H2 | Architecte & Intégration : modules, merge, CI | `architect`, `reviewer`, `implementer` | Ultra |
-| H3 | Builder & Démo : UI, e2e, démo | `implementer`, `qa-demo` | Ultra |
+| H1 | Product & Pitch: DEMO, PRD, script, Q&A | `devils-advocate`, `pitch` | Pro / other |
+| H2 | Architect & Integration: modules, merge, CI | `architect`, `reviewer`, `implementer` | Ultra |
+| H3 | Builder & Demo: UI, e2e, demo | `implementer`, `qa-demo` | Ultra |
 
 ## Timeline
 
-| Temps | Qui | Action | Porte |
+| Time | Who | Action | Gate |
 | --- | --- | --- | --- |
-| 0:00–0:10 | tous | Onboarding : clone, hooks, `.env`, `doctor.sh` | Un seul échec : `no package.json` avant bootstrap |
-| 0:10–0:20 | tous | `bootstrap-dry-run.sh`, `check.sh`, `check.sh --demo` | Check vert |
-| 0:20–0:35 | H1 | Lire `dry-run/TICKETS.md`, écrire `docs/DEMO.md` (Pulse) et `docs/PRD.md` | Démo en 5 points |
-| 0:20–0:35 | H2/H3 | Lire l'architecture, créer les worktrees | 2 worktrees prêts |
-| 0:35–0:50 | H2 | `architect` sur le PRD, puis `implementer` ticket #01 | Module + tests |
-| 0:35–0:50 | H3 | `qa-demo` sur la baseline, prépare le test e2e | Le parcours de démo est clair |
-| 0:50–1:35 | H2/H3 | Ticket #02 UI, puis #03 e2e/demo ; `reviewer` sur chaque diff | 3 tickets prêts |
-| 1:35–1:55 | H2 | Merge dans `dry-run/base`, `check.sh --demo` | Tout vert |
-| 1:55–2:10 | tous | Démo 3 min ×2 + Q&A 1 min | La démo tient en 2:45 |
-| 2:10–2:30 | tous | Remplir `dry-run/REVIEW.md` (15–20 min) + `dry-run/RETRO.md` (5 min), go/no-go | Review complète + 3 correctifs |
+| 0:00–0:10 | all | Onboarding: clone, hooks, `.env`, `doctor.sh` | A single failure: `no package.json` before bootstrap |
+| 0:10–0:20 | all | `bootstrap-dry-run.sh`, `check.sh`, `check.sh --demo` | Check green |
+| 0:20–0:35 | H1 | Read `dry-run/TICKETS.md`, write `docs/DEMO.md` (Pulse) and `docs/PRD.md` | Demo in 5 points |
+| 0:20–0:35 | H2/H3 | Read the architecture, create the worktrees | 2 worktrees ready |
+| 0:35–0:50 | H2 | `architect` on the PRD, then `implementer` ticket #01 | Module + tests |
+| 0:35–0:50 | H3 | `qa-demo` on the baseline, prepare the e2e test | The demo journey is clear |
+| 0:50–1:35 | H2/H3 | Ticket #02 UI, then #03 e2e/demo; `reviewer` on each diff | 3 tickets ready |
+| 1:35–1:55 | H2 | Merge into `dry-run/base`, `check.sh --demo` | All green |
+| 1:55–2:10 | all | Demo 3 min ×2 + Q&A 1 min | The demo fits in 2:45 |
+| 2:10–2:30 | all | Fill in `dry-run/REVIEW.md` (15–20 min) + `dry-run/RETRO.md` (5 min), go/no-go | Complete review + 3 fixes |
 
-## Commandes utiles
+## Useful commands
 
 ```bash
-# Worktree pour un ticket, basé sur la branche du dry run
+# Worktree for one ticket, based on the dry-run branch
 WT_BASE="$PWD/.worktrees" WT_FROM=dry-run/base ./scripts/new-worktree.sh 01-anomaly
 cd .worktrees/wt-01-anomaly
 pnpm install --ignore-scripts
-claude   # accepte le trust dialog une fois, puis quitte pour l'AFK
+claude   # accept the trust dialog once, then quit for AFK
 
-# Vérifier le diff par rapport à la base du dry run
+# Check the diff against the dry-run base
 git diff dry-run/base...HEAD
 
-# Après merge dans le clone principal
+# After merging in the main clone
 ./scripts/check.sh --demo
 
 # Nettoyage
@@ -102,60 +102,60 @@ git branch -D dry-run/base
 rm -rf .worktrees
 ```
 
-## Ce qu'on observe
+## What we observe
 
-| Question | Pourquoi |
+| Question | Why |
 | --- | --- |
-| Combien de temps pour le premier `check.sh` vert ? | La base est-elle vraiment prête ? |
-| Un agent neuf est-il productif en < 5 min ? | Le brief et les docs suffisent-ils ? |
-| Combien de conflits de merge ? | Les zones de fichiers sont-elles respectées ? |
-| Un agent a-t-il déclaré « fini » à tort ? | Le hook `Stop` et les tests marchent-ils ? |
-| Le reviewer trouve-t-il un vrai problème ? | La revue est-elle utile ou théâtrale ? |
-| La démo tient-elle en 2:45 sans slides ? | Le format est-il compris ? |
-| Où sont les 10 minutes perdues ? | C'est le vrai gain à corriger. |
+| How long until the first green `check.sh`? | Is the base really ready? |
+| Is a fresh agent productive in < 5 min? | Are the brief and the docs enough? |
+| How many merge conflicts? | Are the file zones respected? |
+| Did an agent wrongly declare "done"? | Do the `Stop` hook and the tests work? |
+| Does the reviewer find a real problem? | Is the review useful or theatrical? |
+| Does the demo fit in 2:45 without slides? | Is the format understood? |
+| Where are the 10 lost minutes? | That is the real gain to fix. |
 
-## Routage (à tester)
+## Routing (to test)
 
-Avant chaque délégation, utilise `/route-task` et note la décision :
+Before each delegation, use `/route-task` and note the decision:
 
-- doc → `scribe` / Haiku (Sonnet si le texte doit être nuancé) ;
-- code standard → `implementer` / Sonnet ;
-- code critique → `implementer` / Opus ;
-- review code → `reviewer` / Opus ;
+- doc → `scribe` / Haiku (Sonnet if the text needs nuance);
+- standard code → `implementer` / Sonnet;
+- critical code → `implementer` / Opus;
+- code review → `reviewer` / Opus;
 - pitch/PRD → `pitch` / Opus.
 
-Si un ticket échoue 2 fois, relance le **même agent** avec le modèle supérieur et note
-`Escalations:` dans `progress/<ticket>.md`. Fable reste manuel.
+If a ticket fails 2 times, rerun the **same agent** with the higher model and note
+`Escalations:` in `progress/<ticket>.md`. Fable stays manual.
 
 ## Ultra
 
-- H2 et H3 travaillent sur les comptes Ultra.
-- **8 sessions max, 3 écrivains max.** Les autres sont des lecteurs/QA.
-- `/usage` au début et à la fin. Note le pourcentage consommé.
-- **Pas de Fable** pour ce dry run, sauf blocage > 30 min. Si tu l'utilises, note-le.
-- Si tu as le temps, teste **un** AFK d'une itération sur un ticket low-risk :
-  `AFK_OK=1 ./scripts/afk-ralph.sh 1` dans un worktree.
+- H2 and H3 work on the Ultra accounts.
+- **8 sessions max, 3 writers max.** The others are readers/QA.
+- `/usage` at the start and at the end. Note the percentage consumed.
+- **No Fable** for this dry run, unless blocked > 30 min. If you use it, note it.
+- If you have time, test **one** AFK of one iteration on a low-risk ticket:
+  `AFK_OK=1 ./scripts/afk-ralph.sh 1` in a worktree.
 
-## Critères de succès
+## Success criteria
 
-- [ ] `./scripts/check.sh` vert au root et dans les worktrees.
-- [ ] `./scripts/check.sh --demo` vert.
-- [ ] Les 3 tickets sont mergés dans `dry-run/base`.
-- [ ] Au moins 4 agents utilisés (`architect`, `implementer`, `reviewer`, `qa-demo`).
-- [ ] Un doc a été écrit par `scribe` (Haiku), pas par Opus.
-- [ ] Une escalade a été journalisée si un ticket a échoué 2 fois.
-- [ ] La démo de 3 minutes passe 2 fois, sans slides.
-- [ ] `dry-run/REVIEW.md` est rempli (le retour complet à envoyer).
-- [ ] `dry-run/RETRO.md` contient 3 correctifs concrets (rétro interne).
-- [ ] Aucun secret n'a été commité.
+- [ ] `./scripts/check.sh` green at the root and in the worktrees.
+- [ ] `./scripts/check.sh --demo` green.
+- [ ] The 3 tickets are merged into `dry-run/base`.
+- [ ] At least 4 agents used (`architect`, `implementer`, `reviewer`, `qa-demo`).
+- [ ] A doc was written by `scribe` (Haiku), not by Opus.
+- [ ] An escalation was logged if a ticket failed 2 times.
+- [ ] The 3-minute demo passes 2 times, without slides.
+- [ ] `dry-run/REVIEW.md` is filled in (the full feedback to send).
+- [ ] `dry-run/RETRO.md` contains 3 concrete fixes (internal retro).
+- [ ] No secret was committed.
 
-## Après le dry run
+## After the dry run
 
-1. Remplir `dry-run/REVIEW.md` (retour complet, 20 min) et l'envoyer.
-2. Remplir `dry-run/RETRO.md` à chaud (rétro interne, 5 min).
-3. Créer 3 tickets dans le vrai repo (GitHub Issues, label `ticket`) pour les 3 correctifs.
-4. Les corriger avant H0, avec `check.sh` vert.
-5. Supprimer le clone jetable.
+1. Fill in `dry-run/REVIEW.md` (full feedback, 20 min) and send it.
+2. Fill in `dry-run/RETRO.md` while it is hot (internal retro, 5 min).
+3. Create 3 tickets in the real repo (GitHub Issues, label `ticket`) for the 3 fixes.
+4. Fix them before H0, with `check.sh` green.
+5. Delete the throwaway clone.
 
-> Si le dry run échoue, c'est une réussite : tu viens de trouver un problème avant le
-> hackathon, pas pendant la démo.
+> If the dry run fails, it is a success: you just found a problem before the
+> hackathon, not during the demo.

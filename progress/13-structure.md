@@ -1,52 +1,52 @@
 # Ticket 13-structure
 
-- Statut : fini (build vert en local), à merger sur main
-- Propriétaire humain : @thomas
-- Piste : transverse (contrats du §6, avant les pistes A/B/C)
-- Agent : Claude Fable 5.1 (session interactive)
-- Model : fable
-- Escalations : aucune
-- Fichiers autorisés : shared/src/commonMain/kotlin/dev/nitpick/app/{domain,git,review,settings,ui}, shared/src/commonTest, gradle/libs.versions.toml, shared/build.gradle.kts, desktopApp/.../main.kt et androidApp/.../MainActivity.kt (import de App uniquement)
+- Status: done (green build locally), to merge on main
+- Human owner: @thomas
+- Track: cross-cutting (§6 contracts, before tracks A/B/C)
+- Agent: Claude Fable 5.1 (interactive session)
+- Model: fable
+- Escalations: none
+- Allowed files: shared/src/commonMain/kotlin/dev/nitpick/app/{domain,git,review,settings,ui}, shared/src/commonTest, gradle/libs.versions.toml, shared/build.gradle.kts, desktopApp/.../main.kt and androidApp/.../MainActivity.kt (App import only)
 
 ## Journal
 
-- 12:50 — branche `ticket/13-structure` créée dans le checkout principal (le worktree
-  atterrirait hors du dossier de travail de la session).
-- 13:05 — contrats du §6 écrits dans `commonMain` : `domain` (Commit, Ref, WorkingTreeStatus,
+- 12:50 — branch `ticket/13-structure` created in the main checkout (the worktree
+  would land outside the session working directory).
+- 13:05 — §6 contracts written in `commonMain`: `domain` (Commit, Ref, WorkingTreeStatus,
   FileDiff/Hunk/DiffLine, ReviewResult/ReviewComment/Severity, Credentials, PullResult),
   `git` (GitRepository, GitRepositoryFactory), `review` (ReviewAgent), `settings` (Settings,
-  SettingsStore). `App.kt` déplacé dans `ui/`. Un test commonTest : aller-retour JSON de
+  SettingsStore). `App.kt` moved into `ui/`. One commonTest test: JSON round-trip of
   `ReviewResult`.
-- Décisions :
-  - `GitRepositoryFactory` et `SettingsStore` sont des interfaces, pas des `expect` : un
-    `expect` sans `actual` ne compile pas, et l'implémentation arrive dans les tickets JGit et
-    réglages. Elles seront injectées via `AppContainer` (§5, DI manuelle). Proposé dans
+- Decisions:
+  - `GitRepositoryFactory` and `SettingsStore` are interfaces, not `expect`: an
+    `expect` without `actual` does not compile, and the implementation arrives in the JGit and
+    settings tickets. They will be injected via `AppContainer` (§5, manual DI). Proposed in
     `docs/QUESTIONS.md`.
-  - `Branch` et `Suggestion` (§6) ne sont pas des classes séparées : `Ref` porte un `RefType`
-    (LOCAL_BRANCH, REMOTE_BRANCH, TAG) et la suggestion est le champ `suggestion` de
-    `ReviewComment`, comme l'impose le contrat §6.
-  - Pas de package `graph` ni `diff` pour l'instant : git ne versionne pas un dossier vide et
-    il n'y a pas encore de contrat inter-pistes à y mettre. Leur premier ticket les crée.
-  - kotlinx.serialization 1.13.0 (dernière release Maven Central) ajouté : `@Serializable`
-    sur `ReviewResult` fait partie du contrat (sortie structurée Koog).
-- Incertain : rien côté contrats. Avertissement Gradle « SDK XML version 4 » (cmdline-tools
-  plus récents qu'AGP) : bénin.
-- Blocage : aucun.
-- Suivant : merger `ticket/13-structure` sur main, puis lancer #15, #16, #17 et #18 (frontière
-  sans bloqueur) dans quatre worktrees.
-- 13:40 — spec publiée (#14) et 9 tickets créés en sub-issues de #13 avec dépendances
-  natives GitHub : #15 open repo desktop (B) · #16 lanes (A, multi-agent) · #17 parseur de
-  diff (A) · #18 thème + EN/FR + réglages (C) · #19 diff vs base desktop (B, ← #15 #17) ·
-  #20 agent Koog (A, ← #17) · #21 Android clone + écrans (C, ← #15) · #22 Nitpick this branch
-  desktop (B+A, ← #19 #20, critique démo) · #23 boucle review Android + push (C, ← #22 #21,
-  critique démo). Lot 2 (au sync 17h) : fetch/pull/checkout, outils readFile/listFiles pour
-  l'agent, script de comptage des lignes partagées.
-- 13:45 — toolchain installée en local sans sudo (validé par Thomas) : `brew install
-  openjdk@21`, `brew install --cask android-commandlinetools`, puis `sdkmanager
-  platform-tools platforms;android-37.0 build-tools;37.0.0`. `local.properties` (ignoré par
-  git) pointe sur `/opt/homebrew/share/android-commandlinetools`. `JAVA_HOME` doit être
-  exporté pour `gradlew` : `/opt/homebrew/opt/openjdk@21/libexec/openjdk.jdk/Contents/Home`.
-- 14:20 — `./scripts/check.sh` vert (253 s au premier run) : `:shared:allTests` (JVM + Android
-  host, dont `ReviewResultSerializationTest` sur les deux), `:desktopApp:assemble`,
-  `:androidApp:assembleDebug`. AGP 9.1.1 exige aussi `build-tools;36.0.0`, installé.
-  `brew link --force openjdk@21` rend `java` visible aux hooks git et Claude.
+  - `Branch` and `Suggestion` (§6) are not separate classes: `Ref` carries a `RefType`
+    (LOCAL_BRANCH, REMOTE_BRANCH, TAG) and the suggestion is the `suggestion` field of
+    `ReviewComment`, as the §6 contract requires.
+  - No `graph` or `diff` package for now: git does not version an empty directory and
+    there is no cross-track contract to put there yet. Their first ticket creates them.
+  - kotlinx.serialization 1.13.0 (latest Maven Central release) added: `@Serializable`
+    on `ReviewResult` is part of the contract (Koog structured output).
+- Uncertain: nothing on the contracts side. Gradle warning "SDK XML version 4" (cmdline-tools
+  newer than AGP): benign.
+- Blocker: none.
+- Next: merge `ticket/13-structure` into main, then start #15, #16, #17 and #18 (the
+  blocker-free frontier) in four worktrees.
+- 13:40 — spec published (#14) and 9 tickets created as sub-issues of #13 with native
+  GitHub dependencies: #15 desktop open repo (B) · #16 lanes (A, multi-agent) · #17 diff
+  parser (A) · #18 theme + EN/FR + settings (C) · #19 diff vs base desktop (B, ← #15 #17) ·
+  #20 Koog agent (A, ← #17) · #21 Android clone + screens (C, ← #15) · #22 Nitpick this branch
+  desktop (B+A, ← #19 #20, demo-critical) · #23 Android review loop + push (C, ← #22 #21,
+  demo-critical). Batch 2 (at the 17h sync): fetch/pull/checkout, readFile/listFiles tools for
+  the agent, shared line count script.
+- 13:45 — toolchain installed locally without sudo (approved by Thomas): `brew install
+  openjdk@21`, `brew install --cask android-commandlinetools`, then `sdkmanager
+  platform-tools platforms;android-37.0 build-tools;37.0.0`. `local.properties` (git-ignored)
+  points to `/opt/homebrew/share/android-commandlinetools`. `JAVA_HOME` must be exported
+  for `gradlew`: `/opt/homebrew/opt/openjdk@21/libexec/openjdk.jdk/Contents/Home`.
+- 14:20 — `./scripts/check.sh` green (253 s on the first run): `:shared:allTests` (JVM + Android
+  host, including `ReviewResultSerializationTest` on both), `:desktopApp:assemble`,
+  `:androidApp:assembleDebug`. AGP 9.1.1 also requires `build-tools;36.0.0`, installed.
+  `brew link --force openjdk@21` makes `java` visible to the git hooks and Claude.

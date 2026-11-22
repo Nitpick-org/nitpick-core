@@ -1,93 +1,93 @@
-# PRD — <nom du projet>
+# PRD — <project name>
 
-> La destination, pas le chemin : ce que l'utilisateur voit et vit. À écrire à H0, en
-> 20 minutes, puis à geler. Toute feature hors de ce document va dans `IDEAS.md`.
+> The destination, not the path: what the user sees and experiences. To be written at H0, in
+> 20 minutes, then frozen. Any feature outside this document goes to `IDEAS.md`.
 
-## Pitch en une phrase
+## One-sentence pitch
 
-> Pour <personne précise> qui <douleur>, nous avons construit <produit> qui <bénéfice>.
-> La nouveauté, c'est <W>.
+> For <specific person> who <pain>, we built <product> that <benefit>.
+> The novelty is <W>.
 
-## Problème
+## Problem
 
-- **Personne** : <qui, dans quel contexte, avec quel outil aujourd'hui>.
-- **Douleur** : <ce que ça coûte : temps, argent, frustration, risque>.
-- **Preuve** : <citation, observation, chiffre — jamais inventé>.
+- **Person**: <who, in what context, with which tool today>.
+- **Pain**: <what it costs: time, money, frustration, risk>.
+- **Proof**: <quote, observation, figure — never invented>.
 
-## Utilisateur cible
+## Target user
 
-<Un seul utilisateur principal. Pas « les entreprises » ou « tout le monde ».>
+<One main user. Not "companies" or "everyone".>
 
 ## Solution
 
-<Ce que fait le produit, en 3 phrases maximum.>
+<What the product does, in 3 sentences maximum.>
 
-## Nouveauté (obligatoire pour le jury)
+## Novelty (mandatory for the jury)
 
-- **Avant** : <comment on fait aujourd'hui>.
-- **Notre différence** : <ce que personne ne fait, ou pas comme ça>.
-- **Pourquoi c'est crédible** : <la preuve technique ou l'observation>.
-- **Réutilisé** : <bibliothèques, APIs, code existant>.
-- **Créé pendant l'événement** : <ce qu'on a vraiment écrit>.
+- **Before**: <how it is done today>.
+- **Our difference**: <what nobody does, or not like this>.
+- **Why it is credible**: <the technical proof or the observation>.
+- **Reused**: <libraries, APIs, existing code>.
+- **Created during the event**: <what we actually wrote>.
 
-## Parcours de démo (doit marcher à 100 %)
+## Demo path (must work 100% of the time)
 
-1. <L'utilisateur ouvre…>
-2. <Il fait…>
-3. <Le résultat apparaît…>
-4. <Le aha : …>
+1. <The user opens…>
+2. <They do…>
+3. <The result appears…>
+4. <The aha: …>
 
-> Si ce parcours ne tient pas en 4 étapes, le produit est trop compliqué pour une démo
-> de 3 minutes.
+> If this path does not fit in 4 steps, the product is too complicated for a 3-minute
+> demo.
 
 ## User stories
 
-| # | En tant que… | je veux… | pour… | Critères d'acceptation | Critique démo | Fait |
+| # | As a… | I want… | to… | Acceptance criteria | Demo-critical | Done |
 | --- | --- | --- | --- | --- | --- | --- |
-| 1 | | | | - [ ] … | oui | [ ] |
-| 2 | | | | - [ ] … | non | [ ] |
+| 1 | | | | - [ ] … | yes | [ ] |
+| 2 | | | | - [ ] … | no | [ ] |
 
-Règles :
+Rules:
 
-- Une story = un comportement visible.
-- 3 critères d'acceptation maximum, testables.
-- « Critique démo » = si ça casse, la démo est morte.
+- One story = one visible behaviour.
+- 3 acceptance criteria maximum, testable.
+- "Demo-critical" = if it breaks, the demo is dead.
 
-## Ce qui est réel vs simulé
+## What is real vs simulated
 
-| Élément | Réel / mock | Pourquoi | Risque |
+| Item | Real / mock | Why | Risk |
 | --- | --- | --- | --- |
-| API sponsor | | | |
-| Base de données | | | |
+| Sponsor API | | | |
+| Database | | | |
 | Auth | | | |
-| Données de démo | | | |
+| Demo data | | | |
 
-## Fit challenge sponsor
+## Sponsor challenge fit
 
-| Challenge | Sponsor | Pourquoi on y répond | Ce qu'on montre |
+| Challenge | Sponsor | Why we answer it | What we show |
 | --- | --- | --- | --- |
 | | | | |
 
-> 1 challenge principal maximum, 1 secondaire seulement si le même cœur les sert.
+> 1 main challenge maximum, 1 secondary only if the same core serves them.
 
-## Hors périmètre (explicitement)
+## Out of scope (explicitly)
 
 - …
 - …
 
-## Métriques de succès (démo)
+## Success metrics (demo)
 
-- Le aha est visible en < 30 secondes.
-- Le parcours de démo passe 5 fois sur 5 en répétition.
-- La démo survit à une panne de l'API externe (mock/vidéo).
-- Le jury peut répéter notre phrase de nouveauté.
+- The aha is visible in < 30 seconds.
+- The demo path passes 5 times out of 5 in rehearsal.
+- The demo survives an external API outage (mock/video).
+- The jury can repeat our novelty sentence.
 
-## Risques
+## Risks
 
-| Risque | Probabilité | Impact | Mitigation |
+| Risk | Probability | Impact | Mitigation |
 | --- | --- | --- | --- |
 | | | | |
 
-## Questions ouvertes
+## Open questions
 
 - …

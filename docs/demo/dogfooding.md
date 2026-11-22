@@ -1,15 +1,15 @@
-# Dogfooding : Nitpick relit nos propres branches
+# Dogfooding: Nitpick re-reviews our own branches
 
-Preuve pour le critère « la review relit les branches des agents » (`AGENTS.md`, façon de
-travailler). Une entrée par passage, avec ce que la review a trouvé et ce qu'on en a fait.
+Proof for the criterion "the review re-reviews the agents' branches" (`AGENTS.md`, way of
+working). One entry per pass, with what the review found and what we did about it.
 
-## 22/11 00:50 — `ticket/104-audit-data-safety` (Gabriel, 6 commits, 11 fichiers)
+## 22/11 00:50 — `ticket/104-audit-data-safety` (Gabriel, 6 commits, 11 files)
 
-Desktop, Anthropic `claude-sonnet-5-5`, diff contre `main`. Capture : `dogfooding-104-review.png`.
+Desktop, Anthropic `claude-sonnet-5-5`, diff against `main`. Screenshot: `dogfooding-104-review.png`.
 
-| Nit | Fichier | Vérification | Suite |
+| Nit | File | Check | Follow-up |
 | --- | --- | --- | --- |
-| Avec des modifs locales et une branche divergée, JGit répond `ABORTED` sans lever d'exception : le `catch` qui écrit « Uncommitted changes… » ne tourne jamais, l'utilisateur voit « Pull failed: Aborted ». | `JGitRepository.kt:243-270` | Reproduit sur `main` : le test `aDirtyTreeIsNotResetWhenThePullDiverged` passe parce qu'il ne vérifie que le type de l'exception ; le message réel est `Pull failed: Aborted`. | Issue #114 |
-| `Files.move(…, ATOMIC_MOVE)` lève `AtomicMoveNotSupportedException` sur certains systèmes de fichiers, sans repli. | `FileSettingsStore.kt` | Vrai sur la branche relue ; la version mergée (#109) a déjà le repli `REPLACE_EXISTING`. | Rien à faire |
+| With local changes and a diverged branch, JGit answers `ABORTED` without throwing an exception: the `catch` that writes "Uncommitted changes…" never runs, the user sees "Pull failed: Aborted". | `JGitRepository.kt:243-270` | Reproduced on `main`: the `aDirtyTreeIsNotResetWhenThePullDiverged` test passes because it only checks the exception type; the real message is `Pull failed: Aborted`. | Issue #114 |
+| `Files.move(…, ATOMIC_MOVE)` throws `AtomicMoveNotSupportedException` on some file systems, with no fallback. | `FileSettingsStore.kt` | True on the reviewed branch; the merged version (#109) already has the `REPLACE_EXISTING` fallback. | Nothing to do |
 
-Bilan : 2 nits, 1 vrai bug encore présent sur `main`, 1 vrai problème déjà corrigé avant le merge. Zéro faux positif.
+Assessment: 2 nits, 1 real bug still present on `main`, 1 real problem already fixed before the merge. Zero false positives.

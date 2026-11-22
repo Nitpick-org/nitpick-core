@@ -1,211 +1,211 @@
-# UI handoff — maquette Nitpick → Compose
+# UI handoff — Nitpick mockup → Compose
 
-> À lire avec `docs/DESIGN-SYSTEM.md` (Eliot), **qui fait foi** pour les tokens, les tailles
-> et les composants. Ce document dit ce que la maquette ajoute : les écrans, leurs états,
-> les textes, et le seul écart de tokens (l'accent vert).
+> Read alongside `docs/DESIGN-SYSTEM.md` (Eliot), **which is authoritative** for tokens, sizes
+> and components. This document states what the mockup adds: the screens, their states,
+> the copy, and the only token deviation (the green accent).
 >
-> - Maquette interactive : https://claude.ai/artifact/1PBvUhR38NmGVYzp6ajL9e
-> - Source HTML de la maquette : `docs/design/mockups/` (`Main.dc.html` = desktop,
->   `Phone.dc.html` = Android, `Tokens.dc.html` = planche de tokens). Les données de démo et
->   les couleurs exactes sont dans le bloc `renderVals()` en bas de chaque fichier.
->   Le HTML est une **référence visuelle**, pas du code à porter : on reconstruit en Compose
->   avec les composants de `ui/components/`.
+> - Interactive mockup: https://claude.ai/artifact/1PBvUhR38NmGVYzp6ajL9e
+> - Mockup HTML source: `docs/design/mockups/` (`Main.dc.html` = desktop,
+>   `Phone.dc.html` = Android, `Tokens.dc.html` = token sheet). The demo data and
+>   exact colors live in the `renderVals()` block at the bottom of each file.
+>   The HTML is a **visual reference**, not code to port: we rebuild it in Compose
+>   with the components from `ui/components/`.
 
-## 0. Règles pour l'implémentation
+## 0. Implementation rules
 
-1. Aucune couleur littérale dans un composant : tout passe par `NitpickTheme.colors`.
-2. Réutiliser les composants existants avant d'en créer (`NitpickButton`, `NitpickBadge`,
+1. No literal color in a component: everything goes through `NitpickTheme.colors`.
+2. Reuse existing components before creating new ones (`NitpickButton`, `NitpickBadge`,
    `NitpickTextField`, `NitpickToolbar`, `NitpickToolWindowHeader`, `NitpickTab`,
    `NitpickStatusBar`, `ReviewCommentCard`, `DiffLineRow`, `RefBadge`, `NitpickKbd`,
    `NitpickEmptyState`, `NitpickCard`).
-3. Chaque nouveau composant va dans `ui/components/` et dans `DesignSystemCatalog.kt`.
-4. Toutes les chaînes vont dans `composeResources/values/strings.xml` **et**
+3. Every new component goes in `ui/components/` and in `DesignSystemCatalog.kt`.
+4. All strings go in `composeResources/values/strings.xml` **and**
    `values-fr/strings.xml` (§6).
-5. Desktop : densité IDE (28 dp). Android : mêmes couleurs, cibles tactiles 44–48 dp.
-6. Vérification : la commande du §15 de `DESIGN-SYSTEM.md`, plus le catalogue en clair et
-   en sombre.
+5. Desktop: IDE density (28 dp). Android: same colors, touch targets 44–48 dp.
+6. Verification: the command from §15 of `DESIGN-SYSTEM.md`, plus the catalog in light and
+   dark.
 
-## 1. Seul écart de tokens : l'accent vert
+## 1. The only token deviation: the green accent
 
-Dans `NitpickTokens.kt`, on ne change que la famille primary. Tout le reste garde les
-valeurs expUI d'Eliot.
+In `NitpickTokens.kt`, only the primary family changes. Everything else keeps Eliot's
+expUI values.
 
-| Token | Light (avant → après) | Dark (avant → après) |
+| Token | Light (before → after) | Dark (before → after) |
 | --- | --- | --- |
 | `primary` | `#3574F0` → `#0F766E` | `#3574F0` → `#5EEAD4` |
-| `onPrimary` | `#FFFFFF` (inchangé) | `#FFFFFF` → `#0B2E2A` (le blanc est illisible sur le teal clair) |
+| `onPrimary` | `#FFFFFF` (unchanged) | `#FFFFFF` → `#0B2E2A` (white is unreadable on the light teal) |
 | `primaryHover` | `#4682FA` → `#115E59` | `#467FF2` → `#7FF0DE` |
 | `primarySoft` | `#D4E2FF` → `#D2EFEA` | `#2E436E` → `#1F403C` |
 | `selection` | `#D4E2FF` → `#D2EFEA` | `#2E436E` → `#1F403C` |
-| `hover` | `#EDF3FF` → `#EDF7F5` | `#393B40` (inchangé) |
+| `hover` | `#EDF3FF` → `#EDF7F5` | `#393B40` (unchanged) |
 | `lanePalette[0]` | `#3574F0` → `#0F766E` | `#3574F0` → `#5EEAD4` |
 | `lanePalette[5]` | `#058B90` → `#3574F0` | `#24A394` → `#548AF7` |
 
-`lanePalette[5]` : le cyan se confondait avec le teal, on y met l'ancien bleu.
-Mettre à jour le §3.1 et le §3.4 de `DESIGN-SYSTEM.md` en conséquence (« le bleu est
-réservé… » devient « le teal est réservé… »).
+`lanePalette[5]`: cyan was too close to the teal, so it gets the former blue.
+Update §3.1 and §3.4 of `DESIGN-SYSTEM.md` accordingly ("blue is
+reserved…" becomes "teal is reserved…").
 
-## 2. Sévérités : la maquette vs le domaine
+## 2. Severities: the mockup vs the domain
 
-Le domaine a `Severity { INFO, SUGGESTION, WARNING, BUG }`. La maquette affiche
-BUG / WARNING / NIT / STYLE. **Le code fait foi**, on garde l'enum et on mappe :
+The domain has `Severity { INFO, SUGGESTION, WARNING, BUG }`. The mockup shows
+BUG / WARNING / NIT / STYLE. **The code is authoritative**, we keep the enum and map:
 
-| Maquette | `Severity` | `NitpickTone` | Badge |
+| Mockup | `Severity` | `NitpickTone` | Badge |
 | --- | --- | --- | --- |
 | BUG | `BUG` | `Danger` | `BUG` |
 | WARNING | `WARNING` | `Warning` | `WARNING` |
 | NIT | `SUGGESTION` | `Suggestion` | `SUGGESTION` |
 | STYLE | `INFO` | `Info` | `INFO` |
 
-Ordre de tri partout : BUG, WARNING, SUGGESTION, INFO, puis numéro de ligne.
-Format du résumé : `"{total} nits · {bugs} bug"` (le segment bug n'apparaît que s'il y en a).
+Sort order everywhere: BUG, WARNING, SUGGESTION, INFO, then line number.
+Summary format: `"{total} nits · {bugs} bug"` (the bug segment only appears when there are some).
 
 ## 3. Desktop (1440×900)
 
 ### 3.1 Shell
 
 ```text
-┌ Toolbar 40 : [icône] Nitpick / nitpick-app ▾  ⑂ feature/nit-sheet ▾      Fetch  Pull 2  Push 3 │ [Nitpick branch]  ⚙ ┐
-├ BRANCHES (240) ─┬ COMMITS (flex) ─────────────────────┬ [Details|Diff|Review] (320, 680 si Diff/Review) ┤
-│ filtre 28       │ filtre « Text or hash » + Branch/User/Date ▾ │                                       │
-│ arbre 24 dp     │ lignes 40 dp : sujet + refs / auteur · date · hash │                                 │
+┌ Toolbar 40 : [icon] Nitpick / nitpick-app ▾  ⑂ feature/nit-sheet ▾      Fetch  Pull 2  Push 3 │ [Nitpick branch]  ⚙ ┐
+├ BRANCHES (240) ─┬ COMMITS (flex) ─────────────────────┬ [Details|Diff|Review] (320, 680 if Diff/Review) ┤
+│ filter 28       │ filter "Text or hash" + Branch/User/Date ▾ │                                       │
+│ tree 24 dp      │ lines 40 dp : subject + refs / author · date · hash │                                 │
 ├ Status bar 22 : ⑂ feature/nit-sheet  214 commits  ↑3 ↓0          Anthropic · claude-sonnet-4-5  Git ┤
 ```
 
-- **Toolbar** (`NitpickToolbar`) : sélecteur de repo et de branche à gauche ; à droite Fetch,
-  Pull (compteur entrant), Push (compteur sortant) en `NitpickToolbarAction`, séparateur,
-  puis le seul bouton primaire **Nitpick branch** (icône pince), puis Settings (icône).
-  Au survol de Nitpick branch : tooltip `surfaceRaised`, rayon 10, « Review this branch
-  against main » + `NitpickKbd` ⌘⇧R.
-- **Branches** : `NitpickToolWindowHeader("BRANCHES")` + bouton +, champ filtre, arbre :
-  `Local` / `Remote branches` / `Tags`, nœuds dépliables, branche courante en `selection`
-  avec ↑ ahead à droite.
-- **Commits** : header `COMMITS` + « 214 commits » à droite ; barre de filtres ; le graphe
-  existant (`CommitGraph.kt`) en lignes de 40 dp sur deux lignes (sujet + `RefBadge`s ;
-  puis `small` : auteur · date relative · hash mono). Commit sélectionné en `selection`.
-  Point HEAD = anneau ; merge = cercle creux.
-- **Inspector** : `NitpickTab`s Details / Diff / Review. Quand la review n'est pas ouverte,
-  l'onglet Review porte un badge `1 BUG`. Largeur 320 dp sur Details, **680 dp** sur Diff et
-  Review (le centre se réduit ; c'est un choix de la maquette, à valider).
+- **Toolbar** (`NitpickToolbar`): repo and branch selector on the left; on the right Fetch,
+  Pull (incoming counter), Push (outgoing counter) as `NitpickToolbarAction`, separator,
+  then the only primary button **Nitpick branch** (tweezers icon), then Settings (icon).
+  On hovering Nitpick branch: tooltip `surfaceRaised`, radius 10, "Review this branch
+  against main" + `NitpickKbd` ⌘⇧R.
+- **Branches**: `NitpickToolWindowHeader("BRANCHES")` + add button, filter field, tree:
+  `Local` / `Remote branches` / `Tags`, expandable nodes, current branch in `selection`
+  with ↑ ahead on the right.
+- **Commits**: `COMMITS` header + "214 commits" on the right; filter bar; the existing graph
+  (`CommitGraph.kt`) in 40 dp rows over two lines (subject + `RefBadge`s;
+  then `small`: author · relative date · mono hash). Selected commit in `selection`.
+  HEAD dot = ring; merge = hollow circle.
+- **Inspector**: `NitpickTab`s Details / Diff / Review. When the review is not open,
+  the Review tab carries a `1 BUG` badge. Width 320 dp on Details, **680 dp** on Diff and
+  Review (the center shrinks; this is a mockup choice, to be validated).
 
-### 3.2 Onglet Details
+### 3.2 Details tab
 
-Titre du commit (`section`), corps (`body`, `textSecondary`), grille Author / Date / Commit
-/ Parents (parent cliquable en `primary`), `RefBadge`s, séparateur, `4 FILES` (kicker) avec
-`+169 −15` à droite, liste des fichiers (lignes 24 dp, `+n` vert, `−n` rouge).
+Commit title (`section`), body (`body`, `textSecondary`), Author / Date / Commit
+/ Parents grid (clickable parent in `primary`), `RefBadge`s, separator, `4 FILES` (kicker) with
+`+169 −15` on the right, file list (24 dp rows, `+n` green, `−n` red).
 
-### 3.3 Onglet Diff
+### 3.3 Diff tab
 
-Ligne 40 dp : `feature/nit-sheet vs [Base: main ▾]` (sélecteur, défaut `main`) ;
-« 3 commits · 6 files » et `+214 −37` à droite. Liste des fichiers (24 dp, fichier
-sélectionné en `selection`). Puis en-tête de fichier (28 dp, chemin mono), en-tête de hunk
-(`surfaceSunken`, `codeSmall`), et `DiffLineRow`s.
+40 dp row: `feature/nit-sheet vs [Base: main ▾]` (selector, default `main`);
+"3 commits · 6 files" and `+214 −37` on the right. File list (24 dp, selected file in
+`selection`). Then file header (28 dp, mono path), hunk header
+(`surfaceSunken`, `codeSmall`), and `DiffLineRow`s.
 
-### 3.4 Onglet Review (résultat)
+### 3.4 Review tab (result)
 
-1. **Carte résumé** (`NitpickCard`) : badge `AI` (ton `Ai`), « 8 nits · 1 bug » (`section`),
-   méta « vs main · 6 files · claude-sonnet-4-5 · 34 s », bouton ghost Re-run ; paragraphe de
-   verdict ; une rangée de badges compteurs par sévérité (« 1 BUG », « 2 WARNINGS »…).
-2. **Un bloc par fichier**, fichiers triés par la pire sévérité : en-tête 32 dp (chemin mono,
-   badges compteurs, bouton ghost **Apply all for this file** à droite), puis les hunks.
-3. **Nits ancrés sous leur ligne** (`ReviewCommentCard`, décalé de 56 dp pour laisser les
-   gouttières visibles) : badge sévérité + `fichier:ligne` mono + **Dismiss** ; message ;
-   bloc `SUGGESTED CHANGE` (kicker en couleur `suggestion`) avec une ligne `-` avant
-   (`diffRemovedBg`) et une ligne `+` après (`diffAddedBg`) ; bouton primaire small
-   **Apply suggestion**.
-   → `ReviewCommentCard` a déjà `suggestion` ; il faut ajouter le texte **avant** pour
-   afficher la paire `-` / `+`.
-4. **Nit appliqué** : la carte se replie en une ligne 28 dp, fond `suggestionSoft`, bord
-   `suggestion` 32 %, ✓ « Applied » + titre + Undo.
-5. **Barre de commit** (nouveau composant, collé en bas de l'inspector, fond `panelHeader`,
-   bord haut) : « 1 suggestion applied · NitAnchor.kt », `NitpickTextField` message de
-   commit prérempli, bouton Secondary **Later**, bouton Primary **Stage & commit**.
-   Elle apparaît dès qu'une suggestion est appliquée.
+1. **Summary card** (`NitpickCard`): `AI` badge (tone `Ai`), "8 nits · 1 bug" (`section`),
+   meta "vs main · 6 files · claude-sonnet-4-5 · 34 s", ghost Re-run button; verdict
+   paragraph; a row of count badges per severity ("1 BUG", "2 WARNINGS"…).
+2. **One block per file**, files sorted by worst severity: 32 dp header (mono path,
+   count badges, ghost **Apply all for this file** button on the right), then the hunks.
+3. **Nits anchored under their line** (`ReviewCommentCard`, indented by 56 dp to keep the
+   gutters visible): severity badge + mono `fichier:ligne` + **Dismiss**; message;
+   `SUGGESTED CHANGE` block (kicker in the `suggestion` color) with a `-` line before
+   (`diffRemovedBg`) and a `+` line after (`diffAddedBg`); small primary
+   **Apply suggestion** button.
+   → `ReviewCommentCard` already has `suggestion`; the **before** text must be added to
+   show the `-` / `+` pair.
+4. **Applied nit**: the card collapses into a 28 dp row, `suggestionSoft` background,
+   `suggestion` border at 32 %, ✓ "Applied" + title + Undo.
+5. **Commit bar** (new component, pinned to the bottom of the inspector, `panelHeader`
+   background, top border): "1 suggestion applied · NitAnchor.kt", prefilled
+   `NitpickTextField` commit message, Secondary **Later** button, Primary **Stage & commit** button.
+   It appears as soon as a suggestion is applied.
 
 ### 3.5 Settings
 
-Dialogue 860×560, rayon 10, `surface`. Gauche 220 dp (`canvas`) : champ Search + sections
-General (sélectionnée), Review, Git, Keymap. Droite :
+Dialog 860×560, radius 10, `surface`. Left 220 dp (`canvas`): Search field + sections
+General (selected), Review, Git, Keymap. Right:
 
-- Kicker `APPEARANCE` → **Theme** : contrôle segmenté System / Light / Dark (28 dp, conteneur
-  `surfaceSunken` + bord, segment actif `surface` + bord).
-- Kicker `AI REVIEW` → **LLM provider** : 4 radios horizontales Anthropic / OpenAI / Google /
-  Ollama (radio active pleine `primary`, point `onPrimary`) ; **Model** : liste déroulante
-  300 dp, valeur mono ; **API key** : champ mot de passe 380 dp + bouton œil, aide 11 sp
-  « Stored in the system keychain. Sent only to Anthropic. »
-- Pied : Cancel (Secondary), Save (Primary).
+- Kicker `APPEARANCE` → **Theme**: System / Light / Dark segmented control (28 dp,
+  `surfaceSunken` container + border, active segment `surface` + border).
+- Kicker `AI REVIEW` → **LLM provider**: 4 horizontal radios Anthropic / OpenAI / Google /
+  Ollama (active radio filled `primary`, dot `onPrimary`); **Model**: 300 dp
+  dropdown, mono value; **API key**: 380 dp password field + eye button, 11 sp help
+  "Stored in the system keychain. Sent only to Anthropic."
+- Footer: Cancel (Secondary), Save (Primary).
 
-`SettingsScreen.kt` existe déjà avec ces champs : appliquer ce layout côté desktop.
+`SettingsScreen.kt` already exists with these fields: apply this layout on the desktop side.
 
-### 3.6 États
+### 3.6 States
 
-| État | Où | Contenu |
+| State | Where | Content |
 | --- | --- | --- |
-| Aucun repo | toute la fenêtre (toolbar + canvas + status bar « no branch ») | `NitpickEmptyState` : icône dossier, « No repository open », « Pick a local git repository to see its commits and branches. », une seule action **Open repository…** + `NitpickKbd` ⌘O. Pas de Fetch/Pull/Push ni de CTA dans la toolbar, juste « Open repository… ». |
-| Review en cours | onglet Review + toolbar + status bar | Carte : badge AI, « Nitpicking feature/nit-sheet vs main », Cancel ; barre de progression 4 dp ; 4 étapes : ✓ « Collecting diff against main » (« 6 files · +214 −37 »), spinner « Reading 12 files… » (« 7 / 12 »), ○ « Asking the model… », ○ « Placing nits on lines ». En dessous, 3 squelettes de cartes. Le CTA devient « Nitpicking… » avec spinner. La status bar montre « Reading 12 files… » + mini barre. |
-| Branche propre | onglet Review | Icône ✓ `success`, « Clean branch. Nothing to nitpick. », « Reviewed 6 files on feature/nit-sheet against main. No bugs, no warnings, no nits. », action **Push 3 commits**. |
-| Clé API manquante | onglet Review | Bannière ton Warning (badge `WARNING` + « No API key for Anthropic. ») ; état vide : icône clé, « Add an API key to start », « Nitpick needs an Anthropic API key to ask the model. Your code stays on this machine until you run a review. », action **Open Settings**. |
-| Réseau | onglet Review | Bannière ton Danger (`ERROR` + « Review failed: network error. ») ; « Could not reach Anthropic », « The review request failed before reaching the provider. Check your connection, then retry. Nothing was sent. », code `ENOTFOUND api.anthropic.com` en `NitpickKbd`-like, action **Retry**. |
-| Timeout LLM | onglet Review | Bannière Danger (« Review failed: request timed out. ») ; « The model took too long », « claude-sonnet-4-5 did not answer within 90 s. Large diffs can take longer: try again. », action **Try again**. |
+| No repository | the whole window (toolbar + canvas + status bar "no branch") | `NitpickEmptyState`: folder icon, "No repository open", "Pick a local git repository to see its commits and branches.", a single action **Open repository…** + `NitpickKbd` ⌘O. No Fetch/Pull/Push and no CTA in the toolbar, just "Open repository…". |
+| Review in progress | Review tab + toolbar + status bar | Card: AI badge, "Nitpicking feature/nit-sheet vs main", Cancel; 4 dp progress bar; 4 steps: ✓ "Collecting diff against main" ("6 files · +214 −37"), spinner "Reading 12 files…" ("7 / 12"), ○ "Asking the model…", ○ "Placing nits on lines". Below, 3 card skeletons. The CTA becomes "Nitpicking…" with a spinner. The status bar shows "Reading 12 files…" + a mini bar. |
+| Clean branch | Review tab | ✓ `success` icon, "Clean branch. Nothing to nitpick.", "Reviewed 6 files on feature/nit-sheet against main. No bugs, no warnings, no nits.", action **Push 3 commits**. |
+| Missing API key | Review tab | Banner tone Warning (`WARNING` badge + "No API key for Anthropic."); empty state: key icon, "Add an API key to start", "Nitpick needs an Anthropic API key to ask the model. Your code stays on this machine until you run a review.", action **Open Settings**. |
+| Network | Review tab | Banner tone Danger (`ERROR` + "Review failed: network error."); "Could not reach Anthropic", "The review request failed before reaching the provider. Check your connection, then retry. Nothing was sent.", code `ENOTFOUND api.anthropic.com` in a `NitpickKbd`-like style, action **Retry**. |
+| LLM timeout | Review tab | Danger banner ("Review failed: request timed out."); "The model took too long", "claude-sonnet-4-5 did not answer within 90 s. Large diffs can take longer: try again.", action **Try again**. |
 
-Une seule action par état. Le nom du provider et du modèle viennent des settings.
+One action per state. The provider and model names come from settings.
 
 ## 4. Android (393×852)
 
-Barre du haut 56 dp couleur `toolbar` (sombre dans les deux thèmes), fond `canvas`,
-cartes `surface` + bord 1 px (pas d'ombre), boutons 48–56 dp rayon 8, champs 48 dp rayon 6
-avec label 12 sp au-dessus (pas de label flottant).
+Top bar 56 dp in `toolbar` color (dark in both themes), `canvas` background,
+`surface` cards + 1 px border (no shadow), 48–56 dp buttons with radius 8, 48 dp fields with
+radius 6 and a 12 sp label above (no floating label).
 
-1. **Repos** : barre (icône app, « Repositories », Settings) ; champ de recherche ; une carte
-   par repo (nom, branche mono, « reviewed 2 h ago », badge `1 BUG` / `CLEAN` / `NEW`) ;
-   FAB étendu primaire 56 dp « Clone repo » en bas à droite.
-   - **Clone repo** (plein écran, croix) : texte d'aide ; champs HTTPS URL, Access token
-     (mot de passe + œil ; aide « Needs read access. Push needs write access. »), Folder name ;
-     bouton pleine largeur 56 dp **Clone** en bas.
-2. **Graph** : barre (retour, nom du repo, Settings, menu) ; carte branche : sélecteur
-   `feature/nit-sheet ▾` + « ↑3 ↓0 » ; 3 boutons Secondary 44 dp Fetch / Pull 2 / Push 3 ;
-   graphe compact (lignes 60 dp, sujet + « auteur · date · hash ») ; FAB étendu primaire
-   60 dp **Nitpick branch** en bas à droite.
-3. **Review** :
-   - **Fichiers** : barre (retour, « Review », sous-titre « feature/nit-sheet vs main »,
-     Re-run) ; carte résumé (badge AI, « 8 nits · 1 bug », verdict, compteurs) ; liste
-     « Files with nits · 4 » (ligne 72 dp : nom, dossier, badges, chevron) ; « 2 more files
-     reviewed, no nits. »
-   - **Diff** : barre (retour, nom du fichier, « review/ · +18 −3 ») ; ligne « 2 nits ·
-     1 applied » + bouton Secondary 44 dp **Apply all for this file** ; diff mono 12 sp, une
-     colonne de numéros ; nits en lignes compactes 56 dp (badge + titre + chevron), le tap
-     ouvre la bottom sheet ; nit appliqué = ligne verte « Applied » ; snackbar
-     « 1 suggestion applied » + action **Stage & commit**.
-   - **Bottom sheet** (scrim + feuille rayon 12 en haut) : poignée ; badge + « NitAnchor.kt ·
-     line 23 » + « 1 of 8 » ; titre ; message ; bloc `SUGGESTED CHANGE` (`-` / `+`) ; deux
-     boutons 56 dp côte à côte : **Dismiss** (Secondary) et **Apply suggestion** (Primary).
-4. **Settings** : Theme (segmenté 48 dp), LLM provider (liste radio, 52 dp par ligne, avec
-   sous-titre ; Ollama : « Self-hosted, needs a server URL »), Model, API key (« Stored in
-   Android Keystore. »).
+1. **Repos**: bar (app icon, "Repositories", Settings); search field; one card
+   per repo (name, mono branch, "reviewed 2 h ago", `1 BUG` / `CLEAN` / `NEW` badge);
+   primary extended FAB 56 dp "Clone repo" at the bottom right.
+   - **Clone repo** (full screen, cross): help text; HTTPS URL, Access token
+     (password + eye; help "Needs read access. Push needs write access."), Folder name;
+     full-width 56 dp **Clone** button at the bottom.
+2. **Graph**: bar (back, repo name, Settings, menu); branch card: `feature/nit-sheet ▾` selector
+   + "↑3 ↓0"; 3 Secondary 44 dp buttons Fetch / Pull 2 / Push 3;
+   compact graph (60 dp rows, subject + "author · date · hash"); primary extended FAB
+   60 dp **Nitpick branch** at the bottom right.
+3. **Review**:
+   - **Files**: bar (back, "Review", subtitle "feature/nit-sheet vs main",
+     Re-run); summary card (AI badge, "8 nits · 1 bug", verdict, counters);
+     "Files with nits · 4" list (72 dp row: name, folder, badges, chevron); "2 more files
+     reviewed, no nits."
+   - **Diff**: bar (back, file name, "review/ · +18 −3"); "2 nits ·
+     1 applied" row + Secondary 44 dp **Apply all for this file** button; mono diff 12 sp, a single
+     line-number column; nits as compact 56 dp rows (badge + title + chevron), tapping
+     opens the bottom sheet; applied nit = green "Applied" row; snackbar
+     "1 suggestion applied" + **Stage & commit** action.
+   - **Bottom sheet** (scrim + sheet with 12 radius at the top): handle; badge + "NitAnchor.kt ·
+     line 23" + "1 of 8"; title; message; `SUGGESTED CHANGE` block (`-` / `+`); two
+     56 dp buttons side by side: **Dismiss** (Secondary) and **Apply suggestion** (Primary).
+4. **Settings**: Theme (48 dp segmented), LLM provider (radio list, 52 dp per row, with
+   subtitle; Ollama: "Self-hosted, needs a server URL"), Model, API key ("Stored in
+   Android Keystore.").
 
-**États Android** : mêmes textes que le desktop, centrés, action unique en bouton pleine
-largeur 56 dp en bas (Clone repo, Cancel, Push 3 commits, Open Settings, Retry, Try again).
-Aucun repo : « No repository open » / « Clone a git repository over HTTPS to see its commits
-and branches. »
+**Android states**: same texts as the desktop, centered, a single action as a full-width
+56 dp button at the bottom (Clone repo, Cancel, Push 3 commits, Open Settings, Retry, Try again).
+No repository: "No repository open" / "Clone a git repository over HTTPS to see its commits
+and branches."
 
-## 5. Nouveaux composants à créer
+## 5. New components to create
 
-| Composant | Rôle | Notes |
+| Component | Role | Notes |
 | --- | --- | --- |
 | `NitpickSegmentedControl` | Theme | 28 dp desktop, 48 dp Android |
-| `NitpickRadioGroup` | LLM provider | horizontal desktop, liste Android |
-| `ReviewSummaryCard` | résumé + compteurs | badge `Ai`, compteurs triés |
-| `ReviewFileSection` | bloc fichier + Apply all | contient `DiffLineRow` et `ReviewCommentCard` |
-| `AppliedNitRow` | nit replié | ton `Suggestion` |
-| `CommitComposerBar` | après Apply | champ + Later + Stage & commit |
-| `ReviewProgress` | état de chargement | 4 étapes, barre, squelettes |
-| `NitpickBanner` | erreurs de review | ton Warning ou Danger, badge + texte |
-| `NitpickTooltip` | toolbar | texte + `NitpickKbd` |
-| `NitBottomSheet` | Android | `ModalBottomSheet` stylé avec les tokens |
+| `NitpickRadioGroup` | LLM provider | horizontal on desktop, list on Android |
+| `ReviewSummaryCard` | summary + counters | `Ai` badge, sorted counters |
+| `ReviewFileSection` | file block + Apply all | contains `DiffLineRow` and `ReviewCommentCard` |
+| `AppliedNitRow` | collapsed nit | `Suggestion` tone |
+| `CommitComposerBar` | after Apply | field + Later + Stage & commit |
+| `ReviewProgress` | loading state | 4 steps, bar, skeletons |
+| `NitpickBanner` | review errors | Warning or Danger tone, badge + text |
+| `NitpickTooltip` | toolbar | text + `NitpickKbd` |
+| `NitBottomSheet` | Android | `ModalBottomSheet` styled with the tokens |
 
-## 6. Chaînes à ajouter (EN / FR)
+## 6. Strings to add (EN / FR)
 
-| Clé | EN | FR |
+| Key | EN | FR |
 | --- | --- | --- |
 | `review_cta` | Nitpick branch | Nitpicker la branche |
 | `review_cta_running` | Nitpicking… | Analyse… |
@@ -246,19 +246,19 @@ and branches. »
 | `clone_folder` | Folder name | Nom du dossier |
 | `clone_action` | Clone | Cloner |
 
-Les textes longs des états (corps des messages) sont au §3.6 ; les traduire dans le même
-esprit, phrases courtes. Garder les termes git en anglais (commit, branch, diff, push, nit).
+The long state texts (message bodies) are in §3.6; translate them in the same
+spirit, short sentences. Keep git terms in English (commit, branch, diff, push, nit).
 
-## 7. Ordre de travail proposé
+## 7. Proposed work order
 
-1. Tokens (§1) + mise à jour de `DESIGN-SYSTEM.md` + catalogue clair/sombre.
-2. Shell desktop : toolbar avec CTA, tool windows, status bar, inspector à onglets.
-3. Onglet Diff avec sélecteur de base.
-4. Onglet Review : résumé, sections fichiers, nits inline, Apply / Dismiss, nit appliqué,
-   barre de commit.
-5. États (vide, chargement, propre, 3 erreurs).
-6. Settings desktop.
-7. Android : Repos + Clone, Graph + FAB, Review (fichiers, diff, bottom sheet), Settings,
-   états.
+1. Tokens (§1) + update of `DESIGN-SYSTEM.md` + light/dark catalog.
+2. Desktop shell: toolbar with CTA, tool windows, status bar, tabbed inspector.
+3. Diff tab with base selector.
+4. Review tab: summary, file sections, inline nits, Apply / Dismiss, applied nit,
+   commit bar.
+5. States (empty, loading, clean, 3 errors).
+6. Desktop settings.
+7. Android: Repos + Clone, Graph + FAB, Review (files, diff, bottom sheet), Settings,
+   states.
 
-Chaque étape : compile JVM + desktop, captures clair/sombre comparées à la maquette.
+Each step: JVM + desktop compile, light/dark screenshots compared against the mockup.

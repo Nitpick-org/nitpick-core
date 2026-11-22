@@ -2,34 +2,34 @@
 
 Closes #
 
-## Ce qui change
+## What changes
 
 - …
 
-## Preuve de démo
+## Demo proof
 
-- [ ] Parcours de `docs/DEMO.md` toujours fonctionnel sur la preview
-- [ ] `./scripts/check.sh --demo` vert (si ticket critique démo)
-- [ ] Capture / court GIF avant-après dans la PR
+- [ ] The `docs/DEMO.md` walkthrough still works on the preview
+- [ ] `./scripts/check.sh --demo` green (if demo-critical ticket)
+- [ ] Screenshot / short before-after GIF in the PR
 
-## Nouveauté
+## What's new
 
-- Ce qu'on a créé pendant l'événement : …
-- Ce qu'on a réutilisé : …
-- Ce qui est mocké : …
+- What we built during the event: …
+- What we reused: …
+- What is mocked: …
 
-## Vérifié
+## Verified
 
-- [ ] `./scripts/check.sh` vert
-- [ ] Test du comportement ajouté
-- [ ] `progress/<ticket>.md` à jour
-- [ ] Reviewer : verdict PRÊT À MERGER
+- [ ] `./scripts/check.sh` green
+- [ ] Test for the added behaviour
+- [ ] `progress/<ticket>.md` up to date
+- [ ] Reviewer: READY TO MERGE verdict
 
-## Hypothèses prises par l'agent
+## Assumptions made by the agent
 
 - …
 
-## Risque / rollback
+## Risk / rollback
 
-- Risque : faible / moyen / élevé
-- Rollback : revert du commit / feature flag / restauration des données
+- Risk: low / medium / high
+- Rollback: revert the commit / feature flag / restore the data

@@ -1,40 +1,40 @@
 # Ticket 34-settings-desktop
 
-- Statut : prêt pour review (PR)
-- Propriétaire humain : @pepito2t (H3)
-- Piste : C android+finitions (desktop ici)
-- Agent : Claude Fable 5.1 (session interactive)
-- Model : fable
-- Escalations : aucune
-- Fichiers autorisés : shared/src/commonMain/kotlin/dev/nitpick/app/ui/settings/**,
+- Status: ready for review (PR)
+- Human owner: @pepito2t (H3)
+- Track: C android+polish (desktop here)
+- Agent: Claude Fable 5.1 (interactive session)
+- Model: fable
+- Escalations: none
+- Allowed files: shared/src/commonMain/kotlin/dev/nitpick/app/ui/settings/**,
   shared/src/commonMain/kotlin/dev/nitpick/app/ui/components/**,
   shared/src/commonMain/kotlin/dev/nitpick/app/ui/designsystem/**,
   shared/src/commonMain/kotlin/dev/nitpick/app/ui/App.kt, shared/src/commonMain/composeResources/**,
   shared/src/commonTest/kotlin/dev/nitpick/app/ui/settings/**
 
-## Fait
+## Done
 
-- `SettingsDialog` desktop (handoff §3.5) : nav 220 dp avec recherche qui filtre les sections,
-  General seul rempli ; Thème en `NitpickSegmentedControl`, fournisseur en `NitpickRadioGroup`,
-  modèle en select 300 dp mono, clé API 380 dp avec Show/Hide et aide nommant le fournisseur ;
-  Cancel / Save ; Esc et clic dehors = Cancel.
-- Brouillon dans `SettingsViewModel` : rien n'est écrit avant Save ; Save ne copie que les quatre
-  champs du dialogue sur les réglages courants.
-- Deux composants dans `ui/components/` et le catalogue.
-- Labels `LlmProvider.label` / `ThemeMode.label` partagés.
+- Desktop `SettingsDialog` (handoff §3.5): 220 dp nav with a search that filters the sections,
+  only General filled; Theme as a `NitpickSegmentedControl`, provider as a `NitpickRadioGroup`,
+  model as a 300 dp mono select, API key 380 dp with Show/Hide and help naming the provider;
+  Cancel / Save; Esc and clicking outside = Cancel.
+- Draft in `SettingsViewModel`: nothing is written before Save; Save only copies the four
+  dialog fields onto the current settings.
+- Two components in `ui/components/` and the catalog.
+- `LlmProvider.label` / `ThemeMode.label` labels shared.
 
-## Décisions
+## Decisions
 
-- Le téléphone garde `SettingsScreen` (restylé par #35).
-- Aide de la clé : « fichier de réglages de l'app », pas « trousseau » : c'est la vérité du
-  stockage actuel.
-- Pas de champ « Review server URL » : son comportement arrive avec #48, un champ mort serait pire.
+- The phone keeps `SettingsScreen` (restyled by #35).
+- Key help: "app settings file", not "keystore": it is the truth of the
+  current storage.
+- No "Review server URL" field: its behaviour arrives with #48, a dead field would be worse.
 
-## Incertain
+## Uncertain
 
-- Rendu visuel clair/sombre non comparé à la maquette (pas de clic possible depuis la session).
+- Light/dark visual rendering not compared with the mockup (no click possible from the session).
 
-## Journal
+## Log
 
-- 19:05 — worktree, lecture du handoff §3.5 et de l'existant.
-- 19:25 — dialogue, composants, brouillon, tests ; compile verte.
+- 19:05 — worktree, read of handoff §3.5 and of the existing code.
+- 19:25 — dialog, components, draft, tests; compile green.

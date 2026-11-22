@@ -1,23 +1,23 @@
 # Tickets 143 + 144 — Phone touch targets
 
-- Statut : 144 fait ; 143 fermé « non reproductible » depuis #133 (sheet pleine hauteur, insets M3)
-- Propriétaire humain : @pepito2t (H3)
-- Piste : C android
-- Agent : Claude Code (Fable 5.1), session humaine
-- Model : fable
-- Fichiers autorisés : `ui/phone/{PhoneFlow,PhoneReviewScreen,ReposScreen,ConnectScreen}.kt`
+- Status: 144 done; 143 closed "not reproducible" since #133 (full-height sheet, M3 insets)
+- Human owner: @pepito2t (H3)
+- Track: C android
+- Agent: Claude Code (Fable 5.1), human session
+- Model: fable
+- Allowed files: `ui/phone/{PhoneFlow,PhoneReviewScreen,ReposScreen,ConnectScreen}.kt`
 
-## Fait
+## Done
 
-- `PhoneTextAction` : `NitpickToolbarAction` avec `heightIn(min = 44.dp)` ; utilisé pour Back,
-  Re-run et le compte `@login`. Settings et Shared étaient déjà des icônes 44 dp (#133).
-- Bascule Afficher / Masquer du jeton : boîte de 48 dp cliquable, texte centré.
+- `PhoneTextAction`: `NitpickToolbarAction` with `heightIn(min = 44.dp)`; used for Back,
+  Re-run and the `@login` account. Settings and Shared were already 44 dp icons (#133).
+- Token Show / Hide toggle: 48 dp clickable box, centered text.
 
-## Non fait
+## Not done
 
-- Pas de test (UI). Le `heightIn(min)` externe l'emporte sur le `height(28.dp)` interne du contrôle
-  desktop, c'est le contrat des SizeNode Compose ; à vérifier d'un coup d'œil sur l'émulateur.
+- No test (UI). The external `heightIn(min)` wins over the desktop control's internal
+  `height(28.dp)`; that is the Compose SizeNode contract, to check at a glance on the emulator.
 
-## Journal
+## Log
 
-- 02:25 — worktree, 143 fermé avec preuve, 144 fait, check vert.
+- 02:25 — worktree, 143 closed with proof, 144 done, check green.

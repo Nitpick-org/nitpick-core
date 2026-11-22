@@ -1,104 +1,104 @@
 # Ticket 23-android-review
 
-- Statut : en cours (issue #23), boucle complète à prouver avec une clé API et un dépôt privé
-- Propriétaire humain : @pepito2t (H3)
-- Piste : C android+finitions
-- Agent : Claude Code, session principale
-- Model : fable
-- Escalations : aucune
-- Fichiers autorisés : shared/src/jvmSharedMain/git, shared/src/commonMain/kotlin/dev/nitpick/app/ui/{phone,components/NitBottomSheet.kt,App.kt,designsystem}, shared/src/commonMain/kotlin/dev/nitpick/app/ui/repository/{RepositoryViewModel.kt (nouvelles fonctions), RepositoryScreen.kt (RefsSidebar), DiffPanel.kt (FileHunks internal)}, composeResources, shared/src/{jvmTest,commonTest}
-- Hors limites (worktree #22 en cours) : `ReviewPanel.kt`, `NitpickReview.kt`, `ReviewAnchoring.kt`, `FakeGitRepository.kt`, les corps de `reviewBranch`/`applySuggestion`/`commitAppliedSuggestions`, `JGitRepository.commit`
+- Status: in progress (issue #23), full loop to be proven with an API key and a private repository
+- Human owner: @pepito2t (H3)
+- Track: C android+polish
+- Agent: Claude Code, main session
+- Model: fable
+- Escalations: none
+- Allowed files: shared/src/jvmSharedMain/git, shared/src/commonMain/kotlin/dev/nitpick/app/ui/{phone,components/NitBottomSheet.kt,App.kt,designsystem}, shared/src/commonMain/kotlin/dev/nitpick/app/ui/repository/{RepositoryViewModel.kt (new functions), RepositoryScreen.kt (RefsSidebar), DiffPanel.kt (FileHunks internal)}, composeResources, shared/src/{jvmTest,commonTest}
+- Off-limits (worktree #22 in progress): `ReviewPanel.kt`, `NitpickReview.kt`, `ReviewAnchoring.kt`, `FakeGitRepository.kt`, the bodies of `reviewBranch`/`applySuggestion`/`commitAppliedSuggestions`, `JGitRepository.commit`
 
-## Journal
+## Log
 
-- 18:15 — worktree créé sur `0f11c21` (#21 mergée).
-- 18:25 — `JGitRepository.push` (`PushCommand` + credentials ; un ref refusé ne lève pas d'exception
-  chez JGit : on lit `RemoteRefUpdate.status` et on lève avec le statut) et `checkout` (branche
-  locale, ou branche distante → locale de suivi, comme `git checkout`). 3 tests `jvmTest` : push vers
-  un bare local (HEAD du bare = HEAD du clone, `origin/main` à jour), push en retard refusé
-  (`REJECTED_NONFASTFORWARD`), checkout local/distant. 23 tests JGit verts.
-- 18:35 — `RepositoryViewModel` : `pushBranch(credentials?)`, `checkoutBranch`, `hasUnpushedCommits`
-  (dérivé des refs : branche locale ≠ `origin/<branche>`), `hasCredentials`, `isPushing`, `pushError`,
-  `isCheckingOut`. Le token du clone reste en mémoire de session pour le push (jamais dans l'état,
-  jamais sauvé). 4 tests avec un wrapper `GitRepository by inner` local au test. 13 tests VM verts.
-- 18:50 — UI téléphone : `PhoneReviewScreen` (états, carte résumé, nits groupés par fichier en lignes
-  56 dp, en-tête de fichier → `PhoneDiffScreen` qui réutilise `FileHunks`, barre commit puis push
-  avec saisie du token si absent), `NitBottomSheet` (`ModalBottomSheet` + `NitSheetContent`
-  réutilisant `ReviewCommentCard`, boutons Dismiss/Apply 56 dp ; `NitSheetContent` dans le
-  catalogue), bouton « Nitpick branch » sur Graph, onglet Branches tappable → checkout. Strings EN/FR.
-- 18:55 — `check.sh` vert (96 tests JVM). Émulateur : clone Hello-World → Branches → tap `origin/test`
-  → « on test · 4 commits » (checkout sur ART OK) → Nitpick branch → « Review failed : Unknown base:
-  main ». Corrigé : la base se choisit au chargement parmi main / origin/main / master /
-  origin/master (`defaultBaseRef`, testé). Nouvel essai : « Review · test vs master », erreur « No API
-  key for ANTHROPIC » (attendue, pas de clé sur l'émulateur).
-- 19:05 — **incident** : le premier `git commit` a lancé `check.sh` via le hook `pre-commit`, avec
-  `GIT_DIR` et `GIT_INDEX_FILE` exportés par git. JGit en mémoire (`CloneCommand`) lit ces variables :
-  les clones de test se sont initialisés dans le gitdir du worktree et ont **remplacé l'index** par
-  celui du dépôt de test (`a.txt`, `b.txt`), d'où « invalid object … for 'a.txt' ». Branches, `main`
-  et fichiers sources intacts ; quelques objets pendants dans `.git/objects`. Réparé par
-  `git read-tree HEAD && git add -A`. Causes corrigées : le hook lance `check.sh` avec
-  `env -u GIT_DIR -u GIT_INDEX_FILE -u GIT_WORK_TREE -u GIT_PREFIX`, et la factory fixe `setGitDir`.
-  Le cas de #15 (sous-processus `git`) était couvert par `TestGitRepo` ; celui-ci est le cas JGit en
-  mémoire, que rien ne peut filtrer côté test.
-- 19:20 — advisor : deux bugs sur le chemin du ticket corrigés avant la review. (1) Après un commit,
-  `review` repasse à null et la barre commit/push vivait dans la branche « résultat » : Push était
-  inaccessible. La barre est sortie des états et se montre d'elle-même (`appliedFiles`, `isPushing`,
-  `hasUnpushedCommits`). (2) Après un push refusé sans token, le champ token n'apparaissait jamais :
-  l'erreur est fusionnée dans la branche « à pousser », champ token optionnel. Plus `checkoutError`
-  affiché sur Graph. Hook : issue #58 + PR #59 (hotfix séparé pour toute l'équipe, à merger avant le
-  prochain commit de H2). `check.sh --demo` vert.
+- 18:15 — worktree created on `0f11c21` (#21 merged).
+- 18:25 — `JGitRepository.push` (`PushCommand` + credentials; a rejected ref does not throw an exception
+  in JGit: we read `RemoteRefUpdate.status` and throw with the status) and `checkout` (local branch,
+  or remote branch → local tracking branch, like `git checkout`). 3 `jvmTest` tests: push to
+  a local bare repo (HEAD of the bare = HEAD of the clone, `origin/main` up to date), out-of-date push
+  rejected (`REJECTED_NONFASTFORWARD`), local/remote checkout. 23 JGit tests green.
+- 18:35 — `RepositoryViewModel`: `pushBranch(credentials?)`, `checkoutBranch`, `hasUnpushedCommits`
+  (derived from the refs: local branch ≠ `origin/<branch>`), `hasCredentials`, `isPushing`, `pushError`,
+  `isCheckingOut`. The clone token stays in session memory for the push (never in the state,
+  never saved). 4 tests with a `GitRepository by inner` wrapper local to the test. 13 VM tests green.
+- 18:50 — phone UI: `PhoneReviewScreen` (states, summary card, nits grouped by file in
+  56 dp rows, file header → `PhoneDiffScreen` that reuses `FileHunks`, commit then push
+  bar with token entry if missing), `NitBottomSheet` (`ModalBottomSheet` + `NitSheetContent`
+  reusing `ReviewCommentCard`, Dismiss/Apply 56 dp buttons; `NitSheetContent` in the
+  catalog), "Nitpick branch" button on Graph, Branches tab tappable → checkout. EN/FR strings.
+- 18:55 — `check.sh` green (96 JVM tests). Emulator: clone Hello-World → Branches → tap `origin/test`
+  → "on test · 4 commits" (checkout on ART OK) → Nitpick branch → "Review failed: Unknown base:
+  main". Fixed: the base is chosen on load among main / origin/main / master /
+  origin/master (`defaultBaseRef`, tested). New attempt: "Review · test vs master", error "No API
+  key for ANTHROPIC" (expected, no key on the emulator).
+- 19:05 — **incident**: the first `git commit` ran `check.sh` through the `pre-commit` hook, with
+  `GIT_DIR` and `GIT_INDEX_FILE` exported by git. In-memory JGit (`CloneCommand`) reads these variables:
+  the test clones initialized in the worktree's gitdir and **replaced the index** with
+  the test repo's (`a.txt`, `b.txt`), hence "invalid object … for 'a.txt'". Branches, `main`
+  and source files intact; a few dangling objects in `.git/objects`. Fixed by
+  `git read-tree HEAD && git add -A`. Causes fixed: the hook runs `check.sh` with
+  `env -u GIT_DIR -u GIT_INDEX_FILE -u GIT_WORK_TREE -u GIT_PREFIX`, and the factory sets `setGitDir`.
+  The case of #15 (`git` subprocess) was covered by `TestGitRepo`; this one is the in-memory JGit
+  case, which nothing can filter on the test side.
+- 19:20 — advisor: two bugs on the ticket's path fixed before the review. (1) After a commit,
+  `review` goes back to null and the commit/push bar lived in the "result" branch: Push was
+  unreachable. The bar is out of the states and shows itself (`appliedFiles`, `isPushing`,
+  `hasUnpushedCommits`). (2) After a rejected push without a token, the token field never appeared:
+  the error is merged into the "to push" branch, token field optional. Plus `checkoutError`
+  displayed on Graph. Hook: issue #58 + PR #59 (separate hotfix for the whole team, to merge before
+  H2's next commit). `check.sh --demo` green.
 
-- 19:30 — review ponytail : l'écran Diff n'affiche plus le premier fichier par défaut quand le chemin
-  du nit n'est pas dans le diff (état vide) ; la vérification manuelle « Push visible après commit »
-  est dans la checklist de `docs/DEMO.md`.
+- 19:30 — ponytail review: the Diff screen no longer shows the first file by default when the nit's
+  path is not in the diff (empty state); the manual check "Push visible after commit"
+  is in the checklist of `docs/DEMO.md`.
 
-- 19:40 — review ponytail : pas de checkout pendant une review en cours (les nits de l'ancienne branche
-  arriveraient sur la nouvelle).
-- 19:55 — décision humaine : **l'app mobile a une connexion GitHub ou GitLab** comme base.
-  `Settings.gitConnection` (`GitConnection(host, token)`, sérialisé avec les réglages), écran Connect
-  (choix GitHub/GitLab, token masqué) affiché tant qu'aucun compte n'est connecté, action « Compte »
-  sur Repos pour le changer. Le clone n'a plus de champ token, le push n'en demande plus : les
-  `Credentials` viennent des réglages (`x-access-token` pour GitHub, `oauth2` pour GitLab). Supprimés :
-  credentials de session du ViewModel, `hasCredentials`, strings `clone_token_*` et `push_token_*`.
-  3 tests settings (user name par forge, sérialisation), tests VM ajustés. `check.sh --demo` vert
-  (99 tests JVM, 67 hôte Android).
+- 19:40 — ponytail review: no checkout during an in-progress review (the old branch's nits
+  would land on the new one).
+- 19:55 — human decision: **the mobile app has a GitHub or GitLab connection** as its base.
+  `Settings.gitConnection` (`GitConnection(host, token)`, serialized with the settings), Connect
+  screen (GitHub/GitLab choice, masked token) shown as long as no account is connected, "Account"
+  action on Repos to change it. The clone no longer has a token field, push no longer asks for one:
+  the `Credentials` come from the settings (`x-access-token` for GitHub, `oauth2` for GitLab). Removed:
+  the ViewModel's session credentials, `hasCredentials`, strings `clone_token_*` and `push_token_*`.
+  3 settings tests (user name per forge, serialization), VM tests adjusted. `check.sh --demo` green
+  (99 JVM tests, 67 Android host).
 
-- 20:05 — review ponytail : `SettingsViewModel.isLoaded` et `App` n'affiche le flux téléphone qu'une fois
-  les réglages lus (plus de flash de l'écran Connect au démarrage) ; l'édition du compte ne préremplit
-  plus le token (champ vide = on garde l'ancien).
+- 20:05 — ponytail review: `SettingsViewModel.isLoaded` and `App` shows the phone flow only once
+  the settings are read (no more Connect screen flash at startup); editing the account no longer
+  prefills the token (empty field = we keep the old one).
 
-## Décisions
+## Decisions
 
-- `checkout` implémenté ici (il est dans le contrat `GitRepository`) : après un clone, le téléphone
-  est sur la branche par défaut et n'a rien à relire. #42 garde `pull`. Hypothèse notée sans réponse
-  humaine au moment du commit.
-- Connexion git dans les réglages (décision H3) : un token par appareil, utilisé par clone, fetch et
-  push. Stocké comme la clé API, dans le fichier de réglages privé de l'app (Keystore : plus tard).
-- « Quelque chose à pousser » se déduit des refs (locale ≠ `origin/<branche>`), pas d'un flag à
-  remettre à zéro dans les fonctions de #22.
-- Base de review choisie au chargement : un clone GitHub n'a souvent pas de `main` local
-  (Hello-World n'a que `master`). Le sélecteur desktop reste maître ensuite.
-- Pas de FAB flottant : bouton pleine largeur 56 dp en bas, comme les autres écrans téléphone.
+- `checkout` implemented here (it is in the `GitRepository` contract): after a clone, the phone
+  is on the default branch and has nothing to re-read. #42 keeps `pull`. Assumption noted without a
+  human answer at commit time.
+- Git connection in the settings (H3 decision): one token per device, used by clone, fetch and
+  push. Stored like the API key, in the app's private settings file (Keystore: later).
+- "Something to push" is derived from the refs (local ≠ `origin/<branch>`), not from a flag to
+  reset in the #22 functions.
+- Review base chosen on load: a GitHub clone often has no local `main`
+  (Hello-World only has `master`). The desktop selector stays in charge afterwards.
+- No floating FAB: full-width 56 dp button at the bottom, like the other phone screens.
 
-## Incertain
+## Uncertain
 
-- Boucle complète (nits → sheet → apply → commit → push) non rejouée sur l'émulateur : il faut la clé
-  API dans les Réglages de l'app émulée et un dépôt privé avec une branche à relire.
-- Identité d'auteur du commit sur Android : JGit sans `~/.gitconfig` peut produire un auteur vide ou
-  `u0_aNNN@localhost`. À vérifier sur le premier commit réel ; correctif possible dans
-  `JGitRepositoryFactory.clone` (config locale `user.name/email`).
-- `ModalBottomSheet` compile sur desktop et Android ; non vérifié visuellement sur desktop (non utilisé).
-- Snackbar « suggestion applied » du handoff remplacée par une ligne verte dans la barre commit.
+- Full loop (nits → sheet → apply → commit → push) not replayed on the emulator: the API
+  key is needed in the emulated app's Settings and a private repository with a branch to review.
+- Commit author identity on Android: JGit without `~/.gitconfig` can produce an empty author or
+  `u0_aNNN@localhost`. To be checked on the first real commit; possible fix in
+  `JGitRepositoryFactory.clone` (local config `user.name/email`).
+- `ModalBottomSheet` compiles on desktop and Android; not visually verified on desktop (not used).
+- The handoff "suggestion applied" snackbar replaced by a green line in the commit bar.
 
-## Blocages
+## Blockers
 
-- Aucun.
+- None.
 
-## Leçon à ajouter aux règles d'équipe (H2)
+## Lesson to add to the team rules (H2)
 
-- JGit en mémoire lit `GIT_DIR`/`GIT_INDEX_FILE` comme le CLI : un hook qui lance les tests doit
-  les retirer de l'environnement (`env -u`), sinon un clone de test écrase l'index du dépôt.
+- In-memory JGit reads `GIT_DIR`/`GIT_INDEX_FILE` like the CLI: a hook that runs the tests must
+  remove them from the environment (`env -u`), otherwise a test clone overwrites the repo's index.
 
-## Suivant
+## Next
 
-- Rejouer la boucle avec clé + dépôt privé, vérifier le commit sur GitHub ; rebase après merge de #22.
+- Replay the loop with a key + a private repo, verify the commit on GitHub; rebase after #22 merges.

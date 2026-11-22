@@ -1,31 +1,31 @@
 # Audit 104-data-safety
 
-- Statut : prêt pour PR
-- Propriétaire humain : @zooldyyk (reprise de l’audit)
-- Piste : A/B/C
-- Agent : lead
-- Fichiers : `git/JGitRepository.kt`, `settings/{FileSettingsStore,SettingsViewModel}.kt`,
-  `gradle/libs.versions.toml`, tests JGit/ViewModel
+- Status: ready for PR
+- Human owner: @zooldyyk (taking over the audit)
+- Track: A/B/C
+- Agent: lead
+- Files: `git/JGitRepository.kt`, `settings/{FileSettingsStore,SettingsViewModel}.kt`,
+  `gradle/libs.versions.toml`, JGit/ViewModel tests
 
-## Journal
+## Log
 
-- 00:30 — pull : si des fichiers suivis sont modifiés, `FastForwardMode.FF_ONLY`. Une
-  divergence lève « commit or discard » avant tout reset ; le `reset --hard` n’est plus
-  atteint avec un arbre sale.
-- 00:32 — `minSdk` 26 → **33** (JGit/Java APIs utilisées : `readNBytes`, `transferTo`,
+- 00:30 — pull: if tracked files are modified, `FastForwardMode.FF_ONLY`. A
+  divergence raises "commit or discard" before any reset; `reset --hard` is no longer
+  reached with a dirty tree.
+- 00:32 — `minSdk` 26 → **33** (JGit/Java APIs used: `readNBytes`, `transferTo`,
   `ByteArrayOutputStream.toString(Charset)`).
-- 00:34 — `SettingsViewModel.saveDraft` copie aussi `gitConnection` et `serverUrl` ; seul
-  `recentRepositories` reste celui du store.
-- 00:35 — `FileSettingsStore` remplace `File.renameTo` par `Files.move(REPLACE_EXISTING,
-  ATOMIC_MOVE)`, avec repli non atomique.
+- 00:34 — `SettingsViewModel.saveDraft` also copies `gitConnection` and `serverUrl`; only
+  `recentRepositories` keeps the value from the store.
+- 00:35 — `FileSettingsStore` replaces `File.renameTo` with `Files.move(REPLACE_EXISTING,
+  ATOMIC_MOVE)`, with a non-atomic fallback.
 
-## Vérifications
+## Checks
 
-- Nouveaux tests : pull FF avec fichier sale non lié, pull divergent avec fichier sale
-  conservé, sauvegarde du compte Git/URL serveur.
-- `:shared:jvmTest` + `:desktopApp:compileKotlin` verts.
-- `assembleDebug`/instrumentés non lancés (SDK absent).
+- New tests: FF pull with an unrelated dirty file, divergent pull with a dirty file
+  kept, saving the Git account/server URL.
+- `:shared:jvmTest` + `:desktopApp:compileKotlin` green.
+- `assembleDebug`/instrumented tests not run (no SDK).
 
-## Incertain
+## Uncertain
 
-- `minSdk` 33 exclut les appareils < Android 13 ; décision H1 déjà actée.
+- `minSdk` 33 excludes devices < Android 13; H1 decision already made.

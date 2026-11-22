@@ -3,8 +3,9 @@
 Nitpick was built in 24 hours at LauzHack 2026. The repo keeps both the product docs and
 the process evidence, so this page says what to read first and what is only history.
 
-Team docs are written in French; the audits and the agent-facing rules mix English and
-French. Code, comments and commits are English.
+Everything is written in English: code, comments, commits and docs. The French left is
+intentional — the app's two locales (the tagline and button strings, the EN/FR pairs in the
+UI handoff), verbatim quotes of French log lines, the sponsor name and one audio file name.
 
 ## Start here
 

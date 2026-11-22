@@ -1,61 +1,61 @@
 # Ticket 46-ktor-server
 
-- Statut : prêt pour PR
-- Propriétaire humain : @dovatgabriel
-- Piste : D (partage des reviews)
-- Agent : Claude Code (lead)
-- Model : opus
-- Escalations : aucune
-- Fichiers : `server/**`, `settings.gradle.kts`, `gradle/libs.versions.toml`, `scripts/check.sh`,
-  `shared/src/commonMain/.../domain/SharedReview.kt` (contrat §6)
+- Status: ready for PR
+- Human owner: @dovatgabriel
+- Track: D (review sharing)
+- Agent: Claude Code (lead)
+- Model: opus
+- Escalations: none
+- Files: `server/**`, `settings.gradle.kts`, `gradle/libs.versions.toml`, `scripts/check.sh`,
+  `shared/src/commonMain/.../domain/SharedReview.kt` (§6 contract)
 
-## Journal
+## Log
 
-- 19:14 — worktree créé.
-- 19:20 — contrat `SharedReview` ajouté à `domain`, tel que §6, avec `id = ""` par défaut.
-- 19:30 — module `server/` : Ktor CIO, `POST /reviews`, `GET /reviews?repoUrl=`,
-  `GET /reviews/{id}`, `GET /health` ; `ReviewStore` en mémoire + `~/.nitpick/server/reviews.json`.
-- 19:35 — 6 tests `testApplication` verts ; `./gradlew :server:run` + curl vérifiés à la main.
+- 19:14 — worktree created.
+- 19:20 — `SharedReview` contract added to `domain`, as per §6, with `id = ""` by default.
+- 19:30 — `server/` module: Ktor CIO, `POST /reviews`, `GET /reviews?repoUrl=`,
+  `GET /reviews/{id}`, `GET /health`; in-memory `ReviewStore` + `~/.nitpick/server/reviews.json`.
+- 19:35 — 6 green `testApplication` tests; `./gradlew :server:run` + curl verified by hand.
 
-## Décisions
+## Decisions
 
-- `id` a une valeur par défaut `""` : le client envoie un `SharedReview` sans id (§7.1) et le
-  serveur l'attribue (UUID). Le contrat reste celui du §6 pour tout le reste.
-- `ReviewShareClient` n'est pas ajouté ici : sa seule implémentation arrive avec #48.
-- Même BOM Ktor (3.3.3) que le client Koog de `:shared` : une seule version de Ktor sur le
-  classpath du serveur, qui dépend de `:shared`.
-- Moteur CIO plutôt que Netty : pur Kotlin, déjà dans le cache, aucun natif.
-- Limite de 1 Mo lue à la main (`readRemaining(max + 1)`) : elle tient aussi sans
-  `Content-Length`. 413 au-delà, 400 sur JSON invalide, `repoUrl` vide ou id hors UUID.
-- Écriture disque avant la mise à jour mémoire, par fichier temporaire + rename atomique :
-  un échec d'écriture ne laisse ni review fantôme ni fichier à moitié écrit.
-- Aucun log par requête (pas de `CallLogging`) ; `slf4j-nop` coupe l'avertissement SLF4J.
+- `id` has a default value `""`: the client sends a `SharedReview` without an id (§7.1) and the
+  server assigns it (UUID). The contract stays §6's for everything else.
+- `ReviewShareClient` is not added here: its only implementation arrives with #48.
+- Same Ktor BOM (3.3.3) as `:shared`'s Koog client: a single Ktor version on the
+  server classpath, which depends on `:shared`.
+- CIO engine rather than Netty: pure Kotlin, already in the cache, no native code.
+- 1 MB limit read by hand (`readRemaining(max + 1)`): it also holds without
+  `Content-Length`. 413 beyond it, 400 on invalid JSON, empty `repoUrl` or non-UUID id.
+- Disk write before the in-memory update, via a temporary file + atomic rename:
+  a write failure leaves neither a phantom review nor a half-written file.
+- No per-request logging (no `CallLogging`); `slf4j-nop` silences the SLF4J warning.
 
-## Vérifications
+## Verification
 
-- `:server:test` : 6 tests, 0 échec (aller-retour id/repoUrl, liste filtrée la plus récente
-  d'abord, 404, 400 ×3, 413, persistance après redémarrage du store, health).
-- `./gradlew :server:run` : URL localhost + IP LAN affichées ; POST → 201 + id, GET par id et
-  par repoUrl identiques, id inconnu → 404, fichier écrit. Données de test supprimées ensuite.
-- `./scripts/check.sh` (inclut désormais `:server:test`).
+- `:server:test`: 6 tests, 0 failure (id/repoUrl round trip, filtered list newest
+  first, 404, 400 ×3, 413, persistence after store restart, health).
+- `./gradlew :server:run`: localhost URL + LAN IP displayed; POST → 201 + id, GET by id and
+  by repoUrl identical, unknown id → 404, file written. Test data deleted afterwards.
+- `./scripts/check.sh` (now includes `:server:test`).
 
-## Review ponytail (corrigée)
+## Ponytail review (fixed)
 
-- `./gradlew build` était rouge : `:server:distZip` refusait deux jars lifecycle de même nom
-  (androidx et JetBrains, tirés par `:shared`). `duplicatesStrategy = EXCLUDE` sur la
-  distribution ; `distZip` et `installDist` passent (c'était aussi la cause de l'échec
-  d'`installDist`).
-- `repoUrl` normalisé à l'écriture et à la lecture : le remote SSH du laptop
-  (`git@github.com:o/r.git`) et le clone HTTPS du téléphone donnent la même clé
-  `https://github.com/o/r`. Sinon la liste Android revenait vide au point 5 de la démo.
-- Test de la limite de 1 Mo sans `Content-Length` (corps en flux) ; vérifié qu'il échoue si
-  le contrôle de taille du corps est retiré. 9 tests, 0 échec.
+- `./gradlew build` was red: `:server:distZip` rejected two lifecycle jars with the same name
+  (androidx and JetBrains, pulled by `:shared`). `duplicatesStrategy = EXCLUDE` on the
+  distribution; `distZip` and `installDist` pass (it was also the cause of the
+  `installDist` failure).
+- `repoUrl` normalized on write and on read: the laptop's SSH remote
+  (`git@github.com:o/r.git`) and the phone's HTTPS clone give the same key
+  `https://github.com/o/r`. Otherwise the Android list came back empty at step 5 of the demo.
+- Test of the 1 MB limit without `Content-Length` (streamed body); verified that it fails if
+  the body size check is removed. 9 tests, 0 failure.
 
-## Incertain
+## Uncertain
 
-- slf4j-nop 2.0.16 choisi connu, pas vérifié comme le dernier 2.0.x.
+- slf4j-nop 2.0.16 chosen as known, not verified as the latest 2.0.x.
 
-## Suivant
+## Next
 
-- #48 : `ReviewShareClient` (Ktor client), bouton « Share review » desktop, écran « Shared
-  reviews » Android.
+- #48: `ReviewShareClient` (Ktor client), desktop "Share review" button, Android "Shared
+  reviews" screen.

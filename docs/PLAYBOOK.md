@@ -1,73 +1,73 @@
-# Playbook — 24 h à 3 humains + agents
+# Playbook — 24 h with 3 humans + agents
 
-> Le déroulé opérationnel. Les faits de l'événement sont dans `docs/LAUZHACK.md`,
-> la stratégie dans `docs/STRATEGY.md`, les agents dans `docs/AGENT-OPS.md`.
+> The operational runbook. The event facts are in `docs/LAUZHACK.md`,
+> the strategy in `docs/STRATEGY.md`, the agents in `docs/AGENT-OPS.md`.
 
-## Les rôles
+## The roles
 
-| Rôle | Possède | Ses agents | Tranche seul sur |
+| Role | Owns | Its agents | Decides alone on |
 | --- | --- | --- | --- |
-| **H1 — Produit & Pitch** | PRD, DEMO.md, périmètre, fit challenge, test e2e | `researcher`, `devils-advocate`, `pitch` | Périmètre, ordre des tickets, narrative |
-| **H2 — Architecte & Intégration** (**Ultra**) | Interfaces, `main`, file de merge, CI, stack, DECISIONS | `architect`, `reviewer`, `implementer` | Structure du code, ce qui est mergé |
-| **H3 — Builder & Démo** (**Ultra**) | UI, intégrations risquées, déploiement, mocks, vidéo | `implementer`, `qa-demo` | Rendu visuel, plan B de démo |
+| **H1 — Product & Pitch** | PRD, DEMO.md, scope, challenge fit, e2e test | `researcher`, `devils-advocate`, `pitch` | Scope, ticket order, narrative |
+| **H2 — Architect & Integration** (**Ultra**) | Interfaces, `main`, merge queue, CI, stack, DECISIONS | `architect`, `reviewer`, `implementer` | Code structure, what gets merged |
+| **H3 — Builder & Demo** (**Ultra**) | UI, risky integrations, deployment, mocks, video | `implementer`, `qa-demo` | Visual rendering, demo plan B |
 
-Tout le monde code et relit. Les rôles disent **qui tranche**. H2/H3 portent les comptes
-Ultra : ils prennent les tâches gourmandes en tokens (recherche, QA, AFK), pas les décisions
-de H1. `scribe` (Haiku) est disponible pour tous pour la doc. Détail : `docs/ULTRA.md` et
+Everyone codes and reviews. The roles say **who decides**. H2/H3 hold the Ultra
+accounts: they take the token-hungry tasks (research, QA, AFK), not H1's
+decisions. `scribe` (Haiku) is available to everyone for docs. Details: `docs/ULTRA.md` and
 `docs/MODEL-ROUTING.md`.
 
-## Avant H0 (J-5 → J-1)
+## Before H0 (D-5 → D-1)
 
-| Jour | Objectif | Porte |
+| Day | Goal | Gate |
 | --- | --- | --- |
-| J-5 (lun) | Lire `LAUZHACK.md` et `STRATEGY.md`, appel équipe 60 min, rôles, repo privé + invitations | Rôles + repo partagés |
-| J-4 (mar) | Préparer l'hébergement (Vercel/Netlify) et le fallback Vite ; stack à H0 | Compte d'hébergement prêt |
-| J-3 (mer) | Installer skills, tester agents/worktree/AFK, faire le **dry run** (`docs/DRY-RUN.md`) | 8 agents visibles, dry run passé |
-| J-2 (jeu) | Corriger les 3 frictions du dry run + 3 idées par humain | La boucle tourne sans friction bloquante |
-| J-1 (ven) | Shortlist de 3 idées, clés API, quotas, valises, sommeil | `doctor.sh` sans échec |
+| D-5 (Mon) | Read `LAUZHACK.md` and `STRATEGY.md`, 60 min team call, roles, private repo + invites | Roles + repo shared |
+| D-4 (Tue) | Prepare hosting (Vercel/Netlify) and the Vite fallback; stack at H0 | Hosting account ready |
+| D-3 (Wed) | Install skills, test agents/worktree/AFK, run the **dry run** (`docs/DRY-RUN.md`) | 8 agents visible, dry run passed |
+| D-2 (Thu) | Fix the 3 frictions from the dry run + 3 ideas per human | The loop runs with no blocking friction |
+| D-1 (Fri) | Shortlist of 3 ideas, API keys, quotas, bags, sleep | `doctor.sh` with no failure |
 
-Détail : `docs/PRE-EVENT-CHECKLIST.md`.
+Details: `docs/PRE-EVENT-CHECKLIST.md`.
 
-## Le déroulé des 24 h
+## The 24 h runbook
 
-| Heure | Phase | Humains | Agents | Porte de sortie |
+| Time | Phase | Humans | Agents | Exit gate |
 | --- | --- | --- | --- | --- |
-| 8:00–9:30 | Check-in | ID, table, Wi-Fi, prises | — | Installés avant 9:30 |
-| 10:20–11:40 | Tech talks | H1 note les challenges ; H2/H3 préparent le repo | `researcher` en veille | Challenges compris |
-| 11:40–12:00 | Team building | Choisir l'idée, la cible, la phrase de nouveauté, **et la stack** (fallback Vite) | — | Idée + stack + challenge choisis |
-| **12:00–13:00** | **Kickoff** | DEMO.md, PRD, modules, tickets | `architect` propose, `devils-advocate` challenge | Démo écrite en 5 points, 8–12 tickets |
-| 13:00–16:00 | Squelette | 2–3 builders, worktrees | `implementer` | **Démo bout en bout sur la preview, même moche** |
-| 16:00–19:00 | Cœur | Le aha d'abord | `implementer`, `qa-demo` | Le aha est visible en < 30 s |
-| 19:00–22:00 | Deuxième feature | Profondeur ou 2ᵉ cas d'usage | `implementer`, `reviewer` | Démo complète |
-| 22:00–23:00 | Gel v0.1 | Tag, vidéo de secours, soumission brouillon | `qa-demo` | v0.1 enregistrée |
-| 23:00–07:00 | Nuit | Sommeil en shifts de 4 h, 2 éveillés | AFK borné, low-risk uniquement | Personne ne casse `main` |
-| 07:00–09:30 | Intégration | Corriger, merger, répéter | `qa-demo`, `reviewer` | e2e vert |
-| **09:30–10:30** | **Gel final** | Plus de feature, seulement des bugs | — | Code gelé |
-| 10:30–11:30 | Soumission | Formulaire, README, vidéo | `pitch` | **Soumis avant 12:00** |
-| 11:30–12:00 | Répétition | 5 passages de 3 min, Q&A | — | Tout le monde prêt |
-| 12:30–15:00 | Judging | Démo 3 min + Q&A 1 min | — | Rester jusqu'à la clôture |
+| 8:00–9:30 | Check-in | ID, table, Wi-Fi, power sockets | — | Set up before 9:30 |
+| 10:20–11:40 | Tech talks | H1 takes notes on the challenges; H2/H3 prepare the repo | `researcher` on watch | Challenges understood |
+| 11:40–12:00 | Team building | Pick the idea, the target, the novelty sentence, **and the stack** (Vite fallback) | — | Idea + stack + challenge chosen |
+| **12:00–13:00** | **Kickoff** | DEMO.md, PRD, modules, tickets | `architect` proposes, `devils-advocate` challenges | Demo written in 5 points, 8–12 tickets |
+| 13:00–16:00 | Skeleton | 2–3 builders, worktrees | `implementer` | **End-to-end demo on the preview, even if ugly** |
+| 16:00–19:00 | Core | The aha first | `implementer`, `qa-demo` | The aha is visible in < 30 s |
+| 19:00–22:00 | Second feature | Depth or a 2nd use case | `implementer`, `reviewer` | Complete demo |
+| 22:00–23:00 | v0.1 freeze | Tag, backup video, draft submission | `qa-demo` | v0.1 recorded |
+| 23:00–07:00 | Night | Sleep in 4 h shifts, 2 awake | Bounded AFK, low-risk only | Nobody breaks `main` |
+| 07:00–09:30 | Integration | Fix, merge, repeat | `qa-demo`, `reviewer` | e2e green |
+| **09:30–10:30** | **Final freeze** | No more features, bugs only | — | Code frozen |
+| 10:30–11:30 | Submission | Form, README, video | `pitch` | **Submitted before 12:00** |
+| 11:30–12:00 | Rehearsal | 5 runs of 3 min, Q&A | — | Everyone ready |
+| 12:30–15:00 | Judging | 3 min demo + 1 min Q&A | — | Stay until closing |
 
-> Une porte non franchie à l'heure → on **coupe du périmètre**, on ne décale pas la suivante.
-> Si l'intégration la plus risquée n'est pas démontrable à **19:00 samedi**, on la coupe.
+> A gate missed on time → we **cut scope**, we do not push the next one back.
+> If the riskiest integration is not demonstrable at **19:00 Saturday**, we cut it.
 
-## Kickoff H0 — minute par minute
+## H0 kickoff — minute by minute
 
-1. **12:00–12:10** — Rôles, repo, board, canaux. Vérifier que la **stack choisie** est
-   installée, que `main` est accessible et que la preview répond.
-2. **12:10–12:40** — 3 idées par humain, 2 min chacune, scoring
-   (`docs/STRATEGY.md`). Garder 2, trancher.
-3. **12:40–13:00** — Écrire `docs/DEMO.md` en 5 points. Si ce n'est pas écrivable,
-   l'idée n'est pas prête : reprendre l'idée n°2.
-4. **13:00–13:20** — `/to-spec` → `docs/PRD.md` (ou rédaction directe), puis
-   `devils-advocate` sur le PRD. Couper ce qu'il signale.
-5. **13:20–13:40** — `architect` → modules + tickets. H2 valide, complète
-   `ARCHITECTURE.md` et `CLAUDE.md` (commandes, état).
-6. **13:40** — Premiers worktrees : `./scripts/new-worktree.sh <ticket>`, puis `claude`.
-   Mode surveillé (`ralph-once.sh`) tant que le prompt n'est pas fiable.
+1. **12:00–12:10** — Roles, repo, board, channels. Check that the **chosen stack** is
+   installed, that `main` is reachable and that the preview responds.
+2. **12:10–12:40** — 3 ideas per human, 2 min each, scoring
+   (`docs/STRATEGY.md`). Keep 2, decide.
+3. **12:40–13:00** — Write `docs/DEMO.md` in 5 points. If it cannot be written,
+   the idea is not ready: go back to idea #2.
+4. **13:00–13:20** — `/to-spec` → `docs/PRD.md` (or write it directly), then
+   `devils-advocate` on the PRD. Cut what it flags.
+5. **13:20–13:40** — `architect` → modules + tickets. H2 validates, completes
+   `ARCHITECTURE.md` and `CLAUDE.md` (commands, state).
+6. **13:40** — First worktrees: `./scripts/new-worktree.sh <ticket>`, then `claude`.
+   Supervised mode (`ralph-once.sh`) until the prompt is reliable.
 
-## Skills AI Hero
+## AI Hero skills
 
-Installer une fois par repo :
+Install once per repo:
 
 ```bash
 claude plugin install mattpocock-skills@claude-plugins-official
@@ -75,109 +75,109 @@ claude plugin install mattpocock-skills@claude-plugins-official
 npx skills@latest add mattpocock/skills
 ```
 
-Puis, dans une session : `/setup-matt-pocock-skills` (une fois par repo, configure
-l'issue tracker, les labels et le dossier de docs).
+Then, in a session: `/setup-matt-pocock-skills` (once per repo, configures
+the issue tracker, the labels and the docs folder).
 
-| Moment | Skill | Usage |
+| Moment | Skill | Use |
 | --- | --- | --- |
-| Idée | `/grill-with-docs` (ou `/grill-me` si pressé) | Faire poser les questions, écrire le glossaire/ADR |
-| Spec | `/to-spec` | Transformer la conversation en PRD |
-| Tickets | `/to-tickets` | Découper en tranches avec dépendances |
-| Implémentation | `/implement` + `/tdd` | TDD, une tranche à la fois |
-| Revue | `/code-review` | Standards + spec, en parallèle |
-| Debug | `/diagnosing-bugs` | Boucle de diagnostic |
-| Rétro | `/retro` | Améliorer le repo après une session |
+| Idea | `/grill-with-docs` (or `/grill-me` if in a hurry) | Get the questions asked, write the glossary/ADR |
+| Spec | `/to-spec` | Turn the conversation into a PRD |
+| Tickets | `/to-tickets` | Split into slices with dependencies |
+| Implementation | `/implement` + `/tdd` | TDD, one slice at a time |
+| Review | `/code-review` | Standards + spec, in parallel |
+| Debug | `/diagnosing-bugs` | Diagnosis loop |
+| Retro | `/retro` | Improve the repo after a session |
 
-Skill local du repo : **`/route-task`** (dans `.claude/skills/`) — choisit l'agent et le
-modèle (Haiku/Sonnet/Opus) avant de déléguer, avec escalade après 2 échecs.
+Repo-local skill: **`/route-task`** (in `.claude/skills/`) — picks the agent and the
+model (Haiku/Sonnet/Opus) before delegating, with escalation after 2 failures.
 
-> Les anciens noms `/to-prd` et `/to-issues` ne sont plus les noms actuels. Utilisez
-> `/to-spec` et `/to-tickets`.
+> The old names `/to-prd` and `/to-issues` are no longer the current names. Use
+> `/to-spec` and `/to-tickets`.
 
-### Mapping AI Hero → ce repo
+### AI Hero mapping → this repo
 
-| Phase AI Hero | Artefact | Où |
+| AI Hero phase | Artifact | Where |
 | --- | --- | --- |
-| 1. Idée | 3 idées, scoring, phrase de nouveauté | `docs/STRATEGY.md`, `docs/IDEAS.md` |
-| 2. Recherche | cache sourcé, API, pricing | `docs/RESEARCH.md`, `docs/RESEARCH-HACKATHON.md` |
-| 3. Prototype | route jetable pour trancher l'UX | `src/app/prototype/` (à supprimer) |
-| 4. PRD | destination, user stories, hors-périmètre | `docs/PRD.md` |
-| 5. Kanban | tickets, dépendances, critique démo | GitHub Issues, `.github/ISSUE_TEMPLATE/ticket.md` |
-| 6. Exécution | worktrees, Ralph, check.sh | `scripts/`, `.claude/agents/` |
-| 7. QA | e2e, QA de démo, review | `docs/DEMO.md`, `scripts/demo-check.sh`, `qa-demo` |
+| 1. Idea | 3 ideas, scoring, novelty sentence | `docs/STRATEGY.md`, `docs/IDEAS.md` |
+| 2. Research | sourced cache, API, pricing | `docs/RESEARCH.md`, `docs/RESEARCH-HACKATHON.md` |
+| 3. Prototype | throwaway route to settle the UX | `src/app/prototype/` (to delete) |
+| 4. PRD | destination, user stories, out of scope | `docs/PRD.md` |
+| 5. Kanban | tickets, dependencies, demo-critical | GitHub Issues, `.github/ISSUE_TEMPLATE/ticket.md` |
+| 6. Execution | worktrees, Ralph, check.sh | `scripts/`, `.claude/agents/` |
+| 7. QA | e2e, demo QA, review | `docs/DEMO.md`, `scripts/demo-check.sh`, `qa-demo` |
 
-Le principe AI Hero qui compte le plus ici : **modules profonds** (beaucoup de logique
-derrière une interface simple) et **tickets en tranches verticales**. Voir
+The AI Hero principle that counts most here: **deep modules** (a lot of logic
+behind a simple interface) and **tickets as vertical slices**. See
 `docs/ARCHITECTURE.md`.
 
-## Rituels
+## Rituals
 
-- **Sync toutes les 3 h** (10 min, debout) : mergé / bloqué / on coupe quoi / `/usage`
-  des comptes Ultra. À 15:00, 18:00, 21:00, 00:00, 07:00.
-- **Revue de démo à 16:00, 22:00 et 09:00** : on joue la démo sur la preview.
-  Visez **2:45**, pas 3:00 ; enregistrez une vidéo de secours de 2 min.
-- **Avant une sieste** (5 min) : état dans `progress.txt`, puis
-  `AFK_OK=1 ./scripts/afk-ralph.sh 4`. Un AFK par compte Ultra, lancé par son propriétaire.
-- **Désaccord** : un argument d'une phrase chacun, le propriétaire du domaine tranche,
-  une ligne dans `DECISIONS.md`.
-- **Après chaque correction d'agent** : une ligne dans `CLAUDE.md` (« Leçons apprises »)
-  ou `/retro` si le problème est structurel.
+- **Sync every 3 h** (10 min, standing): merged / blocked / what we cut / `/usage`
+  of the Ultra accounts. At 15:00, 18:00, 21:00, 00:00, 07:00.
+- **Demo review at 16:00, 22:00 and 09:00**: we play the demo on the preview.
+  Aim for **2:45**, not 3:00; record a 2 min backup video.
+- **Before a nap** (5 min): state in `progress.txt`, then
+  `AFK_OK=1 ./scripts/afk-ralph.sh 4`. One AFK per Ultra account, started by its owner.
+- **Disagreement**: one sentence each, the domain owner decides,
+  one line in `DECISIONS.md`.
+- **After each agent correction**: one line in `CLAUDE.md` ("Lessons learned")
+  or `/retro` if the problem is structural.
 
-## Sommeil
+## Sleep
 
-3 personnes, **4 h de sommeil chacune**, toujours 2 éveillées. Pas de all-nighter : la
-démo finale se joue sur la lucidité, pas sur l'héroïsme.
+3 people, **4 h of sleep each**, always 2 awake. No all-nighter: the
+final demo is won on clear-headedness, not on heroism.
 
-| Créneau | Dort | Éveillés |
+| Slot | Asleep | Awake |
 | --- | --- | --- |
 | 22:00–02:00 | H3 | H1, H2 |
 | 02:00–06:00 | H2 | H1, H3 |
 | 06:00–10:00 | H1 | H2, H3 |
 
-- H3 dort pendant le gel v0.1 : H1/H2 enregistrent la vidéo de secours.
-- H2 dort 02:00–06:00 : H1/H3 font l'intégration de nuit ; H2 reprend le merge à 06:00.
-- H1 dort 06:00–10:00 : H2/H3 font l'intégration du matin ; H1 revient pour la répétition.
-- Micro-siestes de 20 min autorisées pour les éveillés.
-- Un AFK par compte Ultra, lancé par H2/H3 avant leur shift ; pas d'AFK sur le compte de H1.
-- Personne ne conduit la démo finale avec moins de 4 h de sommeil.
-- La zone de sommeil est accessible avec navettes ; prévoir 20 min de trajet.
+- H3 sleeps during the v0.1 freeze: H1/H2 record the backup video.
+- H2 sleeps 02:00–06:00: H1/H3 do the night integration; H2 takes the merge back at 06:00.
+- H1 sleeps 06:00–10:00: H2/H3 do the morning integration; H1 is back for the rehearsal.
+- 20 min micro-naps are allowed for those awake.
+- One AFK per Ultra account, started by H2/H3 before their shift; no AFK on H1's account.
+- Nobody drives the final demo on less than 4 h of sleep.
+- The sleep area is reachable by shuttle; allow 20 min of travel.
 
 ## Communication
 
-- Un canal (Discord/Slack), trois fils : `#decisions`, `#bloquants`, `#demo`.
-- Les statuts vivent dans les GitHub Issues/Projects, pas dans le chat.
-- `progress.txt` = synthèse ; `progress/<ticket>.md` = détail.
-- Une question sans réponse → `docs/QUESTIONS.md`, priorité P0/P1/P2.
+- One channel (Discord/Slack), three threads: `#decisions`, `#bloquants`, `#demo`.
+- Statuses live in GitHub Issues/Projects, not in the chat.
+- `progress.txt` = summary; `progress/<ticket>.md` = detail.
+- An unanswered question → `docs/QUESTIONS.md`, priority P0/P1/P2.
 
-## Brief d'agent
+## Agent brief
 
-Voir `docs/AGENT-OPS.md` (8 lignes + garde-fous). Résumé :
+See `docs/AGENT-OPS.md` (8 lines + guardrails). Summary:
 
 ```text
-Tu es <rôle>. Lis CLAUDE.md, docs/PRD.md, docs/DECISIONS.md, docs/ARCHITECTURE.md
-et progress/<ticket>.md. Ticket #<n>. Fichiers autorisés : <...>.
-Critères d'acceptation : <...>. Fini = check.sh vert + test + journal + commit.
+You are <role>. Read CLAUDE.md, docs/PRD.md, docs/DECISIONS.md, docs/ARCHITECTURE.md
+and progress/<ticket>.md. Ticket #<n>. Allowed files: <...>.
+Acceptance criteria: <...>. Done = check.sh green + test + journal + commit.
 ```
 
-## Pièges
+## Pitfalls
 
-| Piège | Garde-fou |
+| Pitfall | Guardrail |
 | --- | --- |
-| Périmètre trop large | Squelette à 16:00, coupe à 19:00 |
-| Trop d'agents | 6 sessions max (8 avec Ultra, lecteurs en plus), 1 principale + 1–2 subagents par humain (2–3 sur Ultra) |
-| Agents qui s'écrasent | 1 ticket = 1 worktree = 1 zone de fichiers |
-| Contexte saturé | Sessions courtes, brief, `progress/<ticket>.md` |
-| Victoire déclarée trop tôt | `check.sh` + hook `Stop` + reviewer |
-| Code inexplicable au jury | Chaque humain comprend le cœur différenciant |
-| Démo fragile | Gel 09:30, mocks, vidéo, données seedées |
-| Quota épuisé | `/usage` à chaque sync, budget de `docs/ULTRA.md`, AFK borné, Fable à la main |
-| Soumission incomplète | Formulaire rempli à 23:00, soumis avant 12:00 |
-| Slides | Interdites : images/vidéos de secours uniquement |
+| Scope too wide | Skeleton at 16:00, cut at 19:00 |
+| Too many agents | 6 sessions max (8 with Ultra, readers on top), 1 main + 1–2 subagents per human (2–3 on Ultra) |
+| Agents stepping on each other | 1 ticket = 1 worktree = 1 file zone |
+| Saturated context | Short sessions, brief, `progress/<ticket>.md` |
+| Victory declared too early | `check.sh` + `Stop` hook + reviewer |
+| Code you cannot explain to the jury | Every human understands the differentiating core |
+| Fragile demo | 09:30 freeze, mocks, video, seeded data |
+| Quota exhausted | `/usage` at every sync, budget from `docs/ULTRA.md`, bounded AFK, Fable by hand |
+| Incomplete submission | Form filled at 23:00, submitted before 12:00 |
+| Slides | Banned: backup images/videos only |
 
 ## Sources
 
-- [LauzHack — détails](https://lauzhack.com/details)
-- [LauzHack — règles](https://lauzhack.com/pdf/rules.pdf)
+- [LauzHack — details](https://lauzhack.com/details)
+- [LauzHack — rules](https://lauzhack.com/pdf/rules.pdf)
 - [AI Hero — 7 phases](https://aihero.dev/my-7-phases-of-ai-development)
 - [AI Hero — skills](https://www.aihero.dev/skills)
 - [Claude Code — subagents](https://code.claude.com/docs/en/sub-agents)

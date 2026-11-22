@@ -1,31 +1,31 @@
 # Ticket 44 (part) — Android dogfooding captures
 
-- Statut : fait (captures), le reste de #44 reste à H1/Gabriel
-- Propriétaire humain : @pepito2t (H3) pour cette partie
-- Piste : C android
-- Agent : Claude Code (Fable 5.1), session humaine
-- Model : fable
-- Fichiers autorisés : `docs/demo/android-*.png`, `docs/DEMO.md` (ligne captures + checklist Android)
+- Status: done (screenshots), the rest of #44 stays with H1/Gabriel
+- Human owner: @pepito2t (H3) for this part
+- Track: C android
+- Agent: Claude Code (Fable 5.1), human session
+- Model: fable
+- Allowed files: `docs/demo/android-*.png`, `docs/DEMO.md` (screenshots line + Android checklist)
 
-## Fait
+## Done
 
-- Parcours Android complet sur l'émulateur, piloté par adb, compte GitHub connecté par le device
-  flow (#64) : clone de `pepito2t/OpenTab` → checkout `perf/thumbnail-lookup` (branche de démo
-  poussée exprès : lock non relâché sur cache miss, `>=` d'éviction) → review (les 2 bugs
-  trouvés, suggestions correctes) → Apply ×2 → Stage & commit → Push. Commit `cb55041` sur
-  GitHub, diff vérifié : `defer` rétabli, `>` rétabli.
-- 8 captures à 50 % dans `docs/demo/android-*.png`, référencées dans `docs/DEMO.md`.
+- Full Android walkthrough on the emulator, driven by adb, GitHub account connected through the device
+  flow (#64): clone of `pepito2t/OpenTab` → checkout `perf/thumbnail-lookup` (demo branch
+  pushed on purpose: lock not released on cache miss, eviction `>=`) → review (the 2 bugs
+  found, correct suggestions) → Apply ×2 → Stage & commit → Push. Commit `cb55041` on
+  GitHub, diff verified: `defer` restored, `>` restored.
+- 8 screenshots at 50 % in `docs/demo/android-*.png`, referenced in `docs/DEMO.md`.
 
-## Observé pendant le dogfooding (idées, pas corrigé)
+## Observed during dogfooding (ideas, not fixed)
 
-- Après le push, l'écran Review affiche « Run a review to see nits » sans dire « pushed » ; la
-  seule confirmation est ↑0 sur la carte de branche du Graph.
-- Les commentaires ajoutés par la branche fautive (« avoids the defer closure », « Evicts
-  before the cache reaches capacity ») restent faux après l'Apply : la suggestion ne touche
-  que le code.
-- Le message de commit par défaut « Apply review suggestions » est resté tel quel.
+- After the push, the Review screen shows "Run a review to see nits" without saying "pushed"; the
+  only confirmation is ↑0 on the Graph branch card.
+- The comments added by the faulty branch ("avoids the defer closure", "Evicts
+  before the cache reaches capacity") stay wrong after the Apply: the suggestion only touches
+  the code.
+- The default commit message "Apply review suggestions" was left as is.
 
-## Journal
+## Log
 
-- 00:40 — émulateur, clé LLM copiée des réglages desktop, branche de démo poussée.
-- 00:46 — boucle complète, push vérifié sur GitHub.
+- 00:40 — emulator, LLM key copied from the desktop settings, demo branch pushed.
+- 00:46 — full loop, push verified on GitHub.

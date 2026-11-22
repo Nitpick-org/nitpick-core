@@ -1,95 +1,95 @@
 # Ticket 21-android-clone
 
-- Statut : fini, à relire puis merger (issue #21)
-- Propriétaire humain : @pepito2t (H3)
-- Piste : C android+finitions
-- Agent : Claude Code, session principale
-- Model : fable
-- Escalations : aucune
-- Fichiers autorisés : shared/src/jvmSharedMain/git, shared/src/commonMain/kotlin/dev/nitpick/app/{ui,settings/Settings.kt}, shared/src/commonMain/composeResources, shared/src/{jvmTest,commonTest}, androidApp
-- Hors limites (worktree #20 en cours) : `AppContainer.kt`, `domain/Review.kt`, `FakeGitRepository.kt`, `shared/build.gradle.kts`, `gradle/libs.versions.toml`, `docs/RESEARCH.md`
+- Status: done, to review then merge (issue #21)
+- Human owner: @pepito2t (H3)
+- Track: C android+finitions
+- Agent: Claude Code, main session
+- Model: fable
+- Escalations: none
+- Allowed files: shared/src/jvmSharedMain/git, shared/src/commonMain/kotlin/dev/nitpick/app/{ui,settings/Settings.kt}, shared/src/commonMain/composeResources, shared/src/{jvmTest,commonTest}, androidApp
+- Out of bounds (worktree #20 in progress): `AppContainer.kt`, `domain/Review.kt`, `FakeGitRepository.kt`, `shared/build.gradle.kts`, `gradle/libs.versions.toml`, `docs/RESEARCH.md`
 
 ## Journal
 
-- 17:26 — worktree créé. #21 choisie : seule P0 non bloquée dont rien ne dépend ; #23 attend #20 et #21.
+- 17:26 — worktree created. #21 chosen: the only non-blocked P0 that nothing depends on; #23 waits for #20 and #21.
 - 17:30 — `JGitRepositoryFactory.clone` (`Git.cloneRepository` + `UsernamePasswordCredentialsProvider`)
-  et `JGitRepository.fetch`. 3 tests `jvmTest` sur un dépôt local en `file://` : clone (log,
-  branche, `origin/main`), clone raté sans dossier résiduel, fetch qui avance `origin/main` sans
-  bouger la branche locale. 16 tests JGit verts.
-- 17:33 — `RepositoryViewModel.cloneRepository(url, path, credentials)` partage `load()` avec
-  `openRepository`. 2 tests avec une factory locale au test (pas de modification du fake partagé).
-  `Settings.withRecentRepository` (tête de liste, sans doublon, 10 max) + 2 tests.
-- 17:38 — flux téléphone dans `ui/phone/` : `PhoneFlow` (Repos → Clone → Graph), `ReposScreen`
-  (dépôts récents + bouton Clone), `CloneScreen` (URL, token masqué avec Afficher/Masquer, nom du
-  dossier déduit de l'URL, erreur affichée sur place), `PhoneGraphScreen` (onglets Commits /
-  Branches, réutilise `CommitGraphList` et `RefsSidebar`). `App` choisit ce flux sous 600 dp de
-  large et pousse chaque dépôt ouvert dans `recentRepositories`. Strings EN + FR.
-  `MainActivity` passe `filesDir/repos` comme racine des clones ; permission `INTERNET` ajoutée.
-- 17:40 — `check.sh` vert (57 tests JVM exécutés). Test ART `JGitOnDeviceTest` (ouvre un `.git`
-  zippé en asset, le clone en `file://`, lit le log).
-- 17:50 — `connectedDebugAndroidTest` sur l'émulateur `nitpick` (API 36) : **2 tests exécutés, 0 échec**
-  (`opensARepositoryAndReadsItsLog`, `clonesALocalRepositoryAndReadsItsLog`). JGit ouvre et clone sur ART.
+  and `JGitRepository.fetch`. 3 `jvmTest` tests on a local repo over `file://`: clone (log,
+  branch, `origin/main`), failed clone with no leftover folder, fetch that advances `origin/main` without
+  moving the local branch. 16 JGit tests green.
+- 17:33 — `RepositoryViewModel.cloneRepository(url, path, credentials)` shares `load()` with
+  `openRepository`. 2 tests with a local factory in the test (no change to the shared fake).
+  `Settings.withRecentRepository` (head of the list, no duplicates, 10 max) + 2 tests.
+- 17:38 — phone flow in `ui/phone/`: `PhoneFlow` (Repos → Clone → Graph), `ReposScreen`
+  (recent repos + Clone button), `CloneScreen` (URL, token masked with Show/Hide, folder
+  name inferred from the URL, error displayed in place), `PhoneGraphScreen` (Commits /
+  Branches tabs, reuses `CommitGraphList` and `RefsSidebar`). `App` picks this flow under 600 dp
+  wide and pushes each opened repo into `recentRepositories`. EN + FR strings.
+  `MainActivity` passes `filesDir/repos` as the clone root; `INTERNET` permission added.
+- 17:40 — `check.sh` green (57 JVM tests executed). ART test `JGitOnDeviceTest` (opens a `.git`
+  zipped as an asset, clones it over `file://`, reads the log).
+- 17:50 — `connectedDebugAndroidTest` on the `nitpick` emulator (API 36): **2 tests executed, 0 failures**
+  (`opensARepositoryAndReadsItsLog`, `clonesALocalRepositoryAndReadsItsLog`). JGit opens and clones on ART.
 
-- 17:55 — preuve manuelle sur l'émulateur : Repos (état vide) → Clone → clone HTTPS public
-  `octocat/Hello-World` sans token → Graph « on master · 3 commits » avec lanes ; après
-  `force-stop` et relance, Hello-World est listé dans Repos (captures dans le scratchpad de la
-  session). Centrage du libellé dans `NitpickButton` (le bouton pleine largeur l'affichait à gauche).
+- 17:55 — manual proof on the emulator: Repos (empty state) → Clone → public HTTPS clone
+  `octocat/Hello-World` without a token → Graph "on master · 3 commits" with lanes; after
+  `force-stop` and relaunch, Hello-World is listed in Repos (screenshots in the session
+  scratchpad). Centering of the label in `NitpickButton` (the full-width button displayed it on the left).
 
-- 18:00 — review ponytail, 5 points corrigés dans le même commit : clavier `Password` pour le token
-  et `Uri` pour l'URL (`NitpickTextField` gagne `keyboardOptions`) ; flux téléphone sur `cloneRoot`
-  au lieu de la largeur (paysage vérifié sur l'émulateur) ; `SettingsViewModel.update` attend la
-  lecture du fichier (test `SettingsViewModelTest`, sinon un update précoce écrasait la clé API) ;
-  retour depuis Réglages sur Graph quand un dépôt est ouvert (vérifié) ; nom de dossier `trim()`.
-  `check.sh` vert, 58 tests JVM.
-- 18:10 — rebase sur `origin/main` (#20 et #22 mergées) : 5 conflits « garder les deux » (strings,
-  `App.kt`, `RepositoryViewModel.load` qui garde maintenant le dépôt ouvert, tests JGit).
-  `check.sh` vert, 82 tests JVM, 2 tests ART. Piège : `connectedDebugAndroidTest` désinstalle l'app
-  après les tests et efface ses données (réglages, clones) ; recloner avant une démo.
-- 18:20 — seconde review ponytail, 3 points corrigés : clavier `Password` aussi sur la clé API de
-  l'écran Réglages, string `repository_loading` inutilisée supprimée, `PhoneScreen` privé.
-- 18:30 — troisième review : l'activité est verrouillée en portrait (le token, volontairement hors
-  du saved state, disparaissait à la rotation).
+- 18:00 — ponytail review, 5 points fixed in the same commit: `Password` keyboard for the token
+  and `Uri` for the URL (`NitpickTextField` gains `keyboardOptions`); phone flow on `cloneRoot`
+  instead of the width (landscape checked on the emulator); `SettingsViewModel.update` waits for the
+  file read (test `SettingsViewModelTest`, otherwise an early update overwrote the API key);
+  return from Settings to Graph when a repo is open (checked); folder name `trim()`.
+  `check.sh` green, 58 JVM tests.
+- 18:10 — rebase on `origin/main` (#20 and #22 merged): 5 "keep both" conflicts (strings,
+  `App.kt`, `RepositoryViewModel.load` which now keeps the repo open, JGit tests).
+  `check.sh` green, 82 JVM tests, 2 ART tests. Trap: `connectedDebugAndroidTest` uninstalls the app
+  after the tests and wipes its data (settings, clones); re-clone before a demo.
+- 18:20 — second ponytail review, 3 points fixed: `Password` keyboard also on the API key of
+  the Settings screen, unused `repository_loading` string removed, `PhoneScreen` private.
+- 18:30 — third review: the activity is locked in portrait (the token, deliberately out of
+  the saved state, disappeared on rotation).
 
-## Décisions
+## Decisions
 
-- Le flux téléphone se déclenche quand `App` reçoit un `cloneRoot` (Android), pas sur la largeur :
-  la première version (< 600 dp) affichait le layout desktop, sans clone possible, dès que le téléphone
-  passait en paysage. Pas d'`expect`/`actual`.
-- La racine des clones arrive par un paramètre de `App`, comme `pickRepositoryPath`, pour ne pas
-  toucher `AppContainer` pendant que #20 l'édite.
-- Le token : jamais dans l'état du ViewModel, jamais dans `rememberSaveable`, jamais persisté ; il
-  vit dans `Credentials` le temps du clone. Nom d'utilisateur fixe `x-access-token` (GitHub accepte
-  n'importe quel nom avec un PAT ; `shortcut:` noté pour GitLab).
-- L'écran Clone reste affiché pendant le clone : un token faux se corrige sur place, sans ressaisir
-  l'URL. La navigation vers Graph se fait quand l'état est chargé sans erreur.
-- Le nom de dossier refuse `/`, `\`, `.` et `..` : le clone reste sous `filesDir/repos`.
-- Fixture ART = zip d'un `.git` (pas de git CLI sur l'appareil, pas d'import JGit dans `androidApp`).
-  Dépendance ajoutée à `androidApp` seulement : `kotlinx-coroutines-core` en `androidTestImplementation`
-  (pour `runBlocking`), alias déjà dans le catalogue.
-- Pas de section JGit dans `docs/RESEARCH.md` (fichier ouvert par #20) : API vérifiée dans la javadoc
-  JGit 6.10 (`CloneCommand.setURI/setDirectory/setCredentialsProvider`, nettoyage du dossier créé en
-  cas d'échec ; `FetchCommand.setCredentialsProvider`). Le test « clone raté sans dossier résiduel »
-  le prouve.
+- The phone flow triggers when `App` receives a `cloneRoot` (Android), not on width:
+  the first version (< 600 dp) displayed the desktop layout, with no cloning possible, as soon as the phone
+  went landscape. No `expect`/`actual`.
+- The clone root arrives through a parameter of `App`, like `pickRepositoryPath`, so as not to
+  touch `AppContainer` while #20 edits it.
+- The token: never in the ViewModel state, never in `rememberSaveable`, never persisted; it
+  lives in `Credentials` for the duration of the clone. Fixed username `x-access-token` (GitHub accepts
+  any name with a PAT; `shortcut:` noted for GitLab).
+- The Clone screen stays displayed during the clone: a wrong token is fixed in place, without retyping
+  the URL. Navigation to Graph happens when the state is loaded without error.
+- The folder name rejects `/`, `\`, `.` and `..`: the clone stays under `filesDir/repos`.
+- ART fixture = zip of a `.git` (no git CLI on the device, no JGit import in `androidApp`).
+  Dependency added to `androidApp` only: `kotlinx-coroutines-core` in `androidTestImplementation`
+  (for `runBlocking`), alias already in the catalog.
+- No JGit section in `docs/RESEARCH.md` (file opened by #20): API verified in the JGit 6.10
+  javadoc (`CloneCommand.setURI/setDirectory/setCredentialsProvider`, cleanup of the folder created on
+  failure; `FetchCommand.setCredentialsProvider`). The "failed clone with no leftover folder" test
+  proves it.
 
-## Incertain
+## Uncertain
 
-- Bouton système Retour sur Android : non géré (les écrans ont leur propre bouton Retour) ; le
-  `BackHandler` multiplateforme est expérimental, à ajouter si la démo le demande.
-- Barre du haut à 40 dp (composant maison `NitpickToolbar`) au lieu des 56 dp du handoff §4.
-- Pas de FAB « Nitpick branch » sur l'écran Graph : c'est #23.
-- Les lignes de `CommitGraphList` (#16, layout desktop) sont serrées sur 393 dp : la date chevauche
-  le sujet. Polish à faire dans le composant (ligne compacte 60 dp du handoff §4), pas dans ce ticket.
-- Message d'erreur JGit affiché brut (ex. `https://…: not authorized`) ; il ne contient pas le token.
+- Android system Back button: not handled (the screens have their own Back button); the
+  cross-platform `BackHandler` is experimental, to add if the demo requires it.
+- Top bar at 40 dp (in-house `NitpickToolbar` component) instead of the 56 dp of handoff §4.
+- No "Nitpick branch" FAB on the Graph screen: that is #23.
+- The rows of `CommitGraphList` (#16, desktop layout) are cramped on 393 dp: the date overlaps
+  the subject. Polish to do in the component (60 dp compact row of handoff §4), not in this ticket.
+- JGit error message displayed raw (e.g. `https://…: not authorized`); it does not contain the token.
 
-## Blocages
+## Blockers
 
-- Aucun.
+- None.
 
-## À faire par un humain (critère d'acceptation)
+## To do by a human (acceptance criterion)
 
-- Cloner un dépôt GitHub privé avec un token sur un téléphone ou l'émulateur, vérifier commits et
-  branches, relancer l'app et retrouver le dépôt dans Repos.
+- Clone a private GitHub repo with a token on a phone or the emulator, check commits and
+  branches, relaunch the app and find the repo again in Repos.
 
-## Suivant
+## Next
 
-- #23 : boucle review sur Android (push avec `Credentials`, bottom sheet), sur ces écrans.
+- #23: review loop on Android (push with `Credentials`, bottom sheet), on these screens.

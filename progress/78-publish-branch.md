@@ -1,33 +1,33 @@
 # Ticket 78-publish-branch
 
-- Statut : prêt pour PR
-- Propriétaire humain : @zooldyyk
-- Piste : B + C (git / toolbar desktop + Graph Android)
-- Agent : lead
-- Fichiers : `git/{GitRepository,JGitRepository}.kt`, `ui/repository/{RepositoryViewModel,RepositoryScreen}.kt`,
+- Status: ready for PR
+- Human owner: @zooldyyk
+- Track: B + C (git / desktop toolbar + Android Graph)
+- Agent: lead
+- Files: `git/{GitRepository,JGitRepository}.kt`, `ui/repository/{RepositoryViewModel,RepositoryScreen}.kt`,
   `ui/phone/{PhoneFlow,PhoneGraphScreen}.kt`, `ui/App.kt`, strings, `jvmTest/.../JGitRepositoryTest.kt`
 
-## Journal
+## Log
 
-- 23:30 — `publishBranch` : push explicite `refs/heads/<branch>:refs/heads/<branch>` vers
-  `origin`, vérifie les statuts JGit, puis écrit `branch.<name>.remote/merge` pour créer
-  l’upstream. Test bare : nouvelle branche `feature`, upstream `origin/feature`, ahead/behind
-  à 0, ref visible dans le bare.
-- 23:35 — VM `publishBranch` (isPushing/pushError), toolbar desktop et Android : Publish
-  remplace Push quand la branche n’a pas d’upstream ; action seulement si `origin` existe.
+- 23:30 — `publishBranch`: explicit push `refs/heads/<branch>:refs/heads/<branch>` to
+  `origin`, checks the JGit statuses, then writes `branch.<name>.remote/merge` to create
+  the upstream. Bare test: new `feature` branch, `origin/feature` upstream, ahead/behind
+  at 0, ref visible in the bare repository.
+- 23:35 — `publishBranch` VM (isPushing/pushError), desktop and Android toolbar: Publish
+  replaces Push when the branch has no upstream; action only if `origin` exists.
 
-## Décisions
+## Decisions
 
-- Le bouton n’apparaît plus sans `origin` : pas de bouton mort.
-- Publish utilise le même `isPushing`/`pushError` que Push : une seule opération réseau.
+- The button no longer appears without `origin`: no dead button.
+- Publish uses the same `isPushing`/`pushError` as Push: a single network operation.
 
-## Vérifications
+## Checks
 
-- `:shared:jvmTest --rerun-tasks` : tests JGit verts.
-- `:shared:compileKotlinJvm` + `:desktopApp:compileKotlin` verts.
-- Android non rejoué (SDK absent).
+- `:shared:jvmTest --rerun-tasks`: JGit tests green.
+- `:shared:compileKotlinJvm` + `:desktopApp:compileKotlin` green.
+- Android not replayed (SDK missing).
 
-## Incertain
+## Uncertain
 
-- Un remote `origin` sans branche distante mais avec un autre remote n’est pas publié ;
-  hors scope.
+- An `origin` remote without a remote branch but with another remote is not published;
+  out of scope.

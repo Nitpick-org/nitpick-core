@@ -1,114 +1,114 @@
-# Checklist avant H0 — J-5 → J0
+# Pre-H0 checklist — J-5 → J0
 
-> Cochez au fur et à mesure. Un point non coché à J-1 est un risque de démo, pas un détail.
-> Propriétaires : H1 produit/pitch, H2 archi/intégration, H3 builder/démo.
+> Tick as you go. An unticked item at J-1 is a demo risk, not a detail.
+> Owners: H1 product/pitch, H2 architecture/integration, H3 builder/demo.
 
-## J-5 — lundi 16 novembre
+## J-5 — Monday, November 16
 
-- [ ] Lire `docs/LAUZHACK.md`, `docs/STRATEGY.md`, `docs/PLAYBOOK.md`, `docs/AGENT-OPS.md` (toute l'équipe).
-- [ ] Appel équipe de 60 min : rôles définitifs, disponibilités, sommeil, transport.
-- [ ] Confirmer l'acceptation LauzHack et rejoindre le Discord.
-- [x] Vérifier le repo GitHub **privé** (il devra être **public** avant la soumission).
-- [x] Inviter les 2 autres ; `main` sans protection (merge direct autorisé).
-- [ ] Envoyer `docs/ONBOARDING.md` aux 2 autres ; chacun clone et lance `doctor.sh`.
-- [x] Créer les labels (`ticket`, `bug`, `demo`, `P0–P2`, `blocked`, `review`) et le milestone `LauzHack 2026`.
-- [ ] Vérifier que les 3 ont Git, Node 22+, `gh`, `claude`, un éditeur.
-- [ ] Lancer `git config core.hooksPath .githooks` dans chaque clone.
-- [ ] Remplir `CLAUDE.md` : prénoms, rôles, phrase d'état.
-- [ ] Lire `docs/ULTRA.md` ; confirmer qui est sur Ultra (H2, H3 par défaut).
-- [ ] Comptes Ultra **vérifiés** : Settings > Usage, pas de barre « Current session ».
-- [ ] Noter le jour/heure du reset hebdomadaire de chaque compte Ultra.
+- [ ] Read `docs/LAUZHACK.md`, `docs/STRATEGY.md`, `docs/PLAYBOOK.md`, `docs/AGENT-OPS.md` (whole team).
+- [ ] 60-min team call: final roles, availability, sleep, transport.
+- [ ] Confirm the LauzHack acceptance and join the Discord.
+- [x] Check the **private** GitHub repo (it must become **public** before the submission).
+- [x] Invite the 2 others; `main` without protection (direct merge allowed).
+- [ ] Send `docs/ONBOARDING.md` to the 2 others; each one clones and runs `doctor.sh`.
+- [x] Create the labels (`ticket`, `bug`, `demo`, `P0–P2`, `blocked`, `review`) and the `LauzHack 2026` milestone.
+- [ ] Check that all 3 have Git, Node 22+, `gh`, `claude`, an editor.
+- [ ] Run `git config core.hooksPath .githooks` in each clone.
+- [ ] Fill in `CLAUDE.md`: first names, roles, status sentence.
+- [ ] Read `docs/ULTRA.md`; confirm who is on Ultra (H2, H3 by default).
+- [ ] Ultra accounts **verified**: Settings > Usage, no "Current session" bar.
+- [ ] Note the day/time of the weekly reset for each Ultra account.
 
-**Porte** : repo créé, rôles écrits, tout le monde a lu les docs.
+**Gate**: repo created, roles written, everyone has read the docs.
 
-## J-4 — mardi 17 novembre
+## J-4 — Tuesday, November 17
 
-- [ ] Préparer le compte d'hébergement (Vercel/Netlify) et le fallback Vite.
-- [ ] Si l'idée est déjà claire : choisir la stack en 15 min (`docs/STACK.md`) et faire le bootstrap.
-- [ ] Sinon : stack à H0 (11:40–12:00), puis bootstrap et déploiement.
-- [ ] Vérifier que `.env` n'est pas commité.
+- [ ] Prepare the hosting account (Vercel/Netlify) and the Vite fallback.
+- [ ] If the idea is already clear: choose the stack in 15 min (`docs/STACK.md`) and do the bootstrap.
+- [ ] Otherwise: stack at H0 (11:40–12:00), then bootstrap and deployment.
+- [ ] Check that `.env` is not committed.
 
-**Porte** : une URL de preview publique répond, `check.sh` est vert.
+**Gate**: a public preview URL responds, `check.sh` is green.
 
-## J-3 — mercredi 18 novembre
+## J-3 — Wednesday, November 18
 
-- [ ] Installer Claude Code + skills AI Hero :
+- [ ] Install Claude Code + AI Hero skills:
       `claude plugin install mattpocock-skills@claude-plugins-official`
-      puis `/setup-matt-pocock-skills` une fois par repo.
-- [ ] Vérifier que les 8 agents apparaissent (`/agents` ou demande à Claude).
-- [ ] Tester `/route-task` : doc → `scribe`/Haiku, code standard → Sonnet, critique → Opus.
-- [ ] `./scripts/doctor.sh` sans échec.
-- [ ] Tester `./scripts/new-worktree.sh test-1`, ouvrir `claude` dedans, faire un mini-commit, puis `rm-worktree.sh`.
-- [ ] Tester `AFK_OK=1 ./scripts/afk-ralph.sh 1` sur un faux ticket **low-risk**.
-- [ ] Vérifier les hooks : `PreToolUse` bloque un sous-agent sur `PRD.md` ; `Stop` bloque si `check.sh` est rouge.
-- [ ] Faire le **dry run** de 2 h 30 (`docs/DRY-RUN.md`) sur un clone jetable.
-- [ ] Remplir `dry-run/RETRO.md` : 3 frictions concrètes.
-- [ ] Ajouter un test Playwright qui suit `docs/DEMO.md` (même vide).
-- [ ] Préparer `progress/` et expliquer le protocole aux agents.
+      then `/setup-matt-pocock-skills` once per repo.
+- [ ] Check that the 8 agents appear (`/agents` or ask Claude).
+- [ ] Test `/route-task`: docs → `scribe`/Haiku, standard code → Sonnet, critical → Opus.
+- [ ] `./scripts/doctor.sh` with no failure.
+- [ ] Test `./scripts/new-worktree.sh test-1`, open `claude` in it, make a mini-commit, then `rm-worktree.sh`.
+- [ ] Test `AFK_OK=1 ./scripts/afk-ralph.sh 1` on a fake **low-risk** ticket.
+- [ ] Check the hooks: `PreToolUse` blocks a subagent on `PRD.md`; `Stop` blocks if `check.sh` is red.
+- [ ] Do the 2 h 30 **dry run** (`docs/DRY-RUN.md`) on a throwaway clone.
+- [ ] Fill in `dry-run/RETRO.md`: 3 concrete frictions.
+- [ ] Add a Playwright test that follows `docs/DEMO.md` (even empty).
+- [ ] Prepare `progress/` and explain the protocol to the agents.
 
-**Porte** : un agent peut prendre un ticket, coder, tester, commiter ; `doctor.sh` vert.
+**Gate**: an agent can take a ticket, code, test, commit; `doctor.sh` green.
 
-## J-2 — jeudi 19 novembre
+## J-2 — Thursday, November 19
 
-- [ ] Répétition générale de 2 h sur une **idée bidon** : idée → DEMO → PRD → 3 tickets → 2 agents → démo.
-- [ ] Chronométrer : le squelette doit être déployé en < 2 h.
-- [ ] Chaque humain prépare **3 idées** (une phrase, aha, risque n°1) pour samedi.
-- [ ] Corriger les 3 frictions du dry run (tickets dans le vrai repo).
-- [ ] Rechercher les sponsors 2026 et les challenges probables (`researcher`).
-- [ ] Préparer le formulaire de soumission : titre, descriptions, miniature, lien.
-- [ ] Préparer un script de vidéo de secours (2 min) et un dossier de captures.
-- [ ] Vérifier les quotas/plans API (DB, hébergement, sponsors) ; clé de l'app sur les crédits API Ultra (`APP_ANTHROPIC_API_KEY`).
-- [ ] Tests d'agents de la semaine : rester **sous 25 %** de la limite hebdo Ultra.
-- [ ] Décider qui note les challenges aux tech talks.
+- [ ] 2-hour dress rehearsal on a **dummy idea**: idea → DEMO → PRD → 3 tickets → 2 agents → demo.
+- [ ] Time it: the skeleton must be deployed in < 2 h.
+- [ ] Each human prepares **3 ideas** (one sentence, aha, risk #1) for Saturday.
+- [ ] Fix the 3 frictions from the dry run (tickets in the real repo).
+- [ ] Research the 2026 sponsors and the likely challenges (`researcher`).
+- [ ] Prepare the submission form: title, descriptions, thumbnail, link.
+- [ ] Prepare a backup video script (2 min) and a screenshots folder.
+- [ ] Check the API quotas/plans (DB, hosting, sponsors); app key on the Ultra API credits (`APP_ANTHROPIC_API_KEY`).
+- [ ] Week's agent tests: stay **under 25%** of the Ultra weekly limit.
+- [ ] Decide who takes notes on the challenges at the tech talks.
 
-**Porte** : la répétition tourne, les 3 idées sont écrites, les clés existent.
+**Gate**: the rehearsal runs, the 3 ideas are written, the keys exist.
 
-## J-1 — vendredi 20 novembre
+## J-1 — Friday, November 20
 
-- [ ] `./scripts/doctor.sh` sans échec.
-- [ ] Repo public, README à jour, `.env` ignoré, aucun secret dans l'historique.
-- [ ] Clés API créées, quotas vérifiés, cartes de secours.
-- [ ] `/usage` : **≥ 75 %** de la semaine disponible sur chaque compte Ultra ; `ANTHROPIC_API_KEY` absente du shell.
-- [ ] Décider l'usage payant après limite (Q-004).
-- [ ] Matériel : laptop, chargeur, adaptateur type J, ID, sac de couchage, gourde, habits.
-- [ ] Téléphones chargés, partage de connexion de secours, câbles.
-- [ ] Répétition finale de la démo de 3 min (sur l'idée bidon) : 3 passages.
-- [ ] Préparer les questions du jury (10).
-- [ ] Dormir 7–8 h. **Pas de code après 22:00.**
-- [ ] Vérifier l'heure et le lieu (BC, EPFL), le trajet, l'heure de départ.
+- [ ] `./scripts/doctor.sh` with no failure.
+- [ ] Public repo, up-to-date README, `.env` ignored, no secret in the history.
+- [ ] API keys created, quotas checked, backup cards.
+- [ ] `/usage`: **≥ 75%** of the week available on each Ultra account; `ANTHROPIC_API_KEY` absent from the shell.
+- [ ] Decide the paid usage after the limit (Q-004).
+- [ ] Gear: laptop, charger, type J adapter, ID, sleeping bag, water bottle, clothes.
+- [ ] Phones charged, backup tethering, cables.
+- [ ] Final 3-min demo rehearsal (on the dummy idea): 3 run-throughs.
+- [ ] Prepare the jury questions (10).
+- [ ] Sleep 7–8 h. **No code after 22:00.**
+- [ ] Check the time and place (BC, EPFL), the route, the departure time.
 
-**Porte** : tout le monde est prêt, reposé, avec les clés et le matériel.
+**Gate**: everyone is ready, rested, with the keys and the gear.
 
-## J0 — samedi 21 novembre
+## J0 — Saturday, November 21
 
-- [ ] **8:00–9:30** check-in, ID, petit-déj, table, Wi-Fi `eduroam`, prises.
-- [ ] **9:30** mini-sync : rôles, canaux, état du repo, preview qui répond.
-- [ ] **10:00–10:15** cérémonie d'ouverture : noter les annonces.
-- [ ] **10:20–11:40** tech talks : H1 note les challenges ; H2/H3 préparent le repo.
-- [ ] **11:40–12:00** team building : idée, cible, phrase de nouveauté, **et stack**
-      (fallback Vite si pas de décision à 12:00).
-- [ ] **12:00** H0 : créer le projet sur app.lauzhack.com, inviter les coéquipiers.
-- [ ] **12:00–13:00** kickoff : DEMO.md, PRD, modules, tickets.
-- [ ] **13:00** premiers worktrees.
-- [ ] Uploader les reçus de voyage **avant samedi soir**.
+- [ ] **8:00–9:30** check-in, ID, breakfast, table, `eduroam` Wi-Fi, power sockets.
+- [ ] **9:30** mini-sync: roles, channels, repo status, preview that responds.
+- [ ] **10:00–10:15** opening ceremony: take note of the announcements.
+- [ ] **10:20–11:40** tech talks: H1 takes notes on the challenges; H2/H3 prepare the repo.
+- [ ] **11:40–12:00** team building: idea, target, novelty sentence, **and stack**
+      (Vite fallback if no decision by 12:00).
+- [ ] **12:00** H0: create the project on app.lauzhack.com, invite the teammates.
+- [ ] **12:00–13:00** kickoff: DEMO.md, PRD, modules, tickets.
+- [ ] **13:00** first worktrees.
+- [ ] Upload the travel receipts **before Saturday evening**.
 
-**Porte H0** : démo écrite en 5 points, PRD, 8–12 tickets, squelette lancé.
+**H0 gate**: demo written in 5 points, PRD, 8–12 tickets, skeleton launched.
 
-## Pendant la nuit
+## During the night
 
-- [ ] Shifts de sommeil de 4 h : 22:00 H3, 02:00 H2, 06:00 H1.
-- [ ] Toujours 2 personnes éveillées ; pas de all-nighter.
-- [ ] AFK uniquement sur des tickets low-risk avec oracle (`check.sh`).
-- [ ] Un AFK par compte Ultra, lancé par H2/H3 avant leur shift ; machine branchée, `caffeinate`.
-- [ ] Aucune décision produit sans humain.
-- [ ] `main` reste verte ; pas de merge sans `check.sh --demo`.
-- [ ] Vidéo de secours (2 min) enregistrée avant 23:00.
+- [ ] 4-hour sleep shifts: 22:00 H3, 02:00 H2, 06:00 H1.
+- [ ] Always 2 people awake; no all-nighter.
+- [ ] AFK only on low-risk tickets with an oracle (`check.sh`).
+- [ ] One AFK per Ultra account, started by H2/H3 before their shift; machine plugged in, `caffeinate`.
+- [ ] No product decision without a human.
+- [ ] `main` stays green; no merge without `check.sh --demo`.
+- [ ] Backup video (2 min) recorded before 23:00.
 
-## Dimanche — gel et soumission
+## Sunday — freeze and submission
 
-- [ ] **07:00–09:30** intégration, bugs, QA.
-- [ ] **09:30–10:30** gel : plus de feature, seulement des correctifs bloquants.
-- [ ] **10:30–11:30** formulaire, README, vidéo, lien public.
-- [ ] **11:30–12:00** répétition 3 min ×5, Q&A.
-- [ ] **12:00** hacking ends ; vérifier que la soumission est bien enregistrée.
-- [ ] **12:30–15:00** judging ; rester jusqu'à la clôture.
+- [ ] **07:00–09:30** integration, bugs, QA.
+- [ ] **09:30–10:30** freeze: no more features, only blocking fixes.
+- [ ] **10:30–11:30** form, README, video, public link.
+- [ ] **11:30–12:00** 3-min rehearsal ×5, Q&A.
+- [ ] **12:00** hacking ends; check that the submission is properly saved.
+- [ ] **12:30–15:00** judging; stay until the closing.

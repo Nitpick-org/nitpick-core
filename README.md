@@ -134,7 +134,7 @@ The rules every agent follows are in [AGENTS.md](AGENTS.md) (Claude Code adds
 | `.claude/` | Claude Code subagents, the `/route-task` skill, settings and hooks |
 | `dry-run/` | Pre-event rehearsal notes; the TypeScript starter they referred to was removed after the freeze |
 
-Team docs are written in French; code, comments and commit messages are in English.
+Docs, code, comments and commit messages are in English.
 
 ## Created during the event vs reused
 

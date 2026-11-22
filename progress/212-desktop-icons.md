@@ -1,21 +1,21 @@
 # Ticket 212-desktop-icons
 
-- Statut : en cours
-- Propriétaire humain : @pepito2t (H3)
-- Piste : C finitions desktop
-- Agent : Claude Code, session humaine
-- Model : Fable 5.1
-- Fichiers autorisés : ui/components/{NitpickButton,NitpickIdeShell,NitpickLayout}.kt, ui/repository/{RepositoryScreen,ReviewPanel,DiffPanel,ShareReview}.kt, drawable/ic_share.xml
+- Status: in progress
+- Human owner: @pepito2t (H3)
+- Track: C desktop polish
+- Agent: Claude Code, human session
+- Model: Fable 5.1
+- Allowed files: ui/components/{NitpickButton,NitpickIdeShell,NitpickLayout}.kt, ui/repository/{RepositoryScreen,ReviewPanel,DiffPanel,ShareReview}.kt, drawable/ic_share.xml
 
-## Journal
+## Log
 
-- 03:20 — `icon: DrawableResource?` sur `NitpickButton`, `NitpickToolbarAction` et l'action de `NitpickEmptyState` : l'icône prend la couleur du texte du bouton, donc une seule ligne par site d'appel au lieu d'une lambda `leading` avec le tint à la main.
-- 03:25 — barre d'outils : dossier (Open), nuage (Clone), fetch, pull, push ; écran vide : deux boutons « Open repository… » (primaire) et « Clone repository… » (secondaire) ; panneaux : coche sur Stage & commit et Apply all, partage sur Share review, flèches circulaires sur Retry et Refresh.
-- 03:35 — vérifié à l'écran sur desktop (écran vide, barre d'outils, carte de review avec « Share review »). Stage & commit et Apply all non vus : il faut une suggestion applicable ; même code que les autres.
+- 03:20 — `icon: DrawableResource?` on `NitpickButton`, `NitpickToolbarAction` and the action of `NitpickEmptyState`: the icon takes the button's text colour, so one line per call site instead of a `leading` lambda with the tint done by hand.
+- 03:25 — toolbar: folder (Open), cloud (Clone), fetch, pull, push; empty screen: two buttons "Open repository…" (primary) and "Clone repository…" (secondary); panels: checkmark on Stage & commit and Apply all, share on Share review, circular arrows on Retry and Refresh.
+- 03:35 — verified on screen on desktop (empty screen, toolbar, review card with "Share review"). Stage & commit and Apply all not seen: an applicable suggestion is needed; same code as the others.
 
-## Décisions
+## Decisions
 
-- Pas de nouveau glyphe pour Retry/Refresh : `ic_fetch` est déjà une double flèche circulaire.
-- Les `leading` existants (engrenage, pince, chevron) restent : pas de refactor au-delà du ticket.
+- No new glyph for Retry/Refresh: `ic_fetch` is already a double circular arrow.
+- The existing `leading` ones (gear, tweezers, chevron) stay: no refactor beyond the ticket.
 
-- 03:50 — demande H3 en cours de route : « Open… » / « Clone… » dans la barre (`toolbar_open`, `toolbar_clone`, les libellés longs restent sur l'écran vide) ; `rememberIconPop()` dans `NitpickIcon.kt` : au clic l'icône se contracte puis revient par un ressort, branché dans `NitpickButton` et `NitpickToolbarAction`. Vu à l'écran : Fetch cliqué, pas de plantage ; le rebond lui-même ne se capture pas en screenshot.
+- 03:50 — H3 request mid-way: "Open…" / "Clone…" in the toolbar (`toolbar_open`, `toolbar_clone`, the long labels stay on the empty screen); `rememberIconPop()` in `NitpickIcon.kt`: on click the icon contracts then springs back, wired into `NitpickButton` and `NitpickToolbarAction`. Seen on screen: Fetch clicked, no crash; the bounce itself cannot be captured in a screenshot.

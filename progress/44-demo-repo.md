@@ -1,49 +1,49 @@
 # Ticket 44-demo-repo
 
-- Statut : en cours (préparation agent faite ; étapes humaines restantes)
-- Propriétaire humain : @dovatgabriel
-- Piste : démo (#39)
-- Agent : Claude Code (lead)
-- Model : opus
-- Escalations : aucune
-- Fichiers autorisés : `docs/demo/*`, `docs/DEMO.md`, `progress/44-demo-repo.md` ; le repo de
-  démo vit hors de ce dépôt (`../pocket-ledger`).
+- Status: in progress (agent preparation done; human steps remaining)
+- Human owner: @dovatgabriel
+- Track: demo (#39)
+- Agent: Claude Code (lead)
+- Model: opus
+- Escalations: none
+- Allowed files: `docs/demo/*`, `docs/DEMO.md`, `progress/44-demo-repo.md`; the demo repo
+  lives outside this repository (`../pocket-ledger`).
 
 ## Journal
 
-- 19:08 — worktree créé.
-- 19:20 — `pocket-ledger` créé en local : CLI Kotlin/JVM, SQLite via JDBC, `add`, `list`,
-  `report <mois>`. 3 tests verts, CLI vérifié à la main. Un commit propre sur `main`.
-- 19:25 — brief Junie (`docs/demo/junie-brief.md`) : 3 commandes, un défaut planté par commit
-  (off-by-one de pagination, injection SQL, reader non fermé). `DEMO.md` pointe le repo et la
-  branche.
+- 19:08 — worktree created.
+- 19:20 — `pocket-ledger` created locally: Kotlin/JVM CLI, SQLite via JDBC, `add`, `list`,
+  `report <mois>`. 3 tests green, CLI checked by hand. A clean commit on `main`.
+- 19:25 — Junie brief (`docs/demo/junie-brief.md`): 3 commands, one defect planted per commit
+  (pagination off-by-one, SQL injection, unclosed reader). `DEMO.md` points to the repo and the
+  branch.
 
-## Décisions
+## Decisions
 
-- Kotlin plutôt que TypeScript : le jury JetBrains lit du Kotlin, et le projet ressemble au
-  nôtre sans en être une copie.
-- Off-by-one sur l'offset de pagination : un défaut visible au premier essai (page 1
-  décalée) et réparable en une ligne, donc une suggestion applicable dans Nitpick.
-- `main` propre, requêtes préparées partout : l'injection de la branche tranche sur le
-  reste du code, comme dans une vraie review.
-- `slf4j-nop` en runtime : sqlite-jdbc logue via SLF4J et affichait 3 lignes d'avertissement
-  à chaque commande, ce qui gâcherait la démo.
+- Kotlin rather than TypeScript: the JetBrains jury reads Kotlin, and the project looks like
+  ours without being a copy of it.
+- Off-by-one on the pagination offset: a defect visible on the first try (page 1
+  shifted) and fixable in one line, therefore an applicable suggestion in Nitpick.
+- Clean `main`, prepared queries everywhere: the injection of the branch stands out against
+  the rest of the code, as in a real review.
+- `slf4j-nop` at runtime: sqlite-jdbc logs through SLF4J and displayed 3 warning lines
+  on each command, which would ruin the demo.
 
-## Vérifications
+## Checks
 
-- `./gradlew test` : 3 tests, 0 échec (rapport `build/test-results/test`).
-- `ledger add` ×2, `list`, `report 2026-11` : sortie correcte, aucun warning.
+- `./gradlew test`: 3 tests, 0 failures (report `build/test-results/test`).
+- `ledger add` ×2, `list`, `report 2026-11`: correct output, no warning.
 
-## Incertain
+## Uncertain
 
-- sqlite-jdbc 3.46.1.0 est une version connue et stable, pas vérifiée comme la dernière.
+- sqlite-jdbc 3.46.1.0 is a known and stable version, not verified as the latest.
 
-## Blocages (humains)
+## Blockers (human)
 
-- Créer le repo public `Nitpick-org/pocket-ledger` et pousser `main`.
-- Lancer le brief dans Air (Junie), relire, pousser la branche.
-- Rejouer la review 5 fois ; captures de dogfooding dans `docs/demo/`.
+- Create the public repo `Nitpick-org/pocket-ledger` and push `main`.
+- Run the brief in Air (Junie), review, push the branch.
+- Replay the review 5 times; dogfooding screenshots in `docs/demo/`.
 
-## Suivant
+## Next
 
-- Dogfooding : Nitpick sur les branches #19, #20, #21 ; garder 2–3 captures.
+- Dogfooding: Nitpick on branches #19, #20, #21; keep 2–3 screenshots.
