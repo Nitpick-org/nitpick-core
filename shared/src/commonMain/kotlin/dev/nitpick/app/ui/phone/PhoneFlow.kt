@@ -119,7 +119,7 @@ fun PhoneFlow(
     AnimatedContent(
         targetState = screen,
         transitionSpec = {
-            val forward = targetState.ordinal > initialState.ordinal
+            val forward = initialState.parent != targetState
             val enter = slideInHorizontally(tween(ScreenTransitionMillis)) { if (forward) it else -it } + fadeIn(tween(ScreenTransitionMillis))
             val exit = slideOutHorizontally(tween(ScreenTransitionMillis)) { if (forward) -it / 3 else it / 3 } + fadeOut(tween(ScreenTransitionMillis))
             enter togetherWith exit

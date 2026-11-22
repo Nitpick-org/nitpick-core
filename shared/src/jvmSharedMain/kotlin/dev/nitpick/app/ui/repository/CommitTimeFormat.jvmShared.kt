@@ -17,10 +17,10 @@ actual fun formatCommitTimeCompact(epochSeconds: Long): String {
     val zone = ZoneId.systemDefault()
     val moment = Instant.ofEpochSecond(epochSeconds).atZone(zone)
     val today = LocalDate.now(zone)
-    val pattern = when {
-        moment.toLocalDate() == today -> "HH:mm"
-        moment.year == today.year -> "d MMM"
-        else -> "MMM yyyy"
+    val formatter = when {
+        moment.toLocalDate() == today -> DateTimeFormatter.ofLocalizedTime(FormatStyle.SHORT)
+        moment.year == today.year -> DateTimeFormatter.ofPattern("d MMM")
+        else -> DateTimeFormatter.ofPattern("MMM yyyy")
     }
-    return DateTimeFormatter.ofPattern(pattern).format(moment)
+    return formatter.format(moment)
 }

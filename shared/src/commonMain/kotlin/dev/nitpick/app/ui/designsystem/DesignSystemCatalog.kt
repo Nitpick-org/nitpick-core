@@ -6,6 +6,7 @@ import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.heightIn
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
@@ -62,6 +63,8 @@ import dev.nitpick.app.ui.theme.NitpickTone
  * Visual catalogue of the design system. It is not part of the product navigation: open it
  * from the IDE preview or temporarily route App() here when changing tokens.
  */
+private val SheetPreviewMaxHeight = 480.dp
+
 @Composable
 fun DesignSystemCatalog(darkTheme: Boolean = isSystemInDarkTheme()) {
     NitpickTheme(darkTheme = darkTheme) {
@@ -243,6 +246,8 @@ private fun ReviewSection() {
             total = 8,
             onApply = {},
             onDismiss = {},
+            // The sheet body scrolls: inside this list it needs a bound or Compose refuses to measure it.
+            modifier = Modifier.heightIn(max = SheetPreviewMaxHeight),
         )
         Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
             RefBadge(Ref("main", "refs/heads/main", "abc123", RefType.LOCAL_BRANCH))

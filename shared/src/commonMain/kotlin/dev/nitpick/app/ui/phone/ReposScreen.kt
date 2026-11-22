@@ -18,7 +18,6 @@ import nitpick.shared.generated.resources.ic_cloud
 import org.jetbrains.compose.resources.DrawableResource
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import dev.nitpick.app.ui.nitpickAppIcon
 import dev.nitpick.app.ui.components.NitpickCard

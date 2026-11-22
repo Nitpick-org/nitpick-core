@@ -16,19 +16,16 @@ import androidx.compose.foundation.lazy.items
 import androidx.compose.material3.Text
 import nitpick.shared.generated.resources.ic_check
 import nitpick.shared.generated.resources.ic_push
-import androidx.compose.animation.core.Spring
-import androidx.compose.animation.core.animateFloatAsState
-import androidx.compose.animation.core.spring
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.shape.CircleShape
-import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.ui.draw.scale
 import androidx.compose.ui.hapticfeedback.HapticFeedbackType
 import androidx.compose.ui.platform.LocalHapticFeedback
 import androidx.compose.ui.text.style.TextAlign
 import dev.nitpick.app.ui.components.NitpickIcon
+import dev.nitpick.app.ui.components.rememberPopIn
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -159,12 +156,7 @@ fun PhoneReviewScreen(
 /** Nothing to nitpick: the check pops in, the model's verdict under it. Worth a smile before the push. */
 @Composable
 private fun CleanBranch(state: RepositoryUiState, summary: String, onShare: () -> Unit) {
-    var shown by remember { mutableStateOf(false) }
-    LaunchedEffect(Unit) { shown = true }
-    val pop by animateFloatAsState(
-        targetValue = if (shown) 1f else 0f,
-        animationSpec = spring(dampingRatio = Spring.DampingRatioMediumBouncy, stiffness = Spring.StiffnessLow),
-    )
+    val pop = rememberPopIn()
     Column(
         Modifier.fillMaxSize().padding(32.dp),
         horizontalAlignment = Alignment.CenterHorizontally,
