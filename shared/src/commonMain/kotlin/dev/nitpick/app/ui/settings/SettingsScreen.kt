@@ -106,9 +106,10 @@ fun SettingsScreen(settings: Settings, onChange: ((Settings) -> Settings) -> Uni
             NitpickCard(verticalArrangement = Arrangement.spacedBy(8.dp)) {
                 SectionTitle(Res.string.settings_provider)
                 NitpickRadioGroup(
-                    // No CLI on a phone: Junie stays a greyed placeholder below.
+                    // No CLI on a phone: Junie stays a greyed placeholder below, and a settings
+                    // file copied from a desktop falls back to the first provider.
                     options = LlmProvider.entries - LlmProvider.JUNIE,
-                    selected = settings.provider,
+                    selected = settings.provider.takeUnless { it == LlmProvider.JUNIE } ?: LlmProvider.ANTHROPIC,
                     label = { providerLabels.getValue(it) },
                     icon = { it.icon },
                     onSelect = { provider -> onChange { it.copy(provider = provider, model = provider.knownModels.first()) } },

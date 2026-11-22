@@ -55,7 +55,16 @@
 
 ## Uncertain
 
-- Not replayed on a device or in the desktop window in this session.
+- Not replayed on a device in this session; desktop replayed by H2 for the icons.
+- A real Junie review on a full branch (prompt size, time against the 90 s review timeout): the
+  CLI probe used a 60-line diff and took 9 s.
+
+## Known limits (Junie)
+
+- The task is one command-line argument: 100 000 characters max, refused with a clear message
+  above that. The CLI has no file input for the task.
+- Command-line arguments are visible to every local process (`ps`): the diff under review is,
+  too, for the length of the review. The HTTP providers never exposed it this way.
 
 ## Journal
 

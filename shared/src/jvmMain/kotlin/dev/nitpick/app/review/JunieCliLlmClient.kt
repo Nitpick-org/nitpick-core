@@ -12,6 +12,7 @@ import java.io.IOException
 import java.nio.file.Files
 
 private const val POLL_MS = 200L
+private const val MAX_TASK_CHARS = 100_000
 
 @Serializable
 private data class JunieOutput(val result: String? = null, val errors: List<String> = emptyList())
@@ -30,10 +31,16 @@ class JunieCliLlmClient(
     private val sandbox: File by lazy { Files.createTempDirectory("nitpick-junie").toFile() }
 
     override suspend fun complete(system: String, user: String): String = withContext(Dispatchers.IO) {
+        val task = "$system\n\n$user"
+        // shortcut: the CLI takes the task only as an argument, capped by the OS (128 KiB per
+        // argument on Linux); upgrade to a file-based task when the CLI offers one.
+        if (task.length > MAX_TASK_CHARS) {
+            throw ReviewProviderException("The review is too large for the Junie CLI", IllegalArgumentException("${task.length} chars"))
+        }
         val model = settingsStore.load().model
         val output = File(sandbox, "answer-${System.nanoTime()}.json")
         val process = try {
-            ProcessBuilder(junieCommand(binary, model, sandbox, output, "$system\n\n$user"))
+            ProcessBuilder(junieCommand(binary, model, sandbox, output, task))
                 .redirectOutput(ProcessBuilder.Redirect.DISCARD)
                 .redirectError(ProcessBuilder.Redirect.DISCARD)
                 .start()
@@ -45,7 +52,7 @@ class JunieCliLlmClient(
             // Polling keeps the call cancellable: the review timeout then kills the process below.
             while (process.isAlive) delay(POLL_MS)
             if (!output.exists()) {
-                throw ReviewProviderException("Junie exited (${process.exitValue()}) without an answer", IllegalStateException())
+                throw JunieUnavailableException("Junie exited (${process.exitValue()}) without an answer")
             }
             parseJunieOutput(output.readText())
         } finally {

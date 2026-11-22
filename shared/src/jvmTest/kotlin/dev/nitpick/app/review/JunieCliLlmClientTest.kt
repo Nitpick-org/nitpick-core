@@ -63,6 +63,21 @@ class JunieCliLlmClientTest {
     }
 
     @Test
+    fun aCliThatWritesNoAnswerIsReportedAsUnavailable() = runTest {
+        val script = createTempFile("junie", ".sh").toFile().apply { writeText("#!/bin/sh\nexit 3\n"); setExecutable(true) }
+
+        assertFailsWith<JunieUnavailableException> { JunieCliLlmClient(store, script.path).complete("s", "u") }
+    }
+
+    @Test
+    fun aPromptTooLargeForAnArgumentFailsBeforeTheExec() = runTest {
+        val error = assertFailsWith<ReviewProviderException> {
+            JunieCliLlmClient(store, "/nonexistent/junie").complete("s", "x".repeat(100_001))
+        }
+        assertTrue("too large" in error.message.orEmpty())
+    }
+
+    @Test
     fun anyOtherJunieErrorIsAProviderFailure() {
         assertFailsWith<ReviewProviderException> { parseJunieOutput("""{"errors":["model quota exceeded"]}""") }
         assertFailsWith<ReviewProviderException> { parseJunieOutput("not json") }
