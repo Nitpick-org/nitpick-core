@@ -15,6 +15,8 @@ import dev.nitpick.app.ui.components.NitpickIcon
 import nitpick.shared.generated.resources.ic_github
 import nitpick.shared.generated.resources.ic_gitlab
 import org.jetbrains.compose.resources.DrawableResource
+import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.heightIn
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -172,12 +174,16 @@ fun ConnectScreen(
                 visualTransformation = if (showToken) VisualTransformation.None else PasswordVisualTransformation(),
                 keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Password),
                 trailing = {
-                    Text(
-                        text = stringResource(if (showToken) Res.string.connect_token_hide else Res.string.connect_token_show),
-                        style = NitpickTheme.typography.label,
-                        color = NitpickTheme.colors.primary,
-                        modifier = Modifier.clickable { showToken = !showToken }.padding(4.dp),
-                    )
+                    Box(
+                        modifier = Modifier.heightIn(min = HostChoiceHeight).clickable { showToken = !showToken }.padding(horizontal = 4.dp),
+                        contentAlignment = Alignment.Center,
+                    ) {
+                        Text(
+                            text = stringResource(if (showToken) Res.string.connect_token_hide else Res.string.connect_token_show),
+                            style = NitpickTheme.typography.label,
+                            color = NitpickTheme.colors.primary,
+                        )
+                    }
                 },
             )
             Text(stringResource(Res.string.connect_token_help), style = NitpickTheme.typography.micro, color = NitpickTheme.colors.textMuted)
