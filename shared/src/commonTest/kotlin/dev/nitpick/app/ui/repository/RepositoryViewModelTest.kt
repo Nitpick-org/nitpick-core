@@ -608,6 +608,8 @@ class RepositoryViewModelTest {
         viewModel.commitAppliedSuggestions()
 
         assertEquals(listOf("fix: wrong lane"), repo.commitMessages)
+        // Only the applied file goes into the commit: a file staged by hand stays staged.
+        assertEquals(listOf(listOf("graph/CommitGraph.kt")), repo.committedPaths)
         assertEquals(null, viewModel.state.value.actionError)
     }
 

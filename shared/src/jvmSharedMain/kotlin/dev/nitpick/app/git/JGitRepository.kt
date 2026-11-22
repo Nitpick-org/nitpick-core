@@ -34,6 +34,12 @@ import org.eclipse.jgit.treewalk.FileTreeIterator
 import org.eclipse.jgit.treewalk.filter.PathFilterGroup
 import java.io.ByteArrayOutputStream
 import java.io.File
+import java.nio.file.StandardCopyOption
+import java.nio.file.Files
+import java.nio.file.AtomicMoveNotSupportedException
+import java.nio.charset.CodingErrorAction
+import java.nio.charset.CharacterCodingException
+import java.nio.ByteBuffer
 import java.io.OutputStream
 import org.eclipse.jgit.lib.Ref as JGitRef
 
@@ -121,7 +127,17 @@ class JGitRepository(private val git: Git) : GitRepository {
 
     override suspend fun readFile(path: String): String? = withContext(Dispatchers.IO) {
         val file = resolveInWorkTree(path)
-        if (file.isFile) file.readText() else null
+        if (!file.isFile) return@withContext null
+        // Strict decoding: a non-UTF-8 file must fail here, or Apply would write replacement
+        // characters over every byte the lenient decoder could not read.
+        val decoder = Charsets.UTF_8.newDecoder()
+            .onMalformedInput(CodingErrorAction.REPORT)
+            .onUnmappableCharacter(CodingErrorAction.REPORT)
+        try {
+            decoder.decode(ByteBuffer.wrap(file.readBytes())).toString()
+        } catch (e: CharacterCodingException) {
+            throw IllegalArgumentException("Not a UTF-8 text file: $path", e)
+        }
     }
 
     override suspend fun listFiles(): List<String> = withContext(Dispatchers.IO) {
@@ -208,7 +224,15 @@ class JGitRepository(private val git: Git) : GitRepository {
         withContext(Dispatchers.IO) {
             val file = resolveInWorkTree(path)
             file.parentFile?.mkdirs()
-            file.writeText(content)
+            // Write beside the file, then rename: a crash mid-write never leaves a truncated file.
+            val temporary = File(file.parentFile, ".${file.name}.nitpick-tmp")
+            temporary.writeText(content)
+            try {
+                Files.move(temporary.toPath(), file.toPath(), StandardCopyOption.REPLACE_EXISTING, StandardCopyOption.ATOMIC_MOVE)
+            } catch (e: AtomicMoveNotSupportedException) {
+                Files.move(temporary.toPath(), file.toPath(), StandardCopyOption.REPLACE_EXISTING)
+            }
+            Unit
         }
 
     override suspend fun stage(paths: List<String>) =
@@ -223,11 +247,14 @@ class JGitRepository(private val git: Git) : GitRepository {
             }
         }
 
-    override suspend fun commit(message: String) =
+    override suspend fun commit(message: String, paths: List<String>) =
         withContext(Dispatchers.IO) {
             require(message.isNotBlank()) { "Commit message must not be blank" }
-            // JGit commits an unchanged index by default, unlike the git CLI.
-            git.commit().setMessage(message).setSign(false).setAllowEmpty(false).call()
+            // JGit commits an unchanged index by default, unlike the git CLI. With paths, only
+            // those land in the commit: a file the user staged by hand stays staged.
+            val command = git.commit().setMessage(message).setSign(false).setAllowEmpty(false)
+            paths.distinct().forEach { command.setOnly(it) }
+            command.call()
             Unit
         }
 
@@ -333,8 +360,8 @@ class JGitRepository(private val git: Git) : GitRepository {
         require(!File(path).isAbsolute) { "Path must be relative to the repository: $path" }
         val file = File(workTree, path).canonicalFile
         require(file.toPath().startsWith(workTree.toPath())) { "Path escapes the repository: $path" }
-        val firstSegment = workTree.toPath().relativize(file.toPath()).firstOrNull()?.toString()
-        require(firstSegment != Constants.DOT_GIT) { "Path points inside .git: $path" }
+        val insideGitDir = workTree.toPath().relativize(file.toPath()).any { it.toString() == Constants.DOT_GIT }
+        require(!insideGitDir) { "Path points inside .git: $path" }
         return file
     }
 

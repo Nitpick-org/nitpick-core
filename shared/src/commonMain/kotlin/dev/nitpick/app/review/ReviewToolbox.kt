@@ -61,7 +61,7 @@ class ReviewToolbox(
                     .take(500)
                     .joinToString("\n")
                 val listingBytes = listing.encodeToByteArray().size
-                if (listingBytes > maxBytes) {
+                if (bytesRead + listingBytes > maxBytes) {
                     ToolOutput("Read budget exhausted ($maxBytes bytes).", isError = true)
                 } else {
                     bytesRead += listingBytes

@@ -81,6 +81,8 @@ class KoogLlmClient(
                 return@withClient textOf(plainAnswer)
             }
 
+            // One counter for the whole conversation: a second round must not reuse tool_0.
+            var toolCounter = 0
             repeat(MAX_TOOL_ROUNDS) {
                 val calls = answer.parts.filterIsInstance<MessagePart.Tool.Call>()
                 if (calls.isEmpty()) {
@@ -90,11 +92,12 @@ class KoogLlmClient(
                 // Thinking; drop it before echoing the assistant turn, or the next request fails.
                 // Tool ids are also normalized: provider ids are opaque and some contain characters
                 // Anthropic rejects in tool_result.tool_use_id.
+                val ids = List(calls.size) { "tool_${toolCounter++}" }
                 var safeIndex = 0
                 val safeParts = answer.parts
                     .filterNot { it is MessagePart.Reasoning }
                     .map { part ->
-                        if (part is MessagePart.Tool.Call) part.copy(id = "tool_${safeIndex++}") else part
+                        if (part is MessagePart.Tool.Call) part.copy(id = ids[safeIndex++]) else part
                     }
                 val assistant = answer.copy(parts = safeParts)
                 val next = Prompt.builder("nitpick-review-tools").apply {
@@ -105,7 +108,7 @@ class KoogLlmClient(
                         toolResult(
                             tool = call.tool,
                             output = output.text,
-                            id = "tool_$index",
+                            id = ids[index],
                             isError = output.isError,
                         )
                     }

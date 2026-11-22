@@ -55,7 +55,8 @@ fun parseReviewResponse(text: String): ReviewResult {
                 category = comment.category,
                 message = comment.message,
                 originalSnippet = comment.originalSnippet,
-                suggestion = comment.suggestion?.takeIf { it.isNotBlank() },
+                // Apply finds the lines by their snippet: without one there is nothing to replace.
+                suggestion = comment.suggestion?.takeIf { it.isNotBlank() && comment.originalSnippet.isNotBlank() },
                 title = comment.title.trim(),
             )
         },

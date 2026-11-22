@@ -14,7 +14,7 @@ import kotlinx.coroutines.withContext
  * with a few high-signal rules (debug output, TODOs, unsafe null assertions, very long
  * lines) so the whole apply/commit loop can be built and demoed without a provider key.
  *
- * This is not the product AI: `KoogReviewAgent` (#20) replaces it behind the same
+ * This is not the product AI: [LlmReviewAgent] (#20) replaces it behind the same
  * [ReviewAgent] contract.
  */
 class LocalReviewAgent : ReviewAgent {
