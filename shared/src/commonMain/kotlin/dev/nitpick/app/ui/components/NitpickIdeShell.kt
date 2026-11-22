@@ -16,6 +16,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.dp
 import dev.nitpick.app.ui.theme.NitpickTheme
+import org.jetbrains.compose.resources.DrawableResource
 
 /**
  * The IDE main toolbar: dark graphite in both themes, 40dp high, 12sp labels. This is the
@@ -47,11 +48,14 @@ fun NitpickToolbarAction(
     onClick: () -> Unit,
     modifier: Modifier = Modifier,
     selected: Boolean = false,
+    icon: DrawableResource? = null,
     leading: (@Composable () -> Unit)? = null,
 ) {
     val colors = NitpickTheme.colors
+    val foreground = if (selected) colors.onPrimary else colors.onToolbar
+    val pop = rememberIconPop()
     Surface(
-        onClick = onClick,
+        onClick = { pop.play(); onClick() },
         modifier = modifier.height(NitpickTheme.sizes.control),
         shape = RoundedCornerShape(NitpickTheme.radii.xs),
         color = if (selected) colors.primary else Color.Transparent,
@@ -63,11 +67,12 @@ fun NitpickToolbarAction(
             verticalAlignment = Alignment.CenterVertically,
             horizontalArrangement = Arrangement.spacedBy(6.dp),
         ) {
+            icon?.let { NitpickIcon(it, contentDescription = null, modifier = pop.modifier, tint = foreground) }
             leading?.invoke()
             Text(
                 text = text,
                 style = NitpickTheme.typography.label,
-                color = if (selected) colors.onPrimary else colors.onToolbar,
+                color = foreground,
                 maxLines = 1,
             )
         }

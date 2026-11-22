@@ -30,6 +30,8 @@ import dev.nitpick.app.ui.components.ReviewCommentCard
 import dev.nitpick.app.ui.theme.NitpickTheme
 import dev.nitpick.app.ui.theme.NitpickTone
 import nitpick.shared.generated.resources.Res
+import nitpick.shared.generated.resources.ic_check
+import nitpick.shared.generated.resources.ic_fetch
 import nitpick.shared.generated.resources.commit_bar_applied
 import nitpick.shared.generated.resources.commit_message
 import nitpick.shared.generated.resources.commit_stage
@@ -252,7 +254,7 @@ internal fun ReviewFailureState(
         NitpickCard(verticalArrangement = Arrangement.spacedBy(10.dp)) {
             NitpickBadge(title, tone = tone)
             Text(body, style = NitpickTheme.typography.body, color = NitpickTheme.colors.text)
-            NitpickButton(text = actionLabel, onClick = action, size = NitpickButtonSize.Small)
+            NitpickButton(text = actionLabel, onClick = action, size = NitpickButtonSize.Small, icon = Res.drawable.ic_fetch)
         }
     }
 }
@@ -314,6 +316,7 @@ private fun CommitBar(
                 onClick = onCommit,
                 enabled = enabled,
                 size = NitpickButtonSize.Small,
+                icon = Res.drawable.ic_check,
             )
         }
     }

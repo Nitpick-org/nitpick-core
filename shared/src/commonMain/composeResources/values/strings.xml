@@ -12,6 +12,7 @@
     <string name="settings_model">Model</string>
     <string name="settings_api_key">API key</string>
     <string name="repository_open">Open repository…</string>
+    <string name="toolbar_open">Open…</string>
     <string name="repository_empty_title">No repository open</string>
     <string name="repository_empty_hint">Pick a local git repository to see its commits and branches.</string>
     <string name="repository_error_title">Could not open this repository</string>
@@ -78,6 +79,7 @@
     <string name="clone_in_progress">Cloning…</string>
     <string name="clone_error_title">Could not clone this repository</string>
     <string name="clone_open">Clone repository…</string>
+    <string name="toolbar_clone">Clone…</string>
     <string name="clone_token_help">Needs read access. Push needs write access.</string>
     <string name="clone_destination_label">Destination folder</string>
     <string name="clone_choose">Choose…</string>

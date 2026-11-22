@@ -146,6 +146,10 @@ fun RepositoryScreen(
                     actionLabel = if (onOpenRepository != null) stringResource(Res.string.repository_open) else null,
                     onAction = onOpenRepository,
                     icon = nitpickAppIcon(),
+                    actionIcon = Res.drawable.ic_folder,
+                    secondaryActionLabel = if (onCloneRepository != null) stringResource(Res.string.clone_open) else null,
+                    onSecondaryAction = onCloneRepository,
+                    secondaryActionIcon = Res.drawable.ic_cloud,
                 )
                 else -> Row(Modifier.fillMaxSize()) {
                     RefsSidebar(
@@ -227,10 +231,10 @@ private fun RepositoryToolbar(
         }
         Spacer(Modifier.weight(1f))
         if (onOpenRepository != null) {
-            NitpickToolbarAction(text = stringResource(Res.string.repository_open), onClick = onOpenRepository)
+            NitpickToolbarAction(text = stringResource(Res.string.toolbar_open), onClick = onOpenRepository, icon = Res.drawable.ic_folder)
         }
         if (onCloneRepository != null) {
-            NitpickToolbarAction(text = stringResource(Res.string.clone_open), onClick = onCloneRepository)
+            NitpickToolbarAction(text = stringResource(Res.string.toolbar_clone), onClick = onCloneRepository, icon = Res.drawable.ic_cloud)
         }
         if (hasRepository) {
             val syncing = state.isSyncing
