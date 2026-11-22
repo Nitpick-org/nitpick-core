@@ -51,4 +51,4 @@
 - **What it would do**: a fifth entry in the Settings provider list, "JetBrains AI (Junie)", greyed with a "coming" tooltip until a public API exists; never a fake call.
 - **Why it is interesting**: shows the JetBrains ecosystem inside the product, not only in the process.
 - **Estimated cost**: 20 min for the greyed entry (enum value, 2 strings EN/FR, disabled state in `NitpickRadioGroup`); unknown for a real integration, no public Junie API known (`docs/RESEARCH.md` has nothing).
-- **Verdict**: parked; `docs/CONTEXT.md` puts a runtime Junie integration in WON'T, and a greyed entry in a 3-minute demo reads as unfinished. Reading A (a real Junie Lite ticket, `docs/demo/junie-lite-brief.md`) is the criterion as written.
+- **Verdict**: H2 chose the greyed entry on 22/11, shipped in #240; a real integration waits for a public API. Reading A (a real Junie Lite ticket, `docs/demo/junie-lite-brief.md`) remains the criterion as written.
