@@ -38,3 +38,5 @@ Claude outputs/
 # Logs and large recordings (keep recordings outside the repo)
 *.log
 *.m4a
+
+videos/

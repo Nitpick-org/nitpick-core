@@ -52,7 +52,7 @@
 ## Demo video
 
 <p align="center">
-  <a href="https://www.youtube.com/watch?v=s9VNiOdvKN4">
+  <a href="https://www.youtube.com/watch?v=C9yehGktWJE">
     <img src="https://img.youtube.com/vi/s9VNiOdvKN4/maxresdefault.jpg" alt="Watch the Nitpick demo on YouTube" width="720">
   </a>
   <br><sub>▶ Watch the demo on YouTube</sub>
@@ -104,39 +104,39 @@ flowchart LR
 
 ## At a glance
 
-| | |
-| --- | --- |
-| **Shared code** | **97.6 %** of production lines shared between desktop and Android (9 138 / 9 366, `./scripts/count-lines.sh`, `commonMain` + `jvmSharedMain`); 228 platform-specific lines, most of them the desktop-only Junie CLI client |
-| **Targets** | Desktop (macOS, Windows, Linux) · Android (API 33+) · Ktor server |
-| **LLM providers** | Anthropic · OpenAI · Google · Ollama (via Koog) · JetBrains Junie (Junie CLI, desktop) |
-| **Tests** | 237 test cases: shared JVM tests, 13 Ktor server tests, 4 instrumented tests on Android ART; `check.sh` runs on every PR and on `main` in GitHub Actions |
-| **i18n** | English + French: 196 strings and 7 plurals in each language |
-| **Process** | 404 commits, 135 merged PRs, 110 GitHub issues, one journal per ticket in `progress/` |
+|                   |                                                                                                                                                                                                                            |
+| ----------------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| **Shared code**   | **97.6 %** of production lines shared between desktop and Android (9 138 / 9 366, `./scripts/count-lines.sh`, `commonMain` + `jvmSharedMain`); 228 platform-specific lines, most of them the desktop-only Junie CLI client |
+| **Targets**       | Desktop (macOS, Windows, Linux) · Android (API 33+) · Ktor server                                                                                                                                                          |
+| **LLM providers** | Anthropic · OpenAI · Google · Ollama (via Koog) · JetBrains Junie (Junie CLI, desktop)                                                                                                                                     |
+| **Tests**         | 237 test cases: shared JVM tests, 13 Ktor server tests, 4 instrumented tests on Android ART; `check.sh` runs on every PR and on `main` in GitHub Actions                                                                   |
+| **i18n**          | English + French: 196 strings and 7 plurals in each language                                                                                                                                                               |
+| **Process**       | 404 commits, 135 merged PRs, 110 GitHub issues, one journal per ticket in `progress/`                                                                                                                                      |
 
 ## Status
 
 > Updated at each team sync. Only what runs today is listed as done.
 
-| Piece | State |
-| --- | --- |
-| KMP project (desktop + Android, shared Compose UI) | ✅ generated, builds on both targets |
-| JGit behind a shared source set (`jvmSharedMain`) | ✅ log, diff, stage, commit, fetch/pull/push and checkout run on desktop and Android (emulator, API 36) |
-| Shared contracts (`GitRepository`, review model) | ✅ in `commonMain`, JGit behind the interface |
-| Commit graph, branch diff | ✅ lanes, colours, refs, per-commit details, diff vs base |
-| AI review with Koog, anchored nits, apply a suggestion, commit | ✅ real provider calls, snippet anchoring, Review panel, Apply/Dismiss, commit |
-| Light/dark theme, English/French | ✅ system/light/dark, 196 strings + 7 plurals EN/FR |
-| JetBrains Junie as a review provider | ✅ desktop, through the Junie CLI (`junie-lite`, sandboxed); greyed on Android |
+| Piece                                                          | State                                                                                                   |
+| -------------------------------------------------------------- | ------------------------------------------------------------------------------------------------------- |
+| KMP project (desktop + Android, shared Compose UI)             | ✅ generated, builds on both targets                                                                    |
+| JGit behind a shared source set (`jvmSharedMain`)              | ✅ log, diff, stage, commit, fetch/pull/push and checkout run on desktop and Android (emulator, API 36) |
+| Shared contracts (`GitRepository`, review model)               | ✅ in `commonMain`, JGit behind the interface                                                           |
+| Commit graph, branch diff                                      | ✅ lanes, colours, refs, per-commit details, diff vs base                                               |
+| AI review with Koog, anchored nits, apply a suggestion, commit | ✅ real provider calls, snippet anchoring, Review panel, Apply/Dismiss, commit                          |
+| Light/dark theme, English/French                               | ✅ system/light/dark, 196 strings + 7 plurals EN/FR                                                     |
+| JetBrains Junie as a review provider                           | ✅ desktop, through the Junie CLI (`junie-lite`, sandboxed); greyed on Android                          |
 
 Full scope (MUST / SHOULD / WON'T) and the hour-by-hour plan: [docs/CONTEXT.md](docs/CONTEXT.md).
 
 ## Platforms
 
-| Target | Role |
-| --- | --- |
-| Desktop (macOS, Windows, Linux) | The main app: full git client + AI review |
-| Android | Review on the go: clone over HTTPS with a token, see the graph, run the review, accept suggestions, commit and push |
-| Kotlin server (Ktor) | Shares a finished review between devices and teammates; the review itself still runs locally |
-| iOS, web | Out of scope: JGit does not run there |
+| Target                          | Role                                                                                                                |
+| ------------------------------- | ------------------------------------------------------------------------------------------------------------------- |
+| Desktop (macOS, Windows, Linux) | The main app: full git client + AI review                                                                           |
+| Android                         | Review on the go: clone over HTTPS with a token, see the graph, run the review, accept suggestions, commit and push |
+| Kotlin server (Ktor)            | Shares a finished review between devices and teammates; the review itself still runs locally                        |
+| iOS, web                        | Out of scope: JGit does not run there                                                                               |
 
 ## Features
 
@@ -355,12 +355,12 @@ sequenceDiagram
     P->>P: Apply suggestion, stage & commit, push
 ```
 
-| Route | Purpose |
-| --- | --- |
-| `GET /health` | liveness |
-| `POST /reviews` | share a review (body capped at 1 MB) |
-| `GET /reviews?repoUrl=` | list the reviews of a repository |
-| `GET /reviews/{id}` | open one review |
+| Route                   | Purpose                              |
+| ----------------------- | ------------------------------------ |
+| `GET /health`           | liveness                             |
+| `POST /reviews`         | share a review (body capped at 1 MB) |
+| `GET /reviews?repoUrl=` | list the reviews of a repository     |
+| `GET /reviews/{id}`     | open one review                      |
 
 The proof of a desktop → Android share, with captures, is in
 [`docs/demo/share-proof.md`](docs/demo/share-proof.md).
@@ -386,19 +386,19 @@ Details: [`docs/audits/security.md`](docs/audits/security.md).
 
 ## Tech stack
 
-| Piece | Choice | Version |
-| --- | --- | --- |
-| Language | Kotlin Multiplatform | 2.4.21 |
-| UI | Compose Multiplatform + Material 3 | 1.12.2 |
-| Android build | AGP, minSdk 33, targetSdk 37 | 9.1.1 |
-| Git | JGit | 6.10.1 |
-| AI agents | Koog (+ Google client 1.3.0-beta) | 1.3.0 |
-| JetBrains AI | Junie CLI (desktop, flags validated against) | 26.11 |
-| CI | GitHub Actions, JDK 21 + Android SDK, runs `check.sh` | — |
-| Provider marks | Simple Icons (CC0) | — |
-| Backend | Ktor server (CIO) + client | 3.3.3 |
-| Serialization, async | kotlinx.serialization, kotlinx.coroutines | 1.13.0, 1.11.0 |
-| Font | JetBrains Mono | — |
+| Piece                | Choice                                                | Version        |
+| -------------------- | ----------------------------------------------------- | -------------- |
+| Language             | Kotlin Multiplatform                                  | 2.4.21         |
+| UI                   | Compose Multiplatform + Material 3                    | 1.12.2         |
+| Android build        | AGP, minSdk 33, targetSdk 37                          | 9.1.1          |
+| Git                  | JGit                                                  | 6.10.1         |
+| AI agents            | Koog (+ Google client 1.3.0-beta)                     | 1.3.0          |
+| JetBrains AI         | Junie CLI (desktop, flags validated against)          | 26.11          |
+| CI                   | GitHub Actions, JDK 21 + Android SDK, runs `check.sh` | —              |
+| Provider marks       | Simple Icons (CC0)                                    | —              |
+| Backend              | Ktor server (CIO) + client                            | 3.3.3          |
+| Serialization, async | kotlinx.serialization, kotlinx.coroutines             | 1.13.0, 1.11.0 |
+| Font                 | JetBrains Mono                                        | —              |
 
 JGit is pinned to 6.10: JGit 7 ships Java records, which the Android dexer refuses below
 API 34 (details in commit `df36830`). Koog's Android AAR lacks the HTTP client service file of
@@ -431,12 +431,12 @@ server over USB: `adb reverse tcp:8080 tcp:8080`. For the Junie provider, instal
 
 ## Tests and proof
 
-| Suite | Where | What it covers |
-| --- | --- | --- |
-| Shared tests | `shared/src/commonTest`, `shared/src/jvmTest` | graph lanes, diff parser, prompt, context, response parser, anchoring, toolbox jail, Koog client, Junie CLI command and output, ViewModels, settings, device flow, share client, real JGit repositories |
-| Server tests | `server/src/test` | routes, validation, body limit, token, repository-key normalisation, corrupt store recovery |
-| On-device tests | `androidApp/src/androidTest` | JGit, Koog client and share client running on Android ART |
-| Real provider call | `RealReviewCallTest` | opt-in, skipped without a key |
+| Suite              | Where                                         | What it covers                                                                                                                                                                                          |
+| ------------------ | --------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| Shared tests       | `shared/src/commonTest`, `shared/src/jvmTest` | graph lanes, diff parser, prompt, context, response parser, anchoring, toolbox jail, Koog client, Junie CLI command and output, ViewModels, settings, device flow, share client, real JGit repositories |
+| Server tests       | `server/src/test`                             | routes, validation, body limit, token, repository-key normalisation, corrupt store recovery                                                                                                             |
+| On-device tests    | `androidApp/src/androidTest`                  | JGit, Koog client and share client running on Android ART                                                                                                                                               |
+| Real provider call | `RealReviewCallTest`                          | opt-in, skipped without a key                                                                                                                                                                           |
 
 - **Dogfooding**: Nitpick reviewed our own branch `ticket/104` and found a real bug (pull said
   `Aborted` on a dirty diverged tree), fixed in PR #118. 2 nits, 1 true bug, 1 already fixed,
@@ -498,24 +498,24 @@ The rules every agent follows are in [AGENTS.md](AGENTS.md) (Claude Code adds
 
 ## Repository map
 
-| Path | What it is |
-| --- | --- |
-| `shared/`, `desktopApp/`, `androidApp/` | The app |
-| `server/` | Ktor review-sharing server |
-| [docs/README.md](docs/README.md) | Docs index: current docs first, pre-event history last |
-| [docs/CONTEXT.md](docs/CONTEXT.md) | Master project brief: mission, stack, scope, plan, demo (French) |
-| [docs/JETBRAINS-CHALLENGE.md](docs/JETBRAINS-CHALLENGE.md) | Official JetBrains KMP challenge brief and how Nitpick maps to it |
-| [docs/DESIGN-SYSTEM.md](docs/DESIGN-SYSTEM.md) | JetBrains New UI design system: tokens, components, rules |
-| [docs/design/](docs/design/) | UI handoff, mockups, app icon and loader |
-| [docs/audits/](docs/audits/) | Spec, architecture, security, UX, release and demo audits |
-| [docs/demo/](docs/demo/) | Screenshots, dogfooding and share proofs, demo-repo brief |
-| [docs/DEMO.md](docs/DEMO.md) | 3-minute demo script, Q&A, plan B |
-| [docs/RESEARCH.md](docs/RESEARCH.md) | Sourced research: Koog, JGit, Compose, the jury |
-| [AGENTS.md](AGENTS.md) | Team rules for every agent |
-| `progress/` | One journal per ticket, written by the agent working on it |
-| `scripts/` | `check.sh`, `doctor.sh`, `count-lines.sh`, worktree and AFK helpers, hook scripts |
-| `.claude/` | Claude Code sub-agents, the `/route-task` skill, settings and hooks |
-| `dry-run/` | Pre-event rehearsal notes |
+| Path                                                       | What it is                                                                        |
+| ---------------------------------------------------------- | --------------------------------------------------------------------------------- |
+| `shared/`, `desktopApp/`, `androidApp/`                    | The app                                                                           |
+| `server/`                                                  | Ktor review-sharing server                                                        |
+| [docs/README.md](docs/README.md)                           | Docs index: current docs first, pre-event history last                            |
+| [docs/CONTEXT.md](docs/CONTEXT.md)                         | Master project brief: mission, stack, scope, plan, demo (French)                  |
+| [docs/JETBRAINS-CHALLENGE.md](docs/JETBRAINS-CHALLENGE.md) | Official JetBrains KMP challenge brief and how Nitpick maps to it                 |
+| [docs/DESIGN-SYSTEM.md](docs/DESIGN-SYSTEM.md)             | JetBrains New UI design system: tokens, components, rules                         |
+| [docs/design/](docs/design/)                               | UI handoff, mockups, app icon and loader                                          |
+| [docs/audits/](docs/audits/)                               | Spec, architecture, security, UX, release and demo audits                         |
+| [docs/demo/](docs/demo/)                                   | Screenshots, dogfooding and share proofs, demo-repo brief                         |
+| [docs/DEMO.md](docs/DEMO.md)                               | 3-minute demo script, Q&A, plan B                                                 |
+| [docs/RESEARCH.md](docs/RESEARCH.md)                       | Sourced research: Koog, JGit, Compose, the jury                                   |
+| [AGENTS.md](AGENTS.md)                                     | Team rules for every agent                                                        |
+| `progress/`                                                | One journal per ticket, written by the agent working on it                        |
+| `scripts/`                                                 | `check.sh`, `doctor.sh`, `count-lines.sh`, worktree and AFK helpers, hook scripts |
+| `.claude/`                                                 | Claude Code sub-agents, the `/route-task` skill, settings and hooks               |
+| `dry-run/`                                                 | Pre-event rehearsal notes                                                         |
 
 Docs, code, comments and commit messages are in English.
 
