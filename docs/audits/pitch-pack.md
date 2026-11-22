@@ -20,7 +20,7 @@ Source: six audit lanes on `origin/main` @ `54c37a2`, plus #133/#135 merged afte
 - "Keyboard shortcuts" — none; the `⌘⇧R` hint is in the internal catalogue (P2 #171).
 - "Share proven end-to-end" — pass: #170 / PR #184 has desktop shared, phone opened, phone applied captures. Show `docs/demo/share-*.png`.
 - "Built with Air / Junie" — no capture; the comparison is Claude Code/subagents (until #169).
-- "No security issue" — no live secret; the server now binds localhost (#167) and LICENSE/THIRD-PARTY-NOTICES are in (#180). The repo is still **private** (#162); do not claim it is public yet.
+- "No security issue" — no live secret in history; the server binds localhost (#167), LICENSE/THIRD-PARTY-NOTICES are in (#180), and the repo is **public** (#162).
 - "All four providers tested" — only Anthropic has a real recorded call (#82).
 - "99 % multiplatform common" — 99 % is shared+JGit; commonMain is 93.2 %.
 
@@ -43,6 +43,8 @@ Source: six audit lanes on `origin/main` @ `54c37a2`, plus #133/#135 merged afte
 - #155 desktop pushed banner + applied count (PR #197).
 - #198 per-severity counts (PR #198).
 - #199 shared-review error visibility + corrupt store recovery (PR #199).
+- #162 public repo + MIT license + third-party notices.
+- #163 README/DEMO truthful (PR #183).
 
 ## Demo risks
 
