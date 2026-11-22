@@ -14,7 +14,7 @@ Source: six audit lanes on `origin/main` @ `54c37a2`, plus #133/#135 merged afte
 
 ## Do not claim
 
-- "Nits inline" — they are in the Review tab, not on diff lines (until #145).
+- "Nits inline" — true on the **desktop Diff tab** now (#195); the phone keeps the grouped list + bottom sheet. Apply all/Undo still absent.
 - "Apply all for this file" — absent (until #145).
 - "Before/after suggestion" — only the after half (until #145).
 - "Keyboard shortcuts" — none; the `⌘⇧R` hint is in the internal catalogue (P2 #171).
@@ -39,6 +39,10 @@ Source: six audit lanes on `origin/main` @ `54c37a2`, plus #133/#135 merged afte
 - #157 unreadable tracked file (PR #192).
 - #159 anchor/line-number contrast (PR #193).
 - #167 localhost server + ui-tooling out of release (PR #185).
+- #195 inline nits in the desktop diff.
+- #155 desktop pushed banner + applied count (PR #197).
+- #198 per-severity counts (PR #198).
+- #199 shared-review error visibility + corrupt store recovery (PR #199).
 
 ## Demo risks
 
