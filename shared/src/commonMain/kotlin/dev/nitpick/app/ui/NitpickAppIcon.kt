@@ -6,6 +6,8 @@ import dev.nitpick.app.ui.theme.NitpickTheme
 import nitpick.shared.generated.resources.Res
 import nitpick.shared.generated.resources.ic_app_dark
 import nitpick.shared.generated.resources.ic_app_light
+import nitpick.shared.generated.resources.logo_socraft_dark
+import nitpick.shared.generated.resources.logo_socraft_light
 import org.jetbrains.compose.resources.DrawableResource
 import org.jetbrains.compose.resources.painterResource
 
@@ -15,3 +17,9 @@ fun nitpickAppIcon(): Painter = painterResource(appIconResource(NitpickTheme.col
 
 internal fun appIconResource(isDark: Boolean): DrawableResource =
     if (isDark) Res.drawable.ic_app_dark else Res.drawable.ic_app_light
+
+@Composable
+fun socraftLogo(): Painter = painterResource(socraftLogoResource(NitpickTheme.colors.isDark))
+
+internal fun socraftLogoResource(isDark: Boolean): DrawableResource =
+    if (isDark) Res.drawable.logo_socraft_dark else Res.drawable.logo_socraft_light
