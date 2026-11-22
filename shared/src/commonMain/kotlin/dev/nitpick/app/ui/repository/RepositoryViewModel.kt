@@ -136,7 +136,7 @@ data class RepositoryUiState(
             return remote?.commitId != local.commitId
         }
 
-    /** Pull and checkout rewrite the working tree: they wait for the applied suggestions to be committed, and for the review to end. */
+    /** A pull would merge over the applied suggestions, or land under a running review: it waits for the commit. */
     val isPullBlocked: Boolean get() = appliedFiles.isNotEmpty() || isReviewing
 
     /** A remote named origin, even when the current branch has no upstream yet. */
