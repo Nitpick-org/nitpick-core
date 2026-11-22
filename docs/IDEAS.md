@@ -27,3 +27,11 @@
 - **Why it is interesting**: same model as Air Teams (repo access goes through your forge account), with no manual input; a smoother demo.
 - **Estimated cost**: 2 h (GitHub OAuth App + Ktor client device flow + screen), GitLab 1 h more.
 - **Verdict**: after the demo; the typed token is enough for LauzHack.
+
+## OpenAI-compatible endpoint in the settings (LM Studio, vLLM, LiteLLM)
+
+- **For**: whoever runs a local model without Ollama; LM Studio does not emulate the Ollama API (#82).
+- **What it would do**: a "Server URL" field under the OpenAI provider; empty = api.openai.com. The code is there (`KoogLlmClient(openAiBaseUrl)`); the `Settings` field and its desktop + phone control are missing.
+- **Why it is interesting**: the "100% local review" demo works with any compatible server, not only Ollama.
+- **Estimated cost**: 45 min (field, 2 screens, EN/FR strings, serialization test).
+- **Verdict**: after the demo; the test hook is enough for #82.

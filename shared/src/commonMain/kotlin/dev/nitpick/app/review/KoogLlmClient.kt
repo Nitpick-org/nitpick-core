@@ -13,6 +13,7 @@ import ai.koog.prompt.executor.clients.anthropic.AnthropicClientSettings
 import ai.koog.prompt.executor.clients.anthropic.AnthropicLLMClient
 import ai.koog.prompt.executor.clients.anthropic.AnthropicParams
 import ai.koog.prompt.executor.clients.google.GoogleLLMClient
+import ai.koog.prompt.executor.clients.openai.OpenAIClientSettings
 import ai.koog.prompt.executor.clients.openai.OpenAILLMClient
 import ai.koog.prompt.executor.ollama.client.OllamaClient
 import ai.koog.prompt.llm.LLMCapability
@@ -39,7 +40,11 @@ class ReviewProviderException(message: String, cause: Throwable) : Exception(mes
  * The only file that talks to Koog. Settings are read at call time so a key or model changed
  * in the UI applies to the next review without restarting the app.
  */
-class KoogLlmClient(private val settingsStore: SettingsStore) : ToolCallingLlmClient {
+class KoogLlmClient(
+    private val settingsStore: SettingsStore,
+    // Test hook: points the OpenAI client at an OpenAI-compatible server (LM Studio) instead of api.openai.com.
+    private val openAiBaseUrl: String? = null,
+) : ToolCallingLlmClient {
 
     override suspend fun complete(system: String, user: String): String = withClient { client, model, settings ->
         val answer = client.execute(prompt("nitpick-review") { system(system); user(user) }.withReviewParams(settings), model)
@@ -130,7 +135,7 @@ class KoogLlmClient(private val settingsStore: SettingsStore) : ToolCallingLlmCl
         }
         val model = koogModelFor(settings)
         // The Android Koog AAR ships no KoogHttpClient.Factory service entry: pass one explicitly.
-        val client = llmClient(settings, model, KtorKoogHttpClient.Factory())
+        val client = llmClient(settings, model, KtorKoogHttpClient.Factory(), openAiBaseUrl)
         try {
             return block(client, model, settings)
         } catch (e: LLMClientException) {
@@ -181,14 +186,18 @@ private fun textOf(answer: Message.Assistant): String {
     return text
 }
 
-private fun llmClient(settings: Settings, model: LLModel, httpClientFactory: KtorKoogHttpClient.Factory): LLMClient = when (settings.provider) {
+private fun llmClient(settings: Settings, model: LLModel, httpClientFactory: KtorKoogHttpClient.Factory, openAiBaseUrl: String?): LLMClient = when (settings.provider) {
     // Koog 1.3.0 only sends models listed in its version map, so a newer id needs its own entry.
     LlmProvider.ANTHROPIC -> AnthropicLLMClient(
         apiKey = settings.apiKey,
         settings = AnthropicClientSettings(modelVersionsMap = mapOf(model to model.id)),
         httpClientFactory = httpClientFactory,
     )
-    LlmProvider.OPENAI -> OpenAILLMClient(apiKey = settings.apiKey, httpClientFactory = httpClientFactory)
+    LlmProvider.OPENAI -> OpenAILLMClient(
+        apiKey = settings.apiKey,
+        settings = openAiBaseUrl?.let { OpenAIClientSettings(baseUrl = it) } ?: OpenAIClientSettings(),
+        httpClientFactory = httpClientFactory,
+    )
     LlmProvider.GOOGLE -> GoogleLLMClient(apiKey = settings.apiKey, httpClientFactory = httpClientFactory)
     LlmProvider.OLLAMA -> OllamaClient(baseUrl = OLLAMA_BASE_URL, httpClientFactory = httpClientFactory)
 }

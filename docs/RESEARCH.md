@@ -164,6 +164,7 @@ opt-in: without its variable, JUnit counts it as `skipped` (check.sh pays nothin
 | --- | --- | --- |
 | Anthropic | `APP_ANTHROPIC_API_KEY` | `APP_ANTHROPIC_MODEL` |
 | OpenAI | `APP_OPENAI_API_KEY` | `APP_OPENAI_MODEL` |
+| OpenAI via LM Studio | `APP_OPENAI_API_KEY=lm-studio APP_OPENAI_BASE_URL=http://localhost:1234` (`lms server start`, `lms load <modèle>`) | `APP_OPENAI_MODEL=qwen/qwen3-vl-8b` |
 | Google | `APP_GOOGLE_API_KEY` | `APP_GOOGLE_MODEL` |
 | Ollama | `APP_OLLAMA_MODEL` (with `ollama serve` and `ollama pull <model>` on `localhost:11434`) | `APP_OLLAMA_MODEL` |
 
@@ -177,5 +178,8 @@ APP_OPENAI_API_KEY=… ./gradlew :shared:jvmTest --tests 'dev.nitpick.app.review
 - Fallback without tools: already in `KoogLlmClient.completeWithTools` (an `LLMClientException`
   on the call with tools re-runs the prompt without tools), then `LlmReviewAgent` asks for
   the JSON again once if the response is prose.
+- Replayed on 22/11 03:25: OpenAI through LM Studio 0.4.28 (`qwen/qwen3-vl-8b`) → 1 anchored BUG nit,
+  1 tool. LM Studio does not serve the Ollama API (`/api/chat` → "Unexpected endpoint"), so the
+  Ollama path needs a real `ollama serve`.
 - Unverified risk: Koog #2308 (`toolConfig: {}` → HTTP 400 at Google without tools)
   could break this fallback for Google only.
