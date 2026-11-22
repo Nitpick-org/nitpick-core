@@ -3,7 +3,7 @@ package dev.nitpick.app.settings
 import dev.nitpick.app.domain.Credentials
 import kotlinx.serialization.Serializable
 
-enum class LlmProvider { ANTHROPIC, OPENAI, GOOGLE, OLLAMA }
+enum class LlmProvider { ANTHROPIC, OPENAI, GOOGLE, OLLAMA, JUNIE }
 
 enum class ThemeMode { SYSTEM, LIGHT, DARK }
 

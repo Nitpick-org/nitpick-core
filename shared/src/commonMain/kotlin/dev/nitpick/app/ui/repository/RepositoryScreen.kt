@@ -668,6 +668,7 @@ internal val dev.nitpick.app.settings.LlmProvider.label: StringResource
         dev.nitpick.app.settings.LlmProvider.OPENAI -> Res.string.provider_openai
         dev.nitpick.app.settings.LlmProvider.GOOGLE -> Res.string.provider_google
         dev.nitpick.app.settings.LlmProvider.OLLAMA -> Res.string.provider_ollama
+        dev.nitpick.app.settings.LlmProvider.JUNIE -> Res.string.provider_junie
     }
 
 @Composable

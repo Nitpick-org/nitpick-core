@@ -106,7 +106,8 @@ fun SettingsScreen(settings: Settings, onChange: ((Settings) -> Settings) -> Uni
             NitpickCard(verticalArrangement = Arrangement.spacedBy(8.dp)) {
                 SectionTitle(Res.string.settings_provider)
                 NitpickRadioGroup(
-                    options = LlmProvider.entries,
+                    // No CLI on a phone: Junie stays a greyed placeholder below.
+                    options = LlmProvider.entries - LlmProvider.JUNIE,
                     selected = settings.provider,
                     label = { providerLabels.getValue(it) },
                     icon = { it.icon },

@@ -44,15 +44,22 @@ class KoogLlmClient(
     private val settingsStore: SettingsStore,
     // Test hook: points the OpenAI client at an OpenAI-compatible server (LM Studio) instead of api.openai.com.
     private val openAiBaseUrl: String? = null,
+    // Desktop passes the Junie CLI; without it the JUNIE provider fails with a clear message.
+    private val junie: LlmClient? = null,
 ) : ToolCallingLlmClient {
 
-    override suspend fun complete(system: String, user: String): String = withClient { client, model, settings ->
-        val answer = client.execute(prompt("nitpick-review") { system(system); user(user) }.withReviewParams(settings), model)
-        textOf(answer)
+    override suspend fun complete(system: String, user: String): String {
+        junieIfSelected()?.let { return it.complete(system, user) }
+        return withClient { client, model, settings ->
+            val answer = client.execute(prompt("nitpick-review") { system(system); user(user) }.withReviewParams(settings), model)
+            textOf(answer)
+        }
     }
 
-    override suspend fun completeWithTools(prompt: ReviewPrompt, toolbox: ReviewToolbox): String =
-        withClient { client, model, settings ->
+    override suspend fun completeWithTools(prompt: ReviewPrompt, toolbox: ReviewToolbox): String {
+        // Junie runs its own tools in a sandbox: never advertise ours to it.
+        junieIfSelected()?.let { val plain = prompt.withoutTools(); return it.complete(plain.system, plain.user) }
+        return withClient { client, model, settings ->
             var conversation = Prompt.builder("nitpick-review-tools").apply {
                 system(prompt.system)
                 user(prompt.user)
@@ -130,6 +137,12 @@ class KoogLlmClient(
                 IllegalStateException("tool-call loop did not converge"),
             )
         }
+    }
+
+    private suspend fun junieIfSelected(): LlmClient? {
+        if (settingsStore.load().provider != LlmProvider.JUNIE) return null
+        return junie ?: throw JunieUnavailableException("The Junie CLI runs on desktop only")
+    }
 
     private suspend fun <T> withClient(block: suspend (LLMClient, LLModel, Settings) -> T): T {
         val settings = settingsStore.load()
@@ -162,6 +175,7 @@ internal fun koogModelFor(settings: Settings): LLModel {
         LlmProvider.OPENAI -> OpenAIModels.Chat.GPT5
         LlmProvider.GOOGLE -> GoogleModels.Gemini2_5Pro
         LlmProvider.OLLAMA -> OllamaModels.Meta.LLAMA_4
+        LlmProvider.JUNIE -> error("Junie does not go through Koog")
     }
     return reference.copy(
         id = settings.model,
@@ -203,6 +217,7 @@ private fun llmClient(settings: Settings, model: LLModel, httpClientFactory: Kto
     )
     LlmProvider.GOOGLE -> GoogleLLMClient(apiKey = settings.apiKey, httpClientFactory = httpClientFactory)
     LlmProvider.OLLAMA -> OllamaClient(baseUrl = OLLAMA_BASE_URL, httpClientFactory = httpClientFactory)
+    LlmProvider.JUNIE -> error("Junie does not go through Koog")
 }
 
 

@@ -47,16 +47,12 @@ import dev.nitpick.app.ui.components.NitpickButton
 import dev.nitpick.app.ui.components.NitpickButtonVariant
 import dev.nitpick.app.ui.components.NitpickDivider
 import dev.nitpick.app.ui.components.NitpickRadioGroup
-import dev.nitpick.app.ui.components.NitpickRadioPlaceholder
 import dev.nitpick.app.ui.components.NitpickSegmentedControl
 import dev.nitpick.app.ui.components.NitpickTextField
 import dev.nitpick.app.ui.components.NitpickVerticalDivider
 import dev.nitpick.app.ui.repository.label
 import dev.nitpick.app.ui.theme.NitpickTheme
 import nitpick.shared.generated.resources.Res
-import nitpick.shared.generated.resources.ic_jetbrains
-import nitpick.shared.generated.resources.provider_junie
-import nitpick.shared.generated.resources.provider_junie_hint
 import nitpick.shared.generated.resources.action_cancel
 import nitpick.shared.generated.resources.action_save
 import nitpick.shared.generated.resources.connect_github
@@ -201,17 +197,14 @@ private fun ReviewSection(draft: Settings, onEdit: ((Settings) -> Settings) -> U
             label = { providerLabels.getValue(it) },
             icon = { it.icon },
             onSelect = { provider -> onEdit { it.copy(provider = provider, model = provider.knownModels.first()) } },
-            trailing = {
-                NitpickRadioPlaceholder(
-                    label = stringResource(Res.string.provider_junie),
-                    icon = Res.drawable.ic_jetbrains,
-                    hint = stringResource(Res.string.provider_junie_hint),
-                )
-            },
         )
         FieldLabel(Res.string.settings_model)
         ModelSelector(draft.model, draft.provider.knownModels, { model -> onEdit { it.copy(model = model) } }, Modifier.width(ControlWidth))
-        ApiKeyField(draft.apiKey, draft.provider, { key -> onEdit { it.copy(apiKey = key) } }, Modifier.width(KeyFieldWidth))
+        if (draft.provider == LlmProvider.JUNIE) {
+            JunieHelpText(Modifier.width(KeyFieldWidth))
+        } else {
+            ApiKeyField(draft.apiKey, draft.provider, { key -> onEdit { it.copy(apiKey = key) } }, Modifier.width(KeyFieldWidth))
+        }
     }
 }
 

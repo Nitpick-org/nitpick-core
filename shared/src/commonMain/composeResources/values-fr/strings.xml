@@ -186,7 +186,10 @@
     <string name="provider_cloud_hint">API cloud, utilise votre clé</string>
     <string name="provider_ollama_hint">Auto-hébergé sur cette machine, sans clé API</string>
     <string name="provider_junie">JetBrains AI (Junie)</string>
-    <string name="provider_junie_hint">Bientôt : pas encore d’API publique</string>
+    <string name="provider_junie_hint">Desktop seulement : utilise le CLI Junie connecté sur cette machine</string>
+    <string name="settings_junie_help">Utilise le CLI Junie connecté sur cette machine : lancez junie une fois dans un terminal. Pas de clé API.</string>
+    <string name="error_junie_title">Le CLI Junie n’est pas prêt</string>
+    <string name="error_junie_body">Nitpick n’a pas pu lancer le CLI Junie. Installez-le et connectez-vous en lançant junie dans un terminal, puis réessayez. Rien n’a été envoyé.</string>
     <string name="pull_action">Pull</string>
     <string name="pull_updated">Nouveaux commits récupérés</string>
     <string name="pull_up_to_date">Déjà à jour</string>
