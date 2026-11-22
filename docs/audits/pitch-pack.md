@@ -14,9 +14,9 @@ Source: six audit lanes on `origin/main` @ `54c37a2`, plus #133/#135 merged afte
 
 ## Do not claim
 
-- "Nits inline" — they are in the Review tab, not on diff lines (until #165).
-- "Apply all for this file" — absent (until #165).
-- "Before/after suggestion" — only the after half (until #165).
+- "Nits inline" — they are in the Review tab, not on diff lines (until #145).
+- "Apply all for this file" — absent (until #145).
+- "Before/after suggestion" — only the after half (until #145).
 - "Keyboard shortcuts" — none; the `⌘⇧R` hint is in the internal catalogue (P2 #171).
 - "Share proven end-to-end" — code/tests only (until #170).
 - "Built with Air / Junie" — no capture; the comparison is Claude Code/subagents (until #169).
