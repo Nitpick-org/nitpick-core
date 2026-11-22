@@ -18,6 +18,8 @@ import nitpick.shared.generated.resources.ic_push
 import nitpick.shared.generated.resources.ic_tweezers
 import org.jetbrains.compose.resources.DrawableResource
 import nitpick.shared.generated.resources.sync_up_to_date
+import dev.nitpick.app.ui.components.SyncIcon
+import dev.nitpick.app.ui.components.SyncMotion
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -173,6 +175,8 @@ private fun BranchCard(
             SyncButton(
                 text = stringResource(if (state.isFetching) Res.string.fetch_in_progress else Res.string.fetch_action),
                 icon = Res.drawable.ic_fetch,
+                motion = SyncMotion.Spin,
+                active = state.isFetching,
                 onClick = onFetch,
                 enabled = enabled,
                 modifier = Modifier.weight(1f),
@@ -184,6 +188,8 @@ private fun BranchCard(
                     else -> stringResource(Res.string.pull_action)
                 },
                 icon = Res.drawable.ic_pull,
+                motion = SyncMotion.Down,
+                active = state.isPulling,
                 onClick = onPull,
                 enabled = enabled && !state.isPullBlocked,
                 modifier = Modifier.weight(1f),
@@ -197,6 +203,8 @@ private fun BranchCard(
                         else -> stringResource(Res.string.push_action)
                     },
                     icon = Res.drawable.ic_push,
+                    motion = SyncMotion.Up,
+                    active = state.isPushing,
                     onClick = if (state.tracking == null) onPublish else onPush,
                     enabled = enabled,
                     modifier = Modifier.weight(1f),
@@ -207,15 +215,15 @@ private fun BranchCard(
 }
 
 @Composable
-private fun SyncButton(text: String, icon: DrawableResource, onClick: () -> Unit, enabled: Boolean, modifier: Modifier) {
+private fun SyncButton(text: String, icon: DrawableResource, motion: SyncMotion, active: Boolean, onClick: () -> Unit, enabled: Boolean, modifier: Modifier) {
     NitpickButton(
         text = text,
         onClick = onClick,
         modifier = modifier.height(SyncActionHeight),
         variant = NitpickButtonVariant.Secondary,
         size = NitpickButtonSize.Large,
-        enabled = enabled,
-        leading = { NitpickIcon(icon, contentDescription = null, tint = NitpickTheme.colors.text) },
+        enabled = enabled || active,
+        leading = { SyncIcon(icon, motion, active, tint = NitpickTheme.colors.text) },
     )
 }
 
