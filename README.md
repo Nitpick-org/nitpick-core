@@ -103,12 +103,12 @@ flowchart LR
 
 | | |
 | --- | --- |
-| **Shared code** | **98.6 %** of production lines shared between desktop and Android (8 965 / 9 092, `./scripts/count-lines.sh`, `commonMain` + `jvmSharedMain`); 127 platform-specific lines |
+| **Shared code** | **98.6 %** of production lines shared between desktop and Android (8 989 / 9 116, `./scripts/count-lines.sh`, `commonMain` + `jvmSharedMain`); 127 platform-specific lines |
 | **Targets** | Desktop (macOS, Windows, Linux) · Android (API 33+) · Ktor server |
 | **LLM providers** | Anthropic · OpenAI · Google · Ollama (via Koog) |
-| **Tests** | 222 test cases: shared JVM tests, 11 Ktor server tests, 4 instrumented tests on Android ART |
+| **Tests** | 227 test cases: shared JVM tests, 13 Ktor server tests, 4 instrumented tests on Android ART; the last full JVM + server run on `main` executed 218, 4 skipped without a provider key, 0 failures |
 | **i18n** | English + French: 191 strings and 7 plurals in each language |
-| **Process** | 369 commits, 124 merged PRs, 105 GitHub issues, one journal per ticket in `progress/` |
+| **Process** | 382 commits, 129 merged PRs, 107 GitHub issues, one journal per ticket in `progress/` |
 
 ## Status
 
@@ -161,6 +161,8 @@ Full scope (MUST / SHOULD / WON'T) and the hour-by-hour plan: [docs/CONTEXT.md](
 - **Read-only tools**: the model may call `list_files` and `read_file` to look at a neighbouring
   file; each tool call is shown in the Review panel.
 - **Clear failure states**: missing key, network, timeout, provider error.
+- **Tolerant parsing**: the answer's JSON object is found even inside prose or fences, and
+  even when that prose contains a brace of its own.
 - **Four providers** through [Koog](https://github.com/JetBrains/koog): Anthropic, OpenAI,
   Google, Ollama. Model picked in the settings.
 
@@ -171,7 +173,8 @@ Full scope (MUST / SHOULD / WON'T) and the hour-by-hour plan: [docs/CONTEXT.md](
 - **Share a review** through the Ktor server; open it on another device **without calling the
   model again**, then apply its suggestions there.
 - **Settings**: theme (system/light/dark), language (system/English/French), provider, model,
-  API key, git account, sharing server URL and token, About page.
+  API key, git account, sharing server URL and token, About page (team, repository, credit
+  to [socraft](https://socraft.ch) with a themed, clickable logo).
 - **JetBrains New UI design system**: teal accent, JetBrains Mono, custom icons, animated
   loader, a component catalogue (`ui/designsystem/`).
 
@@ -318,6 +321,13 @@ applying anything.
 The review always runs locally; the server only stores **finished** reviews so a teammate or
 your phone can open them. No account, no LLM, nothing logged on the server side.
 
+- **One key per repository**, whatever the clone URL: `git@github.com:o/r.git`,
+  `https://github.com/O/R` and `ssh://…:22/o/r` are the same repo (case folded on GitHub and
+  GitLab, default ports dropped, a custom port kept for self-hosted forges).
+- **Persistent**: reviews live in `~/.nitpick/server/reviews.json` and survive a restart; keys
+  stored under an older rule still match.
+- **Forward compatible**: an unknown field from a newer app is ignored, never a 400.
+
 ```mermaid
 sequenceDiagram
     participant D as Desktop
@@ -406,15 +416,16 @@ server over USB: `adb reverse tcp:8080 tcp:8080`.
 | Suite | Where | What it covers |
 | --- | --- | --- |
 | Shared tests | `shared/src/commonTest`, `shared/src/jvmTest` | graph lanes, diff parser, prompt, context, response parser, anchoring, toolbox jail, Koog client, ViewModels, settings, device flow, share client, real JGit repositories |
-| Server tests | `server/src/test` | routes, validation, body limit, token, corrupt store recovery |
+| Server tests | `server/src/test` | routes, validation, body limit, token, repository-key normalisation, corrupt store recovery |
 | On-device tests | `androidApp/src/androidTest` | JGit, Koog client and share client running on Android ART |
 | Real provider call | `RealReviewCallTest` | opt-in, skipped without a key |
 
 - **Dogfooding**: Nitpick reviewed our own branch `ticket/104` and found a real bug (pull said
   `Aborted` on a dirty diverged tree), fixed in PR #118. 2 nits, 1 true bug, 1 already fixed,
   0 false positives: [`docs/demo/dogfooding.md`](docs/demo/dogfooding.md).
-- **Demo repository**: a branch with three planted defects (off-by-one pagination, SQL
-  injection, unclosed reader), written by an agent from
+- **Demo repository**: `pepito2t/OpenTab`, branch `perf/thumbnail-lookup`, with two planted
+  bugs (a lock never released, an eviction off-by-one); the phone review found both. Plan B:
+  `pocket-ledger` with three planted defects, from
   [`docs/demo/junie-brief.md`](docs/demo/junie-brief.md).
 - **Android walkthrough** replayed on an API 36 emulator: `docs/demo/android-*.png`.
 
