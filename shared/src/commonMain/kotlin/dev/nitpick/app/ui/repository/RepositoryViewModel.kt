@@ -299,13 +299,24 @@ class RepositoryViewModel(
                     if (comment.id in _state.value.appliedIds) return@withLock
                     val content = git.readFile(comment.filePath)
                         ?: error("File not found: ${comment.filePath}")
-                    git.writeFile(comment.filePath, ReviewAnchoring.apply(content, comment))
+                    val updated = ReviewAnchoring.apply(content, comment)
+                    git.writeFile(comment.filePath, updated)
                     if (repository !== git) return@withLock
                     _state.update {
+                        // A patch can add lines above another nit: move the remaining nits of the
+                        // same file before the next Apply writes at a stale line (#156).
+                        val comments = it.review?.comments.orEmpty().map { other ->
+                            if (other.id == comment.id || other.filePath != comment.filePath) {
+                                other
+                            } else {
+                                ReviewAnchoring.anchorOrFileLevel(updated, other)
+                            }
+                        }
                         val appliedBefore = it.review?.comments.orEmpty().filter { nit -> nit.id in it.appliedIds }
                         // The user's own message stays; the proposed one follows what is applied.
                         val untouched = it.commitMessage.isBlank() || it.commitMessage == commitMessageFor(appliedBefore)
                         it.copy(
+                            review = it.review?.copy(comments = comments),
                             appliedIds = it.appliedIds + comment.id,
                             appliedFiles = it.appliedFiles + comment.filePath,
                             commitMessage = if (untouched) commitMessageFor(appliedBefore + comment) else it.commitMessage,
