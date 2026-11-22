@@ -82,6 +82,13 @@ Préparer 10 réponses de 2 phrases :
 
 - **Vidéo de secours** : `<lien>` (2 min, enregistrée avant 23:00, testée sur un autre laptop)
 - **Captures** : `docs/demo/` (dogfooding sur nos branches d'agents)
+- **Parcours Android rejoué** (22/11 00:45, émulateur API 36, compte GitHub connecté par le
+  device flow, repo `pepito2t/OpenTab`, branche `perf/thumbnail-lookup` avec un lock non
+  relâché et un off-by-one d'éviction) : `docs/demo/android-01-repos-signed-in.png` →
+  `android-02-clone-form` → `android-03-branch-checkout` → `android-04-review-two-bugs` (les
+  2 bugs trouvés) → `android-05-nit-suggestion` (bottom sheet, suggestion) →
+  `android-06-suggestions-applied` → `android-07-push-after-commit` → `android-08-pushed-graph`
+  (↑0 ↓0). Commit `cb55041` « Apply review suggestions » visible sur GitHub.
 - **Données de démo** : repo `pocket-ledger` (CLI Kotlin + SQLite), `main` propre ; la
   branche à relire est `feature/search-pages-import`, écrite par un agent (Junie via Air,
   sinon Claude Code, voir `docs/AGENT_LOG.md`) depuis
@@ -109,6 +116,6 @@ couper.
 - [ ] Mode mock prêt.
 - [ ] Vidéo de secours accessible hors ligne.
 - [ ] Téléphone en silencieux.
-- [ ] Android rejoué à la main : Repos → Graph → Nitpick branch → nit en bottom sheet → Apply → Stage & commit → le bouton **Push** apparaît après le commit → push visible sur GitHub.
+- [x] Android rejoué à la main : Repos → Graph → Nitpick branch → nit en bottom sheet → Apply → Stage & commit → le bouton **Push** apparaît après le commit → push visible sur GitHub (22/11 00:45, captures `docs/demo/android-*.png`).
 - [ ] Les 3 savent qui parle quand.
 - [ ] La phrase de nouveauté est écrite sur un post-it.
