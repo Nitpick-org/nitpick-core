@@ -20,12 +20,13 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.geometry.Offset
-import androidx.compose.ui.graphics.Brush
+import androidx.compose.ui.geometry.Size
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.StrokeCap
 import androidx.compose.ui.graphics.drawscope.DrawScope
-import androidx.compose.ui.graphics.drawscope.Stroke
 import androidx.compose.ui.graphics.drawscope.rotate
+import androidx.compose.ui.graphics.drawscope.scale
+import androidx.compose.ui.graphics.drawscope.translate
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import dev.nitpick.app.ui.theme.NitpickTheme
@@ -33,27 +34,32 @@ import kotlinx.coroutines.delay
 import nitpick.shared.generated.resources.Res
 import nitpick.shared.generated.resources.review_phrases
 import org.jetbrains.compose.resources.stringArrayResource
-import kotlin.math.PI
-import kotlin.math.sin
 
-// The tweezers of ic_tweezers.xml, in its 24 dp viewport: a bar and two arms meeting at the tips.
-private val TweezerLines = listOf(
-    listOf(Offset(10.4f, 2.5f), Offset(13.6f, 2.5f)),
-    listOf(Offset(10.4f, 2.5f), Offset(6.8f, 14.2f), Offset(10.4f, 19.2f)),
-    listOf(Offset(13.6f, 2.5f), Offset(17.2f, 14.2f), Offset(13.6f, 19.2f)),
-)
-private const val VIEWPORT = 24f
-private const val STROKE = 1.8f
-private val Center = Offset(12f, 11f)
-private val Dot = Offset(12f, 21.6f)
-private const val CYCLE_MS = 4200
+// Geometry and keyframes of docs/design/loader/nitpick-symbol-loader.svg (viewBox 86 56 340 352).
+private const val VIEW_X = 86f
+private const val VIEW_Y = 56f
+private const val VIEW_W = 340f
+private const val VIEW_H = 352f
+private const val STROKE = 24f
+private val BarLeft = Offset(234.4f, 121f)
+private val BarRight = Offset(277.6f, 121f)
+private val LeftArm = listOf(BarLeft, Offset(185.8f, 279f), Offset(234.4f, 346.5f))
+private val RightArm = listOf(BarRight, Offset(326.2f, 279f), Offset(277.6f, 346.5f))
+private val DotCenter = Offset(256f, 371f)
+private const val DOT_RADIUS = 20f
+private val ShadowCenter = Offset(256f, 398f)
+private val ShadowRadii = Size(24f, 5f)
+private const val LIFT = 48f
+private const val OPEN_DEGREES = 5f
+private const val CYCLE_MS = 2400
 private const val PHRASE_MS = 2400L
 
-/** The tweezers symbol drawing itself, pinching, and dissolving on a loop, with a phrase that changes. */
+/** The tweezers picking the nit up, lifting it and dropping it, on a loop, with a phrase that changes. */
 @Composable
 fun NitpickReviewLoader(modifier: Modifier = Modifier, symbolSize: Dp = 72.dp) {
     val phrases = stringArrayResource(Res.array.review_phrases)
-    val order = remember(phrases) { phrases.shuffled() }
+    // Keyed on the size, not the list: the resource lookup hands out a new list on every frame of the animation.
+    val order = remember(phrases.size) { phrases.shuffled() }
     var index by remember { mutableIntStateOf(0) }
     LaunchedEffect(order) {
         while (true) {
@@ -61,8 +67,8 @@ fun NitpickReviewLoader(modifier: Modifier = Modifier, symbolSize: Dp = 72.dp) {
             index = (index + 1) % order.size
         }
     }
-    Column(modifier, horizontalAlignment = Alignment.CenterHorizontally, verticalArrangement = Arrangement.spacedBy(6.dp)) {
-        TweezersSymbol(Modifier.size(symbolSize), NitpickTheme.colors.primary, NitpickTheme.colors.text)
+    Column(modifier, horizontalAlignment = Alignment.CenterHorizontally, verticalArrangement = Arrangement.spacedBy(8.dp)) {
+        TweezersSymbol(Modifier.size(symbolSize), NitpickTheme.colors.primary)
         Crossfade(order[index]) { phrase ->
             Text(phrase, style = NitpickTheme.typography.small, color = NitpickTheme.colors.textSecondary)
         }
@@ -70,87 +76,76 @@ fun NitpickReviewLoader(modifier: Modifier = Modifier, symbolSize: Dp = 72.dp) {
 }
 
 @Composable
-private fun TweezersSymbol(modifier: Modifier, stroke: Color, dot: Color) {
+private fun TweezersSymbol(modifier: Modifier, color: Color) {
     val transition = rememberInfiniteTransition()
     val t by transition.animateFloat(0f, 1f, infiniteRepeatable(tween(CYCLE_MS, easing = LinearEasing)))
     Canvas(modifier) {
-        val unit = size.minDimension / VIEWPORT
-        val pose = poseAt(t)
-        drawHalo(stroke, unit, breath = 0.5f + 0.5f * sin(t * 2f * PI).toFloat(), fade = 1f - pose.collapse)
-        rotate(degrees = pose.sway, pivot = Center * unit) {
-            drawLines(TweezerLines, pose, unit, stroke)
+        val unit = minOf(size.width / VIEW_W, size.height / VIEW_H)
+        val frame = frameAt(t)
+        scale(unit, unit, pivot = Offset.Zero) {
+            translate(-VIEW_X + (size.width / unit - VIEW_W) / 2f, -VIEW_Y + (size.height / unit - VIEW_H) / 2f) {
+                drawShadow(color, frame)
+                translate(top = -LIFT * frame.lift) {
+                    drawLine(color, BarLeft, BarRight, STROKE, StrokeCap.Round)
+                    rotate(OPEN_DEGREES * frame.open, pivot = BarLeft) { drawArm(LeftArm, color) }
+                    rotate(-OPEN_DEGREES * frame.open, pivot = BarRight) { drawArm(RightArm, color) }
+                }
+                translate(top = -LIFT * frame.dotLift) {
+                    scale(frame.squashX, frame.squashY, pivot = DotCenter) {
+                        drawCircle(color, DOT_RADIUS, DotCenter)
+                    }
+                }
+            }
         }
-        if (pose.ripple > 0f) {
-            drawCircle(stroke.copy(alpha = 0.45f * (1f - pose.ripple)), radius = (1.5f + 8f * pose.ripple) * unit, center = Dot * unit, style = Stroke(0.5f * unit))
-        }
-        val pulse = 1f + 0.3f * sin(t * 4f * PI).toFloat()
-        drawCircle(stroke.copy(alpha = 0.35f), radius = 2.6f * unit * pulse, center = Dot * unit)
-        drawCircle(dot, radius = 1.3f * unit * pulse, center = Dot * unit)
     }
 }
 
-/** One frame of the loop: how much is drawn, how far the tips pinch, the sway angle, the collapse, the ripple. */
-private class Pose(val drawn: Float, val pinch: Float, val sway: Float, val collapse: Float, val ripple: Float)
+/** One frame of the SVG keyframes: arms open (1) or closed (0), lift of the tweezers and of the dot, dot squash, shadow. */
+private class Frame(
+    val open: Float,
+    val lift: Float,
+    val dotLift: Float,
+    val squashX: Float,
+    val squashY: Float,
+    val shadowScale: Float,
+    val shadowAlpha: Float,
+)
 
-private fun poseAt(t: Float): Pose = when {
-    // Draws itself, a bright tip leading the stroke.
-    t < 0.30f -> Pose(drawn = easeOut(t / 0.30f), pinch = 0f, sway = 0f, collapse = 0f, ripple = 0f)
-    // Alive: pinches twice like picking a nit, and sways a little.
-    t < 0.72f -> {
-        val u = (t - 0.30f) / 0.42f
-        Pose(drawn = 1f, pinch = sin(u * 2f * PI).toFloat().coerceAtLeast(0f), sway = 4f * sin(u * 3f * PI).toFloat(), collapse = 0f, ripple = 0f)
+private fun frameAt(t: Float): Frame = Frame(
+    open = keyframes(t, 0f to 1f, 0.06f to 1f, 0.18f to 0f, 0.62f to 0f, 0.70f to 1f, 1f to 1f),
+    lift = keyframes(t, 0f to 0f, 0.20f to 0f, 0.40f to 1f, 0.64f to 1f, 0.90f to 0f, 1f to 0f),
+    dotLift = keyframes(t, 0f to 0f, 0.20f to 0f, 0.40f to 1f, 0.66f to 1f, 0.79f to 0f, 0.85f to 0.25f, 0.91f to 0f, 1f to 0f),
+    squashX = keyframes(t, 0f to 1f, 0.66f to 1f, 0.79f to 1.2f, 0.85f to 0.94f, 0.91f to 1.06f, 0.96f to 1f, 1f to 1f),
+    squashY = keyframes(t, 0f to 1f, 0.66f to 1f, 0.79f to 0.78f, 0.85f to 1.06f, 0.91f to 0.94f, 0.96f to 1f, 1f to 1f),
+    shadowScale = keyframes(t, 0f to 1f, 0.20f to 1f, 0.40f to 0.55f, 0.66f to 0.55f, 0.79f to 1.15f, 0.85f to 0.85f, 0.91f to 1f, 1f to 1f),
+    shadowAlpha = keyframes(t, 0f to 0.22f, 0.20f to 0.22f, 0.40f to 0.08f, 0.66f to 0.08f, 0.79f to 0.26f, 0.85f to 0.14f, 0.91f to 0.22f, 1f to 0.22f),
+)
+
+/** Piecewise interpolation between (time, value) stops with the SVG's ease-in-out between each pair. */
+private fun keyframes(t: Float, vararg stops: Pair<Float, Float>): Float {
+    for (i in 1 until stops.size) {
+        val (t0, v0) = stops[i - 1]
+        val (t1, v1) = stops[i]
+        if (t <= t1) {
+            if (t1 == t0) return v1
+            val u = ((t - t0) / (t1 - t0)).coerceIn(0f, 1f)
+            return v0 + (v1 - v0) * easeInOut(u)
+        }
     }
-    // Melts into the dot, which answers with a ripple.
-    t < 0.86f -> {
-        val u = (t - 0.72f) / 0.14f
-        Pose(drawn = 1f, pinch = 0f, sway = 0f, collapse = easeOut(u), ripple = u)
-    }
-    // The dot waits alone before the next drawing.
-    else -> Pose(drawn = 0f, pinch = 0f, sway = 0f, collapse = 1f, ripple = 0f)
+    return stops.last().second
 }
 
-private fun easeOut(x: Float): Float = 1f - (1f - x) * (1f - x)
+private fun easeInOut(u: Float): Float = if (u < 0.5f) 2f * u * u else 1f - 2f * (1f - u) * (1f - u)
 
-private fun DrawScope.drawHalo(color: Color, unit: Float, breath: Float, fade: Float) {
-    val radius = (9f + 2f * breath) * unit
-    drawCircle(
-        brush = Brush.radialGradient(listOf(color.copy(alpha = 0.16f * fade), color.copy(alpha = 0f)), center = Center * unit, radius = radius),
-        radius = radius,
-        center = Center * unit,
+private fun DrawScope.drawArm(points: List<Offset>, color: Color) {
+    points.zipWithNext { a, b -> drawLine(color, a, b, STROKE, StrokeCap.Round) }
+}
+
+private fun DrawScope.drawShadow(color: Color, frame: Frame) {
+    val radii = ShadowRadii * frame.shadowScale
+    drawOval(
+        color.copy(alpha = frame.shadowAlpha),
+        topLeft = Offset(ShadowCenter.x - radii.width, ShadowCenter.y - radii.height),
+        size = Size(radii.width * 2f, radii.height * 2f),
     )
 }
-
-private fun DrawScope.drawLines(lines: List<List<Offset>>, pose: Pose, unit: Float, color: Color) {
-    if (pose.drawn <= 0f || pose.collapse >= 1f) return
-    val total = lines.sumOf { it.length().toDouble() }.toFloat()
-    var budget = total * pose.drawn
-    val alpha = 1f - pose.collapse
-    val width = STROKE * unit * (1f + 0.15f * pose.pinch)
-    var tip: Offset? = null
-    for (line in lines) {
-        var from = line.first()
-        for (to in line.drop(1)) {
-            if (budget <= 0f) break
-            val length = (to - from).getDistance()
-            val end = if (length <= budget) to else from + (to - from) * (budget / length)
-            budget -= length
-            drawLine(color.copy(alpha = alpha), deform(from, pose) * unit, deform(end, pose) * unit, strokeWidth = width, cap = StrokeCap.Round)
-            if (budget < 0f) tip = end
-            from = to
-        }
-    }
-    // The pen tip glows while the outline is still being drawn.
-    if (pose.drawn < 1f) tip?.let { p ->
-        drawCircle(color.copy(alpha = 0.35f), radius = 2.4f * unit, center = deform(p, pose) * unit)
-        drawCircle(Color.White.copy(alpha = 0.9f), radius = 1.1f * unit, center = deform(p, pose) * unit)
-    }
-}
-
-/** The arms bend toward the centre line as the tips pinch; the whole shape sinks into the dot as it collapses. */
-private fun deform(p: Offset, pose: Pose): Offset {
-    val depth = ((p.y - 2.5f) / (19.2f - 2.5f)).coerceIn(0f, 1f)
-    val pinched = Offset(p.x + (Center.x - p.x) * 0.55f * pose.pinch * depth * depth, p.y)
-    return pinched + (Dot - pinched) * pose.collapse
-}
-
-private fun List<Offset>.length(): Float = zipWithNext { a, b -> (b - a).getDistance() }.sum()
