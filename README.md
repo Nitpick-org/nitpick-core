@@ -90,6 +90,7 @@ git clone https://github.com/Nitpick-org/nitpick-core.git nitpick && cd nitpick
 git config core.hooksPath .githooks      # pre-commit runs scripts/check.sh
 
 ./gradlew :desktopApp:run                # desktop app
+./gradlew :desktopApp:runDistributable   # same, as the packaged bundle (name and icon in the macOS Dock)
 ./gradlew :androidApp:installDebug       # Android app on the connected device
 
 ./scripts/check.sh                       # shared tests + desktop and Android builds

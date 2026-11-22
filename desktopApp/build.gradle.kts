@@ -20,7 +20,8 @@ compose.desktop {
         mainClass = "dev.nitpick.app.MainKt"
 
         // `gradlew :desktopApp:run` is a plain `java` process: without these flags the
-        // macOS dock shows Duke and the name "java". Packaged apps get both from the bundle.
+        // macOS dock shows Duke and the name "java". macOS 26+ ignores -Xdock:name for the
+        // Dock label: `runDistributable` launches the real bundle and gets both right.
         if (System.getProperty("os.name").startsWith("Mac")) {
             jvmArgs(
                 "-Xdock:name=Nitpick",
@@ -34,8 +35,13 @@ compose.desktop {
 
         nativeDistributions {
             targetFormats(TargetFormat.Dmg, TargetFormat.Msi, TargetFormat.Deb)
-            packageName = "dev.nitpick.app"
+            // The Dock and the app switcher show this name; the bundle id stays reverse-DNS.
+            packageName = "Nitpick"
             packageVersion = "1.0.0"
+            macOS {
+                bundleID = "dev.nitpick.app"
+                iconFile.set(project.file("dock-icon.icns"))
+            }
         }
     }
 }
