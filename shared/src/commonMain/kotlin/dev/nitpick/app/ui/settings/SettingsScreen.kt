@@ -16,6 +16,7 @@ import nitpick.shared.generated.resources.language_english
 import nitpick.shared.generated.resources.language_french
 import nitpick.shared.generated.resources.language_system
 import nitpick.shared.generated.resources.settings_language
+import nitpick.shared.generated.resources.settings_section_about
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
@@ -135,6 +136,10 @@ fun SettingsScreen(settings: Settings, onChange: ((Settings) -> Settings) -> Uni
                     modifier = Modifier.fillMaxWidth(),
                     minHeight = TouchControlHeight,
                 )
+            }
+            NitpickCard(verticalArrangement = Arrangement.spacedBy(8.dp)) {
+                SectionTitle(Res.string.settings_section_about)
+                AboutContent(touch = true)
             }
         }
     }

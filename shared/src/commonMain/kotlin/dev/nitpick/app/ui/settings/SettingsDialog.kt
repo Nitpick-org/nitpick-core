@@ -16,19 +16,10 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
-import androidx.compose.foundation.Image
 import androidx.compose.foundation.clickable
-import androidx.compose.foundation.layout.size
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.ui.draw.clip
-import androidx.compose.ui.platform.LocalUriHandler
 import dev.nitpick.app.settings.AppLanguage
-import dev.nitpick.app.ui.components.NitpickIcon
-import dev.nitpick.app.ui.nitpickAppIcon
-import nitpick.shared.generated.resources.about_repository
-import nitpick.shared.generated.resources.about_tagline
-import nitpick.shared.generated.resources.about_team
-import nitpick.shared.generated.resources.ic_github
 import nitpick.shared.generated.resources.language_english
 import nitpick.shared.generated.resources.language_french
 import nitpick.shared.generated.resources.language_system
@@ -95,11 +86,6 @@ private enum class SettingsSection(val label: StringResource) {
     About(Res.string.settings_section_about),
 }
 
-private data class TeamMember(val name: String, val login: String)
-
-private const val REPOSITORY_URL = "https://github.com/Nitpick-org/nitpick-core"
-private val TEAM = listOf(TeamMember("Thomas", "pepito2t"), TeamMember("Elliot", "zooldyyk"), TeamMember("Gabriel", "dovatgabriel"))
-private val AboutIconSize = 48.dp
 
 /**
  * Desktop settings as an IDE dialog (handoff §3.5). It edits a draft and only [onSave] writes
@@ -130,7 +116,7 @@ fun SettingsDialog(
                         SettingsSection.Review -> ReviewSection(draft, onEdit, content)
                         SettingsSection.Git -> GitSection(draft, onEdit, content)
                         SettingsSection.Sharing -> SharingSection(draft, onEdit, content)
-                        SettingsSection.About -> AboutSection(content)
+                        SettingsSection.About -> Column(content, verticalArrangement = Arrangement.spacedBy(14.dp)) { AboutContent(touch = false) }
                     }
                 }
                 NitpickDivider()
@@ -245,38 +231,6 @@ private fun SharingSection(draft: Settings, onEdit: ((Settings) -> Settings) -> 
     Column(modifier, verticalArrangement = Arrangement.spacedBy(14.dp)) {
         Kicker(Res.string.settings_kicker_sharing)
         ServerUrlField(draft.serverUrl, { url -> onEdit { it.copy(serverUrl = url) } }, Modifier.width(KeyFieldWidth))
-    }
-}
-
-/** The app, its source and the three humans behind it; every line opens GitHub in the browser. */
-@Composable
-private fun AboutSection(modifier: Modifier) {
-    val uriHandler = LocalUriHandler.current
-    Column(modifier, verticalArrangement = Arrangement.spacedBy(14.dp)) {
-        Row(verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(12.dp)) {
-            Image(painter = nitpickAppIcon(), contentDescription = null, modifier = Modifier.size(AboutIconSize))
-            Column {
-                Text("Nitpick", style = NitpickTheme.typography.title, color = NitpickTheme.colors.text)
-                Text(stringResource(Res.string.about_tagline), style = NitpickTheme.typography.small, color = NitpickTheme.colors.textSecondary)
-            }
-        }
-        GitHubLink(stringResource(Res.string.about_repository), REPOSITORY_URL, uriHandler::openUri)
-        Kicker(Res.string.about_team, topPadding = 12.dp)
-        TEAM.forEach { member ->
-            GitHubLink("${member.name} · @${member.login}", "https://github.com/${member.login}", uriHandler::openUri)
-        }
-    }
-}
-
-@Composable
-private fun GitHubLink(text: String, url: String, open: (String) -> Unit) {
-    Row(
-        modifier = Modifier.clip(RoundedCornerShape(NitpickTheme.radii.sm)).clickable { open(url) }.padding(horizontal = 6.dp, vertical = 4.dp),
-        verticalAlignment = Alignment.CenterVertically,
-        horizontalArrangement = Arrangement.spacedBy(8.dp),
-    ) {
-        NitpickIcon(Res.drawable.ic_github, contentDescription = null, tint = NitpickTheme.colors.text)
-        Text(text, style = NitpickTheme.typography.body, color = NitpickTheme.colors.primary)
     }
 }
 
