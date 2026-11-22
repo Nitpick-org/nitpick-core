@@ -26,6 +26,7 @@ import androidx.compose.ui.platform.LocalHapticFeedback
 import androidx.compose.ui.text.style.TextAlign
 import dev.nitpick.app.ui.components.NitpickIcon
 import dev.nitpick.app.ui.components.rememberPopIn
+import nitpick.shared.generated.resources.label_detail
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -199,7 +200,7 @@ private fun NitList(
                     Text(summary, style = NitpickTheme.typography.body, modifier = Modifier.weight(1f))
                 }
                 Text(
-                    text = if (comments.isEmpty()) stringResource(Res.string.review_clean_title) else stringResource(Res.string.review_files_with_nits, byFile.size),
+                    text = if (comments.isEmpty()) stringResource(Res.string.review_clean_title) else pluralStringResource(Res.plurals.review_files_with_nits, byFile.size, byFile.size),
                     style = NitpickTheme.typography.small,
                     color = NitpickTheme.colors.textSecondary,
                 )
@@ -264,7 +265,7 @@ private fun CommitAndPushBar(
             state.lastPushedBranch != null -> PushedBanner(state.lastPushedBranch)
             else -> {
                 if (state.pushError != null) {
-                    Text(stringResource(Res.string.push_error) + ": " + state.pushError, style = NitpickTheme.typography.small, color = NitpickTheme.colors.danger)
+                    Text(stringResource(Res.string.label_detail, stringResource(Res.string.push_error), state.pushError), style = NitpickTheme.typography.small, color = NitpickTheme.colors.danger)
                 }
                 PhoneBottomButton(text = stringResource(Res.string.push_action), onClick = onPush, icon = Res.drawable.ic_push)
             }

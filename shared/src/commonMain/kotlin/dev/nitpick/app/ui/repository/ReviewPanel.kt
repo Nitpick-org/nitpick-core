@@ -49,6 +49,7 @@ import nitpick.shared.generated.resources.review_error
 import nitpick.shared.generated.resources.review_local
 import nitpick.shared.generated.resources.review_changed_files
 import nitpick.shared.generated.resources.review_nits
+import nitpick.shared.generated.resources.label_detail
 import nitpick.shared.generated.resources.review_tools_used
 import nitpick.shared.generated.resources.review_retry
 import nitpick.shared.generated.resources.review_run
@@ -129,8 +130,11 @@ fun ReviewPanel(
                             )
                             if (review.toolUses.isNotEmpty()) {
                                 Text(
-                                    text = stringResource(Res.string.review_tools_used) + ": " +
+                                    text = stringResource(
+                                        Res.string.label_detail,
+                                        stringResource(Res.string.review_tools_used),
                                         review.toolUses.map { it.path ?: it.tool }.distinct().joinToString(", "),
+                                    ),
                                     style = NitpickTheme.typography.micro,
                                     color = NitpickTheme.colors.textMuted,
                                     maxLines = 2,

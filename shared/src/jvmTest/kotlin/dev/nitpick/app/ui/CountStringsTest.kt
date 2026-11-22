@@ -17,6 +17,8 @@ class CountStringsTest {
         "review_nits" to mapOf("values" to ("%1\$d nit" to "%1\$d nits"), "values-fr" to ("%1\$d nit" to "%1\$d nits")),
         "diff_files" to mapOf("values" to ("%1\$d file" to "%1\$d files"), "values-fr" to ("%1\$d fichier" to "%1\$d fichiers")),
         "review_changed_files" to mapOf("values" to ("on %1\$d changed file" to "on %1\$d changed files"), "values-fr" to ("sur %1\$d fichier modifié" to "sur %1\$d fichiers modifiés")),
+        "review_files_with_nits" to mapOf("values" to ("%1\$d file with nits" to "%1\$d files with nits"), "values-fr" to ("%1\$d fichier avec nits" to "%1\$d fichiers avec nits")),
+        "shared_row" to mapOf("values" to ("%1\$s · %2\$s · %3\$d nit" to "%1\$s · %2\$s · %3\$d nits"), "values-fr" to ("%1\$s · %2\$s · %3\$d nit" to "%1\$s · %2\$s · %3\$d nits")),
     )
 
     @Test
