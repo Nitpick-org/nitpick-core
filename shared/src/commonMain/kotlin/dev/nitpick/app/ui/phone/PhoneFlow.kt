@@ -5,6 +5,23 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.Text
+import androidx.compose.foundation.clickable
+import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.ui.Alignment
+import androidx.compose.ui.draw.clip
+import dev.nitpick.app.ui.components.NitpickIcon
+import nitpick.shared.generated.resources.ic_gear
+import org.jetbrains.compose.resources.DrawableResource
+import androidx.compose.animation.AnimatedContent
+import androidx.compose.animation.core.tween
+import androidx.compose.animation.fadeIn
+import androidx.compose.animation.fadeOut
+import androidx.compose.animation.slideInHorizontally
+import androidx.compose.animation.slideOutHorizontally
+import androidx.compose.animation.togetherWith
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -32,6 +49,8 @@ import nitpick.shared.generated.resources.action_back
 import nitpick.shared.generated.resources.settings_title
 import org.jetbrains.compose.resources.stringResource
 
+private val PhoneIconActionSize = 44.dp
+private const val ScreenTransitionMillis = 220
 private val PhoneActionHeight = 56.dp
 
 private enum class PhoneScreen { Repos, Clone, Graph, Review, Diff, Shared }
@@ -96,7 +115,18 @@ fun PhoneFlow(
         )
         return
     }
-    when (screen) {
+    // Deeper screens slide in from the right, going back slides from the left, like a native stack.
+    AnimatedContent(
+        targetState = screen,
+        transitionSpec = {
+            val forward = targetState.ordinal > initialState.ordinal
+            val enter = slideInHorizontally(tween(ScreenTransitionMillis)) { if (forward) it else -it } + fadeIn(tween(ScreenTransitionMillis))
+            val exit = slideOutHorizontally(tween(ScreenTransitionMillis)) { if (forward) -it / 3 else it / 3 } + fadeOut(tween(ScreenTransitionMillis))
+            enter togetherWith exit
+        },
+        label = "phone screen",
+    ) { shown ->
+    when (shown) {
         PhoneScreen.Repos -> ReposScreen(
             recentRepositories = settings.recentRepositories,
             onOpen = { path ->
@@ -108,6 +138,7 @@ fun PhoneFlow(
             onOpenSettings = onOpenSettings,
             modifier = modifier,
             accountLogin = connection.login.takeIf { it.isNotBlank() }?.let { "@$it" }.orEmpty(),
+            accountIcon = connection.host.icon,
         )
         PhoneScreen.Clone -> CloneScreen(
             state = state,
@@ -169,43 +200,67 @@ fun PhoneFlow(
             modifier = modifier,
         )
     }
+    }
 }
 
 @Composable
 internal fun PhoneTopBar(
     title: String,
     onBack: (() -> Unit)?,
+    subtitle: String? = null,
     actions: @Composable RowScope.() -> Unit = {},
 ) {
     NitpickToolbar {
         if (onBack != null) {
             NitpickToolbarAction(text = "‹ " + stringResource(Res.string.action_back), onClick = onBack)
         }
-        Text(
-            text = title,
-            style = NitpickTheme.typography.bodyStrong,
-            color = NitpickTheme.colors.onToolbar,
-            maxLines = 1,
-            overflow = TextOverflow.Ellipsis,
-            modifier = Modifier.weight(1f).padding(horizontal = 4.dp),
-        )
+        Column(Modifier.weight(1f).padding(horizontal = 4.dp)) {
+            Text(
+                text = title,
+                style = NitpickTheme.typography.bodyStrong,
+                color = NitpickTheme.colors.onToolbar,
+                maxLines = 1,
+                overflow = TextOverflow.Ellipsis,
+            )
+            if (subtitle != null) {
+                Text(
+                    text = subtitle,
+                    style = NitpickTheme.typography.micro,
+                    color = NitpickTheme.colors.onToolbar.copy(alpha = 0.72f),
+                    maxLines = 1,
+                    overflow = TextOverflow.Ellipsis,
+                )
+            }
+        }
         actions()
+    }
+}
+
+/** An icon in the top bar with a 44 dp touch target; the description is what TalkBack reads. */
+@Composable
+internal fun PhoneIconAction(resource: DrawableResource, contentDescription: String, onClick: () -> Unit) {
+    Box(
+        modifier = Modifier.size(PhoneIconActionSize).clip(RoundedCornerShape(NitpickTheme.radii.xs)).clickable(onClick = onClick),
+        contentAlignment = Alignment.Center,
+    ) {
+        NitpickIcon(resource, contentDescription, tint = NitpickTheme.colors.onToolbar)
     }
 }
 
 @Composable
 internal fun SettingsAction(onOpenSettings: () -> Unit) {
-    NitpickToolbarAction(text = stringResource(Res.string.settings_title), onClick = onOpenSettings)
+    PhoneIconAction(Res.drawable.ic_gear, stringResource(Res.string.settings_title), onOpenSettings)
 }
 
 /** The single full-width action at the bottom of a phone screen (UI handoff §4). */
 @Composable
-internal fun PhoneBottomButton(text: String, onClick: () -> Unit, enabled: Boolean = true) {
+internal fun PhoneBottomButton(text: String, onClick: () -> Unit, enabled: Boolean = true, icon: DrawableResource? = null) {
     NitpickButton(
         text = text,
         onClick = onClick,
         enabled = enabled,
         size = NitpickButtonSize.Large,
         modifier = Modifier.fillMaxWidth().padding(16.dp).height(PhoneActionHeight),
+        leading = icon?.let { { NitpickIcon(it, contentDescription = null, tint = NitpickTheme.colors.onPrimary) } },
     )
 }

@@ -1,6 +1,8 @@
 package dev.nitpick.app.ui.components
 
 import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.verticalScroll
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxWidth
@@ -9,6 +11,7 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.ModalBottomSheet
 import androidx.compose.material3.Text
+import androidx.compose.material3.rememberModalBottomSheetState
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
@@ -36,18 +39,21 @@ fun NitSheetContent(
     modifier: Modifier = Modifier,
 ) {
     Column(modifier.fillMaxWidth().padding(16.dp), verticalArrangement = Arrangement.spacedBy(16.dp)) {
-        Text(
-            text = stringResource(Res.string.review_nit_position, position, total),
-            style = NitpickTheme.typography.small,
-            color = NitpickTheme.colors.textMuted,
-        )
-        ReviewCommentCard(
-            filePath = comment.filePath,
-            line = comment.startLine,
-            severity = comment.severity,
-            message = comment.message,
-            suggestion = comment.suggestion,
-        )
+        // A long suggestion scrolls; the two actions stay under the thumb.
+        Column(Modifier.weight(1f, fill = false).verticalScroll(rememberScrollState()), verticalArrangement = Arrangement.spacedBy(16.dp)) {
+            Text(
+                text = stringResource(Res.string.review_nit_position, position, total),
+                style = NitpickTheme.typography.small,
+                color = NitpickTheme.colors.textMuted,
+            )
+            ReviewCommentCard(
+                filePath = comment.filePath,
+                line = comment.startLine,
+                severity = comment.severity,
+                message = comment.message,
+                suggestion = comment.suggestion,
+            )
+        }
         Row(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.spacedBy(12.dp)) {
             NitpickButton(
                 text = stringResource(Res.string.review_dismiss),
@@ -81,6 +87,8 @@ fun NitBottomSheet(
 ) {
     ModalBottomSheet(
         onDismissRequest = onClose,
+        // Half-open, a long nit hides its actions under the fold: open fully, the body scrolls.
+        sheetState = rememberModalBottomSheetState(skipPartiallyExpanded = true),
         containerColor = NitpickTheme.colors.surface,
         contentColor = NitpickTheme.colors.text,
     ) {

@@ -14,6 +14,21 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.material3.Text
+import nitpick.shared.generated.resources.ic_check
+import nitpick.shared.generated.resources.ic_push
+import androidx.compose.animation.core.Spring
+import androidx.compose.animation.core.animateFloatAsState
+import androidx.compose.animation.core.spring
+import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.shape.CircleShape
+import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.ui.draw.scale
+import androidx.compose.ui.hapticfeedback.HapticFeedbackType
+import androidx.compose.ui.platform.LocalHapticFeedback
+import androidx.compose.ui.text.style.TextAlign
+import dev.nitpick.app.ui.components.NitpickIcon
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -28,7 +43,6 @@ import dev.nitpick.app.domain.ReviewComment
 import dev.nitpick.app.ui.components.NitBottomSheet
 import dev.nitpick.app.ui.components.NitpickBadge
 import dev.nitpick.app.ui.components.NitpickCard
-import dev.nitpick.app.ui.components.NitpickReviewLoader
 import dev.nitpick.app.ui.components.NitpickDivider
 import dev.nitpick.app.ui.components.NitpickEmptyState
 import dev.nitpick.app.ui.components.NitpickTextField
@@ -38,6 +52,7 @@ import dev.nitpick.app.ui.components.severityTone
 import dev.nitpick.app.ui.repository.RepositoryUiState
 import dev.nitpick.app.ui.repository.PushedBanner
 import dev.nitpick.app.ui.repository.ReviewFailureState
+import dev.nitpick.app.ui.repository.ReviewProgress
 import dev.nitpick.app.ui.repository.ShareReviewAction
 import dev.nitpick.app.ui.repository.branchLabel
 import dev.nitpick.app.ui.theme.NitpickTheme
@@ -65,6 +80,7 @@ import org.jetbrains.compose.resources.pluralStringResource
 import org.jetbrains.compose.resources.stringResource
 
 private val NitRowHeight = 56.dp
+private val CleanCheckSize = 72.dp
 
 /** Review on a phone (UI handoff §4.3): summary, nits grouped by file, then commit and push. */
 @Composable
@@ -84,10 +100,12 @@ fun PhoneReviewScreen(
 ) {
     var openNitId by rememberSaveable { mutableStateOf<String?>(null) }
     val review = state.review
+    val haptics = LocalHapticFeedback.current
 
     Column(modifier.fillMaxSize().background(NitpickTheme.colors.canvas)) {
         PhoneTopBar(
-            title = stringResource(Res.string.review_title) + " · " + stringResource(Res.string.review_vs, branchLabel(state.currentBranch), state.baseRef),
+            title = stringResource(Res.string.review_title),
+            subtitle = stringResource(Res.string.review_vs, branchLabel(state.currentBranch), state.baseRef),
             onBack = onBack,
         ) {
             if (review != null && !state.isReviewing) {
@@ -97,9 +115,7 @@ fun PhoneReviewScreen(
         Box(Modifier.weight(1f)) {
             when {
                 // Opening a shared review may check its branch out first.
-                state.isReviewing || state.isCheckingOut -> Box(Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
-                    NitpickReviewLoader(symbolSize = 72.dp)
-                }
+                state.isReviewing || state.isCheckingOut -> ReviewProgress()
                 state.reviewError != null -> ReviewFailureState(
                     failure = state.reviewError,
                     onRetry = onRunReview,
@@ -110,6 +126,7 @@ fun PhoneReviewScreen(
                     actionLabel = stringResource(Res.string.review_run),
                     onAction = onRunReview,
                 )
+                review.comments.isEmpty() -> CleanBranch(state, review.summary, onShare)
                 else -> NitList(state, review.summary, review.comments, onOpenFile, onOpenNit = { openNitId = it }, onShare, Modifier.fillMaxSize())
             }
         }
@@ -132,10 +149,39 @@ fun PhoneReviewScreen(
             comment = open,
             position = review.comments.indexOf(open) + 1,
             total = review.comments.size,
-            onApply = if (applied || open.suggestion == null || open.isFileLevel || state.isRewritingWorkingTree) null else ({ onApply(open); openNitId = null }),
+            onApply = if (applied || open.suggestion == null || open.isFileLevel || state.isRewritingWorkingTree) null else ({ haptics.performHapticFeedback(HapticFeedbackType.LongPress); onApply(open); openNitId = null }),
             onDismiss = { onDismiss(open.id); openNitId = null },
             onClose = { openNitId = null },
         )
+    }
+}
+
+/** Nothing to nitpick: the check pops in, the model's verdict under it. Worth a smile before the push. */
+@Composable
+private fun CleanBranch(state: RepositoryUiState, summary: String, onShare: () -> Unit) {
+    var shown by remember { mutableStateOf(false) }
+    LaunchedEffect(Unit) { shown = true }
+    val pop by animateFloatAsState(
+        targetValue = if (shown) 1f else 0f,
+        animationSpec = spring(dampingRatio = Spring.DampingRatioMediumBouncy, stiffness = Spring.StiffnessLow),
+    )
+    Column(
+        Modifier.fillMaxSize().padding(32.dp),
+        horizontalAlignment = Alignment.CenterHorizontally,
+        verticalArrangement = Arrangement.Center,
+    ) {
+        Box(
+            Modifier.size(CleanCheckSize).scale(pop).background(NitpickTheme.colors.successSoft, CircleShape),
+            contentAlignment = Alignment.Center,
+        ) {
+            NitpickIcon(Res.drawable.ic_check, contentDescription = null, tint = NitpickTheme.colors.success, modifier = Modifier.size(CleanCheckSize / 2))
+        }
+        Spacer(Modifier.height(16.dp))
+        Text(stringResource(Res.string.review_clean_title), style = NitpickTheme.typography.title, color = NitpickTheme.colors.text, textAlign = TextAlign.Center)
+        Spacer(Modifier.height(8.dp))
+        Text(summary, style = NitpickTheme.typography.small, color = NitpickTheme.colors.textSecondary, textAlign = TextAlign.Center)
+        Spacer(Modifier.height(20.dp))
+        ShareReviewAction(state, onShare, touch = true)
     }
 }
 
@@ -158,7 +204,7 @@ private fun NitList(
                         stringResource(if (state.openedSharedReview != null) Res.string.shared_badge else Res.string.review_local),
                         tone = NitpickTone.Info,
                     )
-                    Text(summary, style = NitpickTheme.typography.section, modifier = Modifier.weight(1f))
+                    Text(summary, style = NitpickTheme.typography.body, modifier = Modifier.weight(1f))
                 }
                 Text(
                     text = if (comments.isEmpty()) stringResource(Res.string.review_clean_title) else stringResource(Res.string.review_files_with_nits, byFile.size),
@@ -220,7 +266,7 @@ private fun CommitAndPushBar(
             state.appliedFiles.isNotEmpty() -> {
                 Text(pluralStringResource(Res.plurals.commit_bar_applied, state.appliedIds.size, state.appliedIds.size), style = NitpickTheme.typography.small, color = NitpickTheme.colors.success)
                 NitpickTextField(value = state.commitMessage, onValueChange = onCommitMessage, placeholder = stringResource(Res.string.commit_message))
-                PhoneBottomButton(text = stringResource(Res.string.commit_stage), onClick = onCommit, enabled = state.commitMessage.isNotBlank() && !state.isRewritingWorkingTree)
+                PhoneBottomButton(text = stringResource(Res.string.commit_stage), onClick = onCommit, enabled = state.commitMessage.isNotBlank() && !state.isRewritingWorkingTree, icon = Res.drawable.ic_check)
             }
             state.isPushing -> PhoneBottomButton(text = stringResource(Res.string.push_in_progress), onClick = {}, enabled = false)
             state.lastPushedBranch != null -> PushedBanner(state.lastPushedBranch)
@@ -228,7 +274,7 @@ private fun CommitAndPushBar(
                 if (state.pushError != null) {
                     Text(stringResource(Res.string.push_error) + ": " + state.pushError, style = NitpickTheme.typography.small, color = NitpickTheme.colors.danger)
                 }
-                PhoneBottomButton(text = stringResource(Res.string.push_action), onClick = onPush)
+                PhoneBottomButton(text = stringResource(Res.string.push_action), onClick = onPush, icon = Res.drawable.ic_push)
             }
         }
     }

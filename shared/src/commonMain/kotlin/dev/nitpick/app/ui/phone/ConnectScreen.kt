@@ -11,6 +11,10 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material3.Text
+import dev.nitpick.app.ui.components.NitpickIcon
+import nitpick.shared.generated.resources.ic_github
+import nitpick.shared.generated.resources.ic_gitlab
+import org.jetbrains.compose.resources.DrawableResource
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -130,8 +134,8 @@ fun ConnectScreen(
             }
             Text(stringResource(Res.string.connect_host), style = NitpickTheme.typography.micro, color = NitpickTheme.colors.textSecondary)
             Row(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.spacedBy(8.dp)) {
-                HostChoice(stringResource(Res.string.connect_github), selected = host == GitHost.GITHUB, onClick = { host = GitHost.GITHUB }, Modifier.weight(1f))
-                HostChoice(stringResource(Res.string.connect_gitlab), selected = host == GitHost.GITLAB, onClick = { host = GitHost.GITLAB }, Modifier.weight(1f))
+                HostChoice(GitHost.GITHUB, selected = host == GitHost.GITHUB, onClick = { host = GitHost.GITHUB }, Modifier.weight(1f))
+                HostChoice(GitHost.GITLAB, selected = host == GitHost.GITLAB, onClick = { host = GitHost.GITLAB }, Modifier.weight(1f))
             }
             if (clientId.isNotBlank()) {
                 NitpickButton(
@@ -139,6 +143,7 @@ fun ConnectScreen(
                     enabled = !startingSignIn,
                     size = NitpickButtonSize.Large,
                     modifier = Modifier.fillMaxWidth().height(HostChoiceHeight),
+                    leading = { NitpickIcon(host.icon, contentDescription = null, tint = NitpickTheme.colors.onPrimary) },
                     onClick = {
                         scope.launch {
                             startingSignIn = true
@@ -236,12 +241,20 @@ private fun SignInWaiting(hostLabel: String, userCode: String, error: String?, o
 }
 
 @Composable
-private fun HostChoice(label: String, selected: Boolean, onClick: () -> Unit, modifier: Modifier) {
+private fun HostChoice(choice: GitHost, selected: Boolean, onClick: () -> Unit, modifier: Modifier) {
     NitpickButton(
-        text = label,
+        text = stringResource(if (choice == GitHost.GITLAB) Res.string.connect_gitlab else Res.string.connect_github),
         onClick = onClick,
         variant = if (selected) NitpickButtonVariant.Primary else NitpickButtonVariant.Secondary,
         size = NitpickButtonSize.Large,
         modifier = modifier.height(HostChoiceHeight),
+        leading = { NitpickIcon(choice.icon, contentDescription = null, tint = if (selected) NitpickTheme.colors.onPrimary else NitpickTheme.colors.text) },
     )
 }
+
+/** The forge's mark (Simple Icons, CC0), tinted like the text next to it. */
+internal val GitHost.icon: DrawableResource
+    get() = when (this) {
+        GitHost.GITHUB -> Res.drawable.ic_github
+        GitHost.GITLAB -> Res.drawable.ic_gitlab
+    }

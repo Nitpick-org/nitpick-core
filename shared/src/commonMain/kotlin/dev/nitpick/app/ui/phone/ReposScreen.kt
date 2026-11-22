@@ -10,6 +10,12 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.material3.Text
+import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.heightIn
+import androidx.compose.ui.Alignment
+import dev.nitpick.app.ui.components.NitpickIcon
+import nitpick.shared.generated.resources.ic_cloud
+import org.jetbrains.compose.resources.DrawableResource
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.style.TextOverflow
@@ -28,6 +34,8 @@ import nitpick.shared.generated.resources.repos_title
 import nitpick.shared.generated.resources.repository_empty_title
 import org.jetbrains.compose.resources.stringResource
 
+private val RepositoryRowHeight = 32.dp
+
 /** Recent repositories, newest first. */
 @Composable
 fun ReposScreen(
@@ -38,10 +46,15 @@ fun ReposScreen(
     onOpenSettings: () -> Unit,
     modifier: Modifier = Modifier,
     accountLogin: String = "",
+    accountIcon: DrawableResource? = null,
 ) {
     Column(modifier.fillMaxSize().background(NitpickTheme.colors.canvas)) {
         PhoneTopBar(title = stringResource(Res.string.repos_title), onBack = null) {
-            NitpickToolbarAction(text = accountLogin.ifBlank { stringResource(Res.string.connect_edit) }, onClick = onEditConnection)
+            NitpickToolbarAction(
+                text = accountLogin.ifBlank { stringResource(Res.string.connect_edit) },
+                onClick = onEditConnection,
+                leading = accountIcon?.let { { NitpickIcon(it, contentDescription = null, tint = NitpickTheme.colors.onToolbar) } },
+            )
             SettingsAction(onOpenSettings)
         }
         if (recentRepositories.isEmpty()) {
@@ -61,21 +74,18 @@ fun ReposScreen(
             ) {
                 items(recentRepositories, key = { it }) { path -> RepositoryCard(path, onClick = { onOpen(path) }) }
             }
-            PhoneBottomButton(text = stringResource(Res.string.clone_repo), onClick = onClone)
+            PhoneBottomButton(text = stringResource(Res.string.clone_repo), onClick = onClone, icon = Res.drawable.ic_cloud)
         }
     }
 }
 
 @Composable
 private fun RepositoryCard(path: String, onClick: () -> Unit) {
+    // The storage path is the app's private folder: it tells the user nothing, the name is enough.
     NitpickCard(modifier = Modifier.fillMaxWidth().clickable(onClick = onClick)) {
-        Text(text = folderName(path), style = NitpickTheme.typography.bodyStrong, color = NitpickTheme.colors.text)
-        Text(
-            text = path,
-            style = NitpickTheme.typography.codeSmall,
-            color = NitpickTheme.colors.textMuted,
-            maxLines = 1,
-            overflow = TextOverflow.Ellipsis,
-        )
+        Row(Modifier.fillMaxWidth().heightIn(min = RepositoryRowHeight), verticalAlignment = Alignment.CenterVertically) {
+            Text(text = folderName(path), style = NitpickTheme.typography.bodyStrong, color = NitpickTheme.colors.text, modifier = Modifier.weight(1f))
+            Text("›", style = NitpickTheme.typography.title, color = NitpickTheme.colors.textMuted)
+        }
     }
 }

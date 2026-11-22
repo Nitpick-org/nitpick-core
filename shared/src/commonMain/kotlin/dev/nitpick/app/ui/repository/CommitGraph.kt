@@ -52,6 +52,7 @@ fun CommitGraphList(
     onSelectCommit: (String) -> Unit,
     modifier: Modifier = Modifier,
     showLanes: Boolean = true,
+    compactTime: Boolean = false,
 ) {
     val laneCount = remember(graph) { graph.maxOfOrNull(::laneCountForRow)?.coerceAtLeast(1) ?: 1 }
     val graphWidth = if (showLanes) LaneLeftPadding * 2 + LaneSpacing * laneCount else LaneLeftPadding
@@ -62,6 +63,7 @@ fun CommitGraphList(
                 row = row,
                 graphWidth = graphWidth,
                 showLanes = showLanes,
+                compactTime = compactTime,
                 selected = row.commit.id == selectedCommitId,
                 onClick = { onSelectCommit(row.commit.id) },
             )
@@ -70,8 +72,10 @@ fun CommitGraphList(
 }
 
 @Composable
-private fun CommitGraphRowItem(row: CommitGraphRow, graphWidth: Dp, showLanes: Boolean, selected: Boolean, onClick: () -> Unit) {
-    val time = remember(row.commit.timestampEpochSeconds) { formatCommitTime(row.commit.timestampEpochSeconds) }
+private fun CommitGraphRowItem(row: CommitGraphRow, graphWidth: Dp, showLanes: Boolean, compactTime: Boolean, selected: Boolean, onClick: () -> Unit) {
+    val time = remember(row.commit.timestampEpochSeconds, compactTime) {
+        if (compactTime) formatCommitTimeCompact(row.commit.timestampEpochSeconds) else formatCommitTime(row.commit.timestampEpochSeconds)
+    }
     Row(
         modifier = Modifier
             .fillMaxWidth()

@@ -194,6 +194,7 @@
     <string name="fetch_error">La récupération a échoué</string>
     <string name="sync_ahead">↑%1$d</string>
     <string name="sync_ahead_behind">↑%1$d ↓%2$d</string>
+    <string name="sync_up_to_date">À jour</string>
     <string name="sync_pull_count">Pull %1$d</string>
     <string name="sync_push_count">Push %1$d</string>
     <string name="branch_no_upstream">Pas de branche amont</string>

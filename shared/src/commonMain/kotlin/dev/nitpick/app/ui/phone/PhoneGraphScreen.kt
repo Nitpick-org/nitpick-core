@@ -11,6 +11,13 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.Text
+import dev.nitpick.app.ui.components.NitpickIcon
+import nitpick.shared.generated.resources.ic_fetch
+import nitpick.shared.generated.resources.ic_pull
+import nitpick.shared.generated.resources.ic_push
+import nitpick.shared.generated.resources.ic_tweezers
+import org.jetbrains.compose.resources.DrawableResource
+import nitpick.shared.generated.resources.sync_up_to_date
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -40,6 +47,7 @@ import nitpick.shared.generated.resources.action_back
 import nitpick.shared.generated.resources.branch_checkout_hint
 import nitpick.shared.generated.resources.branch_no_upstream
 import nitpick.shared.generated.resources.fetch_action
+import nitpick.shared.generated.resources.ic_cloud
 import nitpick.shared.generated.resources.fetch_in_progress
 import nitpick.shared.generated.resources.pull_action
 import nitpick.shared.generated.resources.pull_in_progress
@@ -84,7 +92,7 @@ fun PhoneGraphScreen(
 ) {
     Column(modifier.fillMaxSize().background(NitpickTheme.colors.canvas)) {
         PhoneTopBar(title = state.path?.let(::folderName) ?: "", onBack = onBack) {
-            NitpickToolbarAction(text = stringResource(Res.string.shared_open), onClick = onOpenShared)
+            PhoneIconAction(Res.drawable.ic_cloud, stringResource(Res.string.shared_open), onOpenShared)
             SettingsAction(onOpenSettings)
         }
         when {
@@ -101,9 +109,10 @@ fun PhoneGraphScreen(
                 BranchCard(state, onFetch, onPull, onPush, onPublish, Modifier.fillMaxWidth().padding(16.dp))
                 GraphContent(state, onSelectCommit, onCheckoutBranch, Modifier.weight(1f))
                 syncStatusMessage(state)?.let { message ->
+                    NitpickDivider()
                     Text(
                         text = message,
-                        modifier = Modifier.fillMaxWidth().padding(horizontal = 16.dp),
+                        modifier = Modifier.fillMaxWidth().padding(horizontal = 16.dp, vertical = 8.dp),
                         style = NitpickTheme.typography.small,
                         color = if (state.hasSyncProblem()) NitpickTheme.colors.danger else NitpickTheme.colors.success,
                     )
@@ -112,6 +121,7 @@ fun PhoneGraphScreen(
                     text = stringResource(if (state.isCheckingOut) Res.string.repository_loading else Res.string.review_cta),
                     onClick = onReview,
                     enabled = !state.isCheckingOut,
+                    icon = Res.drawable.ic_tweezers,
                 )
             }
         }
@@ -150,10 +160,11 @@ private fun BranchCard(
                 modifier = Modifier.weight(1f, fill = false),
             )
             state.tracking?.let {
+                val inSync = it.ahead == 0 && it.behind == 0
                 Text(
-                    text = stringResource(Res.string.sync_ahead_behind, it.ahead, it.behind),
+                    text = if (inSync) stringResource(Res.string.sync_up_to_date) else stringResource(Res.string.sync_ahead_behind, it.ahead, it.behind),
                     style = NitpickTheme.typography.codeSmall,
-                    color = NitpickTheme.colors.textMuted,
+                    color = if (inSync) NitpickTheme.colors.success else NitpickTheme.colors.textMuted,
                 )
             }
         }
@@ -161,6 +172,7 @@ private fun BranchCard(
         Row(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.spacedBy(8.dp)) {
             SyncButton(
                 text = stringResource(if (state.isFetching) Res.string.fetch_in_progress else Res.string.fetch_action),
+                icon = Res.drawable.ic_fetch,
                 onClick = onFetch,
                 enabled = enabled,
                 modifier = Modifier.weight(1f),
@@ -171,6 +183,7 @@ private fun BranchCard(
                     (state.tracking?.behind ?: 0) > 0 -> stringResource(Res.string.sync_pull_count, state.tracking!!.behind)
                     else -> stringResource(Res.string.pull_action)
                 },
+                icon = Res.drawable.ic_pull,
                 onClick = onPull,
                 enabled = enabled,
                 modifier = Modifier.weight(1f),
@@ -183,6 +196,7 @@ private fun BranchCard(
                         state.tracking.ahead > 0 -> stringResource(Res.string.sync_push_count, state.tracking.ahead)
                         else -> stringResource(Res.string.push_action)
                     },
+                    icon = Res.drawable.ic_push,
                     onClick = if (state.tracking == null) onPublish else onPush,
                     enabled = enabled,
                     modifier = Modifier.weight(1f),
@@ -193,7 +207,7 @@ private fun BranchCard(
 }
 
 @Composable
-private fun SyncButton(text: String, onClick: () -> Unit, enabled: Boolean, modifier: Modifier) {
+private fun SyncButton(text: String, icon: DrawableResource, onClick: () -> Unit, enabled: Boolean, modifier: Modifier) {
     NitpickButton(
         text = text,
         onClick = onClick,
@@ -201,6 +215,7 @@ private fun SyncButton(text: String, onClick: () -> Unit, enabled: Boolean, modi
         variant = NitpickButtonVariant.Secondary,
         size = NitpickButtonSize.Large,
         enabled = enabled,
+        leading = { NitpickIcon(icon, contentDescription = null, tint = NitpickTheme.colors.text) },
     )
 }
 
@@ -229,7 +244,7 @@ private fun GraphContent(state: RepositoryUiState, onSelectCommit: (String) -> U
             style = NitpickTheme.typography.small,
             color = NitpickTheme.colors.textMuted,
         )
-        else -> CommitGraphList(state.graph, state.selectedCommitId, onSelectCommit, Modifier.fillMaxSize())
+        else -> CommitGraphList(state.graph, state.selectedCommitId, onSelectCommit, Modifier.fillMaxSize(), compactTime = true)
     }
     }
 }
