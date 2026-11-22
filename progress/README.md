@@ -8,6 +8,7 @@ touch the same file.
 
 ## Rule
 
+- Write entries in English (the repository is English end to end).
 - An agent writes **only** to `progress/<ticket>.md` (created by `scripts/new-worktree.sh`).
 - `progress.txt` is the **summary log**: only humans (ideally the integrator) write it,
   at every sync, in 3 to 5 lines.

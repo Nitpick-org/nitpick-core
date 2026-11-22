@@ -93,6 +93,8 @@ server/                                              ← Ktor review-sharing ser
 
 ## How we work
 
+- **Language**: docs, `progress/` entries, code comments and commit messages are in
+  English; only the app's `values-fr/` strings, and the docs that quote them, are French.
 - **One ticket = one worktree = one file zone = one writer.**
 - **Vertical slice**: a ticket ships a visible end-to-end behaviour. Order:
   the review → inline nit → apply → commit loop first, risky integrations
