@@ -276,7 +276,18 @@ class RepositoryViewModel(
             try {
                 val result = withTimeout(REVIEW_TIMEOUT) { reviewAgent.review(git, _state.value.baseRef) }
                 if (repository !== git) return@launch
-                _state.update { it.copy(review = result, isReviewing = false, sharedReviewId = null, shareFailure = null, openedSharedReview = null) }
+                // A new review reuses file:line ids: keep appliedFiles for the commit, but the new
+                // nits must not inherit the previous "Applied" marks (#137).
+                _state.update {
+                    it.copy(
+                        review = result,
+                        isReviewing = false,
+                        appliedIds = emptySet(),
+                        sharedReviewId = null,
+                        shareFailure = null,
+                        openedSharedReview = null,
+                    )
+                }
             } catch (e: TimeoutCancellationException) {
                 // A CancellationException subclass: it must be caught before the generic one.
                 if (repository === git) _state.update { it.copy(isReviewing = false, reviewError = ReviewFailure.Timeout) }
@@ -434,7 +445,8 @@ class RepositoryViewModel(
      */
     fun openSharedReview(shared: SharedReview) {
         val git = repository ?: return
-        if (_state.value.isSyncing || _state.value.isReviewing) return
+        // Switching branch would carry applied edits to another branch and lose the commit bar (#138).
+        if (_state.value.isSyncing || _state.value.isReviewing || _state.value.appliedFiles.isNotEmpty()) return
         viewModelScope.launch {
             // A failed checkout shows its error and the nits land on the current files instead.
             if (shared.branch != _state.value.currentBranch) switchTo(git, shared.branch)
@@ -595,8 +607,9 @@ class RepositoryViewModel(
     /** Switches to [branch] and reloads the graph, the diff and the review for it. */
     fun checkoutBranch(branch: String) {
         val git = repository ?: return
-        // A review still running would land its nits on the new branch.
-        if (_state.value.isSyncing || _state.value.isReviewing || branch == _state.value.currentBranch) return
+        // A review still running would land its nits on the new branch; applied edits must be
+        // committed or discarded before leaving this branch (#138).
+        if (_state.value.isSyncing || _state.value.isReviewing || _state.value.appliedFiles.isNotEmpty() || branch == _state.value.currentBranch) return
         viewModelScope.launch { switchTo(git, branch) }
     }
 
