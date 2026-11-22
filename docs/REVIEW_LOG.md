@@ -14,3 +14,4 @@
 | 00:35 | H3 | #81 | Claude Code | A failed push on Graph showed nothing | `syncStatusMessage` ignored `pushError` | Status line now shows push failures |
 | 00:45 | H2 | #104/#114 | Nitpick | Pull said `Pull failed: Aborted` on a dirty diverged tree | JGit returns `ABORTED` without throwing; the catch never ran | PR #118 raises the uncommitted-changes message |
 | 02:20 | H2 | #174 | lead | Conflict between anchor ellipsis and separate `:line` | Both fixes had to coexist | Keep `StartEllipsis` on the path + separate `:line` text |
+| 11:48 | H2 | #255 / #258 | Junie Lite via Junie CLI | Added an unrequested `resolveModel()` helper next to the test | Production code with no caller, after the feature freeze | Helper removed, test kept |
