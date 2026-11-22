@@ -16,7 +16,6 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import dev.nitpick.app.domain.ReviewComment
-import dev.nitpick.app.domain.Severity
 import dev.nitpick.app.domain.SharedReview
 import dev.nitpick.app.ui.components.NitpickBadge
 import dev.nitpick.app.ui.components.SeverityCounters
@@ -28,8 +27,6 @@ import dev.nitpick.app.ui.components.NitpickReviewLoader
 import dev.nitpick.app.ui.components.NitpickEmptyState
 import dev.nitpick.app.ui.components.NitpickTextField
 import dev.nitpick.app.ui.components.ReviewCommentCard
-import dev.nitpick.app.ui.components.severityLabel
-import dev.nitpick.app.ui.components.severityTone
 import dev.nitpick.app.ui.theme.NitpickTheme
 import dev.nitpick.app.ui.theme.NitpickTone
 import nitpick.shared.generated.resources.Res
