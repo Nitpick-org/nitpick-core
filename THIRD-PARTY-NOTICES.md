@@ -46,3 +46,11 @@ components, not to Nitpick's own code.
 If you redistribute the built application, keep this file and the license texts
 above with it. The JGit EPL-2.0 notice and its source-availability pointer are
 required; the Apache-2.0 and OFL-1.1 texts are included by reference.
+
+## Simple Icons — CC0 1.0
+
+- Project: <https://simpleicons.org>
+- License: <https://creativecommons.org/publicdomain/zero/1.0/>
+- The GitHub, GitLab, Anthropic, OpenAI, Google, Ollama and JetBrains marks in
+  `shared/src/commonMain/composeResources/drawable/` are drawn from its SVG paths and tinted at
+  use. The marks remain trademarks of their owners.

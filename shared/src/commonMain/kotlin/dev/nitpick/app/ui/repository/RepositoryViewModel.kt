@@ -15,6 +15,7 @@ import dev.nitpick.app.domain.TrackingStatus
 import dev.nitpick.app.git.GitRepository
 import dev.nitpick.app.git.GitRepositoryFactory
 import dev.nitpick.app.review.LocalReviewAgent
+import dev.nitpick.app.review.JunieUnavailableException
 import dev.nitpick.app.review.MissingApiKeyException
 import dev.nitpick.app.review.ReviewAgent
 import dev.nitpick.app.review.ReviewAnchoring
@@ -48,6 +49,8 @@ internal val REVIEW_TIMEOUT = 90.seconds
 
 sealed interface ReviewFailure {
     data class MissingKey(val provider: LlmProvider) : ReviewFailure
+    /** The Junie CLI is missing or signed out: a terminal fixes it, not the settings. */
+    data object JunieUnavailable : ReviewFailure
     data object Network : ReviewFailure
     data object Timeout : ReviewFailure
     data object InvalidAnswer : ReviewFailure
@@ -64,6 +67,7 @@ sealed interface ShareFailure {
 
 private fun Throwable.toReviewFailure(): ReviewFailure = when {
     this is MissingApiKeyException -> ReviewFailure.MissingKey(provider)
+    this is JunieUnavailableException -> ReviewFailure.JunieUnavailable
     isTimeout() -> ReviewFailure.Timeout
     this is ReviewProviderException -> ReviewFailure.Network
     this is ReviewResponseException -> ReviewFailure.InvalidAnswer

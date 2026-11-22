@@ -41,6 +41,8 @@ import nitpick.shared.generated.resources.error_key_action
 import nitpick.shared.generated.resources.review_ai_badge
 import nitpick.shared.generated.resources.review_clean_badge
 import nitpick.shared.generated.resources.error_key_body
+import nitpick.shared.generated.resources.error_junie_body
+import nitpick.shared.generated.resources.error_junie_title
 import nitpick.shared.generated.resources.error_key_title
 import nitpick.shared.generated.resources.error_network_body
 import nitpick.shared.generated.resources.error_network_title
@@ -221,6 +223,13 @@ internal fun ReviewFailureState(
             stringResource(Res.string.error_key_body, stringResource(failure.provider.label)),
             stringResource(Res.string.error_key_action),
             onOpenSettings,
+        )
+        ReviewFailure.JunieUnavailable -> FailureContent(
+            NitpickTone.Warning,
+            stringResource(Res.string.error_junie_title),
+            stringResource(Res.string.error_junie_body),
+            stringResource(Res.string.review_retry),
+            onRetry,
         )
         ReviewFailure.Network -> FailureContent(
             NitpickTone.Danger,

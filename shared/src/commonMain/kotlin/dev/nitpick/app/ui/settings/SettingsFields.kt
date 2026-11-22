@@ -31,12 +31,19 @@ import nitpick.shared.generated.resources.connect_token_help
 import nitpick.shared.generated.resources.connect_token_hide
 import nitpick.shared.generated.resources.connect_token_label
 import nitpick.shared.generated.resources.connect_token_show
+import nitpick.shared.generated.resources.ic_anthropic
+import nitpick.shared.generated.resources.ic_google
+import nitpick.shared.generated.resources.ic_jetbrains
+import nitpick.shared.generated.resources.ic_ollama
+import nitpick.shared.generated.resources.ic_openai
+import nitpick.shared.generated.resources.settings_junie_help
 import nitpick.shared.generated.resources.settings_api_key
 import nitpick.shared.generated.resources.settings_api_key_help
 import nitpick.shared.generated.resources.settings_server_url
 import nitpick.shared.generated.resources.settings_server_url_help
 import nitpick.shared.generated.resources.settings_server_token_help
 import nitpick.shared.generated.resources.settings_server_token
+import org.jetbrains.compose.resources.DrawableResource
 import org.jetbrains.compose.resources.stringResource
 
 /** Model select shared by the desktop dialog and the phone screen: a secondary button plus a menu. */
@@ -131,6 +138,26 @@ internal fun GitTokenField(
             color = NitpickTheme.colors.textMuted,
         )
     }
+}
+
+internal val LlmProvider.icon: DrawableResource
+    get() = when (this) {
+        LlmProvider.ANTHROPIC -> Res.drawable.ic_anthropic
+        LlmProvider.OPENAI -> Res.drawable.ic_openai
+        LlmProvider.GOOGLE -> Res.drawable.ic_google
+        LlmProvider.OLLAMA -> Res.drawable.ic_ollama
+        LlmProvider.JUNIE -> Res.drawable.ic_jetbrains
+    }
+
+/** Shown instead of the key field: the Junie CLI carries the account, the app holds no key. */
+@Composable
+internal fun JunieHelpText(modifier: Modifier = Modifier) {
+    Text(
+        text = stringResource(Res.string.settings_junie_help),
+        modifier = modifier,
+        style = NitpickTheme.typography.micro,
+        color = NitpickTheme.colors.textMuted,
+    )
 }
 
 /** Masked key field with Show/Hide and the help line naming the provider the key goes to. */

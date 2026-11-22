@@ -195,11 +195,16 @@ private fun ReviewSection(draft: Settings, onEdit: ((Settings) -> Settings) -> U
             options = LlmProvider.entries,
             selected = draft.provider,
             label = { providerLabels.getValue(it) },
+            icon = { it.icon },
             onSelect = { provider -> onEdit { it.copy(provider = provider, model = provider.knownModels.first()) } },
         )
         FieldLabel(Res.string.settings_model)
         ModelSelector(draft.model, draft.provider.knownModels, { model -> onEdit { it.copy(model = model) } }, Modifier.width(ControlWidth))
-        ApiKeyField(draft.apiKey, draft.provider, { key -> onEdit { it.copy(apiKey = key) } }, Modifier.width(KeyFieldWidth))
+        if (draft.provider == LlmProvider.JUNIE) {
+            JunieHelpText(Modifier.width(KeyFieldWidth))
+        } else {
+            ApiKeyField(draft.apiKey, draft.provider, { key -> onEdit { it.copy(apiKey = key) } }, Modifier.width(KeyFieldWidth))
+        }
     }
 }
 

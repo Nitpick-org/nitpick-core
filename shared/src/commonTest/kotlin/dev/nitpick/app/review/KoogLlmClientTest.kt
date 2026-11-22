@@ -1,5 +1,6 @@
 package dev.nitpick.app.review
 
+import dev.nitpick.app.git.FakeGitRepository
 import dev.nitpick.app.settings.LlmProvider
 import dev.nitpick.app.settings.Settings
 import dev.nitpick.app.settings.SettingsStore
@@ -30,6 +31,29 @@ class KoogLlmClientTest {
     }
 
     @Test
+    fun theJunieProviderGoesToTheJunieClientWithThePlainPrompt() = runTest {
+        val systems = mutableListOf<String>()
+        val junie = object : LlmClient {
+            override suspend fun complete(system: String, user: String): String {
+                systems += system
+                return "{}"
+            }
+        }
+        val client = KoogLlmClient(store(Settings(provider = LlmProvider.JUNIE, apiKey = "")), junie = junie)
+
+        assertEquals("{}", client.complete("plain", "u"))
+        val withTools = ReviewPrompt(system = "plain\n\nTools:\n- read_file(path)", user = "u")
+        assertEquals("{}", client.completeWithTools(withTools, ReviewToolbox(FakeGitRepository())))
+        assertEquals(listOf("plain", "plain"), systems)
+    }
+
+    @Test
+    fun theJunieProviderWithoutACliIsUnavailableNotAMissingKey() = runTest {
+        val client = KoogLlmClient(store(Settings(provider = LlmProvider.JUNIE, apiKey = "")))
+        assertFailsWith<JunieUnavailableException> { client.complete("s", "u") }
+    }
+
+    @Test
     fun onlyAToolUnsupportedErrorAllowsTheNoToolFallback() {
         assertTrue(LLMClientException("model does not support tools", "anthropic", null).allowsToolFallback())
         assertTrue(LLMClientException("tools are unsupported", "openai", null).allowsToolFallback())
@@ -41,7 +65,7 @@ class KoogLlmClientTest {
 
     @Test
     fun aModelUnknownToKoogKeepsItsIdAndGetsKoogsCapabilitiesForEveryProvider() {
-        LlmProvider.entries.forEach { provider ->
+        (LlmProvider.entries - LlmProvider.JUNIE).forEach { provider ->
             val model = koogModelFor(Settings(provider = provider, model = "next-gen-model"))
             assertEquals("next-gen-model", model.id, provider.name)
             assertTrue(model.capabilities.orEmpty().isNotEmpty(), provider.name)

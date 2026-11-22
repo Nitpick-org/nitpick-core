@@ -185,6 +185,11 @@
     <string name="filter_graph_hidden">Graph hidden while filtering</string>
     <string name="provider_cloud_hint">Cloud API, uses your API key</string>
     <string name="provider_ollama_hint">Self-hosted on this machine, no API key</string>
+    <string name="provider_junie">JetBrains AI (Junie)</string>
+    <string name="provider_junie_hint">Desktop only: runs the Junie CLI signed in on this machine</string>
+    <string name="settings_junie_help">Runs the Junie CLI signed in on this machine: run junie once in a terminal. No API key.</string>
+    <string name="error_junie_title">The Junie CLI is not ready</string>
+    <string name="error_junie_body">Nitpick could not run the Junie CLI. Install it and sign in by running junie in a terminal, then retry. Nothing was sent.</string>
     <string name="pull_action">Pull</string>
     <string name="pull_updated">Pulled new commits</string>
     <string name="pull_up_to_date">Already up to date</string>
