@@ -26,11 +26,15 @@ import dev.nitpick.app.settings.ThemeMode
 import dev.nitpick.app.settings.knownModels
 import dev.nitpick.app.ui.components.NitpickCard
 import dev.nitpick.app.ui.components.NitpickRadioGroup
+import dev.nitpick.app.ui.components.NitpickRadioPlaceholder
 import dev.nitpick.app.ui.components.NitpickSegmentedControl
 import dev.nitpick.app.ui.phone.PhoneTopBar
 import dev.nitpick.app.ui.repository.label
 import dev.nitpick.app.ui.theme.NitpickTheme
 import nitpick.shared.generated.resources.Res
+import nitpick.shared.generated.resources.ic_jetbrains
+import nitpick.shared.generated.resources.provider_junie
+import nitpick.shared.generated.resources.provider_junie_hint
 import nitpick.shared.generated.resources.provider_cloud_hint
 import nitpick.shared.generated.resources.provider_ollama_hint
 import nitpick.shared.generated.resources.settings_model
@@ -110,6 +114,16 @@ fun SettingsScreen(settings: Settings, onChange: ((Settings) -> Settings) -> Uni
                     subtitle = { providerHints.getValue(it) },
                     vertical = true,
                     rowHeight = RadioRowHeight,
+                    trailing = {
+                        NitpickRadioPlaceholder(
+                            label = stringResource(Res.string.provider_junie),
+                            icon = Res.drawable.ic_jetbrains,
+                            hint = stringResource(Res.string.provider_junie_hint),
+                            modifier = Modifier.fillMaxWidth(),
+                            subtitle = stringResource(Res.string.provider_junie_hint),
+                            rowHeight = RadioRowHeight,
+                        )
+                    },
                 )
                 SectionTitle(Res.string.settings_model)
                 ModelSelector(

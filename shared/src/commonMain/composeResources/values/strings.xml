@@ -185,6 +185,8 @@
     <string name="filter_graph_hidden">Graph hidden while filtering</string>
     <string name="provider_cloud_hint">Cloud API, uses your API key</string>
     <string name="provider_ollama_hint">Self-hosted on this machine, no API key</string>
+    <string name="provider_junie">JetBrains AI (Junie)</string>
+    <string name="provider_junie_hint">Coming: no public API yet</string>
     <string name="pull_action">Pull</string>
     <string name="pull_updated">Pulled new commits</string>
     <string name="pull_up_to_date">Already up to date</string>

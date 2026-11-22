@@ -19,6 +19,11 @@
   its hint subtitle.
 - Four Simple Icons marks, tinted `text` / `textSecondary` like the segmented control; credited
   in `THIRD-PARTY-NOTICES.md`.
+- Hover and press feedback stays on the radio disc only (row click with no indication, the
+  disc carries the row's interaction source), after H2's first look.
+- A greyed "JetBrains AI (Junie)" placeholder after the four providers, on both platforms: no
+  click, no call, the reason in the tooltip and in the Android subtitle. H2 decided reading B of
+  #227 this way on 22/11.
 
 ## Decisions
 
