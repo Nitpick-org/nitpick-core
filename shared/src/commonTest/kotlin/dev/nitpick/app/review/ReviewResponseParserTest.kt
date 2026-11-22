@@ -47,4 +47,12 @@ class ReviewResponseParserTest {
         assertFailsWith<ReviewResponseException> { parseReviewResponse("I cannot review this.") }
         assertFailsWith<ReviewResponseException> { parseReviewResponse("{\"comments\": [{}]}") }
     }
+
+    @Test
+    fun aSuggestionWithoutASnippetIsDroppedBecauseApplyCouldNotPlaceIt() {
+        val result = parseReviewResponse(
+            """{"summary": "s", "comments": [{"filePath": "a.kt", "startLine": 3, "message": "m", "suggestion": "fixed()"}]}""",
+        )
+        assertEquals(null, result.comments.single().suggestion)
+    }
 }

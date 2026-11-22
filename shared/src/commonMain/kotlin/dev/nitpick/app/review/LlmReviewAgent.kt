@@ -33,7 +33,7 @@ class LlmReviewAgent(
             // Tool-using models sometimes answer in prose after the tool round. Ask once more,
             // without tools, for the JSON contract instead of failing the whole review.
             val repaired = client.complete(
-                prompt.system,
+                prompt.withoutTools().system,
                 prompt.user + "\n\nYour previous answer did not contain a JSON object. " +
                     "Return ONLY the review JSON object now, with no prose and no markdown fences.",
             )

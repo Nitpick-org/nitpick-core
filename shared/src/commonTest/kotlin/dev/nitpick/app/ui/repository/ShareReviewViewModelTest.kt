@@ -137,6 +137,19 @@ class ShareReviewViewModelTest {
     }
 
     @Test
+    fun aSharedNitOnAnUntrackedOrGitFileIsDropped() {
+        val client = FakeShareClient()
+        val outside = nit.copy(id = "c3", filePath = "sub/.git/config")
+        client.shared += SharedReview("id-7", "https://github.com/Nitpick-org/pocket-ledger.git", "feature/pages", "main", head.id, ReviewResult("2 nits", listOf(nit, outside)))
+        val phone = viewModel(client)
+
+        phone.loadSharedReviews()
+        phone.openSharedReview(phone.state.value.sharedReviews.single())
+
+        assertEquals(listOf(nit.id), phone.state.value.review!!.comments.map { it.id })
+    }
+
+    @Test
     fun aSharedReviewOfAnotherBranchChecksThatBranchOutFirst() {
         val client = FakeShareClient()
         viewModel(client).apply { reviewBranch(); shareReview() }

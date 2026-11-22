@@ -93,4 +93,11 @@ class ReviewAnchoringTest {
         assertTrue(ReviewAnchoring.anchorOrFileLevel(null, comment(1, "one", "x")).isFileLevel)
         assertTrue(ReviewAnchoring.anchorOrFileLevel("one\n", comment(9, "", "x")).isFileLevel)
     }
+
+    @Test
+    fun keepsCrlfLineEndingsWhenApplying() {
+        val content = "a\r\nb\r\nc\r\n"
+        val updated = ReviewAnchoring.apply(content, comment(start = 2, snippet = "b", suggestion = "B\nB2"))
+        assertEquals("a\r\nB\r\nB2\r\nc\r\n", updated)
+    }
 }

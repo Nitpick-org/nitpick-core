@@ -14,14 +14,17 @@ object ReviewAnchoring {
     fun apply(content: String, comment: ReviewComment): String {
         val suggestion = comment.suggestion
             ?: throw IllegalArgumentException("Comment ${comment.id} has no suggestion")
-        val lines = content.split("\n")
+        // A CRLF file must stay CRLF: work on LF lines, put the original ending back at the end.
+        val crlf = content.contains("\r\n")
+        val lines = (if (crlf) content.replace("\r\n", "\n") else content).split("\n")
         val snippet = normalizedSnippet(comment.originalSnippet)
         if (snippet.isEmpty()) throw IllegalArgumentException("Comment ${comment.id} has no snippet")
         val start = findSnippet(lines, snippet, preferredStart = comment.startLine - 1)
             ?: throw IllegalArgumentException("Snippet not found for ${comment.id}")
-        val replacement = withOriginalIndentation(lines[start], suggestion)
-        return (lines.subList(0, start) + replacement + lines.subList(start + snippet.size, lines.size))
+        val replacement = withOriginalIndentation(lines[start], suggestion.replace("\r\n", "\n"))
+        val updated = (lines.subList(0, start) + replacement + lines.subList(start + snippet.size, lines.size))
             .joinToString("\n")
+        return if (crlf) updated.replace("\n", "\r\n") else updated
     }
 
     /**

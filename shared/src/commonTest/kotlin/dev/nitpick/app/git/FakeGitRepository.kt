@@ -32,7 +32,8 @@ class FakeGitRepository(
         diffs[baseRef] ?: throw IllegalArgumentException("Unknown base: $baseRef")
     override suspend fun writeFile(path: String, content: String) { files[path] = content }
     override suspend fun stage(paths: List<String>) { staged += paths }
-    override suspend fun commit(message: String) { commitMessages += message }
+    val committedPaths = mutableListOf<List<String>>()
+    override suspend fun commit(message: String, paths: List<String>) { commitMessages += message; committedPaths += paths }
     override suspend fun fetch(credentials: Credentials?) = notFaked("fetch")
     override suspend fun pull(credentials: Credentials?): PullResult = notFaked("pull")
     override suspend fun push(credentials: Credentials?) = notFaked("push")

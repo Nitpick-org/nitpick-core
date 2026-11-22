@@ -635,4 +635,55 @@ class JGitRepositoryTest {
 
         assertEquals(before, repo.git("rev-parse", "HEAD").trim())
     }
+
+    @Test
+    fun readFileRefusesANonUtf8FileInsteadOfReplacingItsBytes() = runBlocking<Unit> {
+        repo.write("a.txt", "x")
+        repo.commit("base", at = 1_000)
+        File(repo.dir, "latin1.txt").writeBytes(byteArrayOf(0x63, 0x61, 0x66, 0xE9.toByte(), 0x0A))
+        val git = open()
+
+        val error = assertFailsWith<IllegalArgumentException> { git.readFile("latin1.txt") }
+
+        assertTrue(error.message!!.contains("latin1.txt"))
+    }
+
+    @Test
+    fun writeFileLeavesNoTemporaryFileBehind() = runBlocking<Unit> {
+        repo.write("a.txt", "one\n")
+        repo.commit("base", at = 1_000)
+        val git = open()
+
+        git.writeFile("a.txt", "two\n")
+
+        assertEquals("two\n", git.readFile("a.txt"))
+        assertEquals(listOf("a.txt"), repo.dir.listFiles()!!.map { it.name }.filterNot { it == ".git" }.sorted())
+    }
+
+    @Test
+    fun commitWithPathsLeavesAFileStagedByHandOutOfTheCommit() = runBlocking<Unit> {
+        repo.write("a.txt", "one\n")
+        repo.write("notes.txt", "draft\n")
+        repo.commit("base", at = 1_000)
+        val git = open()
+        repo.write("notes.txt", "my notes\n")
+        repo.git("add", "notes.txt")
+        git.writeFile("a.txt", "one\ntwo\n")
+        git.stage(listOf("a.txt"))
+
+        git.commit("apply review suggestion", listOf("a.txt"))
+
+        assertEquals("a.txt", repo.git("show", "--name-only", "--format=", "HEAD").trim())
+        assertEquals(listOf("notes.txt"), git.status().staged)
+    }
+
+    @Test
+    fun readFileRefusesANestedGitDirectory() = runBlocking<Unit> {
+        repo.write("a.txt", "x")
+        repo.commit("base", at = 1_000)
+        File(repo.dir, "sub/.git").mkdirs()
+        File(repo.dir, "sub/.git/config").writeText("[core]\n")
+
+        assertFailsWith<IllegalArgumentException> { open().readFile("sub/.git/config") }
+    }
 }

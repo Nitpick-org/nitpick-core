@@ -20,7 +20,8 @@ interface GitRepository {
     suspend fun listFiles(): List<String>
     suspend fun writeFile(path: String, content: String)
     suspend fun stage(paths: List<String>)
-    suspend fun commit(message: String)
+    /** Commits [paths] only when given, so a file staged by hand stays out of the review commit. */
+    suspend fun commit(message: String, paths: List<String> = emptyList())
     suspend fun fetch(credentials: Credentials?)
     suspend fun pull(credentials: Credentials?): PullResult
     suspend fun push(credentials: Credentials?)

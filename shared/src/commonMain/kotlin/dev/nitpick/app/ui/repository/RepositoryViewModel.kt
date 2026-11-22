@@ -18,6 +18,7 @@ import dev.nitpick.app.review.LocalReviewAgent
 import dev.nitpick.app.review.MissingApiKeyException
 import dev.nitpick.app.review.ReviewAgent
 import dev.nitpick.app.review.ReviewAnchoring
+import dev.nitpick.app.review.isReviewablePath
 import dev.nitpick.app.review.ReviewProviderException
 import dev.nitpick.app.review.ReviewResponseException
 import dev.nitpick.app.share.ReviewShareClient
@@ -313,8 +314,10 @@ class RepositoryViewModel(
         viewModelScope.launch {
             try {
                 writeLock.withLock {
-                    // A double tap must not run the same patch twice.
-                    if (comment.id in _state.value.appliedIds) return@withLock
+                    // A double tap must not run the same patch twice, and a nit already committed
+                    // (so no longer in the review) must not be applied again from a stale click.
+                    val current = _state.value
+                    if (comment.id in current.appliedIds || current.review?.comments?.none { it.id == comment.id } != false) return@withLock
                     val content = git.readFile(comment.filePath)
                         ?: error("File not found: ${comment.filePath}")
                     val updated = ReviewAnchoring.apply(content, comment)
@@ -381,11 +384,13 @@ class RepositoryViewModel(
                             }
                         }
                         val appliedComments = it.review?.comments.orEmpty().filter { comment -> comment.id in applied }
+                        val appliedBefore = it.review?.comments.orEmpty().filter { comment -> comment.id in it.appliedIds }
+                        val untouched = it.commitMessage.isBlank() || it.commitMessage == commitMessageFor(appliedBefore)
                         it.copy(
                             review = it.review?.copy(comments = comments),
                             appliedIds = applied,
                             appliedFiles = it.appliedFiles + filePath,
-                            commitMessage = if (it.commitMessage.isBlank()) commitMessageFor(appliedComments) else it.commitMessage,
+                            commitMessage = if (untouched) commitMessageFor(appliedComments) else it.commitMessage,
                         )
                     }
                 }
@@ -420,7 +425,7 @@ class RepositoryViewModel(
                     val state = _state.value
                     if (state.appliedFiles.isEmpty()) return@withLock
                     git.stage(state.appliedFiles.toList())
-                    git.commit(state.commitMessage)
+                    git.commit(state.commitMessage, state.appliedFiles.toList())
                     if (repository !== git) return@withLock
                     val commits = git.log()
                     val graph = withContext(graphDispatcher) { buildCommitGraph(commits) }
@@ -518,7 +523,10 @@ class RepositoryViewModel(
             if (shared.branch != _state.value.currentBranch) switchTo(git, shared.branch)
             if (repository !== git) return@launch
             val comments = try {
-                reanchor(git, shared.result.comments)
+                // A shared review comes from the network: keep its nits on tracked, reviewable
+                // files only, like a local review (no secrets file, no nested .git, no untracked file).
+                val tracked = git.listFiles().toHashSet()
+                reanchor(git, shared.result.comments.filter { it.filePath in tracked && isReviewablePath(it.filePath) })
             } catch (e: CancellationException) {
                 throw e
             } catch (e: Exception) {
