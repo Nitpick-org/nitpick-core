@@ -24,6 +24,8 @@ compose.desktop {
         if (System.getProperty("os.name").startsWith("Mac")) {
             jvmArgs(
                 "-Xdock:name=Nitpick",
+                // The Dock reads -Xdock:name; the application menu next to the Apple logo reads this one.
+                "-Dapple.awt.application.name=Nitpick",
                 // Not the shared full-bleed artwork: macOS icons carry ~18% transparent
                 // margin in the file itself, or the dock tile looks oversized.
                 "-Xdock:icon=${project.file("dock-icon.png")}",
