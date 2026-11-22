@@ -40,7 +40,9 @@ import dev.nitpick.app.ui.components.NitpickButtonVariant
 import dev.nitpick.app.ui.components.NitpickCard
 import dev.nitpick.app.ui.components.NitpickKbd
 import dev.nitpick.app.ui.components.NitpickRadioGroup
+import dev.nitpick.app.ui.components.NitpickInlineLoader
 import dev.nitpick.app.ui.components.NitpickReviewLoader
+import dev.nitpick.app.ui.components.NitpickTweezersSpinner
 import dev.nitpick.app.ui.components.NitpickSegmentedControl
 import dev.nitpick.app.ui.components.NitpickSectionHeader
 import dev.nitpick.app.ui.components.NitpickStatusBar
@@ -179,6 +181,12 @@ private fun ControlsSection() {
             NitpickTab("Review", selected = false, onClick = {})
         }
         NitpickReviewLoader()
+        Row(horizontalArrangement = Arrangement.spacedBy(40.dp), verticalAlignment = Alignment.Bottom) {
+            NitpickTweezersSpinner(120.dp)
+            NitpickTweezersSpinner(48.dp)
+            NitpickTweezersSpinner(24.dp)
+        }
+        NitpickInlineLoader("Reading 12 files…")
     }
 }
 

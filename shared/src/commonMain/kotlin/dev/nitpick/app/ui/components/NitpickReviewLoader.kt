@@ -9,6 +9,7 @@ import androidx.compose.animation.core.tween
 import androidx.compose.foundation.Canvas
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.size
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
@@ -68,11 +69,26 @@ fun NitpickReviewLoader(modifier: Modifier = Modifier, symbolSize: Dp = 72.dp) {
         }
     }
     Column(modifier, horizontalAlignment = Alignment.CenterHorizontally, verticalArrangement = Arrangement.spacedBy(8.dp)) {
-        TweezersSymbol(Modifier.size(symbolSize), NitpickTheme.colors.primary)
+        NitpickTweezersSpinner(symbolSize)
         Crossfade(order[index]) { phrase ->
             Text(phrase, style = NitpickTheme.typography.small, color = NitpickTheme.colors.textSecondary)
         }
     }
+}
+
+/** The 16 dp spinner next to a short status, for toolbars and status lines (loader preview, "inline"). */
+@Composable
+fun NitpickInlineLoader(text: String, modifier: Modifier = Modifier) {
+    Row(modifier, verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(8.dp)) {
+        NitpickTweezersSpinner(16.dp)
+        Text(text, style = NitpickTheme.typography.small, color = NitpickTheme.colors.textSecondary)
+    }
+}
+
+/** The animated tweezers alone, in the accent colour; 120, 48, 24 and 16 dp are the sizes of the loader preview. */
+@Composable
+fun NitpickTweezersSpinner(size: Dp, modifier: Modifier = Modifier) {
+    TweezersSymbol(modifier.size(size), NitpickTheme.colors.primary)
 }
 
 @Composable
