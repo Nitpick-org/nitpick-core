@@ -42,9 +42,14 @@
   Next step for H2: `ssh-add --apple-use-keychain ~/.ssh/id_ed25519` (and fix the stray `ss`
   on line 42 of `~/.ssh/config`), then the agent path serves the app.
 
+- Second pass: the connector tries the `IdentityAgent` socket, then the default
+  `SSH_AUTH_SOCK` agent, then gives up to the key files. With the key loaded by
+  `ssh-add --apple-use-keychain`, a real fetch over `git@github.com:…` from JGit took 1.7 s on
+  H2's laptop, config typo and all.
+
 ## Uncertain
 
-- A real SSH fetch or push through the app after the key is in the agent: to replay by H2.
+- A real SSH push through the app: to replay by H2 (fetch replayed through the scratch test).
 - `~/.ssh/config` with `IdentitiesOnly` or a non-default key: honoured by Apache MINA sshd
   per JGit's README, not replayed here.
 
