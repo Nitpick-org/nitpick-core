@@ -7,6 +7,9 @@ enum class LlmProvider { ANTHROPIC, OPENAI, GOOGLE, OLLAMA }
 
 enum class ThemeMode { SYSTEM, LIGHT, DARK }
 
+/** The UI language; SYSTEM follows the device, the two others force a resource locale. */
+enum class AppLanguage(val tag: String?) { SYSTEM(null), ENGLISH("en"), FRENCH("fr") }
+
 enum class GitHost { GITHUB, GITLAB }
 
 /** The forge account the phone clones from and pushes to: one token, typed once or signed in. */
@@ -30,6 +33,7 @@ data class Settings(
     val model: String = LlmProvider.ANTHROPIC.knownModels.first(),
     val apiKey: String = "",
     val themeMode: ThemeMode = ThemeMode.SYSTEM,
+    val language: AppLanguage = AppLanguage.SYSTEM,
     val recentRepositories: List<String> = emptyList(),
     val gitConnection: GitConnection? = null,
     val serverUrl: String = DEFAULT_SERVER_URL,
