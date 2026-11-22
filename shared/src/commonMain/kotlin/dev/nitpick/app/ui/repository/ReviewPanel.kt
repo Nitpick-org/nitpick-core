@@ -151,6 +151,7 @@ fun ReviewPanel(
                                 severity = comment.severity,
                                 message = comment.message,
                                 suggestion = comment.suggestion,
+                                original = comment.originalSnippet,
                                 onApply = if (applied || comment.isFileLevel || state.isRewritingWorkingTree) null else { { onApply(comment) } },
                                 onDismiss = if (applied) null else { { onDismiss(comment.id) } },
                             )
