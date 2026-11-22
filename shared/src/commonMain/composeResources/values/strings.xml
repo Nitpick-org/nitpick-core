@@ -185,14 +185,12 @@
     <string name="provider_cloud_hint">Cloud API, uses your API key</string>
     <string name="provider_ollama_hint">Self-hosted on this machine, no API key</string>
     <string name="pull_action">Pull</string>
-    <string name="pull_in_progress">Pulling…</string>
     <string name="pull_updated">Pulled new commits</string>
     <string name="pull_up_to_date">Already up to date</string>
     <string name="pull_conflict">Pull cancelled, conflicts in: %1$s</string>
     <string name="pull_error">Pull failed</string>
     <string name="sync_commit_first">Commit the applied suggestions before pulling.</string>
     <string name="share_action">Share review</string>
-    <string name="share_in_progress">Sharing…</string>
     <string name="share_done">Shared</string>
     <string name="share_no_remote">This repository has no origin remote, so other devices cannot find the review.</string>
     <string name="share_unreachable">Review server unreachable. Start it with ./gradlew :server:run and check its URL in Settings.</string>
@@ -210,7 +208,6 @@
     <string name="settings_server_url">Review server URL</string>
     <string name="settings_server_url_help">On the phone: adb reverse tcp:8080 tcp:8080, 10.0.2.2:8080 on the emulator, or the laptop LAN IP.</string>
     <string name="fetch_action">Fetch</string>
-    <string name="fetch_in_progress">Fetching…</string>
     <string name="fetch_error">Fetch failed</string>
     <string name="sync_ahead">↑%1$d</string>
     <string name="sync_ahead_behind">↑%1$d ↓%2$d</string>
