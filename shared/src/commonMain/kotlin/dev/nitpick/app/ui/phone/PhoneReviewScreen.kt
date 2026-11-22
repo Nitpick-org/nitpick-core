@@ -16,6 +16,19 @@ import androidx.compose.foundation.lazy.items
 import androidx.compose.material3.Text
 import nitpick.shared.generated.resources.ic_check
 import nitpick.shared.generated.resources.ic_push
+import androidx.compose.animation.core.Spring
+import androidx.compose.animation.core.animateFloatAsState
+import androidx.compose.animation.core.spring
+import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.shape.CircleShape
+import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.ui.draw.scale
+import androidx.compose.ui.hapticfeedback.HapticFeedbackType
+import androidx.compose.ui.platform.LocalHapticFeedback
+import androidx.compose.ui.text.style.TextAlign
+import dev.nitpick.app.ui.components.NitpickIcon
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -67,6 +80,7 @@ import org.jetbrains.compose.resources.pluralStringResource
 import org.jetbrains.compose.resources.stringResource
 
 private val NitRowHeight = 56.dp
+private val CleanCheckSize = 72.dp
 
 /** Review on a phone (UI handoff §4.3): summary, nits grouped by file, then commit and push. */
 @Composable
@@ -86,6 +100,7 @@ fun PhoneReviewScreen(
 ) {
     var openNitId by rememberSaveable { mutableStateOf<String?>(null) }
     val review = state.review
+    val haptics = LocalHapticFeedback.current
 
     Column(modifier.fillMaxSize().background(NitpickTheme.colors.canvas)) {
         PhoneTopBar(
@@ -113,6 +128,7 @@ fun PhoneReviewScreen(
                     actionLabel = stringResource(Res.string.review_run),
                     onAction = onRunReview,
                 )
+                review.comments.isEmpty() -> CleanBranch(state, review.summary, onShare)
                 else -> NitList(state, review.summary, review.comments, onOpenFile, onOpenNit = { openNitId = it }, onShare, Modifier.fillMaxSize())
             }
         }
@@ -135,10 +151,39 @@ fun PhoneReviewScreen(
             comment = open,
             position = review.comments.indexOf(open) + 1,
             total = review.comments.size,
-            onApply = if (applied || open.suggestion == null || open.isFileLevel || state.isRewritingWorkingTree) null else ({ onApply(open); openNitId = null }),
+            onApply = if (applied || open.suggestion == null || open.isFileLevel || state.isRewritingWorkingTree) null else ({ haptics.performHapticFeedback(HapticFeedbackType.LongPress); onApply(open); openNitId = null }),
             onDismiss = { onDismiss(open.id); openNitId = null },
             onClose = { openNitId = null },
         )
+    }
+}
+
+/** Nothing to nitpick: the check pops in, the model's verdict under it. Worth a smile before the push. */
+@Composable
+private fun CleanBranch(state: RepositoryUiState, summary: String, onShare: () -> Unit) {
+    var shown by remember { mutableStateOf(false) }
+    LaunchedEffect(Unit) { shown = true }
+    val pop by animateFloatAsState(
+        targetValue = if (shown) 1f else 0f,
+        animationSpec = spring(dampingRatio = Spring.DampingRatioMediumBouncy, stiffness = Spring.StiffnessLow),
+    )
+    Column(
+        Modifier.fillMaxSize().padding(32.dp),
+        horizontalAlignment = Alignment.CenterHorizontally,
+        verticalArrangement = Arrangement.Center,
+    ) {
+        Box(
+            Modifier.size(CleanCheckSize).scale(pop).background(NitpickTheme.colors.successSoft, CircleShape),
+            contentAlignment = Alignment.Center,
+        ) {
+            NitpickIcon(Res.drawable.ic_check, contentDescription = null, tint = NitpickTheme.colors.success, modifier = Modifier.size(CleanCheckSize / 2))
+        }
+        Spacer(Modifier.height(16.dp))
+        Text(stringResource(Res.string.review_clean_title), style = NitpickTheme.typography.title, color = NitpickTheme.colors.text, textAlign = TextAlign.Center)
+        Spacer(Modifier.height(8.dp))
+        Text(summary, style = NitpickTheme.typography.small, color = NitpickTheme.colors.textSecondary, textAlign = TextAlign.Center)
+        Spacer(Modifier.height(20.dp))
+        ShareReviewAction(state, onShare, touch = true)
     }
 }
 

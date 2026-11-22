@@ -15,6 +15,13 @@ import androidx.compose.ui.draw.clip
 import dev.nitpick.app.ui.components.NitpickIcon
 import nitpick.shared.generated.resources.ic_gear
 import org.jetbrains.compose.resources.DrawableResource
+import androidx.compose.animation.AnimatedContent
+import androidx.compose.animation.core.tween
+import androidx.compose.animation.fadeIn
+import androidx.compose.animation.fadeOut
+import androidx.compose.animation.slideInHorizontally
+import androidx.compose.animation.slideOutHorizontally
+import androidx.compose.animation.togetherWith
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -43,6 +50,7 @@ import nitpick.shared.generated.resources.settings_title
 import org.jetbrains.compose.resources.stringResource
 
 private val PhoneIconActionSize = 44.dp
+private const val ScreenTransitionMillis = 220
 private val PhoneActionHeight = 56.dp
 
 private enum class PhoneScreen { Repos, Clone, Graph, Review, Diff, Shared }
@@ -107,7 +115,18 @@ fun PhoneFlow(
         )
         return
     }
-    when (screen) {
+    // Deeper screens slide in from the right, going back slides from the left, like a native stack.
+    AnimatedContent(
+        targetState = screen,
+        transitionSpec = {
+            val forward = targetState.ordinal > initialState.ordinal
+            val enter = slideInHorizontally(tween(ScreenTransitionMillis)) { if (forward) it else -it } + fadeIn(tween(ScreenTransitionMillis))
+            val exit = slideOutHorizontally(tween(ScreenTransitionMillis)) { if (forward) -it / 3 else it / 3 } + fadeOut(tween(ScreenTransitionMillis))
+            enter togetherWith exit
+        },
+        label = "phone screen",
+    ) { shown ->
+    when (shown) {
         PhoneScreen.Repos -> ReposScreen(
             recentRepositories = settings.recentRepositories,
             onOpen = { path ->
@@ -180,6 +199,7 @@ fun PhoneFlow(
             },
             modifier = modifier,
         )
+    }
     }
 }
 

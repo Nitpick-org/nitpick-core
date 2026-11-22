@@ -17,6 +17,7 @@ import nitpick.shared.generated.resources.ic_pull
 import nitpick.shared.generated.resources.ic_push
 import nitpick.shared.generated.resources.ic_tweezers
 import org.jetbrains.compose.resources.DrawableResource
+import nitpick.shared.generated.resources.sync_up_to_date
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -159,10 +160,11 @@ private fun BranchCard(
                 modifier = Modifier.weight(1f, fill = false),
             )
             state.tracking?.let {
+                val inSync = it.ahead == 0 && it.behind == 0
                 Text(
-                    text = stringResource(Res.string.sync_ahead_behind, it.ahead, it.behind),
+                    text = if (inSync) stringResource(Res.string.sync_up_to_date) else stringResource(Res.string.sync_ahead_behind, it.ahead, it.behind),
                     style = NitpickTheme.typography.codeSmall,
-                    color = NitpickTheme.colors.textMuted,
+                    color = if (inSync) NitpickTheme.colors.success else NitpickTheme.colors.textMuted,
                 )
             }
         }
