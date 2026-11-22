@@ -12,7 +12,6 @@ import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
-import androidx.compose.foundation.layout.Spacer
 import androidx.compose.ui.graphics.Color
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
@@ -68,7 +67,7 @@ fun ReviewCommentCard(
                 maxLines = 1,
                 softWrap = false,
                 overflow = TextOverflow.Ellipsis,
-                modifier = Modifier.weight(1f, fill = false),
+                modifier = Modifier.weight(1f),
             )
             Text(
                 text = if (line == 0) "· ${stringResource(Res.string.review_whole_file)}" else ":$line",
@@ -77,7 +76,6 @@ fun ReviewCommentCard(
                 maxLines = 1,
                 softWrap = false,
             )
-            Spacer(Modifier.weight(1f))
             if (onDismiss != null) {
                 NitpickButton(
                     text = stringResource(Res.string.review_dismiss),
