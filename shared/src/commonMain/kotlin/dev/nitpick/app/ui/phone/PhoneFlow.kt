@@ -22,6 +22,7 @@ import androidx.compose.animation.fadeOut
 import androidx.compose.animation.slideInHorizontally
 import androidx.compose.animation.slideOutHorizontally
 import androidx.compose.animation.togetherWith
+import androidx.compose.foundation.layout.heightIn
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -212,7 +213,7 @@ internal fun PhoneTopBar(
 ) {
     NitpickToolbar {
         if (onBack != null) {
-            NitpickToolbarAction(text = "‹ " + stringResource(Res.string.action_back), onClick = onBack)
+            PhoneTextAction(text = "‹ " + stringResource(Res.string.action_back), onClick = onBack)
         }
         Column(Modifier.weight(1f).padding(horizontal = 4.dp)) {
             Text(
@@ -234,6 +235,12 @@ internal fun PhoneTopBar(
         }
         actions()
     }
+}
+
+/** A text action in the top bar with a 44 dp touch target (the desktop control is 28 dp). */
+@Composable
+internal fun PhoneTextAction(text: String, onClick: () -> Unit, leading: (@Composable () -> Unit)? = null) {
+    NitpickToolbarAction(text = text, onClick = onClick, leading = leading, modifier = Modifier.heightIn(min = PhoneIconActionSize))
 }
 
 /** An icon in the top bar with a 44 dp touch target; the description is what TalkBack reads. */

@@ -49,7 +49,7 @@ fun ReposScreen(
 ) {
     Column(modifier.fillMaxSize().background(NitpickTheme.colors.canvas)) {
         PhoneTopBar(title = stringResource(Res.string.repos_title), onBack = null) {
-            NitpickToolbarAction(
+            PhoneTextAction(
                 text = accountLogin.ifBlank { stringResource(Res.string.connect_edit) },
                 onClick = onEditConnection,
                 leading = accountIcon?.let { { NitpickIcon(it, contentDescription = null, tint = NitpickTheme.colors.onToolbar) } },
