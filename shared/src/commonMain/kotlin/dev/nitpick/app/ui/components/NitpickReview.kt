@@ -74,7 +74,7 @@ fun ReviewCommentCard(
             Text(
                 text = filePath,
                 style = NitpickTheme.typography.codeSmall,
-                color = colors.textMuted,
+                color = colors.textSecondary,
                 maxLines = 1,
                 softWrap = false,
                 // A long path loses its folders, never the file name and line that anchor the nit.
@@ -84,7 +84,7 @@ fun ReviewCommentCard(
             Text(
                 text = if (line == 0) "· ${stringResource(Res.string.review_whole_file)}" else ":$line",
                 style = NitpickTheme.typography.codeSmall,
-                color = colors.textMuted,
+                color = colors.textSecondary,
                 maxLines = 1,
                 softWrap = false,
             )
@@ -164,8 +164,8 @@ fun DiffLineRow(line: DiffLine, modifier: Modifier = Modifier) {
             .padding(end = 8.dp),
         verticalAlignment = Alignment.CenterVertically,
     ) {
-        DiffLineNumber(line.oldLineNumber?.toString().orEmpty(), colors.lineNumber)
-        DiffLineNumber(line.newLineNumber?.toString().orEmpty(), colors.lineNumber)
+        DiffLineNumber(line.oldLineNumber?.toString().orEmpty(), colors.textSecondary)
+        DiffLineNumber(line.newLineNumber?.toString().orEmpty(), colors.textSecondary)
         Text(
             text = gutter,
             modifier = Modifier.width(16.dp),

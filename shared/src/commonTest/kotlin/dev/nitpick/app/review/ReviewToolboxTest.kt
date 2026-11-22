@@ -1,6 +1,7 @@
 package dev.nitpick.app.review
 
 import dev.nitpick.app.git.FakeGitRepository
+import dev.nitpick.app.git.GitRepository
 import kotlinx.coroutines.test.runTest
 import kotlinx.serialization.json.JsonObject
 import kotlinx.serialization.json.buildJsonObject
@@ -80,6 +81,20 @@ class ReviewToolboxTest {
 
         assertTrue(output.isError)
         assertTrue("budget" in output.text)
+    }
+
+    @Test
+    fun anUnreadableTrackedFileIsAToolErrorNotACrash() = runTest {
+        val unreadable = object : GitRepository by repository {
+            override suspend fun readFile(path: String): String? =
+                if (path == "src/Hero.kt") throw IllegalArgumentException("outside the tree") else repository.readFile(path)
+        }
+        val toolbox = ReviewToolbox(unreadable)
+
+        val output = toolbox.execute("read_file", path("src/Hero.kt"))
+
+        assertTrue(output.isError)
+        assertTrue("not readable" in output.text)
     }
 
     @Test

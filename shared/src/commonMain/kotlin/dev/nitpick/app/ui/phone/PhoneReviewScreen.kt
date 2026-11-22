@@ -236,7 +236,7 @@ private fun NitRow(nit: ReviewComment, applied: Boolean, onClick: () -> Unit) {
                 Text(
                     text = if (nit.isFileLevel) stringResource(Res.string.review_whole_file_short) else stringResource(Res.string.review_line, nit.startLine),
                     style = NitpickTheme.typography.micro,
-                    color = NitpickTheme.colors.textMuted,
+                    color = NitpickTheme.colors.textSecondary,
                 )
             }
             if (applied) NitpickBadge(stringResource(Res.string.review_applied), tone = NitpickTone.Success) else Text("›", style = NitpickTheme.typography.title, color = NitpickTheme.colors.textMuted)

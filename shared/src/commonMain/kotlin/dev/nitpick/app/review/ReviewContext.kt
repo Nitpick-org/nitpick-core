@@ -2,6 +2,7 @@ package dev.nitpick.app.review
 
 import dev.nitpick.app.domain.FileDiff
 import dev.nitpick.app.git.GitRepository
+import kotlinx.coroutines.CancellationException
 
 private const val MAX_FILES = 20
 const val MAX_PROMPT_FILE_CHARS = 20_000
@@ -75,11 +76,11 @@ suspend fun buildReviewContext(repository: GitRepository, baseRef: String): Revi
     val diffs = selectReviewDiffs(repository.diffAgainst(baseRef))
     val files = diffs
         .filter { it.hunks.isNotEmpty() }
-        .mapNotNull { diff -> repository.readFile(diff.path)?.let { diff.path to it } }
+        .mapNotNull { diff -> readOrNull(repository, diff.path)?.let { diff.path to it } }
         .toMap()
     val tree = repository.listFiles()
     val readme = tree.firstOrNull { it.equals("README.md", ignoreCase = true) }
-        ?.let { repository.readFile(it) }?.take(MAX_README_CHARS)
+        ?.let { readOrNull(repository, it) }?.take(MAX_README_CHARS)
     return ReviewContext(
         baseRef = baseRef,
         branch = repository.currentBranch(),
@@ -91,3 +92,13 @@ suspend fun buildReviewContext(repository: GitRepository, baseRef: String): Revi
         language = detectLanguage(diffs.map { it.path }),
     )
 }
+
+/** A tracked symlink outside the tree must not kill the whole review; skip that file. */
+private suspend fun readOrNull(repository: GitRepository, path: String): String? =
+    try {
+        repository.readFile(path)
+    } catch (e: CancellationException) {
+        throw e
+    } catch (e: Exception) {
+        null
+    }

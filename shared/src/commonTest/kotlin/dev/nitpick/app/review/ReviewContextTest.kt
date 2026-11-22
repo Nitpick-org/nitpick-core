@@ -6,6 +6,7 @@ import dev.nitpick.app.domain.FileChangeType
 import dev.nitpick.app.domain.FileDiff
 import dev.nitpick.app.domain.Hunk
 import dev.nitpick.app.git.FakeGitRepository
+import dev.nitpick.app.git.GitRepository
 import kotlinx.coroutines.test.runTest
 import kotlin.test.Test
 import kotlin.test.assertFalse
@@ -36,6 +37,25 @@ class ReviewContextTest {
         assertFalse(isReviewable(diff("characters/hero.png.import", added = 2)))
         assertFalse(isReviewable(diff("assets/logo.png", added = 2)))
         assertTrue(isReviewable(diff("src/Hero.kt", added = 2)))
+    }
+
+    @Test
+    fun anUnreadableChangedFileIsSkippedInsteadOfFailingTheReview() = runTest {
+        val link = diff("src/link.kt", added = 2)
+        val base = FakeGitRepository(
+            branch = "feature",
+            diffs = mapOf("main" to listOf(link)),
+            files = mapOf("src/link.kt" to "content"),
+        )
+        val repository = object : GitRepository by base {
+            override suspend fun readFile(path: String): String? =
+                throw IllegalArgumentException("symlink leaves the work tree")
+        }
+
+        val context = buildReviewContext(repository, "main")
+
+        assertTrue(context.diffs.any { it.path == "src/link.kt" })
+        assertTrue("src/link.kt" !in context.files)
     }
 
     @Test

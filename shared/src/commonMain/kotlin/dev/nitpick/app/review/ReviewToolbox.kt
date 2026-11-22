@@ -91,8 +91,15 @@ class ReviewToolbox(
         val tracked = trackedFiles ?: repository.listFiles().toSet().also { trackedFiles = it }
         if (path !in tracked) return ToolOutput("File is not tracked: $path", isError = true)
         if (!isReviewablePath(path)) return ToolOutput("Binary, generated or ignored file: $path", isError = true)
-        val content = repository.readFile(path)
-            ?: return ToolOutput("File not found or not readable: $path", isError = true)
+        val content = try {
+            repository.readFile(path)
+        } catch (e: kotlinx.coroutines.CancellationException) {
+            throw e
+        } catch (e: Exception) {
+            // A tracked symlink that resolves outside the work tree is refused by the repository;
+            // the model gets a tool error instead of losing the whole review (#157).
+            return ToolOutput("File is not readable: $path", isError = true)
+        } ?: return ToolOutput("File not found or not readable: $path", isError = true)
         if (content.any { it == '\u0000' }) {
             return ToolOutput("Binary file: $path", isError = true)
         }

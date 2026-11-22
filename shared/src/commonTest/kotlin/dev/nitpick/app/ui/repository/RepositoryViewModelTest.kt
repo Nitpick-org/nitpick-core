@@ -18,6 +18,7 @@ import dev.nitpick.app.settings.LlmProvider
 import dev.nitpick.app.domain.ReviewComment
 import dev.nitpick.app.domain.ReviewResult
 import dev.nitpick.app.domain.Severity
+import dev.nitpick.app.domain.SharedReview
 import dev.nitpick.app.graph.buildCommitGraph
 import kotlinx.coroutines.CompletableDeferred
 import kotlinx.coroutines.Dispatchers
@@ -438,6 +439,89 @@ class RepositoryViewModelTest {
         assertEquals("fun a() {\n    val lane = 0\n}\n", repo.files["graph/CommitGraph.kt"])
         assertEquals(null, viewModel.state.value.actionError)
         assertEquals(setOf("n1"), viewModel.state.value.appliedIds)
+    }
+
+    @Test
+    fun reRunningAReviewClearsTheAppliedMarksButKeepsTheFiles() {
+        val repo = FakeGitRepository(
+            branch = "main", commits = commits, refs = listOf(mainBranch), diffs = diffs,
+            files = mapOf("graph/CommitGraph.kt" to "fun a() {\n    val lane = 1\n}\n"),
+        )
+        val nit = ReviewComment(
+            id = "n1", filePath = "graph/CommitGraph.kt", startLine = 2, endLine = 2, severity = Severity.BUG,
+            category = "logic", message = "wrong lane", originalSnippet = "val lane = 1", suggestion = "    val lane = 0",
+        )
+        val agent = object : ReviewAgent {
+            override suspend fun review(repository: GitRepository, baseRef: String) = ReviewResult("1 bug", listOf(nit))
+        }
+        val viewModel = RepositoryViewModel(FakeGitRepositoryFactory(mapOf("/work/demo" to repo)), graphDispatcher = dispatcher, reviewAgent = agent)
+        viewModel.openRepository("/work/demo")
+        viewModel.reviewBranch()
+        viewModel.applySuggestion(nit)
+        assertEquals(setOf("n1"), viewModel.state.value.appliedIds)
+
+        viewModel.reviewBranch()
+
+        assertEquals(emptySet(), viewModel.state.value.appliedIds)
+        assertEquals(setOf("graph/CommitGraph.kt"), viewModel.state.value.appliedFiles)
+    }
+
+    @Test
+    fun checkingOutAnotherBranchIsIgnoredWhileSuggestionsAreApplied() {
+        val repo = FakeGitRepository(
+            branch = "main", commits = commits,
+            refs = listOf(mainBranch, Ref("release", "refs/heads/release", parent.id, RefType.LOCAL_BRANCH)),
+            diffs = diffs,
+            files = mapOf("graph/CommitGraph.kt" to "fun a() {\n    val lane = 1\n}\n"),
+        )
+        val nit = ReviewComment(
+            id = "n1", filePath = "graph/CommitGraph.kt", startLine = 2, endLine = 2, severity = Severity.BUG,
+            category = "logic", message = "wrong lane", originalSnippet = "val lane = 1", suggestion = "    val lane = 0",
+        )
+        val agent = object : ReviewAgent {
+            override suspend fun review(repository: GitRepository, baseRef: String) = ReviewResult("1 bug", listOf(nit))
+        }
+        val viewModel = RepositoryViewModel(FakeGitRepositoryFactory(mapOf("/work/demo" to repo)), graphDispatcher = dispatcher, reviewAgent = agent)
+        viewModel.openRepository("/work/demo")
+        viewModel.reviewBranch()
+        viewModel.applySuggestion(nit)
+
+        viewModel.checkoutBranch("release")
+
+        assertEquals("main", viewModel.state.value.currentBranch)
+        assertEquals(setOf("graph/CommitGraph.kt"), viewModel.state.value.appliedFiles)
+    }
+
+    @Test
+    fun openingASharedReviewIsIgnoredWhileSuggestionsAreApplied() {
+        val repo = FakeGitRepository(
+            branch = "main", commits = commits,
+            refs = listOf(mainBranch, Ref("release", "refs/heads/release", parent.id, RefType.LOCAL_BRANCH)),
+            diffs = diffs,
+            files = mapOf("graph/CommitGraph.kt" to "fun a() {\n    val lane = 1\n}\n"),
+        )
+        val nit = ReviewComment(
+            id = "n1", filePath = "graph/CommitGraph.kt", startLine = 2, endLine = 2, severity = Severity.BUG,
+            category = "logic", message = "wrong lane", originalSnippet = "val lane = 1", suggestion = "    val lane = 0",
+        )
+        val agent = object : ReviewAgent {
+            override suspend fun review(repository: GitRepository, baseRef: String) = ReviewResult("1 bug", listOf(nit))
+        }
+        val viewModel = RepositoryViewModel(FakeGitRepositoryFactory(mapOf("/work/demo" to repo)), graphDispatcher = dispatcher, reviewAgent = agent)
+        viewModel.openRepository("/work/demo")
+        viewModel.reviewBranch()
+        viewModel.applySuggestion(nit)
+
+        viewModel.openSharedReview(
+            SharedReview(
+                id = "s1", repoUrl = "https://example.com/repo", branch = "release", baseRef = "main",
+                headCommit = parent.id, result = ReviewResult("shared", listOf(nit)),
+            ),
+        )
+
+        assertEquals("main", viewModel.state.value.currentBranch)
+        assertEquals(setOf("graph/CommitGraph.kt"), viewModel.state.value.appliedFiles)
+        assertNull(viewModel.state.value.openedSharedReview)
     }
 
     @Test

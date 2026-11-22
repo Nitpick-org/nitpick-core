@@ -60,6 +60,23 @@ class ReviewAnchoringTest {
     }
 
     @Test
+    fun givesAnUnindentedSuggestionTheOriginalLineIndentation() {
+        val content = "fun f() {\n    val x = 1\n}\n"
+        val updated = ReviewAnchoring.apply(content, comment(2, "val x = 1", "val x = 2"))
+
+        assertEquals("fun f() {\n    val x = 2\n}\n", updated)
+    }
+
+    @Test
+    fun keepsTheRelativeIndentationOfAMultiLineSuggestion() {
+        val content = "    if (x) {\n        y()\n    }\n"
+        val snippet = "if (x) {\n        y()\n    }"
+        val updated = ReviewAnchoring.apply(content, comment(1, snippet, "if (x) {\n    y()\n}"))
+
+        assertEquals("    if (x) {\n        y()\n    }\n", updated)
+    }
+
+    @Test
     fun picksTheOccurrenceNearestToTheClaimedLine() {
         val content = "a\n}\nb\nc\n}\n"
         val updated = ReviewAnchoring.apply(content, comment(4, "}", "end"))
