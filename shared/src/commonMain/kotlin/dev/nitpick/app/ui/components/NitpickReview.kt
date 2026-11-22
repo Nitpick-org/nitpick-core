@@ -13,6 +13,15 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.ui.graphics.Color
+import androidx.compose.foundation.clickable
+import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.shape.CircleShape
+import androidx.compose.ui.draw.clip
+import androidx.compose.ui.unit.Dp
+import nitpick.shared.generated.resources.ic_check
+import nitpick.shared.generated.resources.ic_x
+import org.jetbrains.compose.resources.DrawableResource
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -53,9 +62,11 @@ fun ReviewCommentCard(
     original: String? = null,
     onApply: (() -> Unit)? = null,
     onDismiss: (() -> Unit)? = null,
+    touch: Boolean = false,
 ) {
     val colors = NitpickTheme.colors
     val tone = severityTone(severity)
+    val actionSize = if (touch) TouchActionSize else DesktopActionSize
     NitpickCard(modifier = modifier, verticalArrangement = Arrangement.spacedBy(10.dp)) {
         Row(verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(8.dp)) {
             NitpickBadge(text = severityLabel(severity), tone = tone)
@@ -77,13 +88,12 @@ fun ReviewCommentCard(
                 maxLines = 1,
                 softWrap = false,
             )
+            // Like an IDE intention: a green check applies, a red cross dismisses, in the corner.
+            if (onApply != null) {
+                CardAction(Res.drawable.ic_check, stringResource(Res.string.review_apply), colors.success, colors.successSoft, actionSize, onApply)
+            }
             if (onDismiss != null) {
-                NitpickButton(
-                    text = stringResource(Res.string.review_dismiss),
-                    onClick = onDismiss,
-                    variant = NitpickButtonVariant.Ghost,
-                    size = NitpickButtonSize.Small,
-                )
+                CardAction(Res.drawable.ic_x, stringResource(Res.string.review_dismiss), colors.danger, colors.dangerSoft, actionSize, onDismiss)
             }
         }
         Text(text = message, style = NitpickTheme.typography.body, color = colors.text)
@@ -107,16 +117,22 @@ fun ReviewCommentCard(
                     // Before and after, like a diff: the jury sees what changes, not only the result.
                     original?.takeIf { it.isNotBlank() }?.lines()?.forEach { ChangeLine("-", it, colors.diffRemovedBg, colors.diffRemovedFg) }
                     suggestion.lines().forEach { ChangeLine("+", it, colors.diffAddedBg, colors.diffAddedFg) }
-                    if (onApply != null) {
-                        NitpickButton(
-                            text = stringResource(Res.string.review_apply),
-                            onClick = onApply,
-                            size = NitpickButtonSize.Small,
-                        )
-                    }
                 }
             }
         }
+    }
+}
+
+private val DesktopActionSize = 28.dp
+private val TouchActionSize = 44.dp
+
+@Composable
+private fun CardAction(icon: DrawableResource, description: String, tint: Color, background: Color, size: Dp, onClick: () -> Unit) {
+    Box(
+        modifier = Modifier.size(size).clip(CircleShape).background(background).clickable(onClick = onClick),
+        contentAlignment = Alignment.Center,
+    ) {
+        NitpickIcon(icon, contentDescription = description, tint = tint)
     }
 }
 

@@ -4,9 +4,7 @@ import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.ModalBottomSheet
@@ -18,15 +16,11 @@ import androidx.compose.ui.unit.dp
 import dev.nitpick.app.domain.ReviewComment
 import dev.nitpick.app.ui.theme.NitpickTheme
 import nitpick.shared.generated.resources.Res
-import nitpick.shared.generated.resources.review_apply
-import nitpick.shared.generated.resources.review_dismiss
 import nitpick.shared.generated.resources.review_nit_position
 import org.jetbrains.compose.resources.stringResource
 
-private val SheetActionHeight = 56.dp
-
 /**
- * One nit on a phone (UI handoff §4.3): the review card plus two thumb-sized actions.
+ * One nit on a phone (UI handoff §4.3): the review card with its 44 dp check and cross actions.
  * [onApply] is null for a nit without a suggestion or one that was already applied.
  */
 @Composable
@@ -39,7 +33,7 @@ fun NitSheetContent(
     modifier: Modifier = Modifier,
 ) {
     Column(modifier.fillMaxWidth().padding(16.dp), verticalArrangement = Arrangement.spacedBy(16.dp)) {
-        // A long suggestion scrolls; the two actions stay under the thumb.
+        // A long suggestion scrolls inside the sheet.
         Column(Modifier.weight(1f, fill = false).verticalScroll(rememberScrollState()), verticalArrangement = Arrangement.spacedBy(16.dp)) {
             Text(
                 text = stringResource(Res.string.review_nit_position, position, total),
@@ -53,24 +47,10 @@ fun NitSheetContent(
                 message = comment.message,
                 suggestion = comment.suggestion,
                 original = comment.originalSnippet,
+                onApply = onApply,
+                onDismiss = onDismiss,
+                touch = true,
             )
-        }
-        Row(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.spacedBy(12.dp)) {
-            NitpickButton(
-                text = stringResource(Res.string.review_dismiss),
-                onClick = onDismiss,
-                variant = NitpickButtonVariant.Secondary,
-                size = NitpickButtonSize.Large,
-                modifier = Modifier.weight(1f).height(SheetActionHeight),
-            )
-            if (onApply != null) {
-                NitpickButton(
-                    text = stringResource(Res.string.review_apply),
-                    onClick = onApply,
-                    size = NitpickButtonSize.Large,
-                    modifier = Modifier.weight(1f).height(SheetActionHeight),
-                )
-            }
         }
     }
 }
