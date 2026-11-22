@@ -686,4 +686,44 @@ class JGitRepositoryTest {
 
         assertFailsWith<IllegalArgumentException> { open().readFile("sub/.git/config") }
     }
+
+    @Test
+    fun anSshRemoteFailsWithASentenceNotAHungUpTransport() = runBlocking<Unit> {
+        repo.write("a.txt", "x")
+        repo.commit("base", at = 1_000)
+        repo.git("remote", "add", "origin", "git@github.com:Nitpick-org/nitpick-core.git")
+        val git = open()
+
+        val error = assertFailsWith<IllegalStateException> { git.fetch(credentials = null) }
+
+        assertEquals(UNSUPPORTED_SSH_REMOTE, error.message)
+        assertFailsWith<IllegalStateException> { factory.clone("ssh://git@github.com/o/r.git", newCloneTarget().path, credentials = null) }
+    }
+
+    @Test
+    fun aNonAsciiFileNameComesBackUnquotedInTheDiff() = runBlocking<Unit> {
+        repo.write("a.txt", "1\n")
+        repo.commit("base", at = 1_000)
+        repo.git("checkout", "-b", "feature")
+        repo.write("café.kt", "val x = 1\n")
+        repo.commit("feature work", at = 2_000)
+
+        val diff = open().diffAgainst("main").single()
+
+        assertEquals("café.kt", diff.path)
+        assertEquals("val x = 1\n", open().readFile(diff.path))
+    }
+
+    @Test
+    fun aDetachedHeadHasNoTrackingAndCannotBePublished() = runBlocking<Unit> {
+        repo.write("a.txt", "1\n")
+        repo.commit("base", at = 1_000)
+        repo.git("remote", "add", "origin", repo.dir.toURI().toString())
+        repo.git("checkout", "--detach")
+        val git = open()
+
+        assertEquals(null, git.trackingStatus())
+        val error = assertFailsWith<IllegalStateException> { git.publishBranch(credentials = null) }
+        assertTrue(error.message!!.contains("detached"))
+    }
 }

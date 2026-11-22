@@ -251,8 +251,9 @@ private fun RepositoryToolbar(
                         (state.tracking?.behind ?: 0) > 0 -> stringResource(Res.string.sync_pull_count, state.tracking!!.behind)
                         else -> stringResource(Res.string.pull_action)
                     },
-                    onClick = { if (!syncing && !state.isPullBlocked) onPull() },
-                    modifier = Modifier.alpha(if (state.isPullBlocked) BlockedActionAlpha else 1f),
+                    // No upstream yet: a pull would only show JGit's "No value for key branch.x.merge".
+                    onClick = { if (!syncing && !state.isPullBlocked && state.tracking != null) onPull() },
+                    modifier = Modifier.alpha(if (state.isPullBlocked || state.tracking == null) BlockedActionAlpha else 1f),
                     leading = { SyncIcon(Res.drawable.ic_pull, SyncMotion.Down, state.isPulling, tint = NitpickTheme.colors.onToolbar) },
                 )
             }

@@ -169,6 +169,8 @@ class JGitRepository(private val git: Git) : GitRepository {
             DiffFormatter(output).use { formatter ->
                 formatter.setRepository(repository)
                 formatter.isDetectRenames = true
+                // Quoted paths (`"a/caf\303\251.kt"`) would reach the parser verbatim and Apply could not find the file.
+                formatter.setQuotePaths(false)
                 // A clean working tree is just a tree-to-tree diff: no file is hashed at all.
                 if (workingTreeChanged.isEmpty()) {
                     val headTree = CanonicalTreeParser(null, walk.objectReader, headCommit.tree)
@@ -260,6 +262,7 @@ class JGitRepository(private val git: Git) : GitRepository {
 
     override suspend fun fetch(credentials: Credentials?) {
         withContext(Dispatchers.IO) {
+            requireSupportedRemote()
             git.fetch().setCredentialsProvider(credentials.toJGit()).call()
         }
     }
@@ -267,6 +270,7 @@ class JGitRepository(private val git: Git) : GitRepository {
     override suspend fun pull(credentials: Credentials?): PullResult = withContext(Dispatchers.IO) {
         // A hard reset after a conflicted merge is only safe on a clean tree. With local edits,
         // allow a fast-forward only; a divergent history aborts before touching anything.
+        requireSupportedRemote()
         val uncommitted = git.status().call().uncommittedChanges
         val dirty = uncommitted.isNotEmpty()
         val command = git.pull()
@@ -298,12 +302,14 @@ class JGitRepository(private val git: Git) : GitRepository {
 
     override suspend fun push(credentials: Credentials?) {
         withContext(Dispatchers.IO) {
+            requireSupportedRemote()
             requireAccepted(git.push().setCredentialsProvider(credentials.toJGit()).call())
         }
     }
 
     override suspend fun publishBranch(credentials: Credentials?) = withContext(Dispatchers.IO) {
-        val branch = repository.branch ?: throw IllegalStateException("Cannot publish a detached HEAD")
+        requireSupportedRemote()
+        val branch = currentLocalBranch() ?: throw IllegalStateException("Cannot publish a detached HEAD")
         requireAccepted(
             git.push()
                 .setRemote(Constants.DEFAULT_REMOTE_NAME)
@@ -326,7 +332,7 @@ class JGitRepository(private val git: Git) : GitRepository {
     }
 
     override suspend fun trackingStatus(): TrackingStatus? = withContext(Dispatchers.IO) {
-        val branch = repository.branch ?: return@withContext null
+        val branch = currentLocalBranch() ?: return@withContext null
         val tracking = BranchTrackingStatus.of(repository, branch) ?: return@withContext null
         TrackingStatus(
             ahead = tracking.aheadCount,
@@ -350,6 +356,17 @@ class JGitRepository(private val git: Git) : GitRepository {
                     .call()
             }
         }
+    }
+
+    /** The short branch name, or null when HEAD is detached (`repository.branch` would give the commit id). */
+    private fun currentLocalBranch(): String? =
+        repository.fullBranch?.takeIf { it.startsWith(Constants.R_HEADS) }?.let { Repository.shortenRefName(it) }
+
+    // The build ships core JGit without an SSH transport: an SSH remote must fail with a
+    // sentence, not JGit's "remote hung up unexpectedly" (#232).
+    private fun requireSupportedRemote() {
+        val url = repository.config.getString("remote", Constants.DEFAULT_REMOTE_NAME, "url") ?: return
+        check(!isSshRemote(url)) { UNSUPPORTED_SSH_REMOTE }
     }
 
     /**
@@ -395,6 +412,12 @@ class JGitRepository(private val git: Git) : GitRepository {
 }
 
 private val ACCEPTED_PUSH_STATUSES = setOf(RemoteRefUpdate.Status.OK, RemoteRefUpdate.Status.UP_TO_DATE)
+
+internal const val UNSUPPORTED_SSH_REMOTE = "SSH remotes are not supported yet: use an HTTPS remote with a token"
+
+private val SSH_REMOTE = Regex("""^[\w.-]+@[^:/]+:""")
+
+internal fun isSshRemote(url: String): Boolean = url.startsWith("ssh://") || SSH_REMOTE.containsMatchIn(url)
 
 private fun commitOrDiscardFirst(paths: Collection<String>): String =
     "Commit or discard your changes before pulling: ${paths.sorted().joinToString(", ")}"
